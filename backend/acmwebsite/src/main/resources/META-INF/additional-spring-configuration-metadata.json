@@ -1,0 +1,25 @@
+{
+  "properties": [
+    {
+      "name": "frontend.url",
+      "type": "java.lang.String",
+      "description": "The URL of the frontend application for CORS configuration and redirects",
+      "defaultValue": "http://localhost:3000"
+    },
+    {
+      "name": "jwt.refresh.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT refresh token expiration time in milliseconds"
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT access token expiration time in milliseconds"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key used for signing JWT tokens"
+    }
+  ]
+}
