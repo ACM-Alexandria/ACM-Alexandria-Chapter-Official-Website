@@ -14,9 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -45,12 +44,14 @@ public class UserServiceImpl implements UserService {
     user.setPasswordHash(passwordEncoder.encode(plainPassword));
 
     User savedUser = userRepository.save(user);
+    userRepository.flush();
+
     return userMapper.toDTO(savedUser);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<UserDTO> getUserById(@NonNull Long id) {
+  public Optional<UserDTO> getUserById(@NonNull UUID id) {
     return userRepository.findById(id)
         .map(userMapper::toDTO);
   }
@@ -63,16 +64,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional(readOnly = true)
-  public List<UserDTO> getAllUsers() {
-    return userRepository.findAll().stream()
-        .map(userMapper::toDTO)
-        .collect(Collectors.toList());
-  }
-
-  @Override
   @Transactional
-  public UserDTO updateUserEmail(@NonNull Long id, String newEmail) {
+  public UserDTO updateUserEmail(@NonNull UUID id, String newEmail) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
@@ -92,13 +85,18 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO updateUserPassword(@NonNull Long id, String newPlainPassword) {
+  public UserDTO updateUserPassword(@NonNull UUID id, String oldPassword, String newPlainPassword) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-    // Validate password is not null or empty
+    // Validate old password matches
+    if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+      throw new IllegalArgumentException("Old password is incorrect");
+    }
+
+    // Validate new password is not null or empty
     if (newPlainPassword == null || newPlainPassword.trim().isEmpty()) {
-      throw new IllegalArgumentException("Password cannot be null or empty");
+      throw new IllegalArgumentException("New password cannot be null or empty");
     }
 
     user.setPasswordHash(passwordEncoder.encode(newPlainPassword));
@@ -109,7 +107,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public void deleteUser(@NonNull Long id) {
+  public void deleteUser(@NonNull UUID id) {
     if (!userRepository.existsById(id)) {
       throw new UserNotFoundException("User not found with id: " + id);
     }
