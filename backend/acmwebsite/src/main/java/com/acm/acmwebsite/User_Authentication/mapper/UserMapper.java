@@ -14,5 +14,9 @@ public interface UserMapper {
   UserDTO toDTO(User user);
 
   @Mapping(target = "passwordHash", ignore = true)
+  // Ignore the reset password fields so incoming DTOs don't overwrite them with null
+  @Mapping(target = "resetPasswordToken", ignore = true)
+  @Mapping(target = "resetPasswordTokenCreatedAt", ignore = true)
+  @Mapping(target = "forgotPasswordCount", ignore = true)
   User toEntity(UserDTO userDTO);
 }
