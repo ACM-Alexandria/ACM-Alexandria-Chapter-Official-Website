@@ -1,11 +1,8 @@
 package com.acm.acmwebsite.User_Authentication.service.impl;
 
-import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
-import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
-import com.acm.acmwebsite.User_Authentication.exception.PasswordAndConfirmationMisMatch;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
@@ -25,27 +22,6 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-
-  @Override
-  @Transactional
-  public SuccessRegisterResponse createUser(RegisterDTO registerDTO) {
-    if (!registerDTO.getPassword().equals(registerDTO.getPasswordConfirmation())) {
-      throw new PasswordAndConfirmationMisMatch();
-    }
-    // Validate email doesn't already exist
-    if (userRepository.existsByEmail(registerDTO.getEmail())) {
-      throw new DuplicateEmailException("Email already exists: " + registerDTO.getEmail());
-    }
-
-    // Create user with hashed password
-    User user = new User();
-    user.setEmail(registerDTO.getEmail().trim().toLowerCase());
-    user.setPasswordHash(passwordEncoder.encode(registerDTO.getPassword()));
-
-    User savedUser = userRepository.save(user);
-
-    return userMapper.userToSuccessRegister(savedUser);
-  }
 
   @Override
   @Transactional(readOnly = true)
@@ -132,4 +108,3 @@ public class UserServiceImpl implements UserService {
     return passwordEncoder.matches(plainPassword, userOptional.get().getPasswordHash());
   }
 }
-
