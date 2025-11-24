@@ -1,14 +1,11 @@
-package com.acm.acmwebsite.User_Authentication.controller;
+package com.acm.acmwebsite.User_Authentication.exception;
 
 import com.acm.acmwebsite.User_Authentication.dto.ErrorMessageResponse;
-import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
-import com.acm.acmwebsite.User_Authentication.exception.PasswordAndConfirmationMisMatch;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** UserExceptionHandler */
 @RestControllerAdvice
 public class UserExceptionHandler {
 

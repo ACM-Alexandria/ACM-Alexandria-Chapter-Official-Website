@@ -7,7 +7,7 @@ import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
-import com.acm.acmwebsite.User_Authentication.service.impl.UserServiceImpl;
+import com.acm.acmwebsite.User_Authentication.service.impl.RegisterServiceImpl;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class UserServiceTest {
   @Mock UserRepository userRepository;
   @Mock PasswordEncoder passwordEncoder;
   @Mock UserMapper userMapper;
-  @InjectMocks UserServiceImpl userService;
+  @InjectMocks RegisterServiceImpl registerService;
 
   @Test
   public void userService_createUser_shouldReturnUser() {
@@ -40,7 +40,7 @@ public class UserServiceTest {
     when(userMapper.userToSuccessRegister(savedUser)).thenReturn(response);
 
     // ACT
-    SuccessRegisterResponse result = userService.createUser(registerDTO);
+    SuccessRegisterResponse result = registerService.createUser(registerDTO);
 
     // ASSERT
     Assertions.assertThat(result).isNotNull();

@@ -1,14 +1,11 @@
 package com.acm.acmwebsite.User_Authentication.service;
 
-import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
-import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
 
 public interface UserService {
- SuccessRegisterResponse createUser(RegisterDTO registerDTO);
 
   Optional<UserDTO> getUserById(@NonNull UUID id);
 

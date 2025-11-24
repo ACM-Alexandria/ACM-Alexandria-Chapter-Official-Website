@@ -1,7 +1,5 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
-import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
-import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
@@ -21,13 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
-
-  @PostMapping("register")
-  public ResponseEntity<SuccessRegisterResponse> registerUser(
-      @RequestBody @Valid RegisterDTO registerDTO) {
-    SuccessRegisterResponse savedUser = userService.createUser(registerDTO);
-    return ResponseEntity.status(201).body(savedUser);
-  }
 
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
@@ -117,4 +108,3 @@ public class UserController {
     }
   }
 }
-
