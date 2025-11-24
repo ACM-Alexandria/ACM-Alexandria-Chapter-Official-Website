@@ -5,6 +5,7 @@ server.port=8080
 spring.datasource.url=jdbc:mysql://localhost:3306/acm_db
 spring.datasource.username=root
 spring.datasource.password=yourpassword
+spring.jpa.hibernate.ddl-auto=update
 
 # JWT
 jwt.secret=change_this_secret
