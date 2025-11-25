@@ -24,7 +24,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordDTO request) {
 
         // This method returns VOID. It handles "User Found" and "User Not Found" identically.
-//        userService.initiatePasswordReset(request.getEmail());
+        userService.initiatePasswordReset(request.getEmail());
 
         // Always return the same success message
         return ResponseEntity.ok(Collections.singletonMap(
