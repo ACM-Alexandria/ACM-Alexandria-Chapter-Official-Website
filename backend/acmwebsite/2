@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final PasswordEncoder passwordEncoder;
+  //private final PasswordEncoder passwordEncoder;
 
   @Override
   @Transactional
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     // Create user with hashed password
     User user = new User();
     user.setEmail(email.trim().toLowerCase());
-    user.setPasswordHash(passwordEncoder.encode(plainPassword));
+   // user.setPasswordHash(passwordEncoder.encode(plainPassword));
 
     User savedUser = userRepository.save(user);
     return userMapper.toDTO(savedUser);
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
       throw new IllegalArgumentException("Password cannot be null or empty");
     }
 
-    user.setPasswordHash(passwordEncoder.encode(newPlainPassword));
+    //user.setPasswordHash(passwordEncoder.encode(newPlainPassword));
 
     User updatedUser = userRepository.save(user);
     return userMapper.toDTO(updatedUser);
@@ -131,6 +131,6 @@ public class UserServiceImpl implements UserService {
       return false;
     }
 
-    return passwordEncoder.matches(plainPassword, userOptional.get().getPasswordHash());
+    //return passwordEncoder.matches(plainPassword, userOptional.get().getPasswordHash());
   }
 }
