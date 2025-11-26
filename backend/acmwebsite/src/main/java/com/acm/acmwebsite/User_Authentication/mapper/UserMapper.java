@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.mapper;
 
+import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import org.mapstruct.Mapper;
@@ -15,4 +16,6 @@ public interface UserMapper {
 
   @Mapping(target = "passwordHash", ignore = true)
   User toEntity(UserDTO userDTO);
+
+  SuccessRegisterResponse userToSuccessRegister(User user);
 }

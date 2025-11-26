@@ -6,13 +6,12 @@ import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -24,7 +23,8 @@ public class UserController {
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
-    return userService.getUserById(id)
+    return userService
+        .getUserById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
@@ -32,7 +32,8 @@ public class UserController {
   @GetMapping("/email/{email}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-    return userService.getUserByEmail(email)
+    return userService
+        .getUserByEmail(email)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
@@ -40,8 +41,7 @@ public class UserController {
   @PutMapping("/{id}/email")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> updateEmail(
-      @PathVariable UUID id,
-      @Valid @RequestBody UpdateEmailRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdateEmailRequest request) {
     try {
       UserDTO updated = userService.updateUserEmail(id, request.getEmail());
       return ResponseEntity.ok(updated);
@@ -53,10 +53,10 @@ public class UserController {
   @PutMapping("/{id}/password")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> updatePassword(
-      @PathVariable UUID id,
-      @Valid @RequestBody UpdatePasswordRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdatePasswordRequest request) {
     try {
-      UserDTO updated = userService.updateUserPassword(id, request.getOldPassword(), request.getNewPassword());
+      UserDTO updated =
+          userService.updateUserPassword(id, request.getOldPassword(), request.getNewPassword());
       return ResponseEntity.ok(updated);
     } catch (UserNotFoundException e) {
       return ResponseEntity.notFound().build();
