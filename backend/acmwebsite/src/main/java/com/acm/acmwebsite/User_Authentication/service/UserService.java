@@ -23,4 +23,5 @@ public interface UserService {
   boolean emailExists(String email);
 
   boolean verifyPassword(String email, String plainPassword);
+  void initiatePasswordReset(String email);
 }
