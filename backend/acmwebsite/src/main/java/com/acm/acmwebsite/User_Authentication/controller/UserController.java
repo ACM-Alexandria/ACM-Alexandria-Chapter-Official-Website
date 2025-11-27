@@ -6,43 +6,42 @@ import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
   private final UserService userService;
 
-  @GetMapping
-  public ResponseEntity<List<UserDTO>> getAllUsers() {
-    return ResponseEntity.ok(userService.getAllUsers());
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-    return userService.getUserById(id)
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
+    return userService
+        .getUserById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
   @GetMapping("/email/{email}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-    return userService.getUserByEmail(email)
+    return userService
+        .getUserByEmail(email)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}/email")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> updateEmail(
-      @PathVariable Long id,
-      @Valid @RequestBody UpdateEmailRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdateEmailRequest request) {
     try {
       UserDTO updated = userService.updateUserEmail(id, request.getEmail());
       return ResponseEntity.ok(updated);
@@ -52,19 +51,23 @@ public class UserController {
   }
 
   @PutMapping("/{id}/password")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDTO> updatePassword(
-      @PathVariable Long id,
-      @Valid @RequestBody UpdatePasswordRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdatePasswordRequest request) {
     try {
-      UserDTO updated = userService.updateUserPassword(id, request.getPassword());
+      UserDTO updated =
+          userService.updateUserPassword(id, request.getOldPassword(), request.getNewPassword());
       return ResponseEntity.ok(updated);
     } catch (UserNotFoundException e) {
       return ResponseEntity.notFound().build();
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build();
     }
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
     try {
       userService.deleteUser(id);
       return ResponseEntity.noContent().build();
@@ -89,8 +92,11 @@ public class UserController {
 
   @Data
   static class UpdatePasswordRequest {
-    @NotBlank(message = "Password is required")
-    private String password;
+    @NotBlank(message = "Old password is required")
+    private String oldPassword;
+
+    @NotBlank(message = "New password is required")
+    private String newPassword;
   }
 
   @Data

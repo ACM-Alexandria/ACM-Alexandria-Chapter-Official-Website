@@ -8,7 +8,8 @@ import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
-
+import java.util.Optional;
+import java.util.UUID;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,54 +36,24 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
 
   @Override
-  @Transactional
-  public UserDTO createUser(String email, String plainPassword) {
-    // Validate email doesn't already exist
-    if (userRepository.existsByEmail(email)) {
-      throw new DuplicateEmailException("Email already exists: " + email);
-    }
-
-    // Validate password is not null or empty
-    if (plainPassword == null || plainPassword.trim().isEmpty()) {
-      throw new IllegalArgumentException("Password cannot be null or empty");
-    }
-
-    // Create user with hashed password
-    User user = new User();
-    user.setEmail(email.trim().toLowerCase());
-    user.setPasswordHash(passwordEncoder.encode(plainPassword));
-
-    User savedUser = userRepository.save(user);
-    return userMapper.toDTO(savedUser);
-  }
-
-  @Override
   @Transactional(readOnly = true)
-  public Optional<UserDTO> getUserById(@NonNull Long id) {
-    return userRepository.findById(id)
-        .map(userMapper::toDTO);
+  public Optional<UserDTO> getUserById(@NonNull UUID id) {
+    return userRepository.findById(id).map(userMapper::toDTO);
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<UserDTO> getUserByEmail(String email) {
-    return userRepository.findByEmail(email.trim().toLowerCase())
-        .map(userMapper::toDTO);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<UserDTO> getAllUsers() {
-    return userRepository.findAll().stream()
-        .map(userMapper::toDTO)
-        .collect(Collectors.toList());
+    return userRepository.findByEmail(email.trim().toLowerCase()).map(userMapper::toDTO);
   }
 
   @Override
   @Transactional
-  public UserDTO updateUserEmail(@NonNull Long id, String newEmail) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+  public UserDTO updateUserEmail(@NonNull UUID id, String newEmail) {
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
     String normalizedEmail = newEmail.trim().toLowerCase();
 
@@ -100,13 +71,20 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO updateUserPassword(@NonNull Long id, String newPlainPassword) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+  public UserDTO updateUserPassword(@NonNull UUID id, String oldPassword, String newPlainPassword) {
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-    // Validate password is not null or empty
+    // Validate old password matches
+    if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+      throw new IllegalArgumentException("Old password is incorrect");
+    }
+
+    // Validate new password is not null or empty
     if (newPlainPassword == null || newPlainPassword.trim().isEmpty()) {
-      throw new IllegalArgumentException("Password cannot be null or empty");
+      throw new IllegalArgumentException("New password cannot be null or empty");
     }
 
     user.setPasswordHash(passwordEncoder.encode(newPlainPassword));
@@ -117,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public void deleteUser(@NonNull Long id) {
+  public void deleteUser(@NonNull UUID id) {
     if (!userRepository.existsById(id)) {
       throw new UserNotFoundException("User not found with id: " + id);
     }
