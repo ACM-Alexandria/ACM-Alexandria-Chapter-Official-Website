@@ -13,3 +13,12 @@ jwt.refresh-expiration=86400000
 
 # CORS
 frontend.url=http://localhost:3000
+
+#mail
+# Gmail SMTP Configuration
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=your-real-email@gmail.com
+spring.mail.password=wxyz abc def ghij    <-- PASTE APP PASSWORD HERE
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
