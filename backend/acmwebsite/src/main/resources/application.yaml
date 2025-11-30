@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: ACM
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/acm_db?createDatabaseIfNotExist=true&serverTimezone=UTC
+    username: root
+    password: Atoof000000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hamoatef12345@gmail.com
+    password: fhln mpop glzy kffb
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8080
+
+stripe:
+  apiUrl: https://api.stripe.com
+  enabled: true
+
+AppConfig:
+  Stripe: true
+  host: http://localhost:8080
+
+app:
+  frontend:
+    url: http://localhost:3000
+
+  jwt:
+    refresh:
+      expiration: 86400000
+    expiration: 3600000
+    secret: CHANGE_ME_SUPER_SECRET
