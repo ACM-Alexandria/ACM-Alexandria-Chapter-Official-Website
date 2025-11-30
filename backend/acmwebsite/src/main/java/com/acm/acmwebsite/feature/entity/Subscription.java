@@ -28,21 +28,20 @@ public class Subscription {
 
 
     @Column(nullable = false)
-    private subscriptionStatus status=subscriptionStatus.PENDING;  //PENDING or ACTIVE OR UNSUBSCRIBED
-
-    private String confirmToken;
+    private subscriptionStatus status=subscriptionStatus.PENDING;  //PENDING or ACTIVE
 
 
-    private LocalDate confirmTokenExpiresAt;
+    //forLogging
+    private LocalDate confirmedAt;
 
 
-    private LocalDate lastConfirmationSentAt;
+
 
 
     private final LocalDate createdAt = LocalDate.now();
 
 
-    private LocalDate confirmedAt;
+
 
 
 
@@ -85,29 +84,6 @@ public class Subscription {
     }
 
 
-    public String getConfirmToken() {
-        return confirmToken;
-    }
-
-    public void setConfirmToken(String confirmToken) {
-        this.confirmToken = confirmToken;
-    }
-
-    public LocalDate getConfirmTokenExpiresAt() {
-        return confirmTokenExpiresAt;
-    }
-
-    public void setConfirmTokenExpiresAt(LocalDate confirmTokenExpiresAt) {
-        this.confirmTokenExpiresAt = confirmTokenExpiresAt;
-    }
-
-    public LocalDate getLastConfirmationSentAt() {
-        return lastConfirmationSentAt;
-    }
-
-    public void setLastConfirmationSentAt(LocalDate lastConfirmationSentAt) {
-        this.lastConfirmationSentAt = lastConfirmationSentAt;
-    }
 
     public LocalDate getConfirmedAt() {
         return confirmedAt;
