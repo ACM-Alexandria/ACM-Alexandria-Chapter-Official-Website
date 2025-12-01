@@ -14,4 +14,5 @@ public interface SubscriptionRepository extends CrudRepository<Subscription,Long
     boolean existsByEmailAndTopic(String email,String topic);
     Subscription findByEmailAndTopic(String email,String topic);
 
+    void deleteSubscriptionByTopic(String topic);
 }

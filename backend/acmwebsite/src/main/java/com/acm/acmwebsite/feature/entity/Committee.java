@@ -24,20 +24,31 @@ public class Committee {
 
     private boolean isOpen=false;
 
-    @Column(columnDefinition = "TEXT")
-    private String callMessage;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Message messageForCalls ;
+
+
+
+    //used to map the topic to the email in subscription like (moatef123@gmail.com,id_Committeename =>2_oc)
+    //this pair is unique for each description
+    private String topicToken;
+
+
+
+
 
     private String applicationFormLink;
 
     public Committee() {}
-    public Committee(  String name, String description, String logoUrl, boolean isOpen,String callMessage, String applicationFormLink) {
+    public Committee(  String name, String description, String logoUrl, boolean isOpen, Message messageForCalls,String applicationFormLink) {
 
         this.name = name;
         this.description = description;
         this.logoUrl = logoUrl;
         this.isOpen = isOpen;
-        this.callMessage = callMessage;
+        this.topicToken="committee"+"-"+this.name;
         this.applicationFormLink = applicationFormLink;
+        this.messageForCalls = messageForCalls;
     }
 
     public long getId() {
@@ -56,13 +67,15 @@ public class Committee {
         this.applicationFormLink = applicationFormLink;
     }
 
-    public String getCallMessage() {
-        return callMessage;
+    public Message getCallMessage() {
+        return messageForCalls;
     }
 
-    public void setCallMessage(String callMessage) {
-        this.callMessage = callMessage;
+    public void setCallMessage(Message callMessage) {
+        this.messageForCalls = callMessage;
     }
+
+
 
     public boolean isOpen() {
         return isOpen;
@@ -95,4 +108,14 @@ public class Committee {
     public void setName(String name) {
         this.name = name;
     }
+    public String getTopicToken() {
+        return topicToken;
+    }
+    public void setTopicToken(String topicToken) {
+        this.topicToken = topicToken;
+    }
+
+
+
+
 }
