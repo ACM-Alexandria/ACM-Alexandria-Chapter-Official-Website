@@ -27,7 +27,7 @@ public class CommitteService {
         for (Subscription subscription : subscrption) {
             if(subscription.getStatus()== subscriptionStatus.ACTIVE)
             {
-                System.out.println("am in sending call message");
+                //System.out.println("am in sending call message");
                 emailService.sendEmail(subscription.getEmail(),message);
             }
         }
@@ -36,16 +36,18 @@ public class CommitteService {
 
 
     public List<Committee> getAll(){
-        return commiteeRepository.findAll();
+        return commiteeRepository.getAll();
     }
 
     public Committee getById(Long id){
         return commiteeRepository.findById(id).orElse(null);
     }
 
-
+    @Transactional
     public Committee save(Committee committee){
-        return commiteeRepository.save(committee);
+        committee= commiteeRepository.save(committee);
+        committee.initToken();
+        return committee;
     }
 
     public void delete(Long id){
