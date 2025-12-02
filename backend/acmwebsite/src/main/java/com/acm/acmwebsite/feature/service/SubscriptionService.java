@@ -4,11 +4,10 @@ import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.subscriptionStatus;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,6 +41,16 @@ public class SubscriptionService {
         subscriptionRepository.deleteSubscriptionByTopic(topic);
     }
 
+    public void deleteByEmailAndTopic(String email, String topic) {
+        var subscription = subscriptionRepository.findByEmailAndTopic(email,topic);
+        subscriptionRepository.delete(subscription);
+    }
+
+    public void unsubscribeByEmailAndTopic(String email, String topic) {
+        var subscription = subscriptionRepository.findByEmailAndTopic(email,topic);
+        subscription.setStatus(subscriptionStatus.UNSUBSCRIBE);
+        subscriptionRepository.save(subscription);
+    }
 
     @Transactional
     public void sendConfirmationEmail(Subscription subscription,Message message) {
@@ -51,13 +60,14 @@ public class SubscriptionService {
             return;
         }
 
+        //if subscription is active that implies that confirmation message has been already sent
         if(subscription.getStatus()== subscriptionStatus.ACTIVE){
             return;
         }
 
         emailService.sendEmail(subscription.getEmail(), message);
         subscription.setStatus(subscriptionStatus.ACTIVE);
-        subscription.setConfirmedAt(LocalDate.now());
+        subscription.setConfirmedAt(LocalDateTime.now());
         subscriptionRepository.save(subscription);
 
     }

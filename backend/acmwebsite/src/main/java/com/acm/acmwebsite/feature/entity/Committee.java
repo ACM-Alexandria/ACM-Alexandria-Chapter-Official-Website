@@ -24,7 +24,7 @@ public class Committee {
 
     private boolean isOpen=false;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne()
     private Message messageForCalls ;
 
 
@@ -46,9 +46,15 @@ public class Committee {
         this.description = description;
         this.logoUrl = logoUrl;
         this.isOpen = isOpen;
-        this.topicToken="committee"+"-"+this.name;
+        //this.topicToken="committee"+"-"+this.name;
         this.applicationFormLink = applicationFormLink;
         this.messageForCalls = messageForCalls;
+    }
+
+
+    @PostPersist
+    public void initToken() {
+        this.topicToken = this.name + "-" + this.id;
     }
 
     public long getId() {

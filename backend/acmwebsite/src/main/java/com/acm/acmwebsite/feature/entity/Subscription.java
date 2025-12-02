@@ -4,6 +4,7 @@ import com.acm.acmwebsite.feature.enums.subscriptionStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 //this entity binds specific email the user entered to the Topic he subscribed to
@@ -28,17 +29,17 @@ public class Subscription {
 
 
     @Column(nullable = false)
-    private subscriptionStatus status=subscriptionStatus.PENDING;  //PENDING or ACTIVE
+    private subscriptionStatus status=subscriptionStatus.PENDING;  //PENDING or ACTIVE or unsubscribed
 
 
     //forLogging
-    private LocalDate confirmedAt;
+    private LocalDateTime confirmedAt;
 
 
 
 
-
-    private final LocalDate createdAt = LocalDate.now();
+    //for logging
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
 
 
@@ -85,11 +86,11 @@ public class Subscription {
 
 
 
-    public LocalDate getConfirmedAt() {
+    public LocalDateTime getConfirmedAt() {
         return confirmedAt;
     }
 
-    public void setConfirmedAt(LocalDate confirmedAt) {
+    public void setConfirmedAt(LocalDateTime confirmedAt) {
         this.confirmedAt = confirmedAt;
     }
 }
