@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import logo from "../assets/acm-logo.png";
 import "./Navbar.css";
 
@@ -17,9 +18,10 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <a className="login-btn" href="/login">Sign In</a>
+      <Link className="login-btn" to="/login">Sign In</Link>
     </nav>
   );
 };
 
 export default Navbar;
+

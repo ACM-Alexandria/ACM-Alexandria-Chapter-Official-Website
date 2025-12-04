@@ -1,14 +1,20 @@
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import About from "./sections/About";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import ForgotPassword from './pages/ForgotPassword';
 
+/**
+ * Main App component with routing configuration
+ * Note: /login route will be implemented in a separate task
+ */
 function App() {
   return (
-    <>
-      <Navbar />
-      <Hero />
-      <About />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* Login route placeholder - to be implemented later */}
+      </Routes>
+    </Router>
   );
 }
 
