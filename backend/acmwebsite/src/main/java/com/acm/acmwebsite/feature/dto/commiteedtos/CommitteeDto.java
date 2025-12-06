@@ -15,7 +15,7 @@ public class CommitteeDto {
     private String topicToken;
     private String applicationFormLink;
 
-    public CommitteeDto( long id,String name, String description, String logoUrl, Message callMessage, boolean isOpen, String topicToken,String applicationFormLink) {
+    public CommitteeDto( long id,String name, String description, String logoUrl, Message callMessage, boolean isOpen,String applicationFormLink) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -23,7 +23,6 @@ public class CommitteeDto {
         this.callMessage = callMessage;
         this.isOpen = isOpen;
         this.applicationFormLink = applicationFormLink;
-        this.topicToken = topicToken;
     }
 
     public boolean isOpen() {

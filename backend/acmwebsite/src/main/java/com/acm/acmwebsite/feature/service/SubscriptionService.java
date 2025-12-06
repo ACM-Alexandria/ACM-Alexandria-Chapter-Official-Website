@@ -1,8 +1,9 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
-import com.acm.acmwebsite.feature.enums.subscriptionStatus;
+import com.acm.acmwebsite.feature.enums.*;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class SubscriptionService {
         this.emailService = emailService;
     }
 
-    public List<Subscription> getAllSubscribersByTopicToken(String topicToken) {
-        return subscriptionRepository.getSubscriptionsByTopic(topicToken);
+    public List<Subscription> getAllSubscribersByTopic(SubscripeTo subscripeTo,Long id) {
+        return  subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToId(subscripeTo,id);
     }
 
 
@@ -30,43 +31,32 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
-    public Subscription findByEmailAndTopic(String email,String topic) {
-        return subscriptionRepository.findByEmailAndTopic(email,topic);
+
+    public void deleteByTopic(SubscripeTo topic, Long Id) {
+        subscriptionRepository.deleteSubscriptionBySubscribeToAndSubscribeToId(topic,Id);
     }
 
-    public Subscription getSubscriptionsByEmailAndTopic(String email, String topic) {
-        return subscriptionRepository.findByEmailAndTopic(email,topic);
-    }
-    public void deleteByTopic(String topic) {
-        subscriptionRepository.deleteSubscriptionByTopic(topic);
-    }
-
-    public void deleteByEmailAndTopic(String email, String topic) {
-        var subscription = subscriptionRepository.findByEmailAndTopic(email,topic);
-        subscriptionRepository.delete(subscription);
-    }
-
-    public void unsubscribeByEmailAndTopic(String email, String topic) {
-        var subscription = subscriptionRepository.findByEmailAndTopic(email,topic);
-        subscription.setStatus(subscriptionStatus.UNSUBSCRIBE);
+    public void unsubscribeByEmailAndTopic(String email, SubscripeTo topic,Long id) {
+        var subscription = subscriptionRepository.findSubscriptionByEmailAndSubscribeToAndSubscribeToId(email,topic,id);
+        subscription.setStatus(SubscriptionStatus.UNSUBSCRIBE);
         subscriptionRepository.save(subscription);
     }
+    public Email addEmail(Email email) {
+      return      emailService.saveEmail(email);
+    }
+
+     public Email getEmailByEmail(String email) {
+        return emailService.getObjectByEmail(email);
+     }
 
     @Transactional
     public void sendConfirmationEmail(Subscription subscription,Message message) {
-
-
-        if(!subscriptionRepository.existsByEmailAndTopic(subscription.getEmail(), subscription.getTopic())){
-            return;
-        }
-
-        //if subscription is active that implies that confirmation message has been already sent
-        if(subscription.getStatus()== subscriptionStatus.ACTIVE){
+        if(subscription.getStatus()== SubscriptionStatus.ACTIVE){
             return;
         }
 
         emailService.sendEmail(subscription.getEmail(), message);
-        subscription.setStatus(subscriptionStatus.ACTIVE);
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setConfirmedAt(LocalDateTime.now());
         subscriptionRepository.save(subscription);
 
