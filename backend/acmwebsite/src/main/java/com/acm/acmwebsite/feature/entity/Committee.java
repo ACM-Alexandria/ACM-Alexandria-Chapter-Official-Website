@@ -31,7 +31,7 @@ public class Committee {
 
     //used to map the topic to the email in subscription like (moatef123@gmail.com,id_Committeename =>2_oc)
     //this pair is unique for each description
-    private String topicToken;
+  //  private String topicToken;
 
 
 
@@ -52,10 +52,6 @@ public class Committee {
     }
 
 
-    @PostPersist
-    public void initToken() {
-        this.topicToken = this.name + "-" + this.id;
-    }
 
     public long getId() {
         return id;
@@ -114,12 +110,7 @@ public class Committee {
     public void setName(String name) {
         this.name = name;
     }
-    public String getTopicToken() {
-        return topicToken;
-    }
-    public void setTopicToken(String topicToken) {
-        this.topicToken = topicToken;
-    }
+
 
 
 

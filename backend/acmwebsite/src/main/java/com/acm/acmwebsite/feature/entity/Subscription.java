@@ -1,16 +1,18 @@
 package com.acm.acmwebsite.feature.entity;
 
-import com.acm.acmwebsite.feature.enums.subscriptionStatus;
+import com.acm.acmwebsite.feature.enums.*;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
 //this entity binds specific email the user entered to the Topic he subscribed to
 @Entity
-@Table(name = "subscription",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"email","topic"}))
+@Table(
+        name = "subscription",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"emailId", "subscribeTo","subscribeToId"})
+        })
 public class Subscription {
 
     @Id
@@ -18,18 +20,22 @@ public class Subscription {
     private Long id;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="emailId")
+    private Email email;
+
+
+    //could be eventId or committeid or programId (fk)
+
+    private Long subscribeToId;
+
+
+    private SubscripeTo subscribeTo;
+
+
+
     @Column(nullable = false)
-    private String email;
-
-
-
-
-    private String topic;
-
-
-
-    @Column(nullable = false)
-    private subscriptionStatus status=subscriptionStatus.PENDING;  //PENDING or ACTIVE or unsubscribed
+    private SubscriptionStatus status= SubscriptionStatus.PENDING;  //PENDING or ACTIVE or unsubscribed
 
 
     //forLogging
@@ -47,9 +53,10 @@ public class Subscription {
 
 
     public Subscription() {}
-    public Subscription(String email,String topic) {
-        this.topic = topic;
+    public Subscription(Email email, SubscripeTo subscribeTo, Long subscribeToId) {
+        this.subscribeTo = subscribeTo;
         this.email = email;
+        this.subscribeToId = subscribeToId;
     }
 
     public Long getId() {
@@ -60,27 +67,19 @@ public class Subscription {
         this.id = id;
     }
 
-    public subscriptionStatus getStatus() {
+    public SubscriptionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(subscriptionStatus status) {
+    public void setStatus(SubscriptionStatus status) {
         this.status = status;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getEmail() {
+    public Email getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(Email email) {
         this.email = email;
     }
 
@@ -92,5 +91,21 @@ public class Subscription {
 
     public void setConfirmedAt(LocalDateTime confirmedAt) {
         this.confirmedAt = confirmedAt;
+    }
+
+    public Long getSubscribeToId() {
+        return subscribeToId;
+    }
+
+    public void setSubscribeToId(Long subscribeToId) {
+        this.subscribeToId = subscribeToId;
+    }
+
+    public SubscripeTo getSubscribeTo() {
+        return subscribeTo;
+    }
+
+    public void setSubscribeTo(SubscripeTo subscribeTo) {
+        this.subscribeTo = subscribeTo;
     }
 }
