@@ -3,10 +3,10 @@ package com.acm.acmwebsite.feature.controller;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.dto.commiteedtos.SubscriptionDto;
 import com.acm.acmwebsite.feature.entity.Committee;
+import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
-import com.acm.acmwebsite.feature.enums.subscriptionStatus;
-import com.acm.acmwebsite.feature.repository.MessageRepository;
+import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.service.CommitteService;
 import com.acm.acmwebsite.feature.service.MessageService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
@@ -27,7 +27,7 @@ public class CommitteeController {
     private MessageService messageService;
 
     @Autowired
-    public void setCommitteeService(CommitteService committeeService,SubscriptionService subscriptionService,MessageService messageService) {
+    public void CommitteeController(CommitteService committeeService, SubscriptionService subscriptionService, MessageService messageService) {
         this.committeeService = committeeService;
         this.subscriptionService = subscriptionService;
         this.messageService = messageService;
@@ -40,7 +40,6 @@ public class CommitteeController {
                         Committee.getLogoUrl(),
                         Committee.getCallMessage(),
                         Committee.isOpen(),
-                        Committee.getTopicToken(),
                         Committee.getApplicationFormLink());}).toList();
     }
     // to avoid this Reddundancy in code I suggest using mappers and add its dependencies
@@ -56,7 +55,6 @@ public class CommitteeController {
                 committee.getLogoUrl(),
                 committee.getCallMessage(),
                 committee.isOpen(),
-                committee.getTopicToken(),
                 committee.getApplicationFormLink()));
     }
 
@@ -86,7 +84,7 @@ public class CommitteeController {
       }
 
      return ResponseEntity.ok(new CommitteeDto(committee.getId(),committee.getName(),committee.getDescription()
-     ,committee.getLogoUrl(),committee.getCallMessage(),committee.isOpen(),committee.getTopicToken(),committee.getApplicationFormLink()));
+     ,committee.getLogoUrl(),committee.getCallMessage(),committee.isOpen(),committee.getApplicationFormLink()));
 
     }
 
@@ -109,7 +107,7 @@ public class CommitteeController {
 
         return ResponseEntity.ok(new CommitteeDto(newCommittee.getId(),
                 newCommittee.getName(), newCommittee.getDescription(), newCommittee.getLogoUrl()
-        ,newCommittee.getCallMessage(), newCommittee.isOpen(),newCommittee.getTopicToken() ,newCommittee.getApplicationFormLink()));
+        ,newCommittee.getCallMessage(), newCommittee.isOpen(),newCommittee.getApplicationFormLink()));
 
     }
 
@@ -121,7 +119,7 @@ public class CommitteeController {
             return ResponseEntity.notFound().build();
         }
         committeeService.delete(id);
-        subscriptionService.deleteByTopic(committee.getTopicToken());
+        subscriptionService.deleteByTopic(SubscripeTo.COMMITTEE,committee.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -139,7 +137,7 @@ public class CommitteeController {
 
         committee.setOpen(true);
         committeeService.save(committee);
-        committeeService.sendCallMessage(committee.getTopicToken(),committee.getCallMessage());
+        committeeService.sendCallMessage(SubscripeTo.COMMITTEE,committee.getId(),committee.getCallMessage());
         return ResponseEntity.ok().build();
     }
 
@@ -178,16 +176,28 @@ public class CommitteeController {
         if(committee==null){
             return ResponseEntity.notFound().build();
         }
+        try
+        {
+            var email=subscriptionService.getEmailByEmail(subscriptionDto.getEmail());
 
-        var subscription=subscriptionService.findByEmailAndTopic(subscriptionDto.getEmail(),committee.getTopicToken());
-        if(subscription!=null){
-            return ResponseEntity.badRequest().body(Map.of("email","is already subscribed!"));
+            if(email==null){
+
+              email=subscriptionService.addEmail(new Email(subscriptionDto.getEmail()));
+
+            }
+           // System.out.println("after save email");
+            var newSubscription=new  Subscription(email,SubscripeTo.COMMITTEE, committee.getId());
+            subscriptionService.addSubscription(newSubscription);
+            subscriptionService.sendConfirmationEmail(newSubscription,new Message("Hello","your subscription to our MailingList has been confirmed"));
         }
-        var newSubscription=new  Subscription(subscriptionDto.getEmail(),committee.getTopicToken());
-        subscriptionService.addSubscription(newSubscription);
-        subscriptionService.sendConfirmationEmail(newSubscription,new Message("hello","your subscription to our MailingList has been confirmed"));
-        return ResponseEntity.ok().build();
+        catch (Exception e){
+            return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));
+            //catch redundancy
+        }
 
+        //db enforces uniqueness over emailid,subscribetoId and subscriptionType
+
+        return ResponseEntity.ok().build();
     }
 
 

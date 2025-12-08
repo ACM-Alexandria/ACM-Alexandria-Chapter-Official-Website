@@ -1,6 +1,6 @@
 package com.acm.acmwebsite.feature.enums;
 
-public enum subscriptionStatus {
+public enum SubscriptionStatus {
     ACTIVE,
     PENDING,
     UNSUBSCRIBE,
