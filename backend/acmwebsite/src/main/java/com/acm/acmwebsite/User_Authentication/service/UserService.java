@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.service;
 
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,4 +22,6 @@ public interface UserService {
 
   boolean verifyPassword(String email, String plainPassword);
   void initiatePasswordReset(String email);
+
+  void resetPassword(ResetPasswordDTO dto);
 }
