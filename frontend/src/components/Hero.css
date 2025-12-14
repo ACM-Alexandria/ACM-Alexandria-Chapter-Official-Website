@@ -15,7 +15,7 @@
 
 .hero-content h1 {
   font-size: 42px;
-  color: #2c4a72;
+  color: #205E85;
   margin-bottom: 20px;
 }
 
@@ -27,7 +27,7 @@
 
 .learn-btn {
   padding: 12px 30px;
-  background: #2c4a72;
+  background: #205E85;
   color: white;
   border: none;
   border-radius: 6px;
@@ -36,5 +36,5 @@
 }
 
 .learn-btn:hover {
-  background: #1e3654;
+  background: #1A4763;
 }
