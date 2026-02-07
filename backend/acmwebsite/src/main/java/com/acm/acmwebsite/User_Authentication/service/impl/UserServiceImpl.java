@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.service.impl;
-
+import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
+import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
@@ -107,4 +108,24 @@ public class UserServiceImpl implements UserService {
 
     return passwordEncoder.matches(plainPassword, userOptional.get().getPasswordHash());
   }
+  @Override
+  @Transactional(readOnly = true)
+  public LoginResponse login(LoginRequest loginRequest) {
+    String email = loginRequest.getEmail().trim().toLowerCase();
+    String password = loginRequest.getPassword();
+    Optional<User> userOptional = userRepository.findByEmail(email);
+    if (userOptional.isEmpty()) {
+      throw new IllegalArgumentException("Incorrect email or password");
+    }
+    User user = userOptional.get();
+    if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+      throw new IllegalArgumentException("Incorrect email or password");
+    }
+
+    return new LoginResponse(
+            user.getId(),
+            user.getEmail()
+    );
+  }
+
 }
