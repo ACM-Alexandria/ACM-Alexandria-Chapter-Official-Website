@@ -2,8 +2,7 @@ package com.acm.acmwebsite.User_Authentication.controller;
 
 import com.acm.acmwebsite.User_Authentication.dto.ForgotPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
-import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
-import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
+import com.acm.acmwebsite.User_Authentication.dto.*;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,4 +43,17 @@ public class AuthController {
     SuccessRegisterResponse savedUser = registerService.createUser(registerDTO);
     return ResponseEntity.status(201).body(savedUser);
   }
+
+
+  @PostMapping("/login")
+  public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
+    try {
+      LoginResponse response = userService.login(loginRequest);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.status(401)
+              .body(new ErrorMessageResponse("Incorrect email or password"));
+    }
+  }
+
 }
