@@ -1,26 +1,28 @@
 package com.acm.acmwebsite.User_Authentication.service;
 
+import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
+import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
-import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.NonNull;
 
 public interface UserService {
-  UserDTO createUser(String email, String plainPassword);
 
-  Optional<UserDTO> getUserById(@NonNull Long id);
+  Optional<UserDTO> getUserById(@NonNull UUID id);
 
   Optional<UserDTO> getUserByEmail(String email);
 
-  List<UserDTO> getAllUsers();
+  UserDTO updateUserEmail(UUID id, String newEmail);
 
-  UserDTO updateUserEmail(Long id, String newEmail);
+  UserDTO updateUserPassword(UUID id, String oldPassword, String newPlainPassword);
 
-  UserDTO updateUserPassword(Long id, String newPlainPassword);
-
-  void deleteUser(Long id);
+  void deleteUser(UUID id);
 
   boolean emailExists(String email);
 
   boolean verifyPassword(String email, String plainPassword);
+  LoginResponse login(LoginRequest loginRequest);
+
+  void initiatePasswordReset(String email);
 }
