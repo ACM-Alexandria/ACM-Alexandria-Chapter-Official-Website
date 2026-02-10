@@ -1,11 +1,14 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
-import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
-import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
+import com.acm.acmwebsite.User_Authentication.dto.*;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
+import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+  private final UserService userService;
+
+  @PostMapping("/forgot-password")
+  public ResponseEntity<Map<String, String>> forgotPassword(
+      @Valid @RequestBody ForgotPasswordDTO request) {
+
+    // This method returns VOID. It handles "User Found" and "User Not Found"
+    // identically.
+    userService.initiatePasswordReset(request.getEmail());
+
+    // Always return the same success message
+    return ResponseEntity.ok(
+        Collections.singletonMap(
+            "message",
+            "If an account with this email exists, a password reset link has been sent."));
+  }
+
   private final RegisterService registerService;
 
   @PostMapping("register")
@@ -25,4 +45,17 @@ public class AuthController {
     SuccessRegisterResponse savedUser = registerService.createUser(registerDTO);
     return ResponseEntity.status(201).body(savedUser);
   }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
+    try {
+      LoginResponse response = userService.login(loginRequest);
+
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.status(401)
+          .body(new ErrorMessageResponse("Incorrect email or password"));
+    }
+  }
+
 }
