@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
+
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -172,7 +174,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional
   public LoginResponse login(LoginRequest loginRequest) {
     String email = loginRequest.getEmail().trim().toLowerCase();
     String password = loginRequest.getPassword();
