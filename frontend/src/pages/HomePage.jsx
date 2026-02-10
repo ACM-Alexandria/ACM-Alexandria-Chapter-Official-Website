@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
-import GreetingSection from "../components/HomePage/GreetingSection";
-import AboutSection from "../components/HomePage/AboutSection";
-import ClubsSection from "../components/HomePage/ClubsSection";
-import EventsSection from "../components/HomePage/EventsSection";
-import ProgramsSection from "../components/HomePage/ProgramsSection";
-import ServicesSection from "../components/HomePage/ServicesSection";
+import GreetingSection from "../components/HomePage/sections/GreetingSection";
+import AboutSection from "../components/HomePage/sections/AboutSection";
+import ClubsSection from "../components/HomePage/sections/ClubsSection";
+import EventsSection from "../components/HomePage/sections/EventsSection";
+import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
+import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
 
