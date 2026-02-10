@@ -44,13 +44,7 @@ public class JwtUtil {
         .getSubject();
   }
 
-  public boolean validateAccessToken(String token) {
-    try {
-
-      Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-      return true;
-    } catch (Exception ex) {
-      return false;
-    }
+  public void validateAccessToken(String token) {
+    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
   }
 }

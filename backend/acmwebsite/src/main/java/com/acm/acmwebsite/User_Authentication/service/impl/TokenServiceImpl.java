@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 /** TokenServiceImpl */
 @Service
 public class TokenServiceImpl implements TokenService {
+
   @Autowired JwtUtil jwtUtil;
   @Autowired RefreshTokenRepository refreshTokenRepository;
 
@@ -52,17 +53,17 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public boolean isValidRefreshToken(String token) {
-    RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token).get();
-    if (refreshToken == null) {
-      return false;
+  public void validateRefreshToken(String token) {
+    Optional<RefreshToken> refreshToken = refreshTokenRepository.findByRefreshToken(token);
+
+    if (refreshToken.isEmpty()) {
+      // create special excpetion type and throw it then handle it in the global handler
     }
 
-    if (refreshToken.getRefreshTokenExpiry().isBefore(LocalDateTime.now())
-        || refreshToken.isSoftDelete()) {
-      return false;
+    if (refreshToken.get().getRefreshTokenExpiry().isBefore(LocalDateTime.now())
+        || refreshToken.get().isSoftDelete()) {
+      // create special excpetion type and throw it
     }
-    return true;
   }
 
   @Override
@@ -72,6 +73,7 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public boolean isValidAccessToken(String accessTokenString) {
-    return jwtUtil.validateAccessToken(accessTokenString);
+    jwtUtil.validateAccessToken(accessTokenString);
+    return true;
   }
 }

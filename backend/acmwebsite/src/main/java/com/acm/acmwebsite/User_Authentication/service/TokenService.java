@@ -8,7 +8,7 @@ public interface TokenService {
 
   void revokeRefreshToken(String token);
 
-  boolean isValidRefreshToken(String refreshTokenString);
+  void validateRefreshToken(String refreshTokenString);
 
   String createAccessToken(String username);
 
