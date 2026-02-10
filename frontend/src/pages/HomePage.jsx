@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/HomePage/Navbar";
-import Hero from "../components/HomePage/Hero";
+import GreetingSection from "../components/HomePage/GreetingSection";
+import AboutSection from "../components/HomePage/AboutSection";
+import ClubsSection from "../components/HomePage/ClubsSection";
+import EventsSection from "../components/HomePage/EventsSection";
+import ProgramsSection from "../components/HomePage/ProgramsSection";
+import ServicesSection from "../components/HomePage/ServicesSection";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
 
@@ -34,12 +39,13 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1">
-        <Hero />
-        {/* Data will be stored in state and can be used here */}
-        {/* clubs: {JSON.stringify(clubs)} */}
-        {/* committee: {JSON.stringify(committee)} */}
-        {/* events: {JSON.stringify(events)} */}
+      <main className="flex-1 pt-[70px]">
+        <GreetingSection />
+        <AboutSection />
+        <ClubsSection clubs={clubs} />
+        <EventsSection events={events} />
+        <ProgramsSection />
+        <ServicesSection />
       </main>
       <Footer />
     </div>
