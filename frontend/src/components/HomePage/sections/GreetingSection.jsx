@@ -1,4 +1,4 @@
-import logo from "../../assets/logo/acm-logo-no-bg.png";
+import logo from "../../../assets/logo/acm-logo-no-bg.png";
 
 const GreetingSection = () => {
   return (
