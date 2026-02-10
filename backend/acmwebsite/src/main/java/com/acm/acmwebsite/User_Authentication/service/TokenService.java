@@ -13,4 +13,6 @@ public interface TokenService {
   String createAccessToken(String username);
 
   boolean isValidAccessToken(String accessTokenString);
+
+  User getUserFromRefreshToken(String refreshToken);
 }

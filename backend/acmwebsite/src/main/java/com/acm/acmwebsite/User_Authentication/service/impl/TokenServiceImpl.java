@@ -2,6 +2,8 @@ package com.acm.acmwebsite.User_Authentication.service.impl;
 
 import com.acm.acmwebsite.User_Authentication.entity.RefreshToken;
 import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.exception.ExpiredRefreshTokenException;
+import com.acm.acmwebsite.User_Authentication.exception.InvalidRefreshTokenException;
 import com.acm.acmwebsite.User_Authentication.repository.RefreshTokenRepository;
 import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.core.util.JwtUtil;
@@ -58,17 +60,19 @@ public class TokenServiceImpl implements TokenService {
 
     if (refreshToken.isEmpty()) {
       // create special excpetion type and throw it then handle it in the global handler
+      throw new InvalidRefreshTokenException("Invalid or expired refresh token");
     }
 
     if (refreshToken.get().getRefreshTokenExpiry().isBefore(LocalDateTime.now())
         || refreshToken.get().isSoftDelete()) {
       // create special excpetion type and throw it
+        throw new ExpiredRefreshTokenException("Invalid or expired refresh token");
     }
   }
 
   @Override
-  public String createAccessToken(String username) {
-    return jwtUtil.generateToken(username);
+  public String createAccessToken(String email) {
+    return jwtUtil.generateToken(email);
   }
 
   @Override
@@ -76,4 +80,22 @@ public class TokenServiceImpl implements TokenService {
     jwtUtil.validateAccessToken(accessTokenString);
     return true;
   }
+
+  @Override
+  public User getUserFromRefreshToken(String refreshToken) {
+    Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
+
+    if (token.isEmpty()) {
+      throw new InvalidRefreshTokenException("Invalid or expired refresh token");
+    }
+
+    if (token.get().getRefreshTokenExpiry().isBefore(LocalDateTime.now())
+        || token.get().isSoftDelete()) {
+      throw new ExpiredRefreshTokenException("Invalid or expired refresh token");
+    }
+
+    return token.get().getUser();
+
+  }
+
 }

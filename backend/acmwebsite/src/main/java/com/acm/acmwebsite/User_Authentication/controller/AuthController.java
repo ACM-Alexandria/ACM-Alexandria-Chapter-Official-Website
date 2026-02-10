@@ -1,11 +1,17 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
 import com.acm.acmwebsite.User_Authentication.dto.*;
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
+import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
+import com.acm.acmwebsite.User_Authentication.service.impl.TokenServiceImpl;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final UserService userService;
+  private final TokenService tokenService;
 
   @PostMapping("/forgot-password")
   public ResponseEntity<Map<String, String>> forgotPassword(
@@ -56,6 +63,18 @@ public class AuthController {
       return ResponseEntity.status(401)
           .body(new ErrorMessageResponse("Incorrect email or password"));
     }
+  }
+  @PostMapping("/refresh")
+  @Transactional
+    public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request) {
+
+          tokenService.validateRefreshToken(request.getRefreshToken());
+          User user = tokenService.getUserFromRefreshToken(request.getRefreshToken());
+          tokenService.revokeRefreshToken(request.getRefreshToken());
+          String newAccessToken = tokenService.createAccessToken(user.getEmail());
+          String newRefreshToken = tokenService.createRefreshToken(user);
+            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken);
+          return ResponseEntity.ok(response);
   }
 
 }
