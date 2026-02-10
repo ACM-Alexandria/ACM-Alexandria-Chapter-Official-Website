@@ -1,5 +1,6 @@
-package com.acm.acmwebsite.core.ratelimit;
+package com.acm.acmwebsite.core.ratelimit.impl;
 
+import com.acm.acmwebsite.core.ratelimit.RateLimiterService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -22,7 +23,8 @@ public class InMemoryRateLimiterServiceImpl implements RateLimiterService {
 
     private Bucket newBucket(String apiKey) {
         // Configuration: Allow 10 requests per 1 minute.
-        // Refill.greedy means tokens are added smoothly over time, not all at once at the end of the minute.
+        // Refill.greedy means tokens are added smoothly over time, not all at once at
+        // the end of the minute.
         Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
 
         return Bucket.builder()
