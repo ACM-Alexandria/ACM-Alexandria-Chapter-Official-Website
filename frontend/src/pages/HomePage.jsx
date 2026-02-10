@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
 import GreetingSection from "../components/HomePage/GreetingSection";
 import AboutSection from "../components/HomePage/AboutSection";
@@ -15,6 +17,7 @@ const HomePage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSection, setActiveSection] = useState("greeting");
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,16 +39,60 @@ const HomePage = () => {
     loadData();
   }, []);
 
+  // Initialize AOS animations
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100,
+    });
+  }, []);
+
+  // Track active section based on scroll position
+  useEffect(() => {
+    let debounceTimer;
+
+    const handleScroll = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const sections = document.querySelectorAll("section[id]");
+        const navHeight = 70; // navbar height
+        
+        let closestSection = "greeting";
+        let closestDistance = Infinity;
+
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          // Calculate distance from top of viewport minus navbar
+          const distance = Math.abs(rect.top - navHeight);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSection = section.id;
+          }
+        });
+
+        setActiveSection(closestSection);
+      }, 0); // Debounce every 50ms
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(debounceTimer);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[70px]">
         <GreetingSection />
         <AboutSection />
-        <ClubsSection clubs={clubs} />
-        <EventsSection events={events} />
-        <ProgramsSection />
         <ServicesSection />
+        <ProgramsSection />
+        <EventsSection events={events} />
+        <ClubsSection clubs={clubs} />
       </main>
       <Footer />
     </div>
