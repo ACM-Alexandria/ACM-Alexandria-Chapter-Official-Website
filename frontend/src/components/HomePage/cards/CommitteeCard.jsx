@@ -1,16 +1,21 @@
+import { useState } from "react";
+
 const CommitteeCard = ({ committee }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
       data-aos="fade-up"
     >
       {/* Committee Logo/Icon */}
-      <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-56 flex items-center justify-center">
-        {committee.logoUrl ? (
+      <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-56 flex items-center justify-center overflow-hidden">
+        {committee.logoUrl && !imageError ? (
           <img
             src={committee.logoUrl}
             alt={committee.name}
-            className="h-32 w-32 object-contain"
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
           />
         ) : (
           <span className="text-white text-6xl font-bold opacity-20">

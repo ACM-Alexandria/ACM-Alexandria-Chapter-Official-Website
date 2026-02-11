@@ -1,4 +1,8 @@
+import { useState } from "react";
+
 const ProgramCard = ({ program }) => {
+  const [imageError, setImageError] = useState(false);
+
   // Format time from ISO string (e.g., "2026-02-22T16:00:00" -> "4:00 PM")
   const formatTime = (timeString) => {
     if (!timeString) return "";
@@ -36,11 +40,12 @@ const ProgramCard = ({ program }) => {
     >
       {/* Program Image */}
       <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-48 flex items-center justify-center">
-        {program.imageUrl ? (
+        {program.imageUrl && !imageError ? (
           <img
             src={program.imageUrl}
             alt={program.name}
             className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
           />
         ) : (
           <span className="text-white text-6xl font-bold opacity-20">
