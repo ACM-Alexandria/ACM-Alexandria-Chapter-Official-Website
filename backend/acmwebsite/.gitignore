@@ -42,3 +42,4 @@ application.properties
 
 ### VS Code ###
 .vscode/
+.idea/
