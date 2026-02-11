@@ -15,8 +15,8 @@ const HomePage = () => {
   const [clubs, setClubs] = useState([]);
   const [committee, setCommittee] = useState([]);
   const [events, setEvents] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState("greeting");
 
   useEffect(() => {
@@ -25,11 +25,11 @@ const HomePage = () => {
         setLoading(true);
         const data = await fetchHomePageData();
 
-        setClubs(data.clubs);
-        setCommittee(data.committee);
-        setEvents(data.events);
+        setClubs(data.clubs || []);
+        setCommittee(data.committee || []);
+        setEvents(data.events || []);
+        setPrograms(data.programs || []);
       } catch (err) {
-        setError(err);
         console.error("Error loading home page data:", err);
       } finally {
         setLoading(false);
@@ -57,7 +57,7 @@ const HomePage = () => {
       debounceTimer = setTimeout(() => {
         const sections = document.querySelectorAll("section[id]");
         const navHeight = 70; // navbar height
-        
+
         let closestSection = "greeting";
         let closestDistance = Infinity;
 
@@ -65,7 +65,7 @@ const HomePage = () => {
           const rect = section.getBoundingClientRect();
           // Calculate distance from top of viewport minus navbar
           const distance = Math.abs(rect.top - navHeight);
-          
+
           if (distance < closestDistance) {
             closestDistance = distance;
             closestSection = section.id;
@@ -91,7 +91,7 @@ const HomePage = () => {
         <AboutSection committees={committee} />
         <ClubsSection clubs={clubs} />
         <EventsSection events={events} />
-        <ProgramsSection />
+        <ProgramsSection programs={programs} />
         <ServicesSection />
       </main>
       <Footer />

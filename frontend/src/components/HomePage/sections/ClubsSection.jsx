@@ -15,10 +15,14 @@ const ClubsSection = ({ clubs }) => {
         <div className="text-center mb-12">
           <h2
             className="text-4xl font-bold text-gray-800 mb-4"
-            data-aos="fade-right"
+            data-aos="fade-down"
           >
             Our Clubs
           </h2>
+          <div
+            className="w-20 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-4"
+            data-aos="fade-up"
+          ></div>
           <p
             className="text-gray-600 text-lg max-w-2xl mx-auto"
             data-aos="fade-up"
