@@ -1,14 +1,27 @@
+import { useState } from "react";
+
 const ClubCard = ({ club }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden"
       data-aos="fade-up"
     >
-      {/* Club Image Placeholder */}
+      {/* Club Image */}
       <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-40 flex items-center justify-center">
-        <span className="text-white text-5xl font-bold opacity-20">
-          {club.name?.charAt(0) || "C"}
-        </span>
+        {club.imageUrl && !imageError ? (
+          <img
+            src={club.imageUrl}
+            alt={club.name}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <span className="text-white text-5xl font-bold opacity-20">
+            {club.name?.charAt(0) || "C"}
+          </span>
+        )}
       </div>
 
       {/* Club Info */}

@@ -1,4 +1,8 @@
+import { useState } from "react";
+
 const EventCard = ({ event }) => {
+  const [imageError, setImageError] = useState(false);
+
   // Format time from ISO string (e.g., "2026-02-22T16:00:00" -> "4:00 PM")
   const formatTime = (timeString) => {
     if (!timeString) return "";
@@ -34,11 +38,20 @@ const EventCard = ({ event }) => {
       className="bg-white rounded-lg shadow-lg overflow-hidden"
       data-aos="fade-up"
     >
-      {/* Event Image Placeholder */}
+      {/* Event Image */}
       <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-48 flex items-center justify-center">
-        <span className="text-white text-6xl font-bold opacity-20">
-          {event.name?.charAt(0) || "E"}
-        </span>
+        {event.imageUrl && !imageError ? (
+          <img
+            src={event.imageUrl}
+            alt={event.name}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <span className="text-white text-6xl font-bold opacity-20">
+            {event.name?.charAt(0) || "E"}
+          </span>
+        )}
       </div>
 
       {/* Event Info */}
