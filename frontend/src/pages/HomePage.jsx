@@ -88,11 +88,11 @@ const HomePage = () => {
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[70px]">
         <GreetingSection />
-        <AboutSection />
-        <ServicesSection />
-        <ProgramsSection />
-        <EventsSection events={events} />
+        <AboutSection committees={committee} />
         <ClubsSection clubs={clubs} />
+        <EventsSection events={events} />
+        <ProgramsSection />
+        <ServicesSection />
       </main>
       <Footer />
     </div>

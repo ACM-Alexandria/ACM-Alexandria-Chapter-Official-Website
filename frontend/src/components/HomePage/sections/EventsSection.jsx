@@ -7,12 +7,12 @@ const EventsSection = ({ events }) => {
 
   return (
     <section id="events" className="w-full py-20 px-10 flex items-center">
-      <div className="max-w-6xl mx-auto w-full" data-aos="slide-right">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h2
             className="text-4xl font-bold text-gray-800 mb-4"
-            data-aos="fade-down"
+            data-aos="fade-right"
           >
             Upcoming Events
           </h2>
