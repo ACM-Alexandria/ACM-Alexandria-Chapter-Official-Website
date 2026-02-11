@@ -78,18 +78,6 @@ const ProgramCard = ({ program }) => {
             </div>
           </div>
         )}
-
-        {/* Registration Button */}
-        {program.googleFormUrl && (
-          <a
-            href={program.googleFormUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block w-full text-center bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg transition-shadow duration-300"
-          >
-            Register Now
-          </a>
-        )}
       </div>
     </div>
   );
