@@ -33,22 +33,30 @@ export const fetchEvents = async () => {
   }
 };
 
-// Fetch all home page data on load
-export const fetchHomePageData = async () => {
+// Fetch programs
+export const fetchPrograms = async () => {
   try {
-    const [clubsData, committeeData, eventsData] = await Promise.all([
-      fetchClubs(),
-      fetchCommittee(),
-      fetchEvents(),
-    ]);
-
-    return {
-      clubs: clubsData,
-      committee: committeeData,
-      events: eventsData,
-    };
+    const response = await api.get("/program");
+    return response.data;
   } catch (error) {
-    console.error("Error fetching home page data:", error);
+    console.error("Error fetching programs:", error);
     throw error;
   }
+};
+
+// Fetch all home page data on load (independent fetch - one failure won't affect others)
+export const fetchHomePageData = async () => {
+  const results = await Promise.allSettled([
+    fetchClubs().catch(() => []),
+    fetchCommittee().catch(() => []),
+    fetchEvents().catch(() => []),
+    fetchPrograms().catch(() => []),
+  ]);
+
+  return {
+    clubs: results[0].status === "fulfilled" ? results[0].value : [],
+    committee: results[1].status === "fulfilled" ? results[1].value : [],
+    events: results[2].status === "fulfilled" ? results[2].value : [],
+    programs: results[3].status === "fulfilled" ? results[3].value : [],
+  };
 };
