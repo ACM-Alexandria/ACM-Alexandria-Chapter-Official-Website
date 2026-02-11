@@ -12,10 +12,10 @@ const Navbar = ({ activeSection }) => {
 
   const navItems = [
     { href: "#about", label: "About Us" },
-    { href: "#services", label: "Services" },
-    { href: "#programs", label: "Programs" },
-    { href: "#events", label: "Events" },
     { href: "#clubs", label: "Clubs" },
+    { href: "#events", label: "Events" },
+    { href: "#programs", label: "Programs" },
+    { href: "#services", label: "Services" },
   ];
 
   // Update indicator position when active section changes
