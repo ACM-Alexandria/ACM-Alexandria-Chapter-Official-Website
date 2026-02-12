@@ -3,6 +3,7 @@ package com.acm.acmwebsite.User_Authentication.service;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public interface UserService {
   boolean emailExists(String email);
 
   boolean verifyPassword(String email, String plainPassword);
+
   LoginResponse login(LoginRequest loginRequest);
 
   void initiatePasswordReset(String email);
