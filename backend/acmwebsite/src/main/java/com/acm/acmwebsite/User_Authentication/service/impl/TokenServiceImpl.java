@@ -50,7 +50,7 @@ public class TokenServiceImpl implements TokenService {
           refreshTokenRepository.save(presentRefreshToken);
         },
         () -> {
-          // no token with this tokenId
+          throw new InvalidRefreshTokenException("Invalid or expired refresh token");
         });
   }
 
