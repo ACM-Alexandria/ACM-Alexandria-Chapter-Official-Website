@@ -1,55 +1,24 @@
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
+    const { logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoading(true);
 
     try {
-      // Call the logout API
-      const response = await fetch('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Include auth token if stored in localStorage
-          ...(localStorage.getItem('accessToken') && {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-          })
-        },
-      });
+      // Use secure logout from auth service
+      // This clears tokens from secure storage (memory + sessionStorage)
+      await logout();
 
-      if (response.ok) {
-        // Clear all authentication-related localStorage
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('userProfile');
-
-        // Clear all items that might be auth-related
-        const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('token') || key.includes('auth') || key.includes('user'))) {
-            keysToRemove.push(key);
-          }
-        }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-
-        // Redirect to login page
-        window.location.href = '/login';
-      } else if (response.status >= 500) {
-        // Show error message for 5xx errors
-        alert('An error occurred. Please try again.');
-        setIsLoading(false);
-      } else {
-        // For other errors, still show the message
-        alert('An error occurred. Please try again.');
-        setIsLoading(false);
-      }
+      // Redirect to login page
+      window.location.href = '/login';
     } catch (error) {
       // Network error or other failure
-      alert('An error occurred. Please try again.');
+      console.error('Logout failed:', error);
+      alert('An error occurred during logout. Please try again.');
       setIsLoading(false);
     }
   };
