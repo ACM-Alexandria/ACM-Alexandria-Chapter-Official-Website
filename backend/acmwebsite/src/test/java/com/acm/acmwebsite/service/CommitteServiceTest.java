@@ -49,9 +49,9 @@ class CommitteServiceTest {
     {
 
         long targetId = 2344L;
-        Message testMessage = new Message("Hello!");
+        Message testMessage = new Message("Hello!","mock");
         Email email = new Email("dev@example.com");
-        Subscription activeSub = new Subscription("dev@example.com", SubscripeTo.COMMITTEE, targetId);
+        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         activeSub.setId(targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
@@ -73,14 +73,15 @@ class CommitteServiceTest {
     @DisplayName("send call message with wrong subscribeTo param")
     void snedCallMessageWithWrongSubscribeTO(){
         long targetId=2233L;
-        Subscription activeSub = new Subscription("dev@example.com", SubscripeTo.COMMITTEE, targetId);
+        Email email = new Email("dev@example.com");
+        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         lenient().when(subscriptionService.getAllSubscribersByTopic(SubscripeTo.COMMITTEE,targetId)).thenReturn(
                List.of(activeSub)
         );
 
 
-        committeService.sendCallMessage(SubscripeTo.EVENT,targetId,new Message("message !"));
+        committeService.sendCallMessage(SubscripeTo.EVENT,targetId,new Message("message !","mock"));
 
         verify(emailService, never()).sendEmail(any(),any());
     }
@@ -91,14 +92,14 @@ class CommitteServiceTest {
         //given
         long targetId = 2344L;
         long wrongId=3344L;
-
-        Subscription activeSub = new Subscription("dev@example.com", SubscripeTo.COMMITTEE, targetId);
+        Email email = new Email("dev@example.com");
+        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         lenient().when(subscriptionService.getAllSubscribersByTopic(SubscripeTo.COMMITTEE,targetId)).thenReturn(
                 List.of(activeSub)
         );
 
-        committeService.sendCallMessage(SubscripeTo.COMMITTEE,wrongId,new Message("message !"));
+        committeService.sendCallMessage(SubscripeTo.COMMITTEE,wrongId,new Message("message !","mock"));
 
         verify(emailService, never()).sendEmail(any(),any());
 
@@ -116,9 +117,9 @@ class CommitteServiceTest {
     void shouldNotSendEmailWhenStatusIsInactive() {
         // Arrange
         long targetId = 2344L;
-        Message testMessage = new Message("Important Update");
-
-        Subscription inactiveSub = new Subscription("user@example.com", SubscripeTo.COMMITTEE, targetId);
+        Message testMessage = new Message("Important Update","mock");
+        Email email = new Email("dev@example.com");
+        Subscription inactiveSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
         inactiveSub.setStatus(SubscriptionStatus.PENDING); // Set to INACTIVE
         inactiveSub.setEmail(new Email("user@example.com"));
 
