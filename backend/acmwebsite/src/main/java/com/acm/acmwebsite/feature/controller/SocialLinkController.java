@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.entity.SocialLink;
 import com.acm.acmwebsite.feature.service.SocialLinkService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +29,21 @@ public class SocialLinkController {
         return socialLinkService.createSocialLink(socialLink);
     }
     @PutMapping("{id}")
-    public SocialLink updateSocialLink(@PathVariable Long id, @RequestBody SocialLink socialLink) {
-        return socialLinkService.updateSocialLink(id, socialLink);
+    public ResponseEntity<?> updateSocialLink(
+            @PathVariable Long id,
+            @RequestBody SocialLink socialLink) {
+
+        try {
+            SocialLink updated = socialLinkService.updateSocialLink(id, socialLink);
+            return ResponseEntity.ok(updated);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
     }
+
     @DeleteMapping ("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
         socialLinkService.deleteSocialLink(id);
