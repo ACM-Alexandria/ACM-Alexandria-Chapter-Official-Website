@@ -2,6 +2,7 @@ package com.acm.acmwebsite.User_Authentication.controller;
 
 import com.acm.acmwebsite.User_Authentication.dto.ForgotPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
+
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
 import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
@@ -25,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.Map;
-
-/** AuthController */
+/** RegisterController */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -41,54 +39,35 @@ public class AuthController {
 
 
 
-  @PostMapping("/forgot-password")
-  public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordDTO request) {
-
-    // This method returns VOID. It handles "User Found" and "User Not Found"
-    // identically.
-    userService.initiatePasswordReset(request.getEmail());
-
-    // Always return the same success message
-    return ResponseEntity.ok(Collections.singletonMap(
-        "message", "If an account with this email exists, a password reset link has been sent."));
-  }
-
   @PostMapping("register")
   public ResponseEntity<SuccessRegisterResponse> registerUser(
-      @RequestBody @Valid RegisterDTO registerDTO) {
+          @RequestBody @Valid RegisterDTO registerDTO) {
     SuccessRegisterResponse savedUser = registerService.createUser(registerDTO);
     return ResponseEntity.status(201).body(savedUser);
   }
 
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
-  @PostMapping("/reset-password")
-  public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO dto) {
     try {
       LoginResponse response = userService.login(loginRequest);
 
       return ResponseEntity.ok(response);
-      userService.resetPassword(dto);
-      return ResponseEntity.ok(
-          Map.of("message", "Password has been reset successfully."));
     } catch (IllegalArgumentException ex) {
       return ResponseEntity.status(401)
-          .body(new ErrorMessageResponse("Incorrect email or password"));
-      return ResponseEntity.badRequest().body(
-          Map.of("error", ex.getMessage()));
+              .body(new ErrorMessageResponse("Incorrect email or password"));
     }
   }
   @PostMapping("/refresh")
   @Transactional
-    public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request) {
+  public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request) {
 
-          tokenService.validateRefreshToken(request.getRefreshToken());
-          User user = tokenService.getUserFromRefreshToken(request.getRefreshToken());
-          tokenService.revokeRefreshToken(request.getRefreshToken());
-          String newAccessToken = tokenService.createAccessToken(user.getEmail());
-          String newRefreshToken = tokenService.createRefreshToken(user);
-            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken);
-          return ResponseEntity.ok(response);
+    tokenService.validateRefreshToken(request.getRefreshToken());
+    User user = tokenService.getUserFromRefreshToken(request.getRefreshToken());
+    tokenService.revokeRefreshToken(request.getRefreshToken());
+    String newAccessToken = tokenService.createAccessToken(user.getEmail());
+    String newRefreshToken = tokenService.createRefreshToken(user);
+    RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken);
+    return ResponseEntity.ok(response);
   }
 
 
