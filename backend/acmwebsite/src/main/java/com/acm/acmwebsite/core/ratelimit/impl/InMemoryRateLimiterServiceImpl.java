@@ -1,5 +1,6 @@
-package com.acm.acmwebsite.core.ratelimit;
+package com.acm.acmwebsite.core.ratelimit.impl;
 
+import com.acm.acmwebsite.core.ratelimit.RateLimiterService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
