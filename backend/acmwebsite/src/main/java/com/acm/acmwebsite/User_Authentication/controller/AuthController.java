@@ -1,6 +1,10 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
-import com.acm.acmwebsite.User_Authentication.dto.*;
+import com.acm.acmwebsite.User_Authentication.dto.ForgotPasswordDTO;
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
+import com.acm.acmwebsite.User_Authentication.service.UserService;
+import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
+import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
@@ -42,14 +46,15 @@ public class AuthController {
     return ResponseEntity.status(201).body(savedUser);
   }
 
-  @PostMapping("/login")
-  public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO dto) {
     try {
-      LoginResponse response = userService.login(loginRequest);
-      return ResponseEntity.ok(response);
+      userService.resetPassword(dto);
+      return ResponseEntity.ok(
+          Map.of("message", "Password has been reset successfully."));
     } catch (IllegalArgumentException ex) {
-      return ResponseEntity.status(401)
-          .body(new ErrorMessageResponse("Incorrect email or password"));
+      return ResponseEntity.badRequest().body(
+          Map.of("error", ex.getMessage()));
     }
   }
 
