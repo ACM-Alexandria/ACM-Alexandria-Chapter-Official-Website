@@ -1,4 +1,5 @@
 package com.acm.acmwebsite.User_Authentication.service.impl;
+
 import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
@@ -7,25 +8,24 @@ import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
-import java.util.Optional;
-import java.util.UUID;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
   private final EmailService emailService;
+  private final TokenService tokenService;
 
   @Override
   @Transactional(readOnly = true)
@@ -121,60 +122,59 @@ public class UserServiceImpl implements UserService {
     return passwordEncoder.matches(plainPassword, userOptional.get().getPasswordHash());
   }
 
-    @Override
-    @Transactional
-    public void initiatePasswordReset(String email) {
-        // 1. Find User
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-
-        // We do NOT throw an exception here.
-        if (userOptional.isEmpty()) {
-            return;
-        }
-
-        User user = userOptional.get();
-
-        // 3. Generate Secure Token (Raw)
-        String rawToken = generateSecureToken();
-
-        // 4. Hash the Token (For Storage)
-        String hashedToken = hashToken(rawToken);
-
-        // 5. Update User Entity
-        user.setResetPasswordToken(hashedToken);
-        user.setResetPasswordTokenCreatedAt(LocalDateTime.now());
-        // Increment count (handling potential nulls if existing data wasn't migrated perfectly)
-        user.setForgotPasswordCount((user.getForgotPasswordCount() == null ? 0 : user.getForgotPasswordCount()) + 1);
-
-        userRepository.save(user);
-
-        // 6. Send Email (Send the RAW token, NOT the hash)
-        emailService.sendPasswordResetEmail(user.getEmail(), rawToken);
-    }
-
-
-
-    // Generates a random 64-character URL-safe string
-    private String generateSecureToken() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] tokenBytes = new byte[48]; // 48 bytes * 1.33 base64 expansion ≈ 64 chars
-        secureRandom.nextBytes(tokenBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
-    }
-
-    // SHA-256 Hashing
-    private String hashToken(String rawToken) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing token", e);
-        }
-    }
   @Override
-  @Transactional(readOnly = true)
+  @Transactional
+  public void initiatePasswordReset(String email) {
+    // 1. Find User
+    Optional<User> userOptional = userRepository.findByEmail(email);
+
+    // We do NOT throw an exception here.
+    if (userOptional.isEmpty()) {
+      return;
+    }
+
+    User user = userOptional.get();
+
+    // 3. Generate Secure Token (Raw)
+    String rawToken = generateSecureToken();
+
+    // 4. Hash the Token (For Storage)
+    String hashedToken = hashToken(rawToken);
+
+    // 5. Update User Entity
+    user.setResetPasswordToken(hashedToken);
+    user.setResetPasswordTokenCreatedAt(LocalDateTime.now());
+    // Increment count (handling potential nulls if existing data wasn't migrated perfectly)
+    user.setForgotPasswordCount(
+        (user.getForgotPasswordCount() == null ? 0 : user.getForgotPasswordCount()) + 1);
+
+    userRepository.save(user);
+
+    // 6. Send Email (Send the RAW token, NOT the hash)
+    emailService.sendPasswordResetEmail(user.getEmail(), rawToken);
+  }
+
+  // Generates a random 64-character URL-safe string
+  private String generateSecureToken() {
+    SecureRandom secureRandom = new SecureRandom();
+    byte[] tokenBytes = new byte[48]; // 48 bytes * 1.33 base64 expansion ≈ 64 chars
+    secureRandom.nextBytes(tokenBytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+  }
+
+  // SHA-256 Hashing
+  private String hashToken(String rawToken) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
+      return Base64.getEncoder().encodeToString(hash);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Error hashing token", e);
+    }
+  }
+
+  @Override
+  @Transactional
   public LoginResponse login(LoginRequest loginRequest) {
     String email = loginRequest.getEmail().trim().toLowerCase();
     String password = loginRequest.getPassword();
@@ -186,11 +186,13 @@ public class UserServiceImpl implements UserService {
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
       throw new IllegalArgumentException("Incorrect email or password");
     }
-
-    return new LoginResponse(
-            user.getId(),
-            user.getEmail()
-    );
+    String refreshToken = tokenService.createRefreshToken(user);
+    String accessToken = tokenService.createAccessToken(user.getEmail());
+    return LoginResponse.builder()
+        .email(user.getEmail())
+        .id(user.getId())
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .build();
   }
-
 }
