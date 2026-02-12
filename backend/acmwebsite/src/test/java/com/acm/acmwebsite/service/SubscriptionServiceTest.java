@@ -35,11 +35,11 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Send confirmation email to Inactive subscription")
     void shouldSendConfirmationEmail(){
-
-        Subscription subscription = new Subscription("mock@gmail.com", SubscripeTo.COMMITTEE,1234L);
+        Email email = new Email("dev@example.com");
+        Subscription subscription = new Subscription(email, SubscripeTo.COMMITTEE,1234L);
         subscription.setStatus(SubscriptionStatus.PENDING);
 
-        subscriptionService.sendConfirmationEmail(subscription,new Message("hello!"));
+        subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
 
         verify(emailService,times(1)).sendEmail(any(),any());
         verify(subscriptionRepository,times(1)).save(any());
@@ -51,10 +51,11 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("send confirmation email to active subscription")
     void shouldNotSendConfirmationEmail(){
-        Subscription subscription = new Subscription("mock@gmail.com", SubscripeTo.COMMITTEE,1234L);
+        Email email = new Email("dev@example.com");
+        Subscription subscription = new Subscription(email, SubscripeTo.COMMITTEE,1234L);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
-        subscriptionService.sendConfirmationEmail(subscription,new Message("hello!"));
+        subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
         verify(emailService,never()).sendEmail(any(),any());
         verify(subscriptionRepository,never()).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should not be changed ");
@@ -77,17 +78,17 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Unsubscribe: Successfully change status to UNSUBSCRIBE")
     void shouldUnsubscribeSuccessfully() {
-        String email = "test@example.com";
+        Email email = new Email("dev@example.com");
         SubscripeTo topic = SubscripeTo.COMMITTEE;
         Long id = 1L;
         Subscription sub = new Subscription(email, topic, id);
         sub.setStatus(SubscriptionStatus.ACTIVE);
 
-        when(subscriptionRepository.findSubscriptionByEmailAndSubscribeToAndSubscribeToId(email, topic, id))
+        when(subscriptionRepository.findSubscriptionByEmailAndSubscribeToAndSubscribeToId(email.getEmail(), topic, id))
                 .thenReturn(sub);
 
 
-        subscriptionService.unsubscribeByEmailAndTopic(email, topic, id);
+        subscriptionService.unsubscribeByEmailAndTopic(email.getEmail(), topic, id);
 
         assertEquals(SubscriptionStatus.UNSUBSCRIBE, sub.getStatus());
         verify(subscriptionRepository).save(sub);
