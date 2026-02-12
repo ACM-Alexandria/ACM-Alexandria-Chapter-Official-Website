@@ -105,16 +105,16 @@ export const forgotPassword = async (email) => {
 /**
  * Reset password with token
  */
-export const resetPassword = async (resetData) => {
-  try {
-    const response = await api.post("/v1/auth/reset-password", resetData);
-    return response.data;
-  } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
-    }
-    throw new Error(
-      "An error occurred while resetting password. Please try again."
-    );
-  }
-};
+// export const resetPassword = async (resetData) => {
+//   try {
+//     const response = await api.post("/v1/auth/reset-password", resetData);
+//     return response.data;
+//   } catch (error) {
+//     if (error.response?.data?.error) {
+//       throw new Error(error.response.data.error);
+//     }
+//     throw new Error(
+//       "An error occurred while resetting password. Please try again."
+//     );
+//   }
+
