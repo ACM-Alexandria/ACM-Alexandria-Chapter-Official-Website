@@ -157,47 +157,51 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="w-full max-w-md relative">
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-black opacity-5"></div>
+            <div className="relative z-10">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Reset Password
+              </h1>
+              <p className="text-blue-100">
+                Create a new secure password for your account
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Reset Password
-            </h1>
-            <p className="text-purple-100">
-              Choose a new password for your account
-            </p>
           </div>
 
           <div className="p-8">
             {/* Error: No token */}
             {!token && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-red-400 mt-0.5 mr-3 flex-shrink-0"
+                    className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -208,10 +212,12 @@ const ResetPassword = () => {
                     />
                   </svg>
                   <div className="flex-1">
-                    <p className="text-red-200 text-sm">{apiError}</p>
+                    <p className="text-red-800 text-sm font-medium">
+                      {apiError}
+                    </p>
                     <button
                       onClick={() => navigate("/forgot-password")}
-                      className="text-red-300 hover:text-red-100 text-sm font-medium mt-2 inline-flex items-center transition-colors"
+                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline"
                     >
                       Request a new reset link
                       <svg
@@ -235,10 +241,10 @@ const ResetPassword = () => {
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6 animate-fadeIn">
+              <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 mb-6 animate-fadeIn">
                 <div className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-400 mt-0.5 mr-3 flex-shrink-0"
+                    className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -248,17 +254,19 @@ const ResetPassword = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <p className="text-green-200 text-sm">{successMessage}</p>
+                  <p className="text-green-800 text-sm font-medium">
+                    {successMessage}
+                  </p>
                 </div>
               </div>
             )}
 
             {/* API Error Message */}
             {apiError && token && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-red-400 mt-0.5 mr-3 flex-shrink-0"
+                    className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -269,10 +277,12 @@ const ResetPassword = () => {
                     />
                   </svg>
                   <div className="flex-1">
-                    <p className="text-red-200 text-sm">{apiError}</p>
+                    <p className="text-red-800 text-sm font-medium">
+                      {apiError}
+                    </p>
                     <button
                       onClick={() => navigate("/forgot-password")}
-                      className="text-red-300 hover:text-red-100 text-sm font-medium mt-2 inline-flex items-center transition-colors"
+                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline"
                     >
                       Request a new reset link
                       <svg
@@ -301,7 +311,7 @@ const ResetPassword = () => {
                 <div>
                   <label
                     htmlFor="new_password"
-                    className="block text-sm font-medium text-white mb-2"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
                     New Password
                   </label>
@@ -312,18 +322,18 @@ const ResetPassword = () => {
                       name="new_password"
                       value={formData.new_password}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 bg-white/5 border ${
+                      className={`w-full px-4 py-3 bg-gray-50 border-2 ${
                         errors.new_password
-                          ? "border-red-500/50"
-                          : "border-white/10"
-                      } rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all backdrop-blur-sm`}
+                          ? "border-red-300 focus:border-red-500"
+                          : "border-gray-200 focus:border-blue-500"
+                      } rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all`}
                       placeholder="Enter your new password"
                       disabled={isLoading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
                       tabIndex={-1}
                     >
                       {showPassword ? (
@@ -364,19 +374,19 @@ const ResetPassword = () => {
                     </button>
                   </div>
                   {errors.new_password && (
-                    <p className="mt-2 text-sm text-red-400">
+                    <p className="mt-2 text-sm text-red-600 font-medium">
                       {errors.new_password}
                     </p>
                   )}
                   {!errors.new_password && formData.new_password && (
-                    <div className="mt-2 space-y-1">
-                      <p className="text-xs text-gray-400">
-                        Password must contain:
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                        Password Requirements:
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {[
                           {
-                            label: "8+ chars",
+                            label: "8+ characters",
                             test: formData.new_password.length >= 8,
                           },
                           {
@@ -392,7 +402,7 @@ const ResetPassword = () => {
                             test: /[A-Z]/.test(formData.new_password),
                           },
                           {
-                            label: "Special char",
+                            label: "Special character",
                             test: /[!@#$%^&*(),.?":{}|<>]/.test(
                               formData.new_password,
                             ),
@@ -400,13 +410,43 @@ const ResetPassword = () => {
                         ].map((rule, idx) => (
                           <span
                             key={idx}
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
                               rule.test
-                                ? "bg-green-500/20 text-green-300"
-                                : "bg-white/5 text-gray-400"
+                                ? "bg-green-100 text-green-700 border border-green-200"
+                                : "bg-gray-100 text-gray-500 border border-gray-200"
                             }`}
                           >
-                            {rule.test ? "✓" : "○"} {rule.label}
+                            {rule.test ? (
+                              <span className="inline-flex items-center">
+                                <svg
+                                  className="w-3 h-3 mr-1"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                {rule.label}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center">
+                                <svg
+                                  className="w-3 h-3 mr-1"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                {rule.label}
+                              </span>
+                            )}
                           </span>
                         ))}
                       </div>
@@ -418,7 +458,7 @@ const ResetPassword = () => {
                 <div>
                   <label
                     htmlFor="new_password_confirm"
-                    className="block text-sm font-medium text-white mb-2"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
                     Confirm New Password
                   </label>
@@ -429,11 +469,11 @@ const ResetPassword = () => {
                       name="new_password_confirm"
                       value={formData.new_password_confirm}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 bg-white/5 border ${
+                      className={`w-full px-4 py-3 bg-gray-50 border-2 ${
                         errors.new_password_confirm
-                          ? "border-red-500/50"
-                          : "border-white/10"
-                      } rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all backdrop-blur-sm`}
+                          ? "border-red-300 focus:border-red-500"
+                          : "border-gray-200 focus:border-blue-500"
+                      } rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all`}
                       placeholder="Confirm your new password"
                       disabled={isLoading}
                     />
@@ -442,7 +482,7 @@ const ResetPassword = () => {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
                       tabIndex={-1}
                     >
                       {showConfirmPassword ? (
@@ -483,16 +523,16 @@ const ResetPassword = () => {
                     </button>
                   </div>
                   {errors.new_password_confirm && (
-                    <p className="mt-2 text-sm text-red-400">
+                    <p className="mt-2 text-sm text-red-600 font-medium">
                       {errors.new_password_confirm}
                     </p>
                   )}
                   {!errors.new_password_confirm &&
                     formData.new_password_confirm &&
                     formData.new_password === formData.new_password_confirm && (
-                      <p className="mt-2 text-sm text-green-400 flex items-center">
+                      <p className="mt-2 text-sm text-green-600 font-medium flex items-center">
                         <svg
-                          className="w-4 h-4 mr-1"
+                          className="w-4 h-4 mr-1.5"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -502,7 +542,7 @@ const ResetPassword = () => {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Passwords match
+                        Passwords match perfectly
                       </p>
                     )}
                 </div>
@@ -511,10 +551,10 @@ const ResetPassword = () => {
                 <button
                   type="submit"
                   disabled={!isFormValid() || isLoading}
-                  className={`w-full py-3 px-4 rounded-xl font-semibold text-white transition-all duration-300 ${
+                  className={`w-full py-3.5 px-4 rounded-xl font-semibold text-white transition-all duration-300 ${
                     !isFormValid() || isLoading
-                      ? "bg-gray-600 cursor-not-allowed opacity-50"
-                      : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
                   }`}
                 >
                   {isLoading ? (
@@ -546,14 +586,14 @@ const ResetPassword = () => {
                 </button>
 
                 {/* Back to Login Link */}
-                <div className="text-center">
+                <div className="text-center pt-2">
                   <button
                     type="button"
                     onClick={() => navigate("/login")}
-                    className="text-sm text-purple-300 hover:text-purple-100 transition-colors inline-flex items-center"
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center font-medium group"
                   >
                     <svg
-                      className="w-4 h-4 mr-1"
+                      className="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -572,17 +612,6 @@ const ResetPassword = () => {
             )}
           </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-gray-400 text-sm mt-6">
-          Need help?{" "}
-          <a
-            href="/support"
-            className="text-purple-300 hover:text-purple-100 transition-colors"
-          >
-            Contact Support
-          </a>
-        </p>
       </div>
 
       <style jsx>{`
@@ -596,11 +625,34 @@ const ResetPassword = () => {
             transform: translateY(0);
           }
         }
+
+        @keyframes blob {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
         }
-        .delay-1000 {
-          animation-delay: 1s;
+
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+          animation-delay: 4s;
         }
       `}</style>
     </div>
