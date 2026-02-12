@@ -30,8 +30,23 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      // Get the request URL
+      const requestUrl = error.config?.url || "";
+      
+      // Only redirect if NOT on auth endpoints (login, register, etc.)
+      const isAuthEndpoint = 
+        requestUrl.includes("/auth/login") || 
+        requestUrl.includes("/auth/register") ||
+        requestUrl.includes("/auth/forgot-password") ||
+        requestUrl.includes("/auth/reset-password");
+      
+      // Only redirect to login if:
+      // 1. NOT an auth endpoint (login/register)
+      // 2. NOT already on the login page
+      if (!isAuthEndpoint && window.location.pathname !== "/login") {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },
