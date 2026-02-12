@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.service;
 
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
@@ -25,4 +26,6 @@ public interface UserService {
   LoginResponse login(LoginRequest loginRequest);
 
   void initiatePasswordReset(String email);
+
+  void resetPassword(ResetPasswordDTO dto);
 }

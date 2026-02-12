@@ -1,5 +1,10 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
+import com.acm.acmwebsite.User_Authentication.dto.ForgotPasswordDTO;
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
+import com.acm.acmwebsite.User_Authentication.service.UserService;
+import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
+import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.*;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
@@ -75,6 +80,21 @@ public class AuthController {
           String newRefreshToken = tokenService.createRefreshToken(user);
             RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken);
           return ResponseEntity.ok(response);
+  }
+
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO dto) {
+    try {
+      userService.resetPassword(dto);
+      return ResponseEntity.ok(
+              Map.of("message", "Password has been reset successfully.")
+      );
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.badRequest().body(
+              Map.of("error", ex.getMessage())
+      );
+    }
   }
 
 }
