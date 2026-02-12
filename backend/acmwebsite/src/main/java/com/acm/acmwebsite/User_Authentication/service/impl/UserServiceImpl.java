@@ -2,6 +2,7 @@ package com.acm.acmwebsite.User_Authentication.service.impl;
 
 import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
+import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
@@ -11,6 +12,16 @@ import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
+
+import java.time.Duration;
+import java.util.Optional;
+import java.util.UUID;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -195,4 +206,31 @@ public class UserServiceImpl implements UserService {
         .refreshToken(refreshToken)
         .build();
   }
+
+    public void resetPassword(ResetPasswordDTO dto) {
+
+        if (!dto.getNew_password().equals(dto.getNew_password_confirm())) {
+            throw new IllegalArgumentException("Passwords do not match.");
+        }
+        if (dto.getNew_password().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters.");
+        }
+        String hashedToken = hashToken(dto.getToken());
+        // Find user by hashed token
+        Optional<User> optionalUser = userRepository.findByResetPasswordToken(hashedToken);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("Invalid or expired token.");
+        }
+        User user = optionalUser.get();
+        //Check token expiration (1 hour max)
+        LocalDateTime createdAt = user.getResetPasswordTokenCreatedAt();
+        if (createdAt == null || Duration.between(createdAt, LocalDateTime.now()).toHours() >= 1) {
+            throw new IllegalArgumentException("Invalid or expired token.");
+        }
+        String newHash = passwordEncoder.encode(dto.getNew_password());
+        user.setPasswordHash(newHash);
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenCreatedAt(null);
+        userRepository.save(user);
+    }
 }
