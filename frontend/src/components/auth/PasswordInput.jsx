@@ -18,8 +18,8 @@ const PasswordInput = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-1.5">
+    <div className="mb-5">
+      <div className="flex justify-between items-center mb-2">
         <label htmlFor={name} className="block text-sm font-bold text-gray-700">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}

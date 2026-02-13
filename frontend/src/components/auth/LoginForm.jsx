@@ -114,7 +114,7 @@ const LoginForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.email}
-        placeholder="example@mail.com"
+        placeholder="Enter your email"
         required={true}
         autoComplete="email"
         icon={EnvelopeIcon} // Passing the new icon
@@ -140,10 +140,10 @@ const LoginForm = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className={`w-full py-3.5 px-4 mt-2 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
+        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
           isLoading
             ? "opacity-70 cursor-not-allowed"
-            : "hover:shadow-lg hover:opacity-95"
+            : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
         }`}>
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
@@ -156,7 +156,7 @@ const LoginForm = () => {
       </button>
 
       {/* Footer Links */}
-      <div className="text-center space-y-4 pt-6">
+      <div className="text-center space-y-3 pt-5">
         <p className="text-sm text-gray-500">
           Don't have an account?{" "}
           <Link
