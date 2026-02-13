@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ErrorExclamationIcon } from "../icons"; 
+import { ErrorExclamationIcon } from "../icons";
 
 const InputField = ({
   label,
@@ -17,10 +17,10 @@ const InputField = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="mb-4">
+    <div className="mb-5">
       <label
         htmlFor={name}
-        className="block text-sm font-bold text-gray-700 mb-1.5">
+        className="block text-sm font-bold text-gray-700 mb-2">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -50,7 +50,7 @@ const InputField = ({
             error
               ? "border-red-500 focus:ring-red-500"
               : isFocused
-                ? "border-blue-400 focus:ring-blue-100" 
+                ? "border-blue-400 focus:ring-blue-100"
                 : "border-gray-200 focus:ring-blue-100"
           }`}
           aria-invalid={error ? "true" : "false"}

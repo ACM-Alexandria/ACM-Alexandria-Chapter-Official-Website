@@ -8,7 +8,13 @@ import {
   validatePassword,
   validatePasswordMatch,
 } from "../../utils/validation";
-import { ErrorCircleIcon, SuccessCircleIcon, SpinnerIcon } from "../icons";
+import {
+  ErrorCircleIcon,
+  SuccessCircleIcon,
+  SpinnerIcon,
+  EnvelopeIcon,
+  LockIcon,
+} from "../icons";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -201,112 +207,109 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <form onSubmit={handleSubmit} noValidate>
-        {/* General error message */}
-        {errors.general && (
-          <div
-            className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
-            role="alert">
-            <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
-            <p className="text-sm text-red-800">{errors.general}</p>
-          </div>
-        )}
-
-        {/* Success message */}
-        {successMessage && (
-          <div
-            className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
-            role="alert">
-            <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
-            <p className="text-sm text-green-800">{successMessage}</p>
-          </div>
-        )}
-
-        {/* Email field */}
-        <InputField
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.email}
-          placeholder="example@mail.com"
-          required={true}
-          autoComplete="email"
-        />
-
-        {/* Password field */}
-        <PasswordInput
-          label="Password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.password}
-          placeholder="Enter your password"
-          required={true}
-          autoComplete="new-password"
-        />
-
-        {/* Confirm Password field */}
-        <PasswordInput
-          label="Confirm Password"
-          name="password_confirmation"
-          value={formData.password_confirmation}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.password_confirmation}
-          placeholder="Re-enter your password"
-          required={true}
-          autoComplete="new-password"
-        />
-
-        {/* Password requirements hint */}
-        <div className="mb-6 text-xs text-gray-600">
-          <p className="mb-1">Password must contain:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>At least 8 characters</li>
-            <li>One uppercase letter</li>
-            <li>One lowercase letter</li>
-            <li>One number</li>
-            <li>One special character (@#$%^&+=!)</li>
-          </ul>
+    <form onSubmit={handleSubmit} noValidate>
+      {/* General error message */}
+      {errors.general && (
+        <div
+          className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
+          role="alert">
+          <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
+          <p className="text-sm text-red-800">{errors.general}</p>
         </div>
+      )}
 
-        {/* Submit button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-3 px-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-semibold rounded-lg transition-all duration-300 ${
-            isLoading
-              ? "opacity-70 cursor-not-allowed"
-              : "hover:opacity-90 hover:shadow-lg"
-          }`}>
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <SpinnerIcon />
-              Creating account...
-            </span>
-          ) : (
-            "Create Account"
-          )}
-        </button>
-
-        {/* Login link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-blue-600 hover:text-blue-800 font-semibold hover:underline transition-colors duration-200">
-              Log in
-            </Link>
-          </p>
+      {/* Success message */}
+      {successMessage && (
+        <div
+          className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
+          role="alert">
+          <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
+          <p className="text-sm text-green-800">{successMessage}</p>
         </div>
-      </form>
-    </div>
+      )}
+
+      {/* Email field */}
+      <InputField
+        label="Email Address"
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.email}
+        placeholder="Enter your email"
+        required={false}
+        autoComplete="email"
+        icon={EnvelopeIcon}
+      />
+
+      {/* Password field */}
+      <PasswordInput
+        label="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.password}
+        placeholder="Enter your password"
+        required={false}
+        autoComplete="new-password"
+        icon={LockIcon}
+      />
+
+      {/* Confirm Password field */}
+      <PasswordInput
+        label="Confirm Password"
+        name="password_confirmation"
+        value={formData.password_confirmation}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.password_confirmation}
+        placeholder="Enter your password"
+        required={false}
+        autoComplete="new-password"
+        icon={LockIcon}
+      />
+
+      {/* Submit button */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
+          isLoading
+            ? "opacity-70 cursor-not-allowed"
+            : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
+        }`}>
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <SpinnerIcon />
+            Creating account...
+          </span>
+        ) : (
+          "Sign up"
+        )}
+      </button>
+
+      {/* Footer Links */}
+      <div className="text-center space-y-3 pt-5">
+        <p className="text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+            Log In
+          </Link>
+        </p>
+
+        <div>
+          <Link
+            to="/"
+            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            <span className="mr-1 text-lg">‹</span> Back to the main page
+          </Link>
+        </div>
+      </div>
+    </form>
   );
 };
 
