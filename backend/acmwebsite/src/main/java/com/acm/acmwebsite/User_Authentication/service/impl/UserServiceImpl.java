@@ -28,15 +28,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
-
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +40,7 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final EmailService emailService;
   private final TokenService tokenService;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   @Override
   @Transactional(readOnly = true)
@@ -163,6 +157,7 @@ public class UserServiceImpl implements UserService {
 
     // 6. Send Email (Send the RAW token, NOT the hash)
     emailService.sendPasswordResetEmail(user.getEmail(), rawToken);
+    logger.info("Password reset initiated for email: {}. Token sent to email. And Token : {}", email, rawToken);
   }
 
   // Generates a random 64-character URL-safe string
