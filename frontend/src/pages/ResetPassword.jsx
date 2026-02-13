@@ -105,156 +105,153 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4 py-12">
       <div className="bg-white w-full max-w-[480px] rounded-2xl shadow-xl p-10 sm:p-12 border border-gray-100">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
-            Reset Password
-          </h1>
-          <p className="text-gray-500 text-sm leading-relaxed">
-            Enter your new password and confirm it to log in
-            <br />
-            using it next time
-          </p>
-        </div>
+        {isSuccess ? (
+          /* Success View */
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
+              Password Reset
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              Your password has been reset successfully!
+              <br />
+              You can now use it to log in
+            </p>
 
-        {/* No token error */}
-        {!token && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-            <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
-            <div>
-              <p className="text-sm text-red-800">{apiError}</p>
-              <button
-                onClick={() => navigate("/forgot-password")}
-                className="text-sm text-red-700 font-bold hover:underline mt-1">
-                Request a new reset link
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* API error */}
-        {apiError && token && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-            <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
-            <div>
-              <p className="text-sm text-red-800">{apiError}</p>
-              <button
-                onClick={() => navigate("/forgot-password")}
-                className="text-sm text-red-700 font-bold hover:underline mt-1">
-                Request a new reset link
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Form */}
-        {token && (
-          <form onSubmit={handleSubmit} noValidate>
-            <PasswordInput
-              label="Password"
-              name="new_password"
-              value={formData.new_password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.new_password}
-              placeholder="Enter your password"
-              required={false}
-              autoComplete="new-password"
-              icon={LockIcon}
-            />
-
-            <PasswordInput
-              label="Confirm Password"
-              name="new_password_confirm"
-              value={formData.new_password_confirm}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.new_password_confirm}
-              placeholder="Enter your password"
-              required={false}
-              autoComplete="new-password"
-              icon={LockIcon}
-            />
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 ${
-                isLoading
-                  ? "opacity-70 cursor-not-allowed"
-                  : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
-              }`}>
-              {isLoading ? (
-                <>
-                  <SpinnerIcon />
-                  Resetting...
-                </>
-              ) : (
-                "Reset Password"
-              )}
-            </button>
-          </form>
-        )}
-
-        {/* Footer Links */}
-        <div className="text-center space-y-3 pt-5">
-          <p className="text-sm text-gray-500">
-            Return to{" "}
-            <Link
-              to="/login"
-              className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-              Log In
-            </Link>
-          </p>
-
-          <div>
-            <Link
-              to="/"
-              className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-              <span className="mr-1 text-lg">‹</span> Back to the main page
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Success Modal Overlay */}
-      {isSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-          <div className="bg-white w-full max-w-[480px] rounded-2xl shadow-2xl p-10 sm:p-12 border border-gray-100 animate-[fadeIn_0.3s_ease-out]">
-            <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
-                Password Reset
-              </h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-8">
-                Your password has been reset successfully!
-                <br />
-                You can now use it to log in
+            <div className="space-y-3 pt-2">
+              <p className="text-sm text-gray-500">
+                Return to{" "}
+                <Link
+                  to="/login"
+                  className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+                  Log In
+                </Link>
               </p>
 
-              <div className="border-t border-gray-100 pt-5 space-y-3">
-                <p className="text-sm text-gray-500">
-                  Return to{" "}
-                  <Link
-                    to="/login"
-                    className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-                    Log In
-                  </Link>
-                </p>
-
-                <div>
-                  <Link
-                    to="/"
-                    className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-                    <span className="mr-1 text-lg">‹</span> Back to the main
-                    page
-                  </Link>
-                </div>
+              <div>
+                <Link
+                  to="/"
+                  className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                  <span className="mr-1 text-lg">‹</span> Back to the main page
+                </Link>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <>
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+                Reset Password
+              </h1>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Enter your new password and confirm it to log in
+                <br />
+                using it next time
+              </p>
+            </div>
+
+            {/* No token error */}
+            {!token && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                  <p className="text-sm text-red-800">{apiError}</p>
+                  <button
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-sm text-red-700 font-bold hover:underline mt-1">
+                    Request a new reset link
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* API error */}
+            {apiError && token && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                  <p className="text-sm text-red-800">{apiError}</p>
+                  <button
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-sm text-red-700 font-bold hover:underline mt-1">
+                    Request a new reset link
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Form */}
+            {token && (
+              <form onSubmit={handleSubmit} noValidate>
+                <PasswordInput
+                  label="Password"
+                  name="new_password"
+                  value={formData.new_password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.new_password}
+                  placeholder="Enter your password"
+                  required={false}
+                  autoComplete="new-password"
+                  icon={LockIcon}
+                />
+
+                <PasswordInput
+                  label="Confirm Password"
+                  name="new_password_confirm"
+                  value={formData.new_password_confirm}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.new_password_confirm}
+                  placeholder="Enter your password"
+                  required={false}
+                  autoComplete="new-password"
+                  icon={LockIcon}
+                />
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 ${
+                    isLoading
+                      ? "opacity-70 cursor-not-allowed"
+                      : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
+                  }`}>
+                  {isLoading ? (
+                    <>
+                      <SpinnerIcon />
+                      Resetting...
+                    </>
+                  ) : (
+                    "Reset Password"
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* Footer Links */}
+            <div className="text-center space-y-3 pt-5">
+              <p className="text-sm text-gray-500">
+                Return to{" "}
+                <Link
+                  to="/login"
+                  className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+                  Log In
+                </Link>
+              </p>
+
+              <div>
+                <Link
+                  to="/"
+                  className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                  <span className="mr-1 text-lg">‹</span> Back to the main page
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
