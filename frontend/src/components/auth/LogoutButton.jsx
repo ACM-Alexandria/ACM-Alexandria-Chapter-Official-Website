@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
-    const { logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -14,11 +14,11 @@ function LogoutButton() {
       await logout();
 
       // Redirect to login page
-      window.location.href = '/login';
+      window.location.href = "/login";
     } catch (error) {
       // Network error or other failure
-      console.error('Logout failed:', error);
-      alert('An error occurred during logout. Please try again.');
+      console.error("Logout failed:", error);
+      alert("An error occurred during logout. Please try again.");
       setIsLoading(false);
     }
   };
@@ -27,9 +27,8 @@ function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={isLoading}
-      className="logout-button"
-    >
-      {isLoading ? 'Logging out...' : 'Logout'}
+      className="logout-button">
+      {isLoading ? "Logging out..." : "Logout"}
     </button>
   );
 }

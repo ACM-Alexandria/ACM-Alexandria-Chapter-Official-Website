@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import RegisterForm from "../components/auth/RegisterForm";
 import logo from "../assets/acm-logo.png";
 
@@ -17,9 +18,7 @@ const RegisterPage = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Join ACM Alexandria
           </h1>
-          <p className="text-gray-600">
-            Create your account to get started
-          </p>
+          <p className="text-gray-600">Create your account to get started</p>
         </div>
 
         {/* Register Form Card */}
@@ -29,12 +28,11 @@ const RegisterPage = () => {
 
         {/* Back to Home Link */}
         <div className="mt-6 text-center">
-          <a
-            href="/"
-            className="text-sm text-gray-600 hover:text-gray-800 hover:underline transition-colors duration-200"
-          >
+          <Link
+            to="/"
+            className="text-sm text-gray-600 hover:text-gray-800 hover:underline transition-colors duration-200">
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
