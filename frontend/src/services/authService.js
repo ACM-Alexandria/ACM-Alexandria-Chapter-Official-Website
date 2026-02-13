@@ -1,51 +1,27 @@
-import axios from "axios";
-
-// Base API configuration
-const API_BASE_URL = "http://localhost:8000";
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-/**
- * Reset user password using the token from email
- * @param {Object} data - Reset password data
- * @param {string} data.token - Password reset token from URL
- * @param {string} data.new_password - New password
- * @param {string} data.new_password_confirm - Password confirmation
- * @returns {Promise} API response
- */
-export const resetPassword = async (data) => {
-  try {
-    const response = await apiClient.post("/api/v1/auth/reset-password", {
-      token: data.token,
-      new_password: data.new_password,
-      new_password_confirm: data.new_password_confirm,
-    });
-    return response.data;
-  } catch (error) {
-    // Re-throw the error to be handled by the component
-    throw error;
-  }
-};
-
-export default {
-  resetPassword,
-};
 import api from "./api";
+import tokenService from "./tokenService";
 
 /**
- * Login user with email and password
+ * Centralized Authentication Service
+ * All auth API calls go through the single axios instance (services/api.js).
+ * Tokens are managed via tokenService (in-memory + encrypted IndexedDB).
  */
-export const login = async (credentials) => {
+
+/**
+ * Login user with email and password.
+ * Stores tokens via tokenService on success.
+ * Backend returns camelCase: { id, email, accessToken, refreshToken }
+ */
+export const login = async (email, password) => {
   try {
-    const response = await api.post("/v1/auth/login", credentials);
+    const response = await api.post("/api/v1/auth/login", { email, password });
+    const { accessToken, refreshToken } = response.data;
+
+    // Store tokens securely
+    await tokenService.setTokens(accessToken, refreshToken);
+
     return response.data;
   } catch (error) {
-    // Extract error message from backend response
     if (error.response?.data?.error) {
       throw new Error(error.response.data.error);
     }
@@ -54,11 +30,13 @@ export const login = async (credentials) => {
 };
 
 /**
- * Register a new user
+ * Register a new user.
+ * Backend expects: { email, password, password_confirmation }
+ * Backend returns: { id, email }
  */
 export const register = async (userData) => {
   try {
-    const response = await api.post("/v1/auth/register", userData);
+    const response = await api.post("/api/v1/auth/register", userData);
     return response.data;
   } catch (error) {
     if (error.response?.data?.error) {
@@ -69,52 +47,91 @@ export const register = async (userData) => {
 };
 
 /**
- * Logout user
+ * Logout user — calls backend, then clears all local tokens.
+ * Backend expects: { refresh_token } (snake_case)
  */
-export const logout = async (refreshToken) => {
+export const logout = async () => {
   try {
-    const response = await api.post("/v1/user/logout", {
-      refreshToken,
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const refreshToken = await tokenService.loadRefreshToken();
+    if (refreshToken) {
+      await api.post("/api/v1/auth/logout", {
+        refresh_token: refreshToken,
+      });
     }
-    throw new Error("An error occurred during logout. Please try again.");
+  } catch (error) {
+    console.warn("Logout API call failed:", error);
+  } finally {
+    await tokenService.clearAllTokens();
   }
 };
 
 /**
- * Initiate password reset
+ * Initiate password reset — sends email with reset link.
  */
 export const forgotPassword = async (email) => {
   try {
-    const response = await api.post("/v1/auth/forgot-password", { email });
+    const response = await api.post("/api/v1/auth/forgot-password", { email });
     return response.data;
   } catch (error) {
     if (error.response?.data?.error) {
       throw new Error(error.response.data.error);
     }
     throw new Error(
-      "An error occurred while sending reset link. Please try again."
+      "An error occurred while sending reset link. Please try again.",
     );
   }
 };
 
 /**
- * Reset password with token
+ * Reset password with token from email link.
+ * Backend expects: { token, new_password, new_password_confirm }
  */
-// export const resetPassword = async (resetData) => {
-//   try {
-//     const response = await api.post("/v1/auth/reset-password", resetData);
-//     return response.data;
-//   } catch (error) {
-//     if (error.response?.data?.error) {
-//       throw new Error(error.response.data.error);
-//     }
-//     throw new Error(
-//       "An error occurred while resetting password. Please try again."
-//     );
-//   }
+export const resetPassword = async (data) => {
+  try {
+    const response = await api.post("/api/v1/auth/reset-password", {
+      token: data.token,
+      new_password: data.new_password,
+      new_password_confirm: data.new_password_confirm,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error(
+      "An error occurred while resetting password. Please try again.",
+    );
+  }
+};
 
+/**
+ * Refresh access token using stored refresh token.
+ * Backend expects: { refresh_token } (snake_case)
+ * Backend returns: { access_token, refresh_token } (snake_case)
+ */
+export const refreshAccessToken = async () => {
+  const refreshToken = await tokenService.loadRefreshToken();
+
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  try {
+    const response = await api.post("/api/v1/auth/refresh", {
+      refresh_token: refreshToken,
+    });
+
+    const { access_token, refresh_token } = response.data;
+
+    // Store rotated tokens
+    tokenService.setAccessToken(access_token);
+    if (refresh_token) {
+      await tokenService.setRefreshToken(refresh_token);
+    }
+
+    return access_token;
+  } catch (error) {
+    await tokenService.clearAllTokens();
+    throw new Error("Token refresh failed");
+  }
+};

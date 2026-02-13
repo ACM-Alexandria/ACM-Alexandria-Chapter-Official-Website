@@ -1,6 +1,23 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { resetPassword } from "../services/authService";
+import {
+  validatePassword as validatePasswordStrength,
+  validatePasswordMatch,
+  getPasswordRules,
+} from "../utils/validation";
+import {
+  LockIcon,
+  ErrorCircleIcon,
+  SuccessCircleIcon,
+  SpinnerIcon,
+  EyeSlashIcon,
+  EyeIcon,
+  CheckIcon,
+  MinusCircleIcon,
+  ArrowLeftIcon,
+  ChevronRightIcon,
+} from "../components/icons";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -28,53 +45,24 @@ const ResetPassword = () => {
     }
   }, [token]);
 
-  // Password validation rules
-  const validatePassword = (password) => {
-    const errors = [];
-
-    if (password.length < 8) {
-      errors.push("At least 8 characters");
-    }
-    if (!/\d/.test(password)) {
-      errors.push("At least one number");
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push("At least one lowercase letter");
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push("At least one uppercase letter");
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push("At least one special character");
-    }
-
-    return errors;
-  };
-
-  // Client-side validation
   const validateForm = () => {
     const newErrors = {};
 
-    // Check if fields are empty
     if (!formData.new_password) {
       newErrors.new_password = "Password is required";
     } else {
-      // Check password complexity
-      const passwordErrors = validatePassword(formData.new_password);
-      if (passwordErrors.length > 0) {
-        newErrors.new_password = passwordErrors.join(", ");
+      const validation = validatePasswordStrength(formData.new_password);
+      if (!validation.isValid) {
+        newErrors.new_password = validation.message;
       }
     }
 
-    if (!formData.new_password_confirm) {
-      newErrors.new_password_confirm = "Please confirm your password";
-    }
-
-    // Check if passwords match
-    if (formData.new_password && formData.new_password_confirm) {
-      if (formData.new_password !== formData.new_password_confirm) {
-        newErrors.new_password_confirm = "Passwords do not match";
-      }
+    const matchValidation = validatePasswordMatch(
+      formData.new_password,
+      formData.new_password_confirm,
+    );
+    if (!matchValidation.isValid) {
+      newErrors.new_password_confirm = matchValidation.message;
     }
 
     setErrors(newErrors);
@@ -152,7 +140,7 @@ const ResetPassword = () => {
       formData.new_password &&
       formData.new_password_confirm &&
       formData.new_password === formData.new_password_confirm &&
-      validatePassword(formData.new_password).length === 0
+      validatePasswordStrength(formData.new_password).isValid
     );
   };
 
@@ -172,19 +160,7 @@ const ResetPassword = () => {
             <div className="absolute inset-0 bg-black opacity-5"></div>
             <div className="relative z-10">
               <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
+                <LockIcon className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-3xl font-bold text-white mb-2">
                 Reset Password
@@ -200,39 +176,16 @@ const ResetPassword = () => {
             {!token && (
               <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ErrorCircleIcon className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-red-800 text-sm font-medium">
                       {apiError}
                     </p>
                     <button
                       onClick={() => navigate("/forgot-password")}
-                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline"
-                    >
+                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline">
                       Request a new reset link
-                      <svg
-                        className="w-4 h-4 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                      <ChevronRightIcon className="w-4 h-4 ml-1" />
                     </button>
                   </div>
                 </div>
@@ -243,17 +196,7 @@ const ResetPassword = () => {
             {successMessage && (
               <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 mb-6 animate-fadeIn">
                 <div className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <SuccessCircleIcon className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                   <p className="text-green-800 text-sm font-medium">
                     {successMessage}
                   </p>
@@ -265,39 +208,16 @@ const ResetPassword = () => {
             {apiError && token && (
               <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ErrorCircleIcon className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-red-800 text-sm font-medium">
                       {apiError}
                     </p>
                     <button
                       onClick={() => navigate("/forgot-password")}
-                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline"
-                    >
+                      className="text-red-700 hover:text-red-900 text-sm font-semibold mt-2 inline-flex items-center transition-colors underline">
                       Request a new reset link
-                      <svg
-                        className="w-4 h-4 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                      <ChevronRightIcon className="w-4 h-4 ml-1" />
                     </button>
                   </div>
                 </div>
@@ -311,8 +231,7 @@ const ResetPassword = () => {
                 <div>
                   <label
                     htmlFor="new_password"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
+                    className="block text-sm font-semibold text-gray-700 mb-2">
                     New Password
                   </label>
                   <div className="relative">
@@ -334,43 +253,8 @@ const ResetPassword = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? (
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                      )}
+                      tabIndex={-1}>
+                      {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
                     </button>
                   </div>
                   {errors.new_password && (
@@ -384,71 +268,29 @@ const ResetPassword = () => {
                         Password Requirements:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          {
-                            label: "8+ characters",
-                            test: formData.new_password.length >= 8,
-                          },
-                          {
-                            label: "Number",
-                            test: /\d/.test(formData.new_password),
-                          },
-                          {
-                            label: "Lowercase",
-                            test: /[a-z]/.test(formData.new_password),
-                          },
-                          {
-                            label: "Uppercase",
-                            test: /[A-Z]/.test(formData.new_password),
-                          },
-                          {
-                            label: "Special character",
-                            test: /[!@#$%^&*(),.?":{}|<>]/.test(
-                              formData.new_password,
-                            ),
-                          },
-                        ].map((rule, idx) => (
-                          <span
-                            key={idx}
-                            className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
-                              rule.test
-                                ? "bg-green-100 text-green-700 border border-green-200"
-                                : "bg-gray-100 text-gray-500 border border-gray-200"
-                            }`}
-                          >
-                            {rule.test ? (
-                              <span className="inline-flex items-center">
-                                <svg
-                                  className="w-3 h-3 mr-1"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {rule.label}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center">
-                                <svg
-                                  className="w-3 h-3 mr-1"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {rule.label}
-                              </span>
-                            )}
-                          </span>
-                        ))}
+                        {getPasswordRules(formData.new_password).map(
+                          (rule, idx) => (
+                            <span
+                              key={idx}
+                              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
+                                rule.passed
+                                  ? "bg-green-100 text-green-700 border border-green-200"
+                                  : "bg-gray-100 text-gray-500 border border-gray-200"
+                              }`}>
+                              {rule.passed ? (
+                                <span className="inline-flex items-center">
+                                  <CheckIcon className="w-3 h-3 mr-1" />
+                                  {rule.label}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center">
+                                  <MinusCircleIcon className="w-3 h-3 mr-1" />
+                                  {rule.label}
+                                </span>
+                              )}
+                            </span>
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -458,8 +300,7 @@ const ResetPassword = () => {
                 <div>
                   <label
                     htmlFor="new_password_confirm"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
+                    className="block text-sm font-semibold text-gray-700 mb-2">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -483,43 +324,8 @@ const ResetPassword = () => {
                         setShowConfirmPassword(!showConfirmPassword)
                       }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
-                      tabIndex={-1}
-                    >
-                      {showConfirmPassword ? (
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                      )}
+                      tabIndex={-1}>
+                      {showConfirmPassword ? <EyeSlashIcon /> : <EyeIcon />}
                     </button>
                   </div>
                   {errors.new_password_confirm && (
@@ -531,17 +337,7 @@ const ResetPassword = () => {
                     formData.new_password_confirm &&
                     formData.new_password === formData.new_password_confirm && (
                       <p className="mt-2 text-sm text-green-600 font-medium flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-1.5"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <SuccessCircleIcon className="w-4 h-4 mr-1.5" />
                         Passwords match perfectly
                       </p>
                     )}
@@ -555,29 +351,10 @@ const ResetPassword = () => {
                     !isFormValid() || isLoading
                       ? "bg-gray-300 cursor-not-allowed"
                       : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
-                  }`}
-                >
+                  }`}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
+                      <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                       Resetting Password...
                     </span>
                   ) : (
@@ -590,21 +367,8 @@ const ResetPassword = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/login")}
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center font-medium group"
-                  >
-                    <svg
-                      className="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                      />
-                    </svg>
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center font-medium group">
+                    <ArrowLeftIcon className="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform" />
                     Back to Login
                   </button>
                 </div>
@@ -614,7 +378,7 @@ const ResetPassword = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
