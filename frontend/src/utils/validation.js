@@ -1,8 +1,3 @@
-/**
- * Validation utility functions
- */
-
-
 export const isValidEmail = (email) => {
   if (!email) return false;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -55,8 +50,5 @@ export const validateEmail = (email) => {
     return { isValid: false, error: "Please enter a valid email address", message: "Please enter a valid email address" };
   }
 
-  return { isValid: true, message: "" };
-
   return { isValid: true, error: "", message: "" };
 };
-

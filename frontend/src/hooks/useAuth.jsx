@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import tokenService from '../services/tokenService';
 import {
   login as apiLogin,
@@ -28,6 +29,30 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  /**
+   * Handle forced logout from interceptor or other sources
+   * This prevents page reload and provides smooth UX
+   */
+  const handleForcedLogout = useCallback(async (event) => {
+    const reason = event?.detail?.reason || 'Session expired';
+    
+    console.log('Forced logout:', reason);
+
+    // Clear auth state
+    setIsAuthenticated(false);
+    setUser(null);
+
+    // Clear tokens (might already be cleared by interceptor)
+    await tokenService.clearAllTokens();
+
+    // Navigate to login without page reload
+    navigate('/login', { 
+      replace: true,
+      state: { message: reason }
+    });
+  }, [navigate]);
 
   /**
    * Attempt to restore session on mount
@@ -66,21 +91,13 @@ export const AuthProvider = ({ children }) => {
     restoreSession();
   }, []);
 
-  /**
-   * Listen for forced logout events (e.g., token refresh failure)
-   */
   useEffect(() => {
-    const handleForcedLogout = () => {
-      setIsAuthenticated(false);
-      setUser(null);
-    };
-
     window.addEventListener('auth:logout', handleForcedLogout);
 
     return () => {
       window.removeEventListener('auth:logout', handleForcedLogout);
     };
-  }, []);
+  }, [handleForcedLogout]);
 
   /**
    * Login with email and password
@@ -93,8 +110,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
 
     // Store user data if returned
-    if (data.user) {
-      setUser(data.user);
+    if (data.user || data.email) {
+      setUser(data.user || { email: data.email, id: data.id });
     }
 
     return data;
@@ -162,4 +179,3 @@ export const useAuth = () => {
 };
 
 export default useAuth;
-
