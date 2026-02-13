@@ -12,7 +12,7 @@ import {
   LockIcon,
 } from "../icons";
 
-const LoginForm = () => {
+const LoginForm = ({ loginType = "Member", onBack, onSwitchToMember }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -68,6 +68,7 @@ const LoginForm = () => {
 
     try {
       await login(formData.email, formData.password);
+
       setSuccessMessage("Logged in successfully!");
       setFormData({ email: "", password: "" });
       setTimeout(() => navigate("/"), 1500);
@@ -89,7 +90,6 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      {/* General error message */}
       {errors.general && (
         <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
           <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
@@ -97,7 +97,6 @@ const LoginForm = () => {
         </div>
       )}
 
-      {/* Success message */}
       {successMessage && (
         <div className="mb-6 p-4 bg-green-50 border border-green-100 rounded-lg flex items-start gap-3">
           <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
@@ -105,7 +104,6 @@ const LoginForm = () => {
         </div>
       )}
 
-      {/* Email field */}
       <InputField
         label="Email Address"
         type="email"
@@ -117,10 +115,9 @@ const LoginForm = () => {
         placeholder="Enter your email"
         required={true}
         autoComplete="email"
-        icon={EnvelopeIcon} // Passing the new icon
+        icon={EnvelopeIcon}
       />
 
-      {/* Password field */}
       <PasswordInput
         label="Password"
         name="password"
@@ -131,12 +128,10 @@ const LoginForm = () => {
         placeholder="Enter your password"
         required={true}
         autoComplete="current-password"
-        icon={LockIcon} // Passing the new icon
-        // Passing the link to be rendered inside the component label area
+        icon={LockIcon}
         forgotPasswordLink={<Link to="/forgot-password">Forgot Password?</Link>}
       />
 
-      {/* Submit button */}
       <button
         type="submit"
         disabled={isLoading}
@@ -155,23 +150,43 @@ const LoginForm = () => {
         )}
       </button>
 
-      {/* Footer Links */}
       <div className="text-center space-y-3 pt-5">
-        <p className="text-sm text-gray-500">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-            Sign Up
-          </Link>
-        </p>
+        {loginType === "Member" ? (
+          <p className="text-sm text-gray-500">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+              Sign Up
+            </Link>
+          </p>
+        ) : (
+          <p className="text-sm text-gray-500">
+            Not an admin?{" "}
+            <button
+              type="button"
+              onClick={onSwitchToMember}
+              className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+              Log in as Member
+            </button>
+          </p>
+        )}
 
         <div>
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            <span className="mr-1 text-lg">‹</span> Back to the main page
-          </Link>
+          {onBack ? (
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              <span className="mr-1 text-lg">‹</span> Back to selection
+            </button>
+          ) : (
+            <Link
+              to="/"
+              className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              <span className="mr-1 text-lg">‹</span> Back to the main page
+            </Link>
+          )}
         </div>
       </div>
     </form>
