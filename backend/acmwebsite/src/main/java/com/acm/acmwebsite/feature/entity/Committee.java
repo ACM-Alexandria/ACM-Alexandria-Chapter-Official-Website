@@ -1,7 +1,9 @@
 package com.acm.acmwebsite.feature.entity;
 
-
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 
@@ -11,36 +13,43 @@ public class Committee {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(nullable = false, unique = true,length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
-
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-
-
     private String logoUrl;
 
-    private boolean isOpen=false;
+    private boolean isOpen = false;
 
     @OneToOne()
-    private Message messageForCalls ;
+    private Message messageForCalls;
+
+    // used to map the topic to the email in subscription like
+    // (moatef123@gmail.com,id_Committeename =>2_oc)
+    // this pair is unique for each description
+    // private String topicToken;
 
     private String applicationFormLink;
 
-    public Committee() {}
-    public Committee(  String name, String description, String logoUrl, boolean isOpen, Message messageForCalls,String applicationFormLink) {
+    @OneToMany(mappedBy = "committee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommitteeBoard> boardRoles = new ArrayList<>();
+
+    public Committee() {
+    }
+
+    public Committee(String name, String description, String logoUrl, boolean isOpen, Message messageForCalls,
+            String applicationFormLink) {
 
         this.name = name;
         this.description = description;
         this.logoUrl = logoUrl;
         this.isOpen = isOpen;
+        // this.topicToken="committee"+"-"+this.name;
         this.applicationFormLink = applicationFormLink;
         this.messageForCalls = messageForCalls;
     }
-
-
 
     public long getId() {
         return id;
@@ -65,8 +74,6 @@ public class Committee {
     public void setCallMessage(Message callMessage) {
         this.messageForCalls = callMessage;
     }
-
-
 
     public boolean isOpen() {
         return isOpen;
@@ -100,8 +107,19 @@ public class Committee {
         this.name = name;
     }
 
+    public List<CommitteeBoard> getBoardRoles() {
+        return boardRoles;
+    }
 
-
-
+    public void setBoardRoles(List<CommitteeBoard> boardRoles) {
+        this.boardRoles.clear();
+        if (boardRoles == null) {
+            return;
+        }
+        for (CommitteeBoard boardRole : boardRoles) {
+            boardRole.setCommittee(this);
+            this.boardRoles.add(boardRole);
+        }
+    }
 
 }
