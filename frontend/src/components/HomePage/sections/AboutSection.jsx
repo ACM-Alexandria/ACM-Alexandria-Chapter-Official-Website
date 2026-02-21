@@ -94,10 +94,16 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
           {committees && committees.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {committees.map((committee, index) => (
-                <CommitteeCard
+                <div
                   key={committee.id || index}
-                  committee={committee}
-                />
+                  className={
+                    (committee?.boardRoles?.length || 0) > 2
+                      ? "md:col-span-2"
+                      : ""
+                  }
+                >
+                  <CommitteeCard committee={committee} />
+                </div>
               ))}
             </div>
           ) : (
