@@ -35,4 +35,9 @@ public class ClubController {
         clubService.deleteClubById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}")
+    public Club updateClubField(@PathVariable Long id, @RequestBody Club club) {
+        return clubService.updateClub(id, club);
+    }
 }

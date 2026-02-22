@@ -5,6 +5,7 @@ import com.acm.acmwebsite.feature.entity.Program;
 import org.springframework.stereotype.Component;
 
 @Component
+
 public class ProgramMapper {
     public ProgramDto toProgramDto(Program program) {
         ProgramDto dto = new ProgramDto();

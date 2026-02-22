@@ -27,16 +27,6 @@ public class Committee {
     @OneToOne()
     private Message messageForCalls ;
 
-
-
-    //used to map the topic to the email in subscription like (moatef123@gmail.com,id_Committeename =>2_oc)
-    //this pair is unique for each description
-  //  private String topicToken;
-
-
-
-
-
     private String applicationFormLink;
 
     public Committee() {}
@@ -46,7 +36,6 @@ public class Committee {
         this.description = description;
         this.logoUrl = logoUrl;
         this.isOpen = isOpen;
-        //this.topicToken="committee"+"-"+this.name;
         this.applicationFormLink = applicationFormLink;
         this.messageForCalls = messageForCalls;
     }
