@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -117,10 +119,12 @@ class EmailServiceTest {
         // Arrange
         String emailStr = "search@acm.com";
         Email expectedEmail = new Email(emailStr);
-        when(emailRepository.getEmailByEmail(emailStr)).thenReturn(expectedEmail);
+        when(emailRepository.getEmailByEmail(emailStr))
+                .thenReturn(Optional.of(expectedEmail));
 
         // Act
-        Email result = emailService.getObjectByEmail(emailStr);
+        Email result = emailService.getObjectByEmail(emailStr)
+                .orElse(null);
 
         // Assert
         assertNotNull(result);

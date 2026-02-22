@@ -1,27 +1,37 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.feature.dto.commiteedtos.SubscriptionDto;
+import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.*;
+import com.acm.acmwebsite.feature.repository.CommiteeRepository;
+import com.acm.acmwebsite.feature.repository.EmailRepository;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SubscriptionService {
     private final  SubscriptionRepository subscriptionRepository;
     private final EmailService emailService;
+    private final CommiteeRepository committeeRepository;
+    private final EmailRepository emailRepository;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, EmailService emailService) {
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, EmailService emailService, CommiteeRepository committeeRepository, EmailRepository emailRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.emailService = emailService;
+        this.committeeRepository = committeeRepository;
+        this.emailRepository = emailRepository;
     }
 
-    public List<Subscription> getAllSubscribersByTopic(SubscripeTo subscripeTo,Long id) {
+    public List<Subscription> getAllSubscribersByTopic(SubscripeTo subscripeTo, Long id) {
         return  subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToId(subscripeTo,id);
     }
 
@@ -45,11 +55,10 @@ public class SubscriptionService {
       return      emailService.saveEmail(email);
     }
 
-     public Email getEmailByEmail(String email) {
+    Optional<Email> getEmailByEmail(String email) {
         return emailService.getObjectByEmail(email);
      }
 
-    @Transactional
     public void sendConfirmationEmail(Subscription subscription,Message message) {
         if(subscription.getStatus()== SubscriptionStatus.ACTIVE){
             return;
@@ -60,6 +69,33 @@ public class SubscriptionService {
         subscription.setConfirmedAt(LocalDateTime.now());
         subscriptionRepository.save(subscription);
 
+    }
+    @Transactional
+    public void subscribeToCommittee(Long committeeId, SubscriptionDto subscriptionDto) {
+
+        Committee committee = committeeRepository.findById(committeeId)
+                .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
+
+        Email email = emailRepository.getEmailByEmail(subscriptionDto.getEmail())
+                .orElseGet(() -> emailRepository.save(
+                        new Email(subscriptionDto.getEmail())
+                ));
+
+        Subscription newSubscription = new Subscription(
+                email,
+                SubscripeTo.COMMITTEE,
+                committee.getId()
+        );
+
+        subscriptionRepository.save(newSubscription);
+
+        sendConfirmationEmail(
+                newSubscription,
+                new Message(
+                        "Hello",
+                        "Your subscription to our mailing list has been confirmed"
+                )
+        );
     }
 
 }

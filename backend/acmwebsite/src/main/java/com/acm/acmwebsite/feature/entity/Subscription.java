@@ -48,11 +48,6 @@ public class Subscription {
     private final LocalDateTime createdAt = LocalDateTime.now();
 
 
-
-
-
-
-    public Subscription() {}
     public Subscription(Email email, SubscripeTo subscribeTo, Long subscribeToId) {
         this.subscribeTo = subscribeTo;
         this.email = email;

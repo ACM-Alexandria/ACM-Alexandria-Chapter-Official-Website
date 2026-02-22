@@ -11,6 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class EmailService {
     private final JavaMailSender mailSender;
@@ -47,7 +49,7 @@ public class EmailService {
         return emailRepository.getEmailByEmailId(id);
     }
 
-    public Email getObjectByEmail(String email) {
+    public Optional<Email> getObjectByEmail(String email) {
        return emailRepository.getEmailByEmail(email);
     }
 
