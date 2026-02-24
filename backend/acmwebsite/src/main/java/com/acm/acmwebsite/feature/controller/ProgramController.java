@@ -15,23 +15,23 @@ public class ProgramController {
         this.programService = programService;
     }
     @GetMapping
-    public ResponseEntity<List<ProgramDto>> getAll() {
-        return ResponseEntity.ok(programService.getAll());
+    public ResponseEntity<List<ProgramDto>> getAllPrograms() {
+        return ResponseEntity.ok(programService.getAllPrograms());
     }
     @GetMapping("/{id}")
-    public ResponseEntity findById(@PathVariable("id") long id) {
-        return ResponseEntity.ok(programService.getById(id));
+    public ResponseEntity findProgramById(@PathVariable("id") long id) {
+        return ResponseEntity.ok(programService.getProgramById(id));
     }
     @PostMapping
-    public ResponseEntity create(@RequestBody ProgramDto programDto) {
-        return ResponseEntity.ok(programService.create(programDto));
+    public ResponseEntity createProgram(@RequestBody ProgramDto programDto) {
+        return ResponseEntity.ok(programService.createProgram(programDto));
     }
     @PutMapping("/{id}")
-    public ResponseEntity update(@PathVariable("id") long id, @RequestBody ProgramDto programDto) {
-        return ResponseEntity.ok(programService.update(id, programDto));
+    public ResponseEntity updateProgram(@PathVariable("id") long id, @RequestBody ProgramDto programDto) {
+        return ResponseEntity.ok(programService.updateProgram(id, programDto));
     }
     @DeleteMapping ("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable long id) {
+    public ResponseEntity<Void> deleteProgramById(@PathVariable long id) {
         programService.deleteProgram(id);
         return ResponseEntity.ok().build();
     }

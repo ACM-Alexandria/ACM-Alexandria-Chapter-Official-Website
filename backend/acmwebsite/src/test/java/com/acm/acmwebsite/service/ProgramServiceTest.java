@@ -61,7 +61,7 @@ public class ProgramServiceTest {
         when(programMapper.toProgramDto(any()))
                 .thenReturn(dto());
 
-        List<ProgramDto> result = programService.getAll();
+        List<ProgramDto> result = programService.getAllPrograms();
 
         assertEquals(1, result.size());
         verify(programRepository).findAll();
@@ -80,7 +80,7 @@ public class ProgramServiceTest {
         when(programMapper.toProgramDto(p))
                 .thenReturn(d);
 
-        Optional<ProgramDto> result = programService.getById(1L);
+        Optional<ProgramDto> result = programService.getProgramById(1L);
 
         assertTrue(result.isPresent());
         assertEquals("Bootcamp", result.get().getName());
@@ -91,7 +91,7 @@ public class ProgramServiceTest {
         when(programRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        Optional<ProgramDto> result = programService.getById(1L);
+        Optional<ProgramDto> result = programService.getProgramById(1L);
 
         assertTrue(result.isEmpty());
         verify(programMapper, never()).toProgramDto(any());
@@ -123,7 +123,7 @@ public class ProgramServiceTest {
         when(programMapper.toProgramDto(saved))
                 .thenReturn(mappedResult);
 
-        ProgramDto result = programService.update(1L, updated);
+        ProgramDto result = programService.updateProgram(1L, updated);
 
         assertEquals(updated.getName(), existing.getName());
         verify(programRepository).save(existing);
@@ -139,7 +139,7 @@ public class ProgramServiceTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> programService.update(1L, dto())
+                () -> programService.updateProgram(1L, dto())
         );
 
         assertEquals("Program not found!", ex.getMessage());
@@ -152,7 +152,7 @@ public class ProgramServiceTest {
         when(programMapper.toProgramDto(any()))
                 .thenReturn(dto());
 
-        List<ProgramDto> result = programService.searchByName("Boot");
+        List<ProgramDto> result = programService.findProgramByName("Boot");
 
         assertEquals(1, result.size());
         verify(programRepository).findByName("Boot");
@@ -170,7 +170,7 @@ public class ProgramServiceTest {
         when(programRepository.save(entity)).thenReturn(saved);
         when(programMapper.toProgramDto(saved)).thenReturn(output);
 
-        ProgramDto result = programService.create(input);
+        ProgramDto result = programService.createProgram(input);
 
         assertEquals(output.getName(), result.getName());
 

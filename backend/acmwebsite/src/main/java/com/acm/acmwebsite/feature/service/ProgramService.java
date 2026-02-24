@@ -22,12 +22,12 @@ public class ProgramService {
     }
 
 
-    public List<ProgramDto> getAll(){
+    public List<ProgramDto> getAllPrograms(){
         return programRepository.findAll().stream().map(programMapper::toProgramDto).toList();
     }
 
 
-    public Optional<ProgramDto> getById(long id) {
+    public Optional<ProgramDto> getProgramById(long id) {
         return programRepository.findById(id).map(programMapper::toProgramDto);
     }
 
@@ -37,7 +37,7 @@ public class ProgramService {
     }
 
 
-    public ProgramDto update(Long id, ProgramDto updatedProgram) {
+    public ProgramDto updateProgram(Long id, ProgramDto updatedProgram) {
         Program program = programRepository.findById(id).orElseThrow(() -> new RuntimeException("Program not found!"));
         program.setName(updatedProgram.getName());
 
@@ -50,12 +50,12 @@ public class ProgramService {
     }
 
 
-    public List<ProgramDto> searchByName(String name) {
+    public List<ProgramDto> findProgramByName(String name) {
         return programRepository.findByName(name).stream().map(programMapper::toProgramDto).toList();
     }
 
 
-    public ProgramDto create(ProgramDto programDto) {
+    public ProgramDto createProgram(ProgramDto programDto) {
         Program program = programMapper.toProgram(programDto);
         return programMapper.toProgramDto(programRepository.save(program));
     }

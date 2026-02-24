@@ -17,12 +17,12 @@ public class EventController {
   }
 
   @GetMapping
-  public List<Event> getEvents() {
+  public List<Event> getAllEvents() {
     return eventService.getAll();
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity getEvent(@PathVariable Long id) {
+  public ResponseEntity getEventById(@PathVariable Long id) {
     return eventService.getById(id).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }

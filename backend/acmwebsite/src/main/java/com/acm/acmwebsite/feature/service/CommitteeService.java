@@ -10,19 +10,18 @@ import com.acm.acmwebsite.feature.repository.CommiteeRepository;
 import com.acm.acmwebsite.feature.repository.MessageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CommitteService {
+public class CommitteeService {
     private final CommiteeRepository commiteeRepository;
     private final SubscriptionService subscriptionService;
     private final EmailService emailService;
     private final MessageRepository messageRepository;
 
-    public CommitteService(CommiteeRepository commiteeRepository, SubscriptionService subscriptionService, EmailService emailService, MessageRepository messageRepository) {
+    public CommitteeService(CommiteeRepository commiteeRepository, SubscriptionService subscriptionService, EmailService emailService, MessageRepository messageRepository) {
         this.commiteeRepository = commiteeRepository;
         this.subscriptionService = subscriptionService;
         this.emailService = emailService;
@@ -41,16 +40,16 @@ public class CommitteService {
 
 
 
-    public List<Committee> getAll(){
+    public List<Committee> getAllCommittees(){
         return commiteeRepository.getAll();
     }
 
-    public Committee getById(Long id){
+    public Committee getCommitteeById(Long id){
         return commiteeRepository.findById(id).orElse(null);
     }
 
     @Transactional
-    public Committee save(Committee committee){
+    public Committee saveCommittee(Committee committee){
         committee= commiteeRepository.save(committee);
         return committee;
     }
@@ -99,7 +98,7 @@ public class CommitteService {
 
         commiteeRepository.save(committee);
     }
-    public void delete(Long id){
+    public void deleteCommittee(Long id){
         commiteeRepository.deleteById(id);
     }
 

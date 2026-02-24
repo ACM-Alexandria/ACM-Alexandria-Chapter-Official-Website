@@ -7,19 +7,16 @@ import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.enums.SubscriptionStatus;
 import com.acm.acmwebsite.feature.repository.CommiteeRepository;
-import com.acm.acmwebsite.feature.service.CommitteService;
+import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.EmailService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
-import jdk.jshell.JShell;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CommitteServiceTest {
+class CommitteeServiceTest {
 
     @InjectMocks
-    CommitteService committeService;
+    CommitteeService committeService;
     @Mock
     CommiteeRepository commiteeRepository;
 
@@ -147,7 +144,7 @@ class CommitteServiceTest {
         );
 
 
-        var list=committeService.getAll();
+        var list=committeService.getAllCommittees();
 
         assertEquals(2,list.size());
         verify(commiteeRepository,times(1)).getAll();
@@ -163,7 +160,7 @@ class CommitteServiceTest {
         when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
 
         // Act
-        Committee result = committeService.getById(1L);
+        Committee result = committeService.getCommitteeById(1L);
 
         // Assert
         assertNotNull(result);
@@ -177,7 +174,7 @@ class CommitteServiceTest {
         when(commiteeRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act
-        Committee result = committeService.getById(99L);
+        Committee result = committeService.getCommitteeById(99L);
 
         // Assert
         assertNull(result);
