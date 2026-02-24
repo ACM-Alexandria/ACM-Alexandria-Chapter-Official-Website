@@ -6,7 +6,7 @@ import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.*;
-import com.acm.acmwebsite.feature.repository.CommiteeRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.EmailRepository;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,10 +21,10 @@ import java.util.Optional;
 public class SubscriptionService {
     private final  SubscriptionRepository subscriptionRepository;
     private final EmailService emailService;
-    private final CommiteeRepository committeeRepository;
+    private final CommitteeRepository committeeRepository;
     private final EmailRepository emailRepository;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, EmailService emailService, CommiteeRepository committeeRepository, EmailRepository emailRepository) {
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, EmailService emailService, CommitteeRepository committeeRepository, EmailRepository emailRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.emailService = emailService;
         this.committeeRepository = committeeRepository;
