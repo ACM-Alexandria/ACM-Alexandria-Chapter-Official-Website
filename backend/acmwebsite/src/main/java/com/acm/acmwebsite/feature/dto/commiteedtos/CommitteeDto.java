@@ -24,6 +24,7 @@ public class CommitteeDto {
         this.isOpen = isOpen;
         this.applicationFormLink = applicationFormLink;
     }
+    public CommitteeDto(){}
 
     public boolean isOpen() {
         return isOpen;

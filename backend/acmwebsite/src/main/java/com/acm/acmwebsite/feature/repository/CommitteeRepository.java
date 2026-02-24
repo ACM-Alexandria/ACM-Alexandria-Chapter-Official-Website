@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface CommiteeRepository extends JpaRepository<Committee, Long> {
+public interface CommitteeRepository extends JpaRepository<Committee, Long> {
 
     boolean existsCommitteeByName(String name);
 

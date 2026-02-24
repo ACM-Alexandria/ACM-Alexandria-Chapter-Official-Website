@@ -6,7 +6,7 @@ import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.enums.SubscriptionStatus;
-import com.acm.acmwebsite.feature.repository.CommiteeRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.EmailService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
@@ -29,7 +29,7 @@ class CommitteeServiceTest {
     @InjectMocks
     CommitteeService committeService;
     @Mock
-    CommiteeRepository commiteeRepository;
+    CommitteeRepository commiteeRepository;
 
     @Mock
     SubscriptionService subscriptionService;
