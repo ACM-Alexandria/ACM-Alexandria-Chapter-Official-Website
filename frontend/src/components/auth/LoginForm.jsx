@@ -12,7 +12,7 @@ import {
   LockIcon,
 } from "../icons";
 
-const LoginForm = ({ loginType = "Member", onBack, onSwitchToMember }) => {
+const LoginForm = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -135,11 +135,10 @@ const LoginForm = ({ loginType = "Member", onBack, onSwitchToMember }) => {
       <button
         type="submit"
         disabled={isLoading}
-        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
-          isLoading
+        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${isLoading
             ? "opacity-70 cursor-not-allowed"
             : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
-        }`}>
+          }`}>
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
             <SpinnerIcon />
@@ -151,42 +150,21 @@ const LoginForm = ({ loginType = "Member", onBack, onSwitchToMember }) => {
       </button>
 
       <div className="text-center space-y-3 pt-5">
-        {loginType === "Member" ? (
-          <p className="text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-              Sign Up
-            </Link>
-          </p>
-        ) : (
-          <p className="text-sm text-gray-500">
-            Not an admin?{" "}
-            <button
-              type="button"
-              onClick={onSwitchToMember}
-              className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-              Log in as Member
-            </button>
-          </p>
-        )}
+        <p className="text-sm text-gray-500">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+            Sign Up
+          </Link>
+        </p>
 
         <div>
-          {onBack ? (
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-              <span className="mr-1 text-lg">‹</span> Back to selection
-            </button>
-          ) : (
-            <Link
-              to="/"
-              className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-              <span className="mr-1 text-lg">‹</span> Back to the main page
-            </Link>
-          )}
+          <Link
+            to="/"
+            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            <span className="mr-1 text-lg">‹</span> Back to the main page
+          </Link>
         </div>
       </div>
     </form>
