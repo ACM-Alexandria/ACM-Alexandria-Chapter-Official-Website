@@ -23,20 +23,20 @@ public class CommitteeService {
     private final MessageRepository messageRepository;
     private final CommitteeMapper committeeMapper;
 
-    public CommitteeService(CommitteeRepository committeeRepository,CommitteeMapper committeeMapper ,SubscriptionService subscriptionService, EmailService emailService, MessageRepository messageRepository) {
+    public CommitteeService(CommitteeRepository committeeRepository, CommitteeMapper committeeMapper,
+            SubscriptionService subscriptionService, EmailService emailService, MessageRepository messageRepository) {
         this.committeeRepository = committeeRepository;
         this.subscriptionService = subscriptionService;
         this.emailService = emailService;
         this.messageRepository = messageRepository;
-        this.committeeMapper=committeeMapper;
+        this.committeeMapper = committeeMapper;
     }
 
-    public void sendCallMessage(SubscripeTo subscripeTo , Long id, Message message) {
-        var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo,id);
+    public void sendCallMessage(SubscripeTo subscripeTo, Long id, Message message) {
+        var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
-            if(subscription.getStatus()== SubscriptionStatus.ACTIVE)
-            {
-                emailService.sendEmail(subscription.getEmail(),message);
+            if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {
+                emailService.sendEmail(subscription.getEmail(), message);
             }
         }
     }
@@ -57,19 +57,17 @@ public class CommitteeService {
         sendCallMessage(SubscripeTo.COMMITTEE, committee.getId(), committee.getCallMessage());
     }
 
-
-
-    public List<Committee> getAllCommittees(){
+    public List<Committee> getAllCommittees() {
         return committeeRepository.getAll();
     }
 
-    public Committee getCommitteeById(Long id){
-        return committeeRepository.findById(id).orElse(null);
+    public Committee getCommitteeById(Long id) {
+        return committeeRepository.findWithDetailsById(id).orElse(null);
     }
 
     @Transactional
-    public Committee saveCommittee(Committee committee){
-        committee= committeeRepository.save(committee);
+    public Committee saveCommittee(Committee committee) {
+        committee = committeeRepository.save(committee);
         return committee;
     }
 
@@ -92,16 +90,19 @@ public class CommitteeService {
         if (committeeDto.getApplicationFormLink() != null)
             committee.setApplicationFormLink(committeeDto.getApplicationFormLink());
 
+        if (committeeDto.getBoardRoles() != null)
+            committee.setBoardRoles(committeeMapper.toEntity(committeeDto).getBoardRoles());
+
         committee = committeeRepository.save(committee);
 
         return committeeMapper.toDto(committee);
     }
+
     @Transactional
     public void changeCallMessage(Long committeeId, Message message) {
 
         Committee committee = committeeRepository.findById(committeeId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Committee not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
 
         message = messageRepository.save(message);
 
@@ -109,12 +110,9 @@ public class CommitteeService {
 
         committeeRepository.save(committee);
     }
-    public void deleteCommittee(Long id){
+
+    public void deleteCommittee(Long id) {
         committeeRepository.deleteById(id);
     }
-
-
-
-
 
 }

@@ -9,10 +9,10 @@ import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
-
 
 import java.util.List;
 import java.util.Map;
@@ -24,29 +24,32 @@ public class CommitteeController {
     private SubscriptionService subscriptionService;
     private CommitteeMapper committeeMapper;
 
-    public void CommitteeController(CommitteeService committeeService, SubscriptionService subscriptionService,CommitteeMapper committeeMapper) {
+    @Autowired
+    public CommitteeController(CommitteeService committeeService, SubscriptionService subscriptionService,
+            CommitteeMapper committeeMapper) {
         this.committeeService = committeeService;
         this.subscriptionService = subscriptionService;
-        this.committeeMapper=committeeMapper;
+        this.committeeMapper = committeeMapper;
     }
+
     @GetMapping
-    List<Committee> getAllCommittees(){
-        return  committeeService.getAllCommittees();
+    List<CommitteeDto> getAllCommittees() {
+        return committeeService.getAllCommittees().stream().map(committeeMapper::toDto).toList();
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Committee> findCommitteeById(@PathVariable Long id){
+    public ResponseEntity<CommitteeDto> findCommitteeById(@PathVariable Long id) {
         var committee = committeeService.getCommitteeById(id);
-        if(committee == null){
+        if (committee == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(committee);
+        return ResponseEntity.ok(committeeMapper.toDto(committee));
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCommittee(@PathVariable Long id,
-                                             @RequestBody CommitteeDto committeeDto) {
+            @RequestBody CommitteeDto committeeDto) {
         try {
             CommitteeDto updated = committeeService.updateCommittee(id, committeeDto);
             return ResponseEntity.ok(updated);
@@ -73,19 +76,18 @@ public class CommitteeController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<Void> deleteCommittee(@PathVariable Long id){
-        var committee=committeeService.getCommitteeById(id);
-        if(committee==null){
+    public ResponseEntity<Void> deleteCommittee(@PathVariable Long id) {
+        var committee = committeeService.getCommitteeById(id);
+        if (committee == null) {
             return ResponseEntity.notFound().build();
         }
         committeeService.deleteCommittee(id);
-        subscriptionService.deleteByTopic(SubscripeTo.COMMITTEE,committee.getId());
+        subscriptionService.deleteByTopic(SubscripeTo.COMMITTEE, committee.getId());
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("/{id}/open-call")
-    public ResponseEntity<?> openCommitteeCall(@PathVariable Long id){
+    public ResponseEntity<?> openCommitteeCall(@PathVariable Long id) {
         try {
             committeeService.openCommitteeCall(id);
             return ResponseEntity.ok().build();
@@ -97,9 +99,9 @@ public class CommitteeController {
     }
 
     @PostMapping("/{id}/close-call")
-    public ResponseEntity<?> closeCall(@PathVariable Long id){
-        var committee=committeeService.getCommitteeById(id);
-        if(committee==null){
+    public ResponseEntity<?> closeCall(@PathVariable Long id) {
+        var committee = committeeService.getCommitteeById(id);
+        if (committee == null) {
             return ResponseEntity.notFound().build();
         }
         committee.setOpen(false);
@@ -107,10 +109,9 @@ public class CommitteeController {
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("{id}/change-message")
     public ResponseEntity<?> changeCallMessage(@PathVariable Long id,
-                                               @RequestBody Message message) {
+            @RequestBody Message message) {
         try {
             committeeService.changeCallMessage(id, message);
             return ResponseEntity.ok().build();
@@ -122,11 +123,9 @@ public class CommitteeController {
         }
     }
 
-
-
     @PostMapping("/{id}/subscribe")
     public ResponseEntity<?> subscribeToCommittee(@PathVariable Long id,
-                                       @RequestBody SubscriptionDto subscriptionDto) {
+            @RequestBody SubscriptionDto subscriptionDto) {
         try {
             subscriptionService.subscribeToCommittee(id, subscriptionDto);
             return ResponseEntity.ok().build();
@@ -137,11 +136,4 @@ public class CommitteeController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
-
-
-
-
-
-
-
 }
