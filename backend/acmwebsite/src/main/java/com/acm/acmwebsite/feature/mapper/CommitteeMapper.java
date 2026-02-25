@@ -1,8 +1,12 @@
 package com.acm.acmwebsite.feature.mapper;
 
+import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardDto;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
+import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.entity.Committee;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CommitteeMapper {
@@ -20,6 +24,7 @@ public class CommitteeMapper {
         dto.setOpen(committee.isOpen());
         dto.setCallMessage(committee.getCallMessage());
         dto.setApplicationFormLink(committee.getApplicationFormLink());
+        dto.setBoardRoles(toBoardRoleDtos(committee.getBoardRoles()));
 
         return dto;
     }
@@ -36,7 +41,32 @@ public class CommitteeMapper {
         committee.setOpen(dto.isOpen());
         committee.setCallMessage(dto.getCallMessage());
         committee.setApplicationFormLink(dto.getApplicationFormLink());
+        committee.setBoardRoles(toBoardRoleEntities(dto.getBoardRoles()));
 
         return committee;
+    }
+
+    private List<CommitteeBoardDto> toBoardRoleDtos(List<CommitteeBoard> boardRoles) {
+        if (boardRoles == null) {
+            return List.of();
+        }
+        return boardRoles.stream().map(role -> new CommitteeBoardDto(
+                role.getId(),
+                role.getName(),
+                role.getImageUrl(),
+                role.getRole(),
+                role.getOrder())).toList();
+    }
+
+    private List<CommitteeBoard> toBoardRoleEntities(List<CommitteeBoardDto> boardRoles) {
+        if (boardRoles == null) {
+            return List.of();
+        }
+        return boardRoles.stream().map(roleDto -> new CommitteeBoard(
+                roleDto.getId(),
+                roleDto.getName(),
+                roleDto.getImageUrl(),
+                roleDto.getRole(),
+                roleDto.getOrder())).toList();
     }
 }

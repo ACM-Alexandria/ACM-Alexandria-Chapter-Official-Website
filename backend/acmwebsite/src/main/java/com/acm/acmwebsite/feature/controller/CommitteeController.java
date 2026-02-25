@@ -1,9 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
-import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardDto;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.dto.commiteedtos.SubscriptionDto;
-import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
@@ -11,11 +9,11 @@ import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +24,8 @@ public class CommitteeController {
     private SubscriptionService subscriptionService;
     private CommitteeMapper committeeMapper;
 
-    public void CommitteeController(CommitteeService committeeService, SubscriptionService subscriptionService,
+    @Autowired
+    public CommitteeController(CommitteeService committeeService, SubscriptionService subscriptionService,
             CommitteeMapper committeeMapper) {
         this.committeeService = committeeService;
         this.subscriptionService = subscriptionService;
@@ -34,18 +33,18 @@ public class CommitteeController {
     }
 
     @GetMapping
-    List<Committee> getAllCommittees() {
-        return committeeService.getAllCommittees();
+    List<CommitteeDto> getAllCommittees() {
+        return committeeService.getAllCommittees().stream().map(committeeMapper::toDto).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Committee> findCommitteeById(@PathVariable Long id) {
+    public ResponseEntity<CommitteeDto> findCommitteeById(@PathVariable Long id) {
         var committee = committeeService.getCommitteeById(id);
         if (committee == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(committee);
+        return ResponseEntity.ok(committeeMapper.toDto(committee));
     }
 
     @PutMapping("/{id}")
