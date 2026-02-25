@@ -2,6 +2,8 @@ package com.acm.acmwebsite.feature.dto.commiteedtos;
 
 import com.acm.acmwebsite.feature.entity.Message;
 
+import java.util.List;
+
 public class CommitteeDto {
     private long id;
     private String name;
@@ -10,12 +12,12 @@ public class CommitteeDto {
     private boolean isOpen;
     private Message callMessage;
 
-
-
     private String topicToken;
     private String applicationFormLink;
+    private List<CommitteeBoardDto> boardRoles;
 
-    public CommitteeDto( long id,String name, String description, String logoUrl, Message callMessage, boolean isOpen,String applicationFormLink) {
+    public CommitteeDto(long id, String name, String description, String logoUrl, Message callMessage, boolean isOpen,
+            String applicationFormLink, List<CommitteeBoardDto> boardRoles) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -23,6 +25,7 @@ public class CommitteeDto {
         this.callMessage = callMessage;
         this.isOpen = isOpen;
         this.applicationFormLink = applicationFormLink;
+        this.boardRoles = boardRoles;
     }
     public CommitteeDto(){}
 
@@ -88,5 +91,13 @@ public class CommitteeDto {
 
     public void setTopicToken(String topicToken) {
         this.topicToken = topicToken;
+    }
+
+    public List<CommitteeBoardDto> getBoardRoles() {
+        return boardRoles;
+    }
+
+    public void setBoardRoles(List<CommitteeBoardDto> boardRoles) {
+        this.boardRoles = boardRoles;
     }
 }

@@ -14,6 +14,7 @@ import { fetchHomePageData } from "../services/homePageService";
 const HomePage = () => {
   const [clubs, setClubs] = useState([]);
   const [committee, setCommittee] = useState([]);
+  const [highBoard, setHighBoard] = useState([]);
   const [events, setEvents] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,7 @@ const HomePage = () => {
 
         setClubs(data.clubs || []);
         setCommittee(data.committee || []);
+        setHighBoard(data.highBoard || []);
         setEvents(data.events || []);
         setPrograms(data.programs || []);
       } catch (err) {
@@ -88,7 +90,7 @@ const HomePage = () => {
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[70px]">
         <GreetingSection />
-        <AboutSection committees={committee} />
+        <AboutSection highBoard={highBoard} committees={committee} />
         <ClubsSection clubs={clubs} />
         <EventsSection events={events} />
         <ProgramsSection programs={programs} />

@@ -22,6 +22,17 @@ export const fetchCommittee = async () => {
   }
 };
 
+// Fetch high board members
+export const fetchHighBoard = async () => {
+  try {
+    const response = await api.get("/highboard");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching high board:", error);
+    throw error;
+  }
+};
+
 // Fetch events
 export const fetchEvents = async () => {
   try {
@@ -49,6 +60,7 @@ export const fetchHomePageData = async () => {
   const results = await Promise.allSettled([
     fetchClubs().catch(() => []),
     fetchCommittee().catch(() => []),
+    fetchHighBoard().catch(() => []),
     fetchEvents().catch(() => []),
     fetchPrograms().catch(() => []),
   ]);
@@ -56,7 +68,8 @@ export const fetchHomePageData = async () => {
   return {
     clubs: results[0].status === "fulfilled" ? results[0].value : [],
     committee: results[1].status === "fulfilled" ? results[1].value : [],
-    events: results[2].status === "fulfilled" ? results[2].value : [],
-    programs: results[3].status === "fulfilled" ? results[3].value : [],
+    highBoard: results[2].status === "fulfilled" ? results[2].value : [],
+    events: results[3].status === "fulfilled" ? results[3].value : [],
+    programs: results[4].status === "fulfilled" ? results[4].value : [],
   };
 };
