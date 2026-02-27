@@ -1,14 +1,25 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
-import { register } from "../../services/authService";
-import { validateEmail, validatePassword, validatePasswordMatch } from "../../utils/validation";
-
+import { useAuth } from "../../contexts/AuthContext";
+import {
+  validateEmail,
+  validatePassword,
+  validatePasswordMatch,
+} from "../../utils/validation";
+import {
+  ErrorCircleIcon,
+  SuccessCircleIcon,
+  SpinnerIcon,
+  EnvelopeIcon,
+  LockIcon,
+} from "../icons";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  
+  const { register } = useAuth();
+
   // Form state
   const [formData, setFormData] = useState({
     email: "",
@@ -86,7 +97,7 @@ const RegisterForm = () => {
     const passwordValidation = validatePassword(formData.password);
     const passwordMatchValidation = validatePasswordMatch(
       formData.password,
-      formData.password_confirmation
+      formData.password_confirmation,
     );
 
     const newErrors = {
@@ -134,7 +145,9 @@ const RegisterForm = () => {
 
       // Handle successful registration
       if (response.id && response.email) {
-        setSuccessMessage("Account created successfully! Redirecting to login...");
+        setSuccessMessage(
+          "Account created successfully! Redirecting to login...",
+        );
 
         // Clear password fields only (keep email for convenience)
         setFormData((prev) => ({
@@ -150,8 +163,9 @@ const RegisterForm = () => {
       }
     } catch (error) {
       // Handle backend errors
-      const errorMessage = error.message || "An error occurred during registration";
-      
+      const errorMessage =
+        error.message || "An error occurred during registration";
+
       // Clear password fields on error (as per requirements)
       setFormData((prev) => ({
         ...prev,
@@ -166,8 +180,10 @@ const RegisterForm = () => {
           email: errorMessage,
           general: "",
         }));
-      } else if (errorMessage.toLowerCase().includes("password") && 
-                 errorMessage.toLowerCase().includes("match")) {
+      } else if (
+        errorMessage.toLowerCase().includes("password") &&
+        errorMessage.toLowerCase().includes("match")
+      ) {
         setErrors((prev) => ({
           ...prev,
           password_confirmation: errorMessage,
@@ -191,157 +207,109 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <form onSubmit={handleSubmit} noValidate>
-        {/* General error message */}
-        {errors.general && (
-          <div
-            className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
-            role="alert"
-          >
-            <svg
-              className="w-5 h-5 text-red-600 mt-0.5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p className="text-sm text-red-800">{errors.general}</p>
-          </div>
-        )}
-
-        {/* Success message */}
-        {successMessage && (
-          <div
-            className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
-            role="alert"
-          >
-            <svg
-              className="w-5 h-5 text-green-600 mt-0.5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p className="text-sm text-green-800">{successMessage}</p>
-          </div>
-        )}
-
-        {/* Email field */}
-        <InputField
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.email}
-          placeholder="example@mail.com"
-          required={true}
-          autoComplete="email"
-        />
-
-        {/* Password field */}
-        <PasswordInput
-          label="Password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.password}
-          placeholder="Enter your password"
-          required={true}
-          autoComplete="new-password"
-        />
-
-        {/* Confirm Password field */}
-        <PasswordInput
-          label="Confirm Password"
-          name="password_confirmation"
-          value={formData.password_confirmation}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.password_confirmation}
-          placeholder="Re-enter your password"
-          required={true}
-          autoComplete="new-password"
-        />
-
-        {/* Password requirements hint */}
-        <div className="mb-6 text-xs text-gray-600">
-          <p className="mb-1">Password must contain:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>At least 8 characters</li>
-            <li>One uppercase letter</li>
-            <li>One lowercase letter</li>
-            <li>One number</li>
-            <li>One special character (@#$%^&+=!)</li>
-          </ul>
+    <form onSubmit={handleSubmit} noValidate>
+      {/* General error message */}
+      {errors.general && (
+        <div
+          className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
+          role="alert">
+          <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
+          <p className="text-sm text-red-800">{errors.general}</p>
         </div>
+      )}
 
-        {/* Submit button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-3 px-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-semibold rounded-lg transition-all duration-300 ${
-            isLoading
-              ? "opacity-70 cursor-not-allowed"
-              : "hover:opacity-90 hover:shadow-lg"
-          }`}
-        >
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Creating account...
-            </span>
-          ) : (
-            "Create Account"
-          )}
-        </button>
-
-        {/* Login link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <a
-              href="/login"
-              className="text-blue-600 hover:text-blue-800 font-semibold hover:underline transition-colors duration-200"
-            >
-              Log in
-            </a>
-          </p>
+      {/* Success message */}
+      {successMessage && (
+        <div
+          className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
+          role="alert">
+          <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
+          <p className="text-sm text-green-800">{successMessage}</p>
         </div>
-      </form>
-    </div>
+      )}
+
+      {/* Email field */}
+      <InputField
+        label="Email Address"
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.email}
+        placeholder="Enter your email"
+        required={false}
+        autoComplete="email"
+        icon={EnvelopeIcon}
+      />
+
+      {/* Password field */}
+      <PasswordInput
+        label="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.password}
+        placeholder="Enter your password"
+        required={false}
+        autoComplete="new-password"
+        icon={LockIcon}
+      />
+
+      {/* Confirm Password field */}
+      <PasswordInput
+        label="Confirm Password"
+        name="password_confirmation"
+        value={formData.password_confirmation}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.password_confirmation}
+        placeholder="Enter your password"
+        required={false}
+        autoComplete="new-password"
+        icon={LockIcon}
+      />
+
+      {/* Submit button */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
+          isLoading
+            ? "opacity-70 cursor-not-allowed"
+            : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
+        }`}>
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <SpinnerIcon />
+            Creating account...
+          </span>
+        ) : (
+          "Sign up"
+        )}
+      </button>
+
+      {/* Footer Links */}
+      <div className="text-center space-y-3 pt-5">
+        <p className="text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
+            Log In
+          </Link>
+        </p>
+
+        <div>
+          <Link
+            to="/"
+            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            <span className="mr-1 text-lg">‹</span> Back to the main page
+          </Link>
+        </div>
+      </div>
+    </form>
   );
 };
 
