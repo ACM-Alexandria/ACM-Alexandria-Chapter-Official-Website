@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logo from "../../assets/acm-logo.png";
 
 const Navbar = () => {
@@ -10,52 +11,46 @@ const Navbar = () => {
           <li>
             <a
               href="#about"
-              className="no-underline text-white text-[15px] hover:opacity-80"
-            >
+              className="no-underline text-white text-[15px] hover:opacity-80">
               About Us
             </a>
           </li>
           <li>
             <a
               href="#clubs"
-              className="no-underline text-white text-[15px] hover:opacity-80"
-            >
+              className="no-underline text-white text-[15px] hover:opacity-80">
               Clubs
             </a>
           </li>
           <li>
             <a
               href="#events"
-              className="no-underline text-white text-[15px] hover:opacity-80"
-            >
+              className="no-underline text-white text-[15px] hover:opacity-80">
               Events
             </a>
           </li>
           <li>
             <a
               href="#programs"
-              className="no-underline text-white text-[15px] hover:opacity-80"
-            >
+              className="no-underline text-white text-[15px] hover:opacity-80">
               Programs
             </a>
           </li>
           <li>
             <a
               href="#services"
-              className="no-underline text-white text-[15px] hover:opacity-80"
-            >
+              className="no-underline text-white text-[15px] hover:opacity-80">
               Services
             </a>
           </li>
         </ul>
       </div>
 
-      <a
+      <Link
         className="bg-white text-[#2c4a72] py-2 px-[18px] rounded-md no-underline font-bold hover:bg-gray-200"
-        href="/login"
-      >
+        to="/login">
         Sign In
-      </a>
+      </Link>
     </nav>
   );
 };
