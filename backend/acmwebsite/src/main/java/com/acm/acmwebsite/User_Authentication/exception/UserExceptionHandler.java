@@ -6,7 +6,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,5 +45,12 @@ public class UserExceptionHandler {
   public ResponseEntity<ErrorMessageResponse> expiredOrInvalidJwt(JwtException ex) {
     ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(ex.getMessage());
     return ResponseEntity.status(401).body(errorMessageResponse);
+  }
+
+  @ExceptionHandler(InvalidEmailException.class)
+  public ResponseEntity<ErrorMessageResponse> invalidEmail(InvalidEmailException ex) {
+    ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(ex.getMessage());
+
+    return ResponseEntity.status(400).body(errorMessageResponse);
   }
 }
