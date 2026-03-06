@@ -132,6 +132,6 @@ export const refreshAccessToken = async () => {
     return access_token;
   } catch (error) {
     await tokenService.clearAllTokens();
-    throw new Error("Token refresh failed");
+    throw new Error("Token refresh failed =", error);
   }
 };

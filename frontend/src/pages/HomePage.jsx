@@ -17,7 +17,7 @@ const HomePage = () => {
   const [highBoard, setHighBoard] = useState([]);
   const [events, setEvents] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
 
   useEffect(() => {
