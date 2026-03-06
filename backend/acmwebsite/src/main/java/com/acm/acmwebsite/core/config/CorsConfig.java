@@ -1,46 +1,94 @@
 package com.acm.acmwebsite.core.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class CorsConfig {
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig { // Renamed from CorsConfig as recommended
 
-    // accepts either a single URL or comma-separated list; fallback empty string if unset
+    // 1. Keep the robust property injection from HEAD
     @Value("${app.frontend.urls:#{null}}")
     private String frontendUrlsRaw;
 
+    // We inject the JwtFilter here via constructor (@RequiredArgsConstructor)
+    private final JwtFilter jwtFilter;
+
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        final String[] origins;
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // 1. CORS: Use the configuration source defined below
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 2. CSRF: Disable it because we use JWTs (Stateless)
+                .csrf(AbstractHttpConfigurer::disable)
+
+                // 3. Authorization Rules
+                .authorizeHttpRequests(auth -> auth
+                        // Allow these specific endpoints without login
+                        .requestMatchers(
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/forgot-password", 
+                                "/api/v1/auth/refresh", 
+                                "/api/v1/user/logout"
+                        ).permitAll()
+                        // All other requests require a valid JWT
+                        .anyRequest().authenticated()
+                )
+
+                // 4. Session: Stateless (No JSESSIONID cookies)
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 5. Filter: Add JWT Filter before the standard username/password check
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    /**
+     * Replaces 'WebMvcConfigurer'. Safer because Spring Security applies this 
+     * BEFORE the request reaches the controllers.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // 2. Merge HEAD's dynamic URL logic into the Sprint branch's CorsConfigurationSource
         if (!StringUtils.hasText(frontendUrlsRaw)) {
-            origins = new String[0];
+            // dev-friendly fallback — allow localhost ports
+            configuration.setAllowedOriginPatterns(List.of("http://localhost:*"));
         } else {
-            // support YAML list or comma-separated single-line
             String normalized = frontendUrlsRaw.trim();
-            // if YAML list is used (Spring can inject comma-joined string), this still works
-            origins = StringUtils.commaDelimitedListToStringArray(normalized);
+            String[] origins = StringUtils.commaDelimitedListToStringArray(normalized);
+            configuration.setAllowedOrigins(List.of(origins));
         }
 
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                var mapping = registry.addMapping("/**")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+        // Allowed HTTP Methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-                if (origins.length == 0) {
-                    // dev-friendly fallback — allow localhost ports. Remove in prod if you want fail-fast.
-                    mapping.allowedOriginPatterns("http://localhost:*");
-                } else {
-                    mapping.allowedOrigins(origins);
-                }
-            }
-        };
+        // Allowed Headers
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // Allow Cookies/Credentials
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
+    
+    // Note: If you need the PasswordEncoder here, uncomment it. Otherwise, ensure 
+    // it's defined in another @Configuration class so UserServiceImpl doesn't crash.
+    /*
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    */
 }

@@ -4,7 +4,7 @@
       "name": "frontend.url",
       "type": "java.lang.String",
       "description": "The URL of the frontend application for CORS configuration and redirects",
-      "defaultValue": "http://localhost:3000"
+      "defaultValue": "http://localhost:5173"
     },
     {
       "name": "jwt.refresh.expiration",
