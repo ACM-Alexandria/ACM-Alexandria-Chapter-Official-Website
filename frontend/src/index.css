@@ -13,5 +13,10 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
+}
+html,
+body,
+#root {
   min-height: 100vh;
+  width: 100%;
 }
