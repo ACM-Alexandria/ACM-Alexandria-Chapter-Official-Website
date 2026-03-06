@@ -3,7 +3,7 @@ import api from "./api";
 // Fetch clubs
 export const fetchClubs = async () => {
   try {
-    const response = await api.get("/clubs");
+    const response = await api.get("/api/clubs");
     return response.data;
   } catch (error) {
     console.error("Error fetching clubs:", error);
@@ -14,7 +14,7 @@ export const fetchClubs = async () => {
 // Fetch committee members
 export const fetchCommittee = async () => {
   try {
-    const response = await api.get("/committee");
+    const response = await api.get("/api/committee");
     return response.data;
   } catch (error) {
     console.error("Error fetching committee:", error);
@@ -25,7 +25,7 @@ export const fetchCommittee = async () => {
 // Fetch high board members
 export const fetchHighBoard = async () => {
   try {
-    const response = await api.get("/highboard");
+    const response = await api.get("/api/highboard");
     return response.data;
   } catch (error) {
     console.error("Error fetching high board:", error);
@@ -36,7 +36,7 @@ export const fetchHighBoard = async () => {
 // Fetch events
 export const fetchEvents = async () => {
   try {
-    const response = await api.get("/events");
+    const response = await api.get("/api/events");
     return response.data;
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -47,7 +47,7 @@ export const fetchEvents = async () => {
 // Fetch programs
 export const fetchPrograms = async () => {
   try {
-    const response = await api.get("/program");
+    const response = await api.get("/api/program");
     return response.data;
   } catch (error) {
     console.error("Error fetching programs:", error);
