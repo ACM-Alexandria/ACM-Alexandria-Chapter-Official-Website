@@ -16,9 +16,12 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+.idea/
 *.iws
 *.iml
 *.ipr
+../.idea
+
 
 ### NetBeans ###
 /nbproject/private/
@@ -39,3 +42,4 @@ application.properties
 
 ### VS Code ###
 .vscode/
+.idea/
