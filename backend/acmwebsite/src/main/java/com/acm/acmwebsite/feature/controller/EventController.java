@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.service.EventService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +18,15 @@ public class EventController {
   }
 
   @GetMapping
-  public List<Event> getEvents() {
-    return eventService.getAll();
+  public ResponseEntity<?> getAllEvents(Integer page) {
+    if(page!=null){
+      return ResponseEntity.ok(eventService.getEventsByPage(page));
+    }
+    return ResponseEntity.ok(eventService.getAll());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity getEvent(@PathVariable Long id) {
+  public ResponseEntity getEventById(@PathVariable Long id) {
     return eventService.getById(id).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
@@ -42,5 +46,6 @@ public class EventController {
     eventService.deleteEvent(id);
     return ResponseEntity.noContent().build();
   }
+
 
 }
