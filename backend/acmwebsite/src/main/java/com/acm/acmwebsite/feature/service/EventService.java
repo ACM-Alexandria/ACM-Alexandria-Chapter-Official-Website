@@ -2,6 +2,10 @@ package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.repository.EventRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +39,17 @@ public class EventService {
                 ).orElseThrow(()->new RuntimeException("EVENT not found"));
 
     }
+
     public void deleteEvent(long id) {
         eventRepository.deleteById(id);
     }
+
+    public Page<Event> getEventsByPage(int pageNumber){
+        pageNumber=Math.max(0,pageNumber);
+        Pageable page= PageRequest.of(pageNumber,5, Sort.by("eventTime").descending());
+        System.out.println(page.getPageNumber());
+        System.out.println(page.getPageSize());
+        return eventRepository.findAll(page);
+    }
+
 }
