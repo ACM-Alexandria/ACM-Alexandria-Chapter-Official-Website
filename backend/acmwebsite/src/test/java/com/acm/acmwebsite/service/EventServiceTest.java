@@ -8,6 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -136,5 +139,34 @@ public class EventServiceTest {
         eventService.deleteEvent(1L);
         verify(eventRepository).deleteById(1L);
     }
+
+    @Test
+    void getEventsByPage_shouldReturnPagedEvents() {
+        Event e = sampleEvent();
+
+        Page<Event> page = new PageImpl<>(List.of(e));
+
+        when(eventRepository.findAll(any(PageRequest.class)))
+                .thenReturn(page);
+
+        Page<Event> result = eventService.getEventsByPage(0);
+
+        assertEquals(1, result.getContent().size());
+        verify(eventRepository).findAll(any(PageRequest.class));
+    }
+
+    @Test
+    void getEventsByPage_emptyPage() {
+        Page<Event> page = new PageImpl<>(List.of());
+
+        when(eventRepository.findAll(any(PageRequest.class)))
+                .thenReturn(page);
+
+        Page<Event> result = eventService.getEventsByPage(0);
+
+        assertTrue(result.getContent().isEmpty());
+    }
+
+
 }
 
