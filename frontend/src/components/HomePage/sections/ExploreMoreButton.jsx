@@ -1,10 +1,8 @@
-const ExploreMoreButton = ({ text = "Explore All", onClick }) => {
-  return (
-    <button
-      onClick={onClick}
-      className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] hover:opacity-90 text-white font-semibold py-3 px-8 rounded-md transition-all duration-300 flex items-center justify-center gap-2 mx-auto"
-      data-aos="fade-up"
-    >
+import { Link } from "react-router-dom";
+
+const ExploreMoreButton = ({ text = "Explore All", onClick, to }) => {
+  const inner = (
+    <>
       {text}
       <svg
         className="w-5 h-5"
@@ -19,8 +17,26 @@ const ExploreMoreButton = ({ text = "Explore All", onClick }) => {
           d="M13 7l5 5m0 0l-5 5m5-5H6"
         />
       </svg>
+    </>
+  );
+
+  const cls =
+    "bg-gradient-to-r from-[#4B98C8] to-[#205E85] hover:opacity-90 text-white font-semibold py-3 px-8 rounded-md transition-all duration-300 flex items-center justify-center gap-2 mx-auto";
+
+  if (to) {
+    return (
+      <Link to={to} className={cls} data-aos="fade-up">
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={cls} data-aos="fade-up">
+      {inner}
     </button>
   );
 };
 
 export default ExploreMoreButton;
+
