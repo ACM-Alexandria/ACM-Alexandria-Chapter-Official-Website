@@ -33,13 +33,24 @@ export const fetchHighBoard = async () => {
   }
 };
 
-// Fetch events
+// Fetch events (all)
 export const fetchEvents = async () => {
   try {
     const response = await api.get("/api/events");
     return response.data;
   } catch (error) {
     console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+
+// Fetch events by page (paginated)
+export const fetchEventsByPage = async (page = 0) => {
+  try {
+    const response = await api.get(`/api/events?page=${page}`);
+    return response.data; // Spring Page: { content, totalPages, number, totalElements, ... }
+  } catch (error) {
+    console.error("Error fetching events by page:", error);
     throw error;
   }
 };

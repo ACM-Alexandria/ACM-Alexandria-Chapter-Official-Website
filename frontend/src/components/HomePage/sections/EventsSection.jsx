@@ -1,9 +1,9 @@
-import EventCard from "../cards/EventCard";
+import EventPageCard from "../cards/EventPageCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
 const EventsSection = ({ events }) => {
-  // Display only first 2 events
-  const displayedEvents = events && events.length > 0 ? events.slice(0, 2) : [];
+  // Display only first 5 events
+  const displayedEvents = events && events.length > 0 ? events.slice(0, 5) : [];
 
   return (
     <section id="events" className="w-full py-20 px-10 flex items-center">
@@ -29,24 +29,18 @@ const EventsSection = ({ events }) => {
           </p>
         </div>
 
-        {/* Events Grid - Show only first 2 */}
+        {/* Events Grid - Show first 5 */}
         {displayedEvents && displayedEvents.length > 0 ? (
           <>
-            <div
-              className={`grid gap-8 mb-12 ${
-                displayedEvents.length === 1
-                  ? "grid-cols-1 max-w-4xl mx-auto"
-                  : "grid-cols-1 md:grid-cols-2 max-w-6xl mx-auto"
-              }`}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {displayedEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventPageCard key={event.id} event={event} />
               ))}
             </div>
 
             {/* Explore All Events Button */}
-            {events && events.length > 2 && (
-              <ExploreMoreButton text="Explore All Events" />
+            {events && events.length > 5 && (
+              <ExploreMoreButton text="Explore All Events" to="/events" />
             )}
           </>
         ) : (
