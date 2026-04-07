@@ -38,7 +38,9 @@ const Navbar = ({ activeSection }) => {
 
   return (
     <nav className="w-full h-[70px] bg-gradient-to-r from-[#4B98C8] to-[#205E85] flex items-center justify-between px-10 text-white fixed top-0 z-10 gap-12">
-      <img src={logo} className="h-20" alt="ACM Logo" />
+      <Link to="/" className="flex items-center" aria-label="Go to home page">
+        <img src={logo} className="h-20" alt="ACM Logo" />
+      </Link>
 
       <ul
         className="list-none flex ml-auto h-full items-stretch relative"

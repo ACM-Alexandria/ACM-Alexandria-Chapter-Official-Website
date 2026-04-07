@@ -1,11 +1,12 @@
 import { useState } from "react";
+import ChevronRightIcon from "../../icons/ChevronRightIcon";
 
 const EventCard = ({ event }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
     <div
-      className="bg-white rounded-lg shadow-lg overflow-hidden"
+      className="group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
       data-aos="fade-up"
     >
       {/* Event Image */}
@@ -25,7 +26,14 @@ const EventCard = ({ event }) => {
       </div>
 
       <div className="p-6">
-        <h3 className="text-2xl font-bold text-gray-800">{event.name}</h3>
+        <h3 className="text-2xl font-bold text-gray-800 text-center mb-4">
+          {event.name}
+        </h3>
+
+        <div className="flex items-center justify-center gap-1 text-[#205E85] font-bold tracking-wider uppercase text-sm">
+          <span>Show Details</span>
+          <ChevronRightIcon className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </div>
       </div>
     </div>
   );
