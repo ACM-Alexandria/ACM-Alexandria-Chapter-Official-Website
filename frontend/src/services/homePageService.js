@@ -44,6 +44,17 @@ export const fetchEvents = async (page = 0) => {
   }
 };
 
+// Fetch single event by id (full event payload)
+export const fetchEventById = async (id) => {
+  try {
+    const response = await api.get(`/api/events/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching event details:", error);
+    throw error;
+  }
+};
+
 // Fetch programs
 export const fetchPrograms = async () => {
   try {

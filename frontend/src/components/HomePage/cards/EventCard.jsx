@@ -1,13 +1,19 @@
 import { useState } from "react";
 import ChevronRightIcon from "../../icons/ChevronRightIcon";
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, onShowDetails }) => {
   const [imageError, setImageError] = useState(false);
+
+  const handleOpenDetails = () => {
+    if (!event?.id) return;
+    onShowDetails?.(event.id);
+  };
 
   return (
     <div
-      className="group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className="group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
       data-aos="fade-up"
+      onClick={handleOpenDetails}
     >
       {/* Event Image */}
       <div className="bg-gradient-to-r from-[#4B98C8] to-[#205E85] h-48 flex items-center justify-center">

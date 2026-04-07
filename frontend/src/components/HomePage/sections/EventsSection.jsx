@@ -1,7 +1,7 @@
 import EventCard from "../cards/EventCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const EventsSection = ({ events }) => {
+const EventsSection = ({ events, onShowEventDetails }) => {
   // Display only first 5 events
   const displayedEvents = events && events.length > 0 ? events.slice(0, 3) : [];
 
@@ -34,7 +34,11 @@ const EventsSection = ({ events }) => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {displayedEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onShowDetails={onShowEventDetails}
+                />
               ))}
             </div>
 

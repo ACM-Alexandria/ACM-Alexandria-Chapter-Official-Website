@@ -4,6 +4,7 @@ import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
 import Footer from "../components/HomePage/Footer";
 import EventCard from "../components/HomePage/cards/EventCard";
+import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import Pagination from "../components/HomePage/Pagination";
 import { fetchEvents } from "../services/homePageService";
 
@@ -14,6 +15,17 @@ const EventsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showPageContent, setShowPageContent] = useState(false);
+    const [selectedEventId, setSelectedEventId] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleShowEventDetails = (eventId) => {
+        setSelectedEventId(eventId);
+        setIsSidebarOpen(true);
+    };
+
+    const handleCloseSidebar = () => {
+        setIsSidebarOpen(false);
+    };
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 80 });
@@ -111,7 +123,11 @@ const EventsPage = () => {
                                 <>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                         {events.map((event) => (
-                                            <EventCard key={event.id} event={event} />
+                                            <EventCard
+                                                key={event.id}
+                                                event={event}
+                                                onShowDetails={handleShowEventDetails}
+                                            />
                                         ))}
                                     </div>
 
@@ -128,6 +144,12 @@ const EventsPage = () => {
             </main>
 
             <Footer />
+
+            <EventDetailsSidebar
+                eventId={selectedEventId}
+                isOpen={isSidebarOpen}
+                onClose={handleCloseSidebar}
+            />
         </div>
     );
 };
