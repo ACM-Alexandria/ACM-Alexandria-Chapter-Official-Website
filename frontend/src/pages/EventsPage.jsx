@@ -13,6 +13,7 @@ const EventsPage = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showPageContent, setShowPageContent] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 80 });
@@ -21,6 +22,7 @@ const EventsPage = () => {
     useEffect(() => {
         const load = async () => {
             setLoading(true);
+            setShowPageContent(false);
             setError(null);
             try {
                 const data = await fetchEvents(currentPage);
@@ -38,12 +40,14 @@ const EventsPage = () => {
                 setError("Failed to load events. Please try again later.");
             } finally {
                 setLoading(false);
+                requestAnimationFrame(() => setShowPageContent(true));
             }
         };
         load();
     }, [currentPage]);
 
     const handlePageChange = (page) => {
+        if (page === currentPage) return;
         setCurrentPage(page);
     };
 
@@ -58,7 +62,7 @@ const EventsPage = () => {
                         className="text-4xl md:text-5xl font-bold text-white mb-3"
                         data-aos="fade-down"
                     >
-                        All Events
+                        Our Events
                     </h1>
                     <div
                         className="w-20 h-1 bg-white opacity-50 mx-auto mb-4"
@@ -91,28 +95,34 @@ const EventsPage = () => {
                                 </div>
                             ))}
                         </div>
-                    ) : error ? (
-                        <div className="text-center py-20">
-                            <p className="text-red-500 text-lg">{error}</p>
-                        </div>
-                    ) : events.length === 0 ? (
-                        <div className="text-center py-20">
-                            <p className="text-gray-500 text-lg">No events available yet.</p>
-                        </div>
                     ) : (
-                        <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {events.map((event) => (
-                                    <EventCard key={event.id} event={event} />
-                                ))}
-                            </div>
+                        <div
+                            className={`transition-all duration-400 ease-out ${showPageContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                        >
+                            {error ? (
+                                <div className="text-center py-20">
+                                    <p className="text-red-500 text-lg">{error}</p>
+                                </div>
+                            ) : events.length === 0 ? (
+                                <div className="text-center py-20">
+                                    <p className="text-gray-500 text-lg">No events available yet.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        {events.map((event) => (
+                                            <EventCard key={event.id} event={event} />
+                                        ))}
+                                    </div>
 
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={handlePageChange}
-                            />
-                        </>
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={handlePageChange}
+                                    />
+                                </>
+                            )}
+                        </div>
                     )}
                 </div>
             </main>

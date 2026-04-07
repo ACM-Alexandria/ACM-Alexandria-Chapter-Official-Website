@@ -14,7 +14,7 @@ const EventsSection = ({ events }) => {
             className="text-4xl font-bold text-gray-800 mb-4"
             data-aos="fade-down"
           >
-            Upcoming Events
+            Our Events
           </h2>
           <div
             className="w-20 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-4"
