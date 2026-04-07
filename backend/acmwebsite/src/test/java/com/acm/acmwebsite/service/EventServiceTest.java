@@ -1,6 +1,8 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.mapper.EventMapper;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.service.EventService;
 import org.junit.jupiter.api.Test;
@@ -20,10 +22,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
     @Mock
     private EventRepository eventRepository;
+
+    @Mock
+    private EventMapper eventMapper;
 
     @InjectMocks
     private EventService eventService;
@@ -41,17 +47,28 @@ public class EventServiceTest {
         return e;
     }
 
-
+    private EventCardDto sampleEventCardDto() {
+        EventCardDto dto = new EventCardDto();
+        dto.setId(1L);
+        dto.setName("Hackathon");
+        dto.setImageUrl("img");
+        return dto;
+    }
 
     @Test
-    void getAll_shouldReturnEvents() {
-        when(eventRepository.findAll())
-                .thenReturn(List.of(sampleEvent()));
+    void getAllCards_shouldReturnEventCards() {
+        Event event = sampleEvent();
+        EventCardDto dto = sampleEventCardDto();
 
-        List<Event> result = eventService.getAll();
+        when(eventRepository.findAll(org.springframework.data.domain.Sort.by("eventTime").descending()))
+                .thenReturn(List.of(event));
+        when(eventMapper.toEventCardDto(event)).thenReturn(dto);
+
+        List<EventCardDto> result = eventService.getAllCards();
 
         assertEquals(1, result.size());
-        verify(eventRepository).findAll();
+        assertEquals("Hackathon", result.get(0).getName());
+        verify(eventRepository).findAll(org.springframework.data.domain.Sort.by("eventTime").descending());
     }
 
     @Test
@@ -76,8 +93,6 @@ public class EventServiceTest {
         assertTrue(result.isEmpty());
     }
 
-
-
     @Test
     void createEvent_shouldSave() {
         Event e = sampleEvent();
@@ -88,8 +103,6 @@ public class EventServiceTest {
         assertEquals("Hackathon", saved.getName());
         verify(eventRepository).save(e);
     }
-
-
 
     @Test
     void updateEvent_success() {
@@ -118,7 +131,6 @@ public class EventServiceTest {
         verify(eventRepository).save(existing);
     }
 
-
     @Test
     void updateEvent_notFound_shouldThrow() {
         when(eventRepository.findById(1L))
@@ -126,13 +138,10 @@ public class EventServiceTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> eventService.updateEvent(1L, new Event())
-        );
+                () -> eventService.updateEvent(1L, new Event()));
 
         assertEquals("EVENT not found", ex.getMessage());
     }
-
-
 
     @Test
     void deleteEvent_shouldCallRepository() {
@@ -143,15 +152,18 @@ public class EventServiceTest {
     @Test
     void getEventsByPage_shouldReturnPagedEvents() {
         Event e = sampleEvent();
+        EventCardDto dto = sampleEventCardDto();
 
         Page<Event> page = new PageImpl<>(List.of(e));
 
         when(eventRepository.findAll(any(PageRequest.class)))
                 .thenReturn(page);
+        when(eventMapper.toEventCardDto(e)).thenReturn(dto);
 
-        Page<Event> result = eventService.getEventsByPage(0);
+        Page<EventCardDto> result = eventService.getEventsByPage(0);
 
         assertEquals(1, result.getContent().size());
+        assertEquals("Hackathon", result.getContent().get(0).getName());
         verify(eventRepository).findAll(any(PageRequest.class));
     }
 
@@ -162,11 +174,9 @@ public class EventServiceTest {
         when(eventRepository.findAll(any(PageRequest.class)))
                 .thenReturn(page);
 
-        Page<Event> result = eventService.getEventsByPage(0);
+        Page<EventCardDto> result = eventService.getEventsByPage(0);
 
         assertTrue(result.getContent().isEmpty());
     }
 
-
 }
-
