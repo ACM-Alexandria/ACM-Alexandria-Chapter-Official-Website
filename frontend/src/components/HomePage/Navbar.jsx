@@ -1,12 +1,19 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo/acm-logo-no-bg.png";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import LogoutConfirmModal from "../auth/LogoutConfirmModal";
+import { HiOutlineLogout } from "react-icons/hi";
+import { FaUserCircle } from "react-icons/fa";
+
 
 const Navbar = ({ activeSection }) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navListRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
   const navLinkClass =
     "no-underline text-white text-[22px] font-semibold hover:opacity-80 transition-all duration-300 px-6 flex items-center h-full relative z-10";
@@ -91,11 +98,49 @@ const Navbar = ({ activeSection }) => {
         })}
       </ul>
 
-      <Link
-        className="bg-white text-[#2c4a72] py-2 px-[18px] rounded-md no-underline font-bold hover:bg-gray-200"
-        to="/login">
-        Sign In
-      </Link>
+      {isLoading ? (
+        <div className="bg-white/40 text-white py-2 px-[18px] rounded-md font-bold animate-pulse">
+          Loading...
+        </div>
+      ) : isAuthenticated ? (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="View profile"
+            title="Profile"
+            className="text-white/90 p-3 rounded-full transition-colors hover:bg-white/10 hover:text-white inline-flex items-center justify-center"
+            onClick={() => navigate("/profile")}
+          >
+            <FaUserCircle className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            aria-label="Log out"
+            title="Log out"
+            className="text-white/90 p-3 rounded-full transition-colors hover:bg-white/10 hover:text-white inline-flex items-center justify-center"
+            onClick={() => setShowLogoutModal(true)}
+          >
+            <HiOutlineLogout className="h-6 w-6" />
+          </button>
+        </div>
+      ) : (
+        <Link
+          className="bg-white text-[#2c4a72] py-2 px-[18px] rounded-md no-underline font-bold hover:bg-gray-200"
+          to="/login"
+        >
+          Sign In
+        </Link>
+      )}
+
+      <LogoutConfirmModal
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={async () => {
+          setShowLogoutModal(false);
+          await logout();
+          navigate("/login");
+        }}
+      />
     </nav>
   );
 };
