@@ -3,9 +3,9 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
 import Footer from "../components/HomePage/Footer";
-import EventPageCard from "../components/HomePage/cards/EventPageCard";
+import EventCard from "../components/HomePage/cards/EventCard";
 import Pagination from "../components/HomePage/Pagination";
-import { fetchEventsByPage } from "../services/homePageService";
+import { fetchEvents } from "../services/homePageService";
 
 const EventsPage = () => {
     const [events, setEvents] = useState([]);
@@ -23,7 +23,7 @@ const EventsPage = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await fetchEventsByPage(currentPage);
+                const data = await fetchEvents(currentPage);
                 // Handle Spring Page response shape
                 if (data && data.content !== undefined) {
                     setEvents(data.content);
@@ -103,7 +103,7 @@ const EventsPage = () => {
                         <>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {events.map((event) => (
-                                    <EventPageCard key={event.id} event={event} />
+                                    <EventCard key={event.id} event={event} />
                                 ))}
                             </div>
 

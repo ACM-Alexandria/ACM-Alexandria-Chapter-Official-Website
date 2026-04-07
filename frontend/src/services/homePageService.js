@@ -33,19 +33,8 @@ export const fetchHighBoard = async () => {
   }
 };
 
-// Fetch events (all)
-export const fetchEvents = async () => {
-  try {
-    const response = await api.get("/api/events");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    throw error;
-  }
-};
-
-// Fetch events by page (paginated)
-export const fetchEventsByPage = async (page = 0) => {
+// Fetch events
+export const fetchEvents = async (page = 0) => {
   try {
     const response = await api.get(`/api/events?page=${page}`);
     return response.data; // Spring Page: { content, totalPages, number, totalElements, ... }
@@ -72,7 +61,7 @@ export const fetchHomePageData = async () => {
     fetchClubs().catch(() => []),
     fetchCommittee().catch(() => []),
     fetchHighBoard().catch(() => []),
-    fetchEvents().catch(() => []),
+    fetchEvents(0).catch(() => ({ content: [] })),
     fetchPrograms().catch(() => []),
   ]);
 
@@ -80,7 +69,7 @@ export const fetchHomePageData = async () => {
     clubs: results[0].status === "fulfilled" ? results[0].value : [],
     committee: results[1].status === "fulfilled" ? results[1].value : [],
     highBoard: results[2].status === "fulfilled" ? results[2].value : [],
-    events: results[3].status === "fulfilled" ? results[3].value : [],
+    events: results[3].status === "fulfilled" && Array.isArray(results[3].value?.content) ? results[3].value.content : [],
     programs: results[4].status === "fulfilled" ? results[4].value : [],
   };
 };
