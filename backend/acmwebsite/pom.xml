@@ -116,7 +116,6 @@
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 		</dependency>
-	</dependencies>
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
@@ -130,8 +129,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-    </dependencies>
-
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
