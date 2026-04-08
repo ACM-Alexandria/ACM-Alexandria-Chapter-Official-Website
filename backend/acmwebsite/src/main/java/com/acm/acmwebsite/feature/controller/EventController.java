@@ -1,7 +1,9 @@
 package com.acm.acmwebsite.feature.controller;
 
+import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.service.EventService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +17,8 @@ public class EventController {
   }
 
   @GetMapping
-  public ResponseEntity<?> getAllEvents(Integer page) {
-    if (page != null) {
-      return ResponseEntity.ok(eventService.getEventsByPage(page));
-    }
-    return ResponseEntity.ok(eventService.getAllCards());
+  public ResponseEntity<Page<EventCardDto>> getAllEvents(@RequestParam int page) {
+    return ResponseEntity.ok(eventService.getEventsByPage(page));
   }
 
   @GetMapping("/{id}")
