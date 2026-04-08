@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo/acm-logo-no-bg.png";
 import { useState, useEffect, useRef } from "react";
 
 const Navbar = ({ activeSection }) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const navListRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navLinkClass =
     "no-underline text-white text-[22px] font-semibold hover:opacity-80 transition-all duration-300 px-6 flex items-center h-full relative z-10";
@@ -12,19 +14,36 @@ const Navbar = ({ activeSection }) => {
     "no-underline text-white text-[22px] font-semibold hover:opacity-80 transition-all duration-300 px-6 flex items-center h-full relative z-10";
 
   const navItems = [
-    { href: "#about", label: "About Us" },
-    { href: "#clubs", label: "Clubs" },
-    { href: "#events", label: "Events" },
-    { href: "#programs", label: "Programs" },
-    { href: "#services", label: "Services" },
+    { id: "about", label: "About Us" },
+    { id: "clubs", label: "Clubs" },
+    { id: "events", label: "Events" },
+    { id: "programs", label: "Programs" },
+    { id: "services", label: "Services" },
   ];
+
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleSectionNavigation = (sectionId) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => scrollToSection(sectionId), 120);
+      return;
+    }
+
+    scrollToSection(sectionId);
+  };
 
   // Update indicator position when active section changes
   useEffect(() => {
     if (!navListRef.current) return;
 
     const activeLink = navListRef.current.querySelector(
-      `Link[href="#${activeSection}"]`,
+      `[data-section="${activeSection}"]`,
     );
 
     if (activeLink) {
@@ -38,7 +57,9 @@ const Navbar = ({ activeSection }) => {
 
   return (
     <nav className="w-full h-[70px] bg-gradient-to-r from-[#4B98C8] to-[#205E85] flex items-center justify-between px-10 text-white fixed top-0 z-10 gap-12">
-      <img src={logo} className="h-20" alt="ACM Logo" />
+      <Link to="/" className="flex items-center" aria-label="Go to home page">
+        <img src={logo} className="h-20" alt="ACM Logo" />
+      </Link>
 
       <ul
         className="list-none flex ml-auto h-full items-stretch relative"
@@ -54,15 +75,17 @@ const Navbar = ({ activeSection }) => {
         />
 
         {navItems.map((item) => {
-          const isActive = activeSection === item.href.slice(1); // Remove # from href
+          const isActive = activeSection === item.id;
           return (
-            <li key={item.href} className="h-full">
-              <Link
-                href={item.href}
+            <li key={item.id} className="h-full">
+              <button
+                type="button"
+                data-section={item.id}
+                onClick={() => handleSectionNavigation(item.id)}
                 className={isActive ? activeLinkClass : navLinkClass}
               >
                 {item.label}
-              </Link>
+              </button>
             </li>
           );
         })}
