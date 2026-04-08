@@ -1,9 +1,9 @@
 import EventCard from "../cards/EventCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const EventsSection = ({ events }) => {
-  // Display only first 2 events
-  const displayedEvents = events && events.length > 0 ? events.slice(0, 2) : [];
+const EventsSection = ({ events, onShowEventDetails }) => {
+  // Display only first 5 events
+  const displayedEvents = events && events.length > 0 ? events.slice(0, 3) : [];
 
   return (
     <section id="events" className="w-full py-20 px-10 flex items-center">
@@ -14,7 +14,7 @@ const EventsSection = ({ events }) => {
             className="text-4xl font-bold text-gray-800 mb-4"
             data-aos="fade-down"
           >
-            Upcoming Events
+            Our Events
           </h2>
           <div
             className="w-20 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-4"
@@ -29,24 +29,22 @@ const EventsSection = ({ events }) => {
           </p>
         </div>
 
-        {/* Events Grid - Show only first 2 */}
+        {/* Events Grid - Show first 5 */}
         {displayedEvents && displayedEvents.length > 0 ? (
           <>
-            <div
-              className={`grid gap-8 mb-12 ${
-                displayedEvents.length === 1
-                  ? "grid-cols-1 max-w-4xl mx-auto"
-                  : "grid-cols-1 md:grid-cols-2 max-w-6xl mx-auto"
-              }`}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {displayedEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onShowDetails={onShowEventDetails}
+                />
               ))}
             </div>
 
             {/* Explore All Events Button */}
-            {events && events.length > 2 && (
-              <ExploreMoreButton text="Explore All Events" />
+            {events && events.length > 5 && (
+              <ExploreMoreButton text="Explore All Events" to="/events" />
             )}
           </>
         ) : (
