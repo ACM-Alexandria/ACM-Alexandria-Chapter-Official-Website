@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,8 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-
 
 import java.util.List;
 
@@ -42,23 +41,24 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
 
                 // 3. Authorization Rules
                 .authorizeHttpRequests(auth -> auth
+                        // Allow CORS preflight requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
-                                "/api/v1/auth/forgot-password", 
-                                "/api/v1/auth/refresh", 
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/refresh",
                                 "/api/v1/user/logout",
                                 "/api/clubs/**",
                                 "/api/events/**",
                                 "/api/highboard/**",
                                 "/api/committee/**",
                                 "/api/program/**",
-                                "/api/socialLinks/**"
-                        ).permitAll()
+                                "/api/socialLinks/**")
+                        .permitAll()
                         // All other requests require a valid JWT
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
 
                 // 4. Session: Stateless (No JSESSIONID cookies)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -70,14 +70,15 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
     }
 
     /**
-     * Replaces 'WebMvcConfigurer'. Safer because Spring Security applies this 
+     * Replaces 'WebMvcConfigurer'. Safer because Spring Security applies this
      * BEFORE the request reaches the controllers.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 2. Merge HEAD's dynamic URL logic into the Sprint branch's CorsConfigurationSource
+        // 2. Merge HEAD's dynamic URL logic into the Sprint branch's
+        // CorsConfigurationSource
         if (!StringUtils.hasText(frontendUrlsRaw)) {
             // dev-friendly fallback — allow localhost ports
             configuration.setAllowedOriginPatterns(List.of("http://localhost:*"));
@@ -100,13 +101,14 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    
-    // Note: If you need the PasswordEncoder here, uncomment it. Otherwise, ensure 
-    // it's defined in another @Configuration class so UserServiceImpl doesn't crash.
+
+    // Note: If you need the PasswordEncoder here, uncomment it. Otherwise, ensure
+    // it's defined in another @Configuration class so UserServiceImpl doesn't
+    // crash.
     /*
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    */
+     * @Bean
+     * public PasswordEncoder passwordEncoder() {
+     * return new BCryptPasswordEncoder();
+     * }
+     */
 }

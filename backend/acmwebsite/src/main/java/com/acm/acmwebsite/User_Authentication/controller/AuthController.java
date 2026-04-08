@@ -18,9 +18,11 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +38,18 @@ public class AuthController {
   private final TokenService tokenService;
   private final RegisterService registerService;
 
+  @GetMapping("/currentUser")
+  public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    if (authentication == null || authentication.getName() == null) {
+      return ResponseEntity.status(401).body(new ErrorMessageResponse("Unauthorized request"));
+    }
 
-
+    return ResponseEntity.ok(Map.of("email", authentication.getName()));
+  }
 
   @PostMapping("register")
   public ResponseEntity<SuccessRegisterResponse> registerUser(
-          @RequestBody @Valid RegisterDTO registerDTO) {
+      @RequestBody @Valid RegisterDTO registerDTO) {
     SuccessRegisterResponse savedUser = registerService.createUser(registerDTO);
     return ResponseEntity.status(201).body(savedUser);
   }
@@ -54,9 +62,10 @@ public class AuthController {
       return ResponseEntity.ok(response);
     } catch (IllegalArgumentException ex) {
       return ResponseEntity.status(401)
-              .body(new ErrorMessageResponse("Incorrect email or password"));
+          .body(new ErrorMessageResponse("Incorrect email or password"));
     }
   }
+
   @PostMapping("/refresh")
   @Transactional
   public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request) {
@@ -70,10 +79,9 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-
   @PostMapping("/forgot-password")
   public ResponseEntity<Map<String, String>> forgotPassword(
-          @Valid @RequestBody ForgotPasswordDTO request) {
+      @Valid @RequestBody ForgotPasswordDTO request) {
 
     // This method returns VOID. It handles "User Found" and "User Not Found"
     // identically.
@@ -81,9 +89,9 @@ public class AuthController {
 
     // Always return the same success message
     return ResponseEntity.ok(
-            Collections.singletonMap(
-                    "message",
-                    "If an account with this email exists, a password reset link has been sent."));
+        Collections.singletonMap(
+            "message",
+            "If an account with this email exists, a password reset link has been sent."));
   }
 
   @PostMapping("/reset-password")
@@ -91,40 +99,37 @@ public class AuthController {
     try {
       userService.resetPassword(dto);
       return ResponseEntity.ok(
-              Map.of("message", "Password has been reset successfully.")
-      );
+          Map.of("message", "Password has been reset successfully."));
     } catch (IllegalArgumentException ex) {
       return ResponseEntity.badRequest().body(
-              Map.of("error", ex.getMessage())
-      );
+          Map.of("error", ex.getMessage()));
     }
   }
 
   @PostMapping("/logout")
   public ResponseEntity<?> logout(
-          @AuthenticationPrincipal UserDetails currentUser,
-          @RequestBody LogoutRequest logoutRequest) {
+      @AuthenticationPrincipal UserDetails currentUser,
+      @RequestBody LogoutRequest logoutRequest) {
 
     if (currentUser == null) {
       return ResponseEntity.status(401)
-              .body(new ErrorMessageResponse("Unauthorized request"));
+          .body(new ErrorMessageResponse("Unauthorized request"));
     }
 
     String refreshTokenString = logoutRequest.getRefreshToken();
     if (refreshTokenString == null || refreshTokenString.isEmpty()) {
       return ResponseEntity.status(400)
-              .body(new ErrorMessageResponse("refresh_token is required"));
+          .body(new ErrorMessageResponse("refresh_token is required"));
     }
 
-    try{
+    try {
       tokenService.revokeRefreshToken(refreshTokenString);
       return ResponseEntity.ok()
-              .body("{\"message\": \"Logged out successfully\"}");
-    }catch (Exception ex){
+          .body("{\"message\": \"Logged out successfully\"}");
+    } catch (Exception ex) {
       return ResponseEntity.status(400)
-              .body(ex.getMessage());
+          .body(ex.getMessage());
     }
-
 
   }
 
