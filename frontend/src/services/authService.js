@@ -66,6 +66,14 @@ export const logout = async () => {
 };
 
 /**
+ * Get current authenticated user (email only).
+ */
+export const getMe = async () => {
+  const response = await api.get("/api/v1/auth/currentUser");
+  return response.data;
+};
+
+/**
  * Initiate password reset — sends email with reset link.
  */
 export const forgotPassword = async (email) => {
