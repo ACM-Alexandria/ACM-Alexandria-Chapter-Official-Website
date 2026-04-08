@@ -69,7 +69,7 @@ export const logout = async () => {
  * Get current authenticated user (email only).
  */
 export const getMe = async () => {
-  const response = await api.get("/api/v1/auth/me");
+  const response = await api.get("/api/v1/auth/currentUser");
   return response.data;
 };
 

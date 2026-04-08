@@ -38,7 +38,7 @@ public class AuthController {
   private final TokenService tokenService;
   private final RegisterService registerService;
 
-  @GetMapping("/me")
+  @GetMapping("/currentUser")
   public ResponseEntity<?> getCurrentUser(Authentication authentication) {
     if (authentication == null || authentication.getName() == null) {
       return ResponseEntity.status(401).body(new ErrorMessageResponse("Unauthorized request"));
