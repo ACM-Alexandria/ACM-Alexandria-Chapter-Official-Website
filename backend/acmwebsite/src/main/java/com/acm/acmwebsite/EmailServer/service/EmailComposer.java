@@ -24,7 +24,7 @@ public class EmailComposer {
 	 * @param request The validated EmailRequest DTO
 	 * @return The fully rendered HTML as a standard String
 	 */
-	public String composeHtml(EmailRequest request) {
+	public String buildHtmlBody(EmailRequest request) {
 		// 1. Create a Thymeleaf Context object
 		Context context = new Context();
 
