@@ -24,3 +24,10 @@ spring.mail.password=wxyz abc def ghij    <-- PASTE APP PASSWORD HERE
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 backend.url=http://localhost:8080
+
+# THYMELEAF EMAIL TEMPLATE CONFIGURATION
+spring.thymeleaf.prefix=classpath:/templates/mail/
+spring.thymeleaf.suffix=.html
+spring.thymeleaf.mode=HTML
+spring.thymeleaf.encoding=UTF-8
+spring.thymeleaf.cache=false
