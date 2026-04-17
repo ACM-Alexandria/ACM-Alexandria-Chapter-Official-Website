@@ -34,8 +34,8 @@ build/
 !**/src/test/**/build/
 
 # Environment
-application.properties
 
+*.example
 
 # OS
 .DS_Store
