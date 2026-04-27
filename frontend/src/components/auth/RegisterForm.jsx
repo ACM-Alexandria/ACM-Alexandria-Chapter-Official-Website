@@ -44,18 +44,11 @@ const RegisterForm = () => {
    */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear field-specific error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-        general: "",
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "", general: "" }));
     }
   };
 
@@ -68,25 +61,16 @@ const RegisterForm = () => {
     let fieldError = "";
     if (name === "email") {
       const validation = validateEmail(value);
-      if (!validation.isValid) {
-        fieldError = validation.message;
-      }
+      if (!validation.isValid) fieldError = validation.message;
     } else if (name === "password") {
       const validation = validatePassword(value);
-      if (!validation.isValid) {
-        fieldError = validation.message;
-      }
+      if (!validation.isValid) fieldError = validation.message;
     } else if (name === "password_confirmation") {
       const validation = validatePasswordMatch(formData.password, value);
-      if (!validation.isValid) {
-        fieldError = validation.message;
-      }
+      if (!validation.isValid) fieldError = validation.message;
     }
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: fieldError,
-    }));
+    setErrors((prev) => ({ ...prev, [name]: fieldError }));
   };
 
   /**
@@ -129,9 +113,7 @@ const RegisterForm = () => {
     setErrors((prev) => ({ ...prev, general: "" }));
 
     // Validate form
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
@@ -145,61 +127,33 @@ const RegisterForm = () => {
 
       // Handle successful registration
       if (response.id && response.email) {
-        setSuccessMessage(
-          "Account created successfully! Redirecting to login...",
-        );
+        setSuccessMessage("Account created successfully! Redirecting to login...");
 
         // Clear password fields only (keep email for convenience)
-        setFormData((prev) => ({
-          ...prev,
-          password: "",
-          password_confirmation: "",
-        }));
+        setFormData((prev) => ({ ...prev, password: "", password_confirmation: "" }));
 
         // Redirect to login after a short delay
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+        setTimeout(() => navigate("/login"), 2000);
       }
     } catch (error) {
       // Handle backend errors
-      const errorMessage =
-        error.message || "An error occurred during registration";
+      const errorMessage = error.message || "An error occurred during registration";
 
-      // Clear password fields on error (as per requirements)
-      setFormData((prev) => ({
-        ...prev,
-        password: "",
-        password_confirmation: "",
-      }));
+      // Clear password fields on error
+      setFormData((prev) => ({ ...prev, password: "", password_confirmation: "" }));
 
       // Set field-specific error or general error based on error message
       if (errorMessage.toLowerCase().includes("email")) {
-        setErrors((prev) => ({
-          ...prev,
-          email: errorMessage,
-          general: "",
-        }));
+        setErrors((prev) => ({ ...prev, email: errorMessage, general: "" }));
       } else if (
         errorMessage.toLowerCase().includes("password") &&
         errorMessage.toLowerCase().includes("match")
       ) {
-        setErrors((prev) => ({
-          ...prev,
-          password_confirmation: errorMessage,
-          general: "",
-        }));
+        setErrors((prev) => ({ ...prev, password_confirmation: errorMessage, general: "" }));
       } else if (errorMessage.toLowerCase().includes("password")) {
-        setErrors((prev) => ({
-          ...prev,
-          password: errorMessage,
-          general: "",
-        }));
+        setErrors((prev) => ({ ...prev, password: errorMessage, general: "" }));
       } else {
-        setErrors((prev) => ({
-          ...prev,
-          general: errorMessage,
-        }));
+        setErrors((prev) => ({ ...prev, general: errorMessage }));
       }
     } finally {
       setIsLoading(false);
@@ -208,23 +162,19 @@ const RegisterForm = () => {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      {/* General error message */}
+      {/* General error */}
       {errors.general && (
-        <div
-          className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
-          role="alert">
-          <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
-          <p className="text-sm text-red-800">{errors.general}</p>
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700" role="alert">
+          <ErrorCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+          <p>{errors.general}</p>
         </div>
       )}
 
-      {/* Success message */}
+      {/* Success */}
       {successMessage && (
-        <div
-          className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
-          role="alert">
-          <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
-          <p className="text-sm text-green-800">{successMessage}</p>
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700" role="status">
+          <SuccessCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-green-500" />
+          <p>{successMessage}</p>
         </div>
       )}
 
@@ -237,7 +187,7 @@ const RegisterForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.email}
-        placeholder="Enter your email"
+        placeholder="you@example.com"
         required={false}
         autoComplete="email"
         icon={EnvelopeIcon}
@@ -251,7 +201,7 @@ const RegisterForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.password}
-        placeholder="Enter your password"
+        placeholder="Create a strong password"
         required={false}
         autoComplete="new-password"
         icon={LockIcon}
@@ -265,7 +215,7 @@ const RegisterForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.password_confirmation}
-        placeholder="Enter your password"
+        placeholder="Repeat your password"
         required={false}
         autoComplete="new-password"
         icon={LockIcon}
@@ -274,40 +224,58 @@ const RegisterForm = () => {
       {/* Submit button */}
       <button
         type="submit"
+        id="register-submit-btn"
         disabled={isLoading}
-        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
-          isLoading
-            ? "opacity-70 cursor-not-allowed"
-            : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
-        }`}>
+        aria-busy={isLoading}
+        className={`
+          relative w-full mt-2 py-3 px-6 flex items-center justify-center gap-2
+          bg-gradient-to-r from-[#4B98C8] to-[#205E85]
+          text-white font-bold text-sm rounded-xl
+          shadow-md overflow-hidden
+          transition-all duration-300
+          ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-lg hover:from-[#5aa3d0] hover:to-[#256b96]"}
+        `}
+      >
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 2.8s linear infinite",
+          }}
+        />
         {isLoading ? (
-          <span className="flex items-center justify-center gap-2">
-            <SpinnerIcon />
-            Creating account...
-          </span>
+          <>
+            <span
+              aria-hidden="true"
+              className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white shrink-0"
+              style={{ animation: "spin 0.7s linear infinite" }}
+            />
+            Creating account…
+          </>
         ) : (
-          "Sign up"
+          "Create Account"
         )}
       </button>
 
       {/* Footer Links */}
-      <div className="text-center space-y-3 pt-5">
+      <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
         <p className="text-sm text-gray-500">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-            Log In
+          <Link to="/login" className="font-semibold text-[#205E85] hover:text-[#4B98C8] transition-colors">
+            Sign In
           </Link>
         </p>
-
-        <div>
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            <span className="mr-1 text-lg">‹</span> Back to the main page
-          </Link>
-        </div>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back to main page
+        </Link>
       </div>
     </form>
   );
