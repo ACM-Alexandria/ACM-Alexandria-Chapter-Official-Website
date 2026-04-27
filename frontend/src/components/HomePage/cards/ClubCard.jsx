@@ -1,17 +1,27 @@
 import { useState } from "react";
 
-const ClubCard = ({ club, index }) => {
+const ClubCard = ({ club, index, onShowDetails }) => {
   const [imageError, setImageError] = useState(false);
+
+  const handleOpenDetails = () => {
+    if (!club?.id) return;
+    onShowDetails?.(club.id);
+  };
 
   return (
     <div
-      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full"
+      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full cursor-pointer"
       data-aos="fade-up"
       data-aos-delay={index * 100}
+      onClick={handleOpenDetails}
     >
       {/* Club Image Container */}
-      <div className="relative h-56 overflow-hidden bg-slate-100">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+      <div className="relative h-72 overflow-hidden bg-slate-100">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex items-end justify-center p-8">
+           <span className="text-white font-bold uppercase tracking-[0.2em] text-xs translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+             View Details
+           </span>
+        </div>
         
         {club.imageUrl && !imageError ? (
           <img
