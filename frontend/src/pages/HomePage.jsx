@@ -100,7 +100,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar activeSection={activeSection} />
-      <main className="flex-1 pt-[70px]">
+      <main className="flex-1 pt-[74px]">
         <GreetingSection />
         <AboutSection highBoard={highBoard} committees={committee} />
         <ClubsSection clubs={clubs} />
