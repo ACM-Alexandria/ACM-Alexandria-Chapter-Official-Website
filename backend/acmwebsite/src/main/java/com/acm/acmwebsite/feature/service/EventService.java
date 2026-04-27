@@ -29,10 +29,6 @@ public class EventService {
                 .toList();
     }
 
-    public Optional<EventCardDto> getCardById(Long id) {
-        return eventRepository.findById(id).map(eventMapper::toEventCardDto);
-    }
-
     public Optional<Event> getById(Long id) {
         return eventRepository.findById(id);
     }
