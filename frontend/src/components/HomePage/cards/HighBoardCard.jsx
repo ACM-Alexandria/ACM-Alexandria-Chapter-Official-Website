@@ -1,31 +1,49 @@
 import { useState } from "react";
 
-const HighBoardCard = ({ member }) => {
+const HighBoardCard = ({ member, index }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
     <div
-      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+      className="group bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 hover:-translate-y-2 transition-all duration-500"
       data-aos="fade-up"
+      data-aos-delay={index * 100}
     >
-      <div className="bg-linear-to-r from-[#4B98C8] to-[#205E85] h-52 flex items-center justify-center overflow-hidden">
+      <div className="relative h-64 overflow-hidden bg-slate-100">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+        
         {member.imageUrl && !imageError ? (
           <img
             src={member.imageUrl}
             alt={member.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             onError={() => setImageError(true)}
           />
         ) : (
-          <span className="text-white text-6xl font-bold opacity-20">
-            {member.name?.charAt(0) || "H"}
-          </span>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
+            <span className="text-slate-300 text-6xl font-black select-none">
+              {member.name?.charAt(0) || "H"}
+            </span>
+          </div>
         )}
+
+        <div className="absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+          <div className="flex justify-center gap-3">
+            {/* Placeholder for social links if they existed in data */}
+            <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors cursor-pointer">
+              <span className="text-[10px] font-bold">IN</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="p-6 text-center">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">{member.name}</h3>
-        <p className="text-gray-600 text-base">{member.role}</p>
+        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight mb-1 group-hover:text-[#4B98C8] transition-colors">
+          {member.name}
+        </h3>
+        <p className="text-sm font-bold text-[#4B98C8] uppercase tracking-widest opacity-80">
+          {member.role}
+        </p>
       </div>
     </div>
   );

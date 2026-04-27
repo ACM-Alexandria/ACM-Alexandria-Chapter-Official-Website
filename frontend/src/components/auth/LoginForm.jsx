@@ -17,11 +17,7 @@ const LoginForm = () => {
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-    general: "",
-  });
+  const [errors, setErrors] = useState({ email: "", password: "", general: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -68,7 +64,6 @@ const LoginForm = () => {
 
     try {
       await login(formData.email, formData.password);
-
       setSuccessMessage("Logged in successfully!");
       setFormData({ email: "", password: "" });
       setTimeout(() => navigate("/"), 1500);
@@ -90,17 +85,19 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
+      {/* General error */}
       {errors.general && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-          <ErrorCircleIcon className="w-5 h-5 text-red-600 mt-0.5" />
-          <p className="text-sm text-red-800">{errors.general}</p>
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700" role="alert">
+          <ErrorCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+          <p>{errors.general}</p>
         </div>
       )}
 
+      {/* Success */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-100 rounded-lg flex items-start gap-3">
-          <SuccessCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
-          <p className="text-sm text-green-800">{successMessage}</p>
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700" role="status">
+          <SuccessCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-green-500" />
+          <p>{successMessage}</p>
         </div>
       )}
 
@@ -112,7 +109,7 @@ const LoginForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.email}
-        placeholder="Enter your email"
+        placeholder="you@example.com"
         required={true}
         autoComplete="email"
         icon={EnvelopeIcon}
@@ -125,47 +122,69 @@ const LoginForm = () => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={errors.password}
-        placeholder="Enter your password"
+        placeholder="Your password"
         required={true}
         autoComplete="current-password"
         icon={LockIcon}
         forgotPasswordLink={<Link to="/forgot-password">Forgot Password?</Link>}
       />
 
+      {/* Submit */}
       <button
         type="submit"
+        id="login-submit-btn"
         disabled={isLoading}
-        className={`w-full py-3.5 px-4 mt-4 bg-gradient-to-r from-[#3A9BD5] to-[#1A6FA0] text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${isLoading
-            ? "opacity-70 cursor-not-allowed"
-            : "hover:shadow-lg hover:from-[#3290C8] hover:to-[#175E8B]"
-          }`}>
+        aria-busy={isLoading}
+        className={`
+          relative w-full mt-2 py-3 px-6 flex items-center justify-center gap-2
+          bg-gradient-to-r from-[#4B98C8] to-[#205E85]
+          text-white font-bold text-sm rounded-xl
+          shadow-md overflow-hidden
+          transition-all duration-300
+          ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-lg hover:from-[#5aa3d0] hover:to-[#256b96]"}
+        `}
+      >
+        {/* shimmer */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 2.8s linear infinite",
+          }}
+        />
         {isLoading ? (
-          <span className="flex items-center justify-center gap-2">
-            <SpinnerIcon />
-            Logging in...
-          </span>
+          <>
+            <span
+              aria-hidden="true"
+              className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white shrink-0"
+              style={{ animation: "spin 0.7s linear infinite" }}
+            />
+            Signing in…
+          </>
         ) : (
-          "Log In"
+          "Sign In"
         )}
       </button>
 
-      <div className="text-center space-y-3 pt-5">
+      {/* Footer links */}
+      <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
         <p className="text-sm text-gray-500">
           Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="text-gray-900 font-bold hover:underline transition-colors duration-200">
-            Sign Up
+          <Link to="/register" className="font-semibold text-[#205E85] hover:text-[#4B98C8] transition-colors">
+            Create one
           </Link>
         </p>
-
-        <div>
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            <span className="mr-1 text-lg">‹</span> Back to the main page
-          </Link>
-        </div>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back to main page
+        </Link>
       </div>
     </form>
   );
