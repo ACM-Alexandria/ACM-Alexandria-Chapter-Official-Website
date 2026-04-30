@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import EventsPage from "./pages/EventsPage";
+import ClubsPage from "./pages/ClubsPage";
 import ForgotPassword from "./pages/ForgotPassword";
 
 /**
@@ -18,6 +19,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/events" element={<EventsPage />} />
+      <Route path="/clubs" element={<ClubsPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
