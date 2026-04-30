@@ -9,6 +9,7 @@ import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
+import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
 
@@ -22,6 +23,8 @@ const HomePage = () => {
   const [activeSection, setActiveSection] = useState("greeting");
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedClubId, setSelectedClubId] = useState(null);
+  const [isClubSidebarOpen, setIsClubSidebarOpen] = useState(false);
 
   const handleShowEventDetails = (eventId) => {
     setSelectedEventId(eventId);
@@ -30,6 +33,15 @@ const HomePage = () => {
 
   const handleCloseSidebar = () => {
     setIsSidebarOpen(false);
+  };
+
+  const handleShowClubDetails = (clubId) => {
+    setSelectedClubId(clubId);
+    setIsClubSidebarOpen(true);
+  };
+
+  const handleCloseClubSidebar = () => {
+    setIsClubSidebarOpen(false);
   };
 
   useEffect(() => {
@@ -103,7 +115,7 @@ const HomePage = () => {
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
         <AboutSection highBoard={highBoard} committees={committee} />
-        <ClubsSection clubs={clubs} />
+        <ClubsSection clubs={clubs} onShowClubDetails={handleShowClubDetails} />
         <EventsSection
           events={events}
           onShowEventDetails={handleShowEventDetails}
@@ -117,6 +129,12 @@ const HomePage = () => {
         eventId={selectedEventId}
         isOpen={isSidebarOpen}
         onClose={handleCloseSidebar}
+      />
+
+      <ClubDetailsSidebar
+        clubId={selectedClubId}
+        isOpen={isClubSidebarOpen}
+        onClose={handleCloseClubSidebar}
       />
     </div>
   );

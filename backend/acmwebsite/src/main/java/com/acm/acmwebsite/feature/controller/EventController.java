@@ -17,7 +17,7 @@ public class EventController {
   }
 
   @GetMapping
-  public ResponseEntity<Page<EventCardDto>> getAllEvents(@RequestParam int page) {
+  public ResponseEntity<Page<EventCardDto>> getAllEvents(@RequestParam(defaultValue = "0") int page) {
     return ResponseEntity.ok(eventService.getEventsByPage(page));
   }
 
