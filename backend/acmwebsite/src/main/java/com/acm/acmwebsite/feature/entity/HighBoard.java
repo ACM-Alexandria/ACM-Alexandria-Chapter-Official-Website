@@ -22,15 +22,19 @@ public class HighBoard {
     @Column(name = "`order`")
     private Integer order;
 
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
+
     public HighBoard() {
     }
 
-    public HighBoard(Long id, String name, String imageUrl, String role, Integer order) {
+    public HighBoard(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.role = role;
         this.order = order;
+        this.linkedinUrl = linkedinUrl;
     }
 
     public Long getId() {
@@ -71,6 +75,14 @@ public class HighBoard {
 
     public void setOrder(Integer order) {
         this.order = order;
+    }
+
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
     }
 
 }

@@ -23,6 +23,20 @@ const CommitteeMemberCard = ({ member }) => {
       <p className="mt-1 text-slate-500 font-bold text-[10px] uppercase tracking-[0.15em] opacity-70">
         {member.role}
       </p>
+
+      {member.linkedinUrl && (
+        <div className="mt-4 flex justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+          <a 
+            href={member.linkedinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-[#0077b5] hover:text-white transition-colors cursor-pointer"
+            title="LinkedIn Profile"
+          >
+            <span className="text-[10px] font-bold">IN</span>
+          </a>
+        </div>
+      )}
     </div>
   );
 };
