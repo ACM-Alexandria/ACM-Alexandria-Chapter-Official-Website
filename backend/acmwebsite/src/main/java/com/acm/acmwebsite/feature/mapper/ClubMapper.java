@@ -11,6 +11,7 @@ public class ClubMapper {
         dto.setId(club.getId());
         dto.setName(club.getName());
         dto.setImageUrl(club.getImageUrl());
+        dto.setDescription(club.getDescription());
         return dto;
     }
 }

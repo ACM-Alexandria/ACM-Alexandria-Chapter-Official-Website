@@ -29,10 +29,17 @@ const HighBoardCard = ({ member, index }) => {
 
         <div className="absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
           <div className="flex justify-center gap-3">
-            {/* Placeholder for social links if they existed in data */}
-            <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors cursor-pointer">
-              <span className="text-[10px] font-bold">IN</span>
-            </div>
+            {member.linkedinUrl && (
+              <a 
+                href={member.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#0077b5] transition-colors cursor-pointer"
+                title="LinkedIn Profile"
+              >
+                <span className="text-[10px] font-bold">IN</span>
+              </a>
+            )}
           </div>
         </div>
       </div>
