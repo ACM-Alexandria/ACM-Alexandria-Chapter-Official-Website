@@ -4,6 +4,7 @@ public class ClubCardDto {
     private long id;
     private String name;
     private String imageUrl;
+    private String description;
 
     public ClubCardDto() {
     }
@@ -12,6 +13,7 @@ public class ClubCardDto {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
+        this.description = description;
     }
 
     public long getId() {
@@ -36,5 +38,13 @@ public class ClubCardDto {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

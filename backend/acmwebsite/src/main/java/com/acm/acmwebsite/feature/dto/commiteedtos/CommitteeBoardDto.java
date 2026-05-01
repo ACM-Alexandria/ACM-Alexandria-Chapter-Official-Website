@@ -6,16 +6,18 @@ public class CommitteeBoardDto {
   private String imageUrl;
   private String role;
   private Integer order;
+  private String linkedinUrl;
 
   public CommitteeBoardDto() {
   }
 
-  public CommitteeBoardDto(Long id, String name, String imageUrl, String role, Integer order) {
+  public CommitteeBoardDto(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
     this.id = id;
     this.name = name;
     this.imageUrl = imageUrl;
     this.role = role;
     this.order = order;
+    this.linkedinUrl = linkedinUrl;
   }
 
   public Long getId() {
@@ -56,5 +58,13 @@ public class CommitteeBoardDto {
 
   public void setOrder(Integer order) {
     this.order = order;
+  }
+
+  public String getLinkedinUrl() {
+    return linkedinUrl;
+  }
+
+  public void setLinkedinUrl(String linkedinUrl) {
+    this.linkedinUrl = linkedinUrl;
   }
 }

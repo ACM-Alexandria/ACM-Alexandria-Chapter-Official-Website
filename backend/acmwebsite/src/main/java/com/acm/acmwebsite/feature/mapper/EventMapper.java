@@ -11,6 +11,7 @@ public class EventMapper {
     dto.setId(event.getId());
     dto.setName(event.getName());
     dto.setImageUrl(event.getImageUrl());
+    dto.setDescription(event.getDescription());
     return dto;
   }
 }
