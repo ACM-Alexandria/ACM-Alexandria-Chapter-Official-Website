@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { fetchClubById } from "../../services/homePageService";
 import { HiOutlineUserGroup, HiOutlineTag, HiOutlineX } from "react-icons/hi";
+import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
+
+const getSocialIcon = (url) => {
+  if (url.includes('facebook.com')) return <FaFacebook className="w-6 h-6" />;
+  if (url.includes('instagram.com')) return <FaInstagram className="w-6 h-6" />;
+  if (url.includes('linkedin.com')) return <FaLinkedin className="w-6 h-6" />;
+  if (url.includes('whatsapp.com')) return <FaWhatsapp className="w-6 h-6" />;
+  return <FaLink className="w-6 h-6" />;
+};
 
 const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
   const [club, setClub] = useState(null);
@@ -147,16 +156,51 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
 
                 {/* Action Section */}
                 <div className="pt-6">
-                  <button
-                    className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
-                  >
-                    <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                  </button>
+                  {club.googleFormUrl ? (
+                    <a
+                      href={club.googleFormUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
+                    >
+                      <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-300 px-10 py-6 text-lg font-black text-slate-500 cursor-not-allowed"
+                    >
+                      <span className="relative z-10 uppercase tracking-widest text-sm">Registration Closed</span>
+                    </button>
+                  )}
                 </div>
+
+                {/* Social Media Links Section */}
+                {club.socialMediaLinks && club.socialMediaLinks.length > 0 && (
+                  <div className="pt-8 space-y-4">
+                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                      Connect with us
+                      <div className="h-px flex-1 bg-slate-100" />
+                    </h4>
+                    <div className="flex flex-wrap gap-4">
+                      {club.socialMediaLinks.map((link, index) => (
+                        <a
+                          key={index}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-[#4B98C8] hover:text-white transition-all duration-300 shadow-sm border border-slate-100 hover:-translate-y-1"
+                        >
+                          {getSocialIcon(link)}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
