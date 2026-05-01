@@ -45,6 +45,10 @@ const EventCard = ({ event, index, onShowDetails }) => {
           {event.name}
         </h3>
 
+        <p className="text-slate-500 text-base leading-relaxed mb-6 line-clamp-3 font-medium flex-1">
+          {event.description || "Join us for our upcoming events and be part of our community."}
+        </p>
+
         <div className="mt-auto pt-6 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
           <div className="h-px flex-1 bg-slate-100" />
           <div

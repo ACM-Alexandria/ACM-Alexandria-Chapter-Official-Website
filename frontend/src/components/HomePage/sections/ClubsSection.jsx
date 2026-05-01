@@ -2,8 +2,8 @@ import ClubCard from "../cards/ClubCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
 const ClubsSection = ({ clubs, onShowClubDetails }) => {
-  // Display only first 3 clubs
-  const displayedClubs = clubs && clubs.length > 0 ? clubs.slice(0, 3) : [];
+  // Display only first 2 clubs
+  const displayedClubs = clubs && clubs.length > 0 ? clubs.slice(0, 2) : [];
 
   return (
     <section
@@ -57,7 +57,7 @@ const ClubsSection = ({ clubs, onShowClubDetails }) => {
             </div>
 
             {/* Explore All Clubs Button */}
-            {clubs && clubs.length > 3 && (
+            {clubs && clubs.length > 2 && (
               <div className="flex justify-center" data-aos="fade-up">
                 <ExploreMoreButton text="Explore All Clubs" to="/clubs" />
               </div>
