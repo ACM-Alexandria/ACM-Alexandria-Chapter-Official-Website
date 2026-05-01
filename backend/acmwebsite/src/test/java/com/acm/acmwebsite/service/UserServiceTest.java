@@ -23,6 +23,7 @@ public class UserServiceTest {
   @Mock UserRepository userRepository;
   @Mock PasswordEncoder passwordEncoder;
   @Mock UserMapper userMapper;
+  @Mock com.acm.acmwebsite.User_Authentication.service.EmailExitanceService emailExitanceService;
   @InjectMocks RegisterServiceImpl registerService;
 
   @Test
@@ -35,6 +36,7 @@ public class UserServiceTest {
     SuccessRegisterResponse response = new SuccessRegisterResponse(id, "test@email.com");
 
     when(userRepository.existsByEmail(registerDTO.getEmail())).thenReturn(false);
+    when(emailExitanceService.isEmailReal(registerDTO.getEmail())).thenReturn(true);
     when(passwordEncoder.encode(registerDTO.getPassword())).thenReturn("hashedPass");
     when(userRepository.save(any(User.class))).thenReturn(savedUser);
     when(userMapper.userToSuccessRegister(savedUser)).thenReturn(response);
