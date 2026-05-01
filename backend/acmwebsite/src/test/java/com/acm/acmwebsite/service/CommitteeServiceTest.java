@@ -157,7 +157,7 @@ class CommitteeServiceTest {
         // Arrange
         Committee committee = createDummyCommittee();
         committee.setName("HR");
-        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.findWithDetailsById(1L)).thenReturn(Optional.of(committee));
 
         // Act
         Committee result = committeService.getCommitteeById(1L);
@@ -171,7 +171,7 @@ class CommitteeServiceTest {
     @DisplayName("Should return null when ID does not exist")
     void shouldReturnNullWhenIdNotFound() {
         // Arrange
-        when(commiteeRepository.findById(99L)).thenReturn(Optional.empty());
+        when(commiteeRepository.findWithDetailsById(99L)).thenReturn(Optional.empty());
 
         // Act
         Committee result = committeService.getCommitteeById(99L);
