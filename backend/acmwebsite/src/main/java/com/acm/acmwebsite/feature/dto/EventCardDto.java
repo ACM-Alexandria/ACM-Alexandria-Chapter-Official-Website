@@ -4,14 +4,16 @@ public class EventCardDto {
   private long id;
   private String name;
   private String imageUrl;
+  private String description;
 
   public EventCardDto() {
   }
 
-  public EventCardDto(long id, String name, String imageUrl) {
+  public EventCardDto(long id, String name, String imageUrl, String description) {
     this.id = id;
     this.name = name;
     this.imageUrl = imageUrl;
+    this.description = description;
   }
 
   public long getId() {
@@ -36,5 +38,13 @@ public class EventCardDto {
 
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }
