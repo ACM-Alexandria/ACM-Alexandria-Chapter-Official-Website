@@ -26,15 +26,19 @@ public class CommitteeBoard {
   @JoinColumn(name = "committee_id", nullable = false)
   private Committee committee;
 
+  @Column(name = "linkedin_url")
+  private String linkedinUrl;
+
   public CommitteeBoard() {
   }
 
-  public CommitteeBoard(Long id, String name, String imageUrl, String role, Integer order) {
+  public CommitteeBoard(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
     this.id = id;
     this.name = name;
     this.imageUrl = imageUrl;
     this.role = role;
     this.order = order;
+    this.linkedinUrl = linkedinUrl;
   }
 
   public Long getId() {
@@ -83,5 +87,13 @@ public class CommitteeBoard {
 
   public void setCommittee(Committee committee) {
     this.committee = committee;
+  }
+
+  public String getLinkedinUrl() {
+    return linkedinUrl;
+  }
+
+  public void setLinkedinUrl(String linkedinUrl) {
+    this.linkedinUrl = linkedinUrl;
   }
 }

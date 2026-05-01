@@ -55,7 +55,8 @@ public class CommitteeMapper {
                 role.getName(),
                 role.getImageUrl(),
                 role.getRole(),
-                role.getOrder())).toList();
+                role.getOrder(),
+                role.getLinkedinUrl())).toList();
     }
 
     private List<CommitteeBoard> toBoardRoleEntities(List<CommitteeBoardDto> boardRoles) {
@@ -67,6 +68,7 @@ public class CommitteeMapper {
                 roleDto.getName(),
                 roleDto.getImageUrl(),
                 roleDto.getRole(),
-                roleDto.getOrder())).toList();
+                roleDto.getOrder(),
+                roleDto.getLinkedinUrl())).toList();
     }
 }
