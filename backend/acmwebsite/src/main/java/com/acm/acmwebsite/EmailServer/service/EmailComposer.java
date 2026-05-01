@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.EmailServer.service;
 
 import com.acm.acmwebsite.EmailServer.dto.EmailRequest;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
