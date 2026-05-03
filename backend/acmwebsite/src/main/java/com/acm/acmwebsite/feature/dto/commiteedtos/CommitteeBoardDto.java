@@ -8,9 +8,6 @@ public class CommitteeBoardDto {
   private Integer order;
   private String linkedinUrl;
 
-  public CommitteeBoardDto() {
-  }
-
   public CommitteeBoardDto(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
     this.id = id;
     this.name = name;
