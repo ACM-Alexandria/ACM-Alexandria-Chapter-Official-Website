@@ -2,16 +2,9 @@ package com.acm.acmwebsite.feature.mapper;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.entity.Event;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class EventMapper {
-  public EventCardDto toEventCardDto(Event event) {
-    EventCardDto dto = new EventCardDto();
-    dto.setId(event.getId());
-    dto.setName(event.getName());
-    dto.setImageUrl(event.getImageUrl());
-    dto.setDescription(event.getDescription());
-    return dto;
-  }
+@Mapper(componentModel = "spring")
+public interface EventMapper {
+    EventCardDto toEventCardDto(Event event);
 }

@@ -6,9 +6,6 @@ public class EventCardDto {
   private String imageUrl;
   private String description;
 
-  public EventCardDto() {
-  }
-
   public EventCardDto(long id, String name, String imageUrl, String description) {
     this.id = id;
     this.name = name;

@@ -6,9 +6,6 @@ public class ClubCardDto {
     private String imageUrl;
     private String description;
 
-    public ClubCardDto() {
-    }
-
     public ClubCardDto(long id, String name, String imageUrl, String description) {
         this.id = id;
         this.name = name;
