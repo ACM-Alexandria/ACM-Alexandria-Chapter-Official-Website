@@ -15,19 +15,17 @@ public class Event {
     private String description;
     private LocalDateTime eventTime;
     private String Location;
-    private String googleFormUrl;
     private String imageUrl;
 
     public Event() {
     }
 
-    public Event(long id, String name, String description, LocalDateTime eventTime, String location, String googleFormUrl, String imageUrl) {
+    public Event(long id, String name, String description, LocalDateTime eventTime, String location, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
         Location = location;
-        this.googleFormUrl = googleFormUrl;
         this.imageUrl = imageUrl;
     }
 
@@ -69,14 +67,6 @@ public class Event {
 
     public void setLocation(String location) {
         Location = location;
-    }
-
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
     }
 
     public String getImageUrl() {
