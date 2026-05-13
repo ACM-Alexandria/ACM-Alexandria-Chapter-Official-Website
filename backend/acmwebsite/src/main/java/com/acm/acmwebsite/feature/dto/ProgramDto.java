@@ -8,15 +8,13 @@ public class ProgramDto {
     private String description;
     private LocalDateTime eventTime;
     private String imageUrl;
-    private String googleFormUrl;
 
-    public ProgramDto(Long id,String name, String description, LocalDateTime eventTime, String imageUrl, String googleFormUrl) {
+    public ProgramDto(Long id,String name, String description, LocalDateTime eventTime, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
         this.imageUrl = imageUrl;
-        this.googleFormUrl = googleFormUrl;
     }
 
     public ProgramDto() {
@@ -61,13 +59,5 @@ public class ProgramDto {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
     }
 }
