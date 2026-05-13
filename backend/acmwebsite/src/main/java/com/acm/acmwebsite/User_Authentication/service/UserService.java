@@ -5,6 +5,8 @@ import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
+import com.acm.acmwebsite.User_Authentication.dto.UserProfileDto;
+
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -30,4 +32,8 @@ public interface UserService {
   void initiatePasswordReset(String email);
 
   void resetPassword(ResetPasswordDTO dto);
+
+  UserProfileDto getUserProfileById(UUID id);
+
+  UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto);
 }

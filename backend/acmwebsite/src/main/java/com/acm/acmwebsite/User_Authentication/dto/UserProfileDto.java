@@ -1,8 +1,9 @@
 package com.acm.acmwebsite.User_Authentication.dto;
 
-import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.enums.Department;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserProfileDto {
 
+    private UUID id;
+
+    private String email;
+
     @NotBlank(message = "Name is required")
     private String name;
 
@@ -24,7 +29,7 @@ public class UserProfileDto {
     @JsonProperty("is_alex_eng_student")
     private Boolean isAlexEngStudent;
 
-    private User.Department department;
+    private Department department;
 
     private String batch;
 }

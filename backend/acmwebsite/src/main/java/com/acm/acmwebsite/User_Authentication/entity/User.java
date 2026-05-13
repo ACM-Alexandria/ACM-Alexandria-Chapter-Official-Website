@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.entity;
 
+import com.acm.acmwebsite.User_Authentication.enums.Department;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -66,9 +67,4 @@ public class User {
 
   @Column(name = "batch")
   private String batch;
-
-  public enum Department {
-      CSED,
-      CCE
-  }
 }
