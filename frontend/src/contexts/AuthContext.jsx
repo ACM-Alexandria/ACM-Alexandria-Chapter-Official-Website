@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const data = await apiGetMe();
           if (data?.email) {
-            setUser({ email: data.email });
+            setUser({ id: data.id, email: data.email });
           }
         } catch {
           setUser(null);

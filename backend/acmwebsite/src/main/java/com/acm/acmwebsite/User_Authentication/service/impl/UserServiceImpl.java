@@ -15,6 +15,7 @@ import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -42,6 +43,16 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
   private final TokenService tokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+  @Override
+  public Map<String, Object> getUserAuthDetails(String email) {
+    User user = userRepository.findByEmail(email.trim().toLowerCase())
+        .orElseThrow(() -> new UserNotFoundException("User session invalid"));
+    return Map.of(
+        "id", user.getId(),
+        "email", user.getEmail()
+    );
+  }
 
   @Override
   @Transactional(readOnly = true)

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { fetchClubById } from "../../services/homePageService";
 import { HiOutlineUserGroup, HiOutlineTag, HiOutlineX } from "react-icons/hi";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
@@ -12,6 +14,8 @@ const getSocialIcon = (url) => {
 };
 
 const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -156,27 +160,23 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
 
                 {/* Action Section */}
                 <div className="pt-6">
-                  {club.googleFormUrl ? (
-                    <a
-                      href={club.googleFormUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
-                    >
-                      <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-300 px-10 py-6 text-lg font-black text-slate-500 cursor-not-allowed"
-                    >
-                      <span className="relative z-10 uppercase tracking-widest text-sm">Registration Closed</span>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate("/login");
+                      } else {
+                        console.log("Initiating registration flow for club:", clubId);
+                        // Phase 5 custom form hook will wire here
+                      }
+                    }}
+                    className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
+                  >
+                    <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+                  </button>
                 </div>
 
                 {/* Social Media Links Section */}
