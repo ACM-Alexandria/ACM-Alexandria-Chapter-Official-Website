@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchEventById } from "../../services/homePageService";
 import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX } from "react-icons/hi";
+import RegistrationModal from "../registration/RegistrationModal";
+import { checkEventRegistrationStatus } from "../../services/registrationService";
 
 const formatDateTime = (eventTime) => {
   if (!eventTime) return "TBA";
@@ -23,13 +25,43 @@ const formatDateTime = (eventTime) => {
 };
 
 const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+
+  // Registration presence trackers (User Request)
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+
+  // Monitor actual user registration status dynamically
+  useEffect(() => {
+    if (!isOpen || !eventId || !isAuthenticated || !user?.id) {
+      setIsRegistered(false);
+      return;
+    }
+
+    const checkStatus = async () => {
+      setCheckingStatus(true);
+      try {
+        const registered = await checkEventRegistrationStatus(eventId, user.id);
+        setIsRegistered(registered);
+      } catch (err) {
+        console.error("Error checking event registration:", err);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+
+    // Refresh when opening the panel or when closing the signup dialog
+    if (!isRegistrationOpen) {
+      checkStatus();
+    }
+  }, [isOpen, eventId, isAuthenticated, user?.id, isRegistrationOpen]);
 
   useEffect(() => {
     if (!isOpen || !eventId) return;
@@ -208,14 +240,33 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                         >
                           <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
                         </button>
+                      ) : checkingStatus ? (
+                        <button
+                          disabled
+                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
+                        >
+                          <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
+                          <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
+                        </button>
+                      ) : isRegistered ? (
+                        <button
+                          disabled
+                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
+                        >
+                          <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Already Registered
+                          </span>
+                        </button>
                       ) : (
                         <button
                           onClick={() => {
                             if (!isAuthenticated) {
                               navigate("/login");
                             } else {
-                              console.log("Initiating registration flow for event:", eventId);
-                              // Phase 5 custom form hook will wire here
+                              setIsRegistrationOpen(true);
                             }
                           }}
                           className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
@@ -235,6 +286,14 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
           </div>
         </div>
       </aside>
+
+      <RegistrationModal 
+        isOpen={isRegistrationOpen}
+        onClose={() => setIsRegistrationOpen(false)}
+        entityId={eventId}
+        type="event"
+        entityName={event?.name}
+      />
     </div>
   );
 };

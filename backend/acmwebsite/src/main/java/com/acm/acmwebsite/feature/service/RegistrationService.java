@@ -156,4 +156,12 @@ public class RegistrationService {
             }
         }
     }
+
+    public boolean isUserRegisteredForEvent(UUID userId, Long eventId) {
+        return eventRegistrationRepository.existsByUserIdAndEventId(userId, eventId);
+    }
+
+    public boolean isUserRegisteredForClub(UUID userId, Long clubId) {
+        return clubRegistrationRepository.existsByUserIdAndClubId(userId, clubId);
+    }
 }
