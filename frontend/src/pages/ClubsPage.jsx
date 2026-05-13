@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
@@ -26,6 +27,19 @@ const ClubsPage = () => {
     const handleCloseSidebar = () => {
         setIsSidebarOpen(false);
     };
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Restores visual sidebar if user gets pushed back from referral auth loops
+    useEffect(() => {
+        const openClubId = searchParams.get("openClubId");
+        if (openClubId) {
+            handleShowClubDetails(Number(openClubId));
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("openClubId");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 80 });

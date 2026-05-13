@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "../../contexts/AuthContext";
@@ -14,6 +14,7 @@ import {
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -66,7 +67,8 @@ const LoginForm = () => {
       await login(formData.email, formData.password);
       setSuccessMessage("Logged in successfully!");
       setFormData({ email: "", password: "" });
-      setTimeout(() => navigate("/"), 1500);
+      const destination = location.state?.from || "/";
+      setTimeout(() => navigate(destination), 1500);
     } catch (error) {
       const errorMessage = error.message || "Incorrect email or password";
       setFormData((prev) => ({ ...prev, password: "" }));

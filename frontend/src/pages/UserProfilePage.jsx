@@ -95,6 +95,15 @@ const UserProfilePage = () => {
     }));
   };
 
+  const handleStartEdit = () => {
+    // If state is null when user clicks edit, automatically promote it to true to pre-select 'Yes' in form
+    setProfile(prev => ({
+      ...prev,
+      isAlexEngStudent: prev.isAlexEngStudent ?? true
+    }));
+    setIsEditing(true);
+  };
+
   const handleCancelEdit = () => {
     if (backupProfile) {
       setProfile(backupProfile); // Restore original state
@@ -181,7 +190,7 @@ const UserProfilePage = () => {
 
             {!loading && !isEditing && (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={handleStartEdit}
                 className="px-6 py-3 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white shadow-sm text-slate-700 font-bold text-sm transition-all hover:bg-slate-50 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
               >
                 <HiOutlinePencilAlt className="w-5 h-5 text-[#4B98C8]" />
@@ -262,22 +271,22 @@ const UserProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Alexandria University Faculty of Engineering Status Panel */}
-                <div className="bg-slate-50/50 border border-slate-100/60 rounded-[1.5rem] p-6 flex items-center gap-5 col-span-1 md:col-span-2">
-                  <div className={`w-14 h-14 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center shrink-0 
-                    ${profile.isAlexEngStudent === true ? "text-[#4B98C8]" : "text-slate-400"}`}>
-                    <HiOutlineLibrary className="w-7 h-7" />
+                {/* Alexandria University Faculty of Engineering Status Panel - Hidden if not filled */}
+                {profile.isAlexEngStudent !== null && (
+                  <div className="bg-slate-50/50 border border-slate-100/60 rounded-[1.5rem] p-6 flex items-center gap-5 col-span-1 md:col-span-2 animate-[fadeIn_0.3s_ease]">
+                    <div className={`w-14 h-14 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-center justify-center shrink-0 
+                      ${profile.isAlexEngStudent === true ? "text-[#4B98C8]" : "text-slate-400"}`}>
+                      <HiOutlineLibrary className="w-7 h-7" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <span className="text-xs font-bold text-slate-400 block mb-0.5">Student in Faculty of Engineering, Alexandria University?</span>
+                      <span className={`font-extrabold truncate block text-base md:text-lg leading-tight
+                        ${profile.isAlexEngStudent === true ? "text-emerald-600" : "text-slate-500"}`}>
+                        {profile.isAlexEngStudent === true ? "Yes" : "No"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="overflow-hidden">
-                    <span className="text-xs font-bold text-slate-400 block mb-0.5">Student in Faculty of Engineering, Alexandria University?</span>
-                    <span className={`font-extrabold truncate block text-base md:text-lg leading-tight
-                      ${profile.isAlexEngStudent === true ? "text-emerald-600" : "text-slate-500"}`}>
-                      {profile.isAlexEngStudent === true ? "Yes" : 
-                       profile.isAlexEngStudent === false ? "No" : 
-                       <em className="text-slate-300 font-semibold not-italic">Not specified</em>}
-                    </span>
-                  </div>
-                </div>
+                )}
 
                 {/* Dynamically Show University Information only if flag is true */}
                 {profile.isAlexEngStudent === true && (
@@ -382,24 +391,24 @@ const UserProfilePage = () => {
                     type="button"
                     onClick={() => handleToggleAlexEng(true)}
                     className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5
-                      ${profile.isAlexEngStudent === true 
+                      ${profile.isAlexEngStudent === true || profile.isAlexEngStudent === null
                         ? "bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white shadow-md" 
                         : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                       }`}
                   >
-                    {profile.isAlexEngStudent === true && <HiOutlineCheck className="w-3.5 h-3.5" />}
+                    {(profile.isAlexEngStudent === true || profile.isAlexEngStudent === null) && <HiOutlineCheck className="w-3.5 h-3.5" />}
                     Yes
                   </button>
                   <button
                     type="button"
                     onClick={() => handleToggleAlexEng(false)}
                     className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5
-                      ${profile.isAlexEngStudent === false || profile.isAlexEngStudent === null
+                      ${profile.isAlexEngStudent === false
                         ? "bg-slate-800 text-white shadow-md" 
                         : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                       }`}
                   >
-                    {(profile.isAlexEngStudent === false || profile.isAlexEngStudent === null) && <HiOutlineCheck className="w-3.5 h-3.5" />}
+                    {profile.isAlexEngStudent === false && <HiOutlineCheck className="w-3.5 h-3.5" />}
                     No
                   </button>
                 </div>

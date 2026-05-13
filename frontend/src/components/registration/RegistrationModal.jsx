@@ -37,7 +37,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
   const [profileForm, setProfileForm] = useState({
     name: "",
     phoneNumber: "",
-    isAlexEngStudent: null,
+    isAlexEngStudent: true,
     batch: "",
     department: ""
   });
@@ -59,7 +59,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
     setProfileForm({
       name: "",
       phoneNumber: "",
-      isAlexEngStudent: null,
+      isAlexEngStudent: true,
       batch: "",
       department: ""
     });
@@ -92,12 +92,13 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         
         const currentName = fullProfile.name || "";
         const currentPhone = fullProfile.phone_number || "";
-        const isStudent = fullProfile.is_alex_eng_student;
+        const serverIsStudent = fullProfile.is_alex_eng_student;
+        const isStudent = serverIsStudent ?? true; // default to true if null in DB
         const currentBatch = fullProfile.batch || "";
         const currentDept = fullProfile.department || "";
 
         const isMissingBasic = !currentName.trim() || !currentPhone.trim();
-        const isMissingAcademic = isStudent === true && (!currentBatch.trim() || !currentDept.trim());
+        const isMissingAcademic = serverIsStudent === true && (!currentBatch.trim() || !currentDept.trim());
 
         setProfileForm({
           name: currentName,
@@ -107,7 +108,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
           department: currentDept
         });
 
-        if (isMissingBasic || isMissingAcademic || isStudent === null) {
+        if (isMissingBasic || isMissingAcademic || serverIsStudent === null) {
           setNeedsProfileUpdate(true);
         }
 
