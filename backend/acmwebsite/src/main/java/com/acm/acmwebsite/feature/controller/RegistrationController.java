@@ -55,4 +55,20 @@ public class RegistrationController {
         registrationService.registerUserForClub(request.getUserId(), clubId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @GetMapping("/events/{id}/is-registered")
+    public ResponseEntity<java.util.Map<String, Boolean>> isRegisteredForEvent(
+            @PathVariable("id") Long eventId,
+            @RequestParam("userId") java.util.UUID userId) {
+        boolean registered = registrationService.isUserRegisteredForEvent(userId, eventId);
+        return ResponseEntity.ok(java.util.Map.of("registered", registered));
+    }
+
+    @GetMapping("/clubs/{id}/is-registered")
+    public ResponseEntity<java.util.Map<String, Boolean>> isRegisteredForClub(
+            @PathVariable("id") Long clubId,
+            @RequestParam("userId") java.util.UUID userId) {
+        boolean registered = registrationService.isUserRegisteredForClub(userId, clubId);
+        return ResponseEntity.ok(java.util.Map.of("registered", registered));
+    }
 }
