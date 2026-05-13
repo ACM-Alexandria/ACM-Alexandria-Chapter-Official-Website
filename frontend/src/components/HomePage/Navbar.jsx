@@ -3,7 +3,7 @@ import logo from "../../assets/logo/acm-logo-no-bg.png";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
-import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown } from "react-icons/hi2";
+import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser } from "react-icons/hi2";
 import { FaUserCircle } from "react-icons/fa";
 
 
@@ -149,6 +149,17 @@ const Navbar = ({ activeSection }) => {
                   </p>
                 </div>
                 <div className="p-2">
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      navigate("/profile");
+                    }}
+                  >
+                    <HiOutlineUser className="h-5 w-5 text-slate-500" />
+                    My Profile
+                  </button>
                   <button
                     type="button"
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
