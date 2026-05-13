@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.entity;
 
+import com.acm.acmwebsite.feature.enums.QuestionType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventFormQuestion {
+public class EventFormQuestion implements FormQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,10 +39,4 @@ public class EventFormQuestion {
     @Column(name = "option_text")
     @Builder.Default
     private List<String> options = new ArrayList<>();
-
-    public enum QuestionType {
-        TEXT,
-        MULTIPLE_CHOICE,
-        CHECKBOX
-    }
 }

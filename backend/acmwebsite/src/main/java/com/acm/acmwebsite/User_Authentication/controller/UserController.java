@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
+import com.acm.acmwebsite.User_Authentication.dto.UserProfileDto;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
@@ -19,6 +20,20 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+
+  @GetMapping("/{id}/profile")
+  public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable UUID id) {
+    UserProfileDto profile = userService.getUserProfileById(id);
+    return ResponseEntity.ok(profile);
+  }
+
+  @PutMapping("/{id}/profile")
+  public ResponseEntity<UserProfileDto> updateUserProfile(
+      @PathVariable UUID id, 
+      @Valid @RequestBody UserProfileDto request) {
+    UserProfileDto updated = userService.updateUserProfile(id, request);
+    return ResponseEntity.ok(updated);
+  }
 
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")

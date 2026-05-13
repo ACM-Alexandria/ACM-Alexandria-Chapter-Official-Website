@@ -4,6 +4,7 @@ import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
+import com.acm.acmwebsite.User_Authentication.dto.UserProfileDto;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
@@ -227,5 +228,35 @@ public class UserServiceImpl implements UserService {
     user.setResetPasswordToken(null);
     user.setResetPasswordTokenCreatedAt(null);
     userRepository.save(user);
+  }
+
+  @Override
+  public UserProfileDto getUserProfileById(UUID id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+    return userMapper.toProfileDto(user);
+  }
+
+  @Override
+  public UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+    user.setName(profileDto.getName());
+    user.setPhoneNumber(profileDto.getPhoneNumber());
+    
+    boolean isStudent = Boolean.TRUE.equals(profileDto.getIsAlexEngStudent());
+    user.setIsAlexEngStudent(isStudent);
+
+    if (isStudent) {
+      user.setDepartment(profileDto.getDepartment());
+      user.setBatch(profileDto.getBatch());
+    } else {
+      user.setDepartment(null);
+      user.setBatch(null);
+    }
+
+    User saved = userRepository.save(user);
+    return userMapper.toProfileDto(saved);
   }
 }
