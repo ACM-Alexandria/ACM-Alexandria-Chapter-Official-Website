@@ -264,7 +264,10 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                         <button
                           onClick={() => {
                             if (!isAuthenticated) {
-                              navigate("/login");
+                              const path = window.location.pathname + window.location.search;
+                              const delimiter = path.includes("?") ? "&" : "?";
+                              const from = `${path}${delimiter}openEventId=${eventId}`;
+                              navigate("/login", { state: { from } });
                             } else {
                               setIsRegistrationOpen(true);
                             }

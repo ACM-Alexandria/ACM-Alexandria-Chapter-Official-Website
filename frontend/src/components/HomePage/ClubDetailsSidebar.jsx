@@ -215,7 +215,10 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                     <button
                       onClick={() => {
                         if (!isAuthenticated) {
-                          navigate("/login");
+                          const path = window.location.pathname + window.location.search;
+                          const delimiter = path.includes("?") ? "&" : "?";
+                          const from = `${path}${delimiter}openClubId=${clubId}`;
+                          navigate("/login", { state: { from } });
                         } else {
                           setIsRegistrationOpen(true);
                         }
