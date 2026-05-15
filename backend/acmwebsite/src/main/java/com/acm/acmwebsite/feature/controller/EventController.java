@@ -1,11 +1,11 @@
 package com.acm.acmwebsite.feature.controller;
 
+import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.service.EventService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -17,12 +17,12 @@ public class EventController {
   }
 
   @GetMapping
-  public List<Event> getAllEvents() {
-    return eventService.getAll();
+  public ResponseEntity<Page<EventCardDto>> getAllEvents(@RequestParam(defaultValue = "0") int page) {
+    return ResponseEntity.ok(eventService.getEventsByPage(page));
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity getEventById(@PathVariable Long id) {
+  public ResponseEntity<Event> getEventById(@PathVariable Long id) {
     return eventService.getById(id).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }

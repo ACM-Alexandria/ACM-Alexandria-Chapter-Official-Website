@@ -3,23 +3,42 @@ package com.acm.acmwebsite.User_Authentication.mapper;
 import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
-  @Mapping(target = "id", source = "id")
-  @Mapping(target = "email", source = "email")
-  @Mapping(target = "createdAt", source = "createdAt")
-  @Mapping(target = "updatedAt", source = "updatedAt")
-  UserDTO toDTO(User user);
+@Component
+public class UserMapper {
+  public UserDTO toDTO(User user) {
+    if (user == null) {
+      return null;
+    }
 
-  @Mapping(target = "passwordHash", ignore = true)
-  // Ignore the reset password fields so incoming DTOs don't overwrite them with null
-  @Mapping(target = "resetPasswordToken", ignore = true)
-  @Mapping(target = "resetPasswordTokenCreatedAt", ignore = true)
-  @Mapping(target = "forgotPasswordCount", ignore = true)
-  User toEntity(UserDTO userDTO);
+    return UserDTO.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .createdAt(user.getCreatedAt())
+        .updatedAt(user.getUpdatedAt())
+        .build();
+  }
 
-  SuccessRegisterResponse userToSuccessRegister(User user);
+  public User toEntity(UserDTO userDTO) {
+    if (userDTO == null) {
+      return null;
+    }
+
+    return User.builder()
+        .id(userDTO.getId())
+        .email(userDTO.getEmail())
+        .build();
+  }
+
+  public SuccessRegisterResponse userToSuccessRegister(User user) {
+    if (user == null) {
+      return null;
+    }
+
+    return SuccessRegisterResponse.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .build();
+  }
 }

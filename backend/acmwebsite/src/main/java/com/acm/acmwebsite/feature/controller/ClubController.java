@@ -1,9 +1,11 @@
 package com.acm.acmwebsite.feature.controller;
+
+import com.acm.acmwebsite.feature.dto.ClubCardDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.service.ClubService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/clubs")
@@ -13,11 +15,12 @@ public class ClubController {
         this.clubService = clubService;
     }
     @GetMapping
-    public List<Club> getAllClubs() {
-        return clubService.getAllClubs();
+    public ResponseEntity<Page<ClubCardDto>> getAllClubs(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(clubService.getClubsByPage(page));
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity getClubById(@PathVariable("id") long id) {
+    public ResponseEntity<Club> getClubById(@PathVariable("id") long id) {
         return clubService.getClubById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

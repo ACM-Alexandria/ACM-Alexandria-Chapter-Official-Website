@@ -9,90 +9,111 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
   });
 
   return (
-    <section id="about" className="w-full py-20 px-10">
-      <div className="max-w-6xl mx-auto">
+    <section id="about" className="w-full py-24 px-6 relative overflow-hidden bg-gray-50/50">
+      {/* Background decoration */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <h2
-            className="text-4xl font-bold text-gray-800 mb-4"
-            data-aos="fade-down"
+            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
+            data-aos="fade-up"
           >
             About Us
           </h2>
-          <div
-            className="w-20 h-1 bg-linear-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-4"
-            data-aos="fade-up"
-          ></div>
-        </div>
-
-        <div className="space-y-4 text-gray-700 mb-16">
-          <p className="text-lg leading-relaxed" data-aos="fade-up">
-            The Alexandria ACM Student Chapter is a vibrant community of
-            passionate computer science students and technology enthusiasts. We
-            are dedicated to advancing the field of computing through education,
-            research, and professional development.
-          </p>
-          <p
-            className="text-lg leading-relaxed"
+          <h3 
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight"
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            Our chapter serves as a bridge between academic learning and
-            industry practices, providing our members with invaluable
-            opportunities to grow, learn, and contribute to the ever-evolving
-            world of technology.
-          </p>
-          <p
-            className="text-lg leading-relaxed"
-            data-aos="fade-up"
-            data-aos-delay="200"
-          >
-            Through collaborative projects, workshops, competitions, and
-            networking events, we foster an environment where innovation thrives
-            and lasting professional relationships are built.
-          </p>
+            Leading the Future of <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Computing</span>
+          </h3>
         </div>
 
-        <div className="mt-16">
-          <h3
-            className="text-3xl font-bold text-gray-800 mb-4 text-center"
-            data-aos="fade-down"
-          >
-            High Board
-          </h3>
-          <div
-            className="w-20 h-1 bg-linear-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-8"
-            data-aos="fade-up"
-          ></div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-24">
+          <div className="space-y-6 text-slate-600">
+            <p className="text-lg md:text-xl font-medium leading-relaxed" data-aos="fade-right">
+              The Alexandria ACM Student Chapter is a vibrant community of
+              passionate computer science students and technology enthusiasts. We
+              are dedicated to advancing the field of computing through education,
+              research, and professional development.
+            </p>
+            <p
+              className="text-lg leading-relaxed opacity-80"
+              data-aos="fade-right"
+              data-aos-delay="100"
+            >
+              Our chapter serves as a bridge between academic learning and
+              industry practices, providing our members with invaluable
+              opportunities to grow, learn, and contribute to the ever-evolving
+              world of technology.
+            </p>
+          </div>
+          <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100" data-aos="fade-left">
+            <p className="text-lg leading-relaxed text-slate-600 italic">
+              "Through collaborative projects, workshops, competitions, and
+              networking events, we foster an environment where innovation thrives
+              and lasting professional relationships are built."
+            </p>
+            <div className="mt-6 flex items-center gap-4">
+              <div className="w-12 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] rounded-full" />
+              <p className="font-bold text-slate-900 uppercase tracking-widest text-xs">Our Mission</p>
+            </div>
+          </div>
+        </div>
+
+        {/* High Board Section */}
+        <div className="mt-24">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
+            <div className="text-center md:text-left">
+              <h3
+                className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+                data-aos="fade-right"
+              >
+                High Board
+              </h3>
+              <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
+                The visionary leadership behind our chapter
+              </p>
+            </div>
+            <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
+          </div>
 
           {orderedHighBoard.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {orderedHighBoard.map((member, index) => (
-                <HighBoardCard key={member.id || index} member={member} />
+                <HighBoardCard key={member.id || index} member={member} index={index} />
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">
-              No high board members available at the moment.
-            </p>
+            <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+              <p className="text-slate-400 font-medium">
+                No high board members available at the moment.
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Committees Subsection */}
-        <div className="mt-16">
-          <h3
-            className="text-3xl font-bold text-gray-800 mb-4 text-center"
-            data-aos="fade-down"
-          >
-            Our Committees
-          </h3>
-          <div
-            className="w-20 h-1 bg-linear-to-r from-[#4B98C8] to-[#205E85] mx-auto mb-8"
-            data-aos="fade-up"
-          ></div>
+        {/* Committees Section */}
+        <div className="mt-24">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
+            <div className="text-center md:text-left">
+              <h3
+                className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+                data-aos="fade-right"
+              >
+                Our Committees
+              </h3>
+              <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
+                The specialized teams driving our initiatives
+              </p>
+            </div>
+            <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
+          </div>
 
           {committees && committees.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {committees.map((committee, index) => (
                 <div
                   key={committee.id || index}
@@ -101,15 +122,19 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
                       ? "md:col-span-2"
                       : ""
                   }
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
                 >
                   <CommitteeCard committee={committee} />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">
-              No committees available at the moment.
-            </p>
+            <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+              <p className="text-slate-400 font-medium">
+                No committees available at the moment.
+              </p>
+            </div>
           )}
         </div>
       </div>

@@ -1,12 +1,23 @@
 import api from "./api";
 
-// Fetch clubs
-export const fetchClubs = async () => {
+// Fetch clubs with pagination
+export const fetchClubs = async (page = 0) => {
   try {
-    const response = await api.get("/api/clubs");
-    return response.data;
+    const response = await api.get(`/api/clubs?page=${page}`);
+    return response.data; // Page: { content, totalPages, ... }
   } catch (error) {
     console.error("Error fetching clubs:", error);
+    throw error;
+  }
+};
+
+// Fetch single club by id
+export const fetchClubById = async (id) => {
+  try {
+    const response = await api.get(`/api/clubs/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching club details:", error);
     throw error;
   }
 };
@@ -34,12 +45,23 @@ export const fetchHighBoard = async () => {
 };
 
 // Fetch events
-export const fetchEvents = async () => {
+export const fetchEvents = async (page = 0) => {
   try {
-    const response = await api.get("/api/events");
+    const response = await api.get(`/api/events?page=${page}`);
+    return response.data; // Spring Page: { content, totalPages, number, totalElements, ... }
+  } catch (error) {
+    console.error("Error fetching events by page:", error);
+    throw error;
+  }
+};
+
+// Fetch single event by id (full event payload)
+export const fetchEventById = async (id) => {
+  try {
+    const response = await api.get(`/api/events/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching events:", error);
+    console.error("Error fetching event details:", error);
     throw error;
   }
 };
@@ -55,21 +77,29 @@ export const fetchPrograms = async () => {
   }
 };
 
-// Fetch all home page data on load (independent fetch - one failure won't affect others)
+// Fetch all home page data on load
 export const fetchHomePageData = async () => {
   const results = await Promise.allSettled([
-    fetchClubs().catch(() => []),
+    fetchClubs(0).catch(() => ({ content: [] })),
     fetchCommittee().catch(() => []),
     fetchHighBoard().catch(() => []),
-    fetchEvents().catch(() => []),
+    fetchEvents(0).catch(() => ({ content: [] })),
     fetchPrograms().catch(() => []),
   ]);
 
+  const extractContent = (result) => {
+    if (result.status !== "fulfilled") return [];
+    const val = result.value;
+    if (Array.isArray(val)) return val;
+    if (val && Array.isArray(val.content)) return val.content;
+    return [];
+  };
+
   return {
-    clubs: results[0].status === "fulfilled" ? results[0].value : [],
+    clubs: extractContent(results[0]),
     committee: results[1].status === "fulfilled" ? results[1].value : [],
     highBoard: results[2].status === "fulfilled" ? results[2].value : [],
-    events: results[3].status === "fulfilled" ? results[3].value : [],
+    events: extractContent(results[3]),
     programs: results[4].status === "fulfilled" ? results[4].value : [],
   };
 };

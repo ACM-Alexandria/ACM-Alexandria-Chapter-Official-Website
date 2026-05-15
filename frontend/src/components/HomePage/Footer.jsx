@@ -1,187 +1,128 @@
+import { FaFacebookF, FaLinkedinIn, FaInstagram, FaTwitter } from "react-icons/fa";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-br from-[#205E85] to-[#1a4563] text-white w-full">
-      {/* Main Footer Content */}
-      <div className="container mx-auto px-4 md:px-8 lg:px-16 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="w-full relative overflow-hidden bg-gradient-to-br from-[#205E85] to-[#1a4563] text-white">
+      {/* Decorative patterns */}
+      <div 
+        className="absolute inset-0 opacity-5 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+          backgroundSize: "32px 32px"
+        }}
+      />
+      
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-12">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#90B8D4]">
-                ACM Alexandria
-              </span>
-            </h3>
-            <p className="text-blue-100 text-sm leading-relaxed">
+          <div className="space-y-8 text-center md:text-left">
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black tracking-tight text-white uppercase">
+                ACM <span className="text-[#4B98C8]">Alexandria</span>
+              </h3>
+              <p className="text-blue-100/60 text-[10px] font-bold tracking-[0.2em] uppercase">Student Chapter</p>
+            </div>
+            <p className="text-blue-50/80 text-base leading-relaxed font-medium max-w-xs mx-auto md:mx-0">
               Empowering students through technology, innovation, and
               professional growth.
             </p>
             {/* Social Links */}
-            <div className="flex space-x-4 pt-4">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-[#4B98C8] hover:bg-[#6BA8D8] flex items-center justify-center transition-colors duration-300"
-                aria-label="Facebook"
-              >
-                <span className="text-lg">f</span>
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-[#4B98C8] hover:bg-[#6BA8D8] flex items-center justify-center transition-colors duration-300"
-                aria-label="LinkedIn"
-              >
-                <span className="text-lg">in</span>
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-[#4B98C8] hover:bg-[#6BA8D8] flex items-center justify-center transition-colors duration-300"
-                aria-label="Instagram"
-              >
-                <span className="text-lg">ig</span>
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-[#4B98C8] hover:bg-[#6BA8D8] flex items-center justify-center transition-colors duration-300"
-                aria-label="Twitter"
-              >
-                <span className="text-lg">x</span>
-              </a>
+            <div className="flex justify-center md:justify-start space-x-3">
+              {[
+                { icon: <FaFacebookF />, label: "Facebook" },
+                { icon: <FaLinkedinIn />, label: "LinkedIn" },
+                { icon: <FaInstagram />, label: "Instagram" },
+                { icon: <FaTwitter />, label: "Twitter" }
+              ].map((social, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#4B98C8] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-1 border border-white/10"
+                  aria-label={social.label}
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-[#4B98C8]">
-              Quick Links
+          {/* Navigation Links */}
+          <div className="space-y-8 text-center md:text-left">
+            <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white">
+              Navigation
             </h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <a
-                  href="#about"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#clubs"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Our Clubs
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#events"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Events
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#programs"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Programs
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Services
-                </a>
-              </li>
+            <ul className="space-y-4 text-blue-100/70 font-bold text-[11px] uppercase tracking-widest">
+              {['About Us', 'Our Clubs', 'Events', 'Programs', 'Services'].map((item, i) => (
+                <li key={i}>
+                  <a
+                    href={`#${item.toLowerCase().replace(' ', '')}`}
+                    className="hover:text-white transition-colors duration-300 inline-flex items-center gap-2 group"
+                  >
+                    <div className="w-1 h-1 rounded-full bg-[#4B98C8] scale-0 group-hover:scale-100 transition-transform" />
+                    {item}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Resources */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-[#4B98C8]">Resources</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Join Community
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/sponsors"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Our Sponsors
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/partners"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Partners
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-blue-100 hover:text-white transition-colors duration-300"
-                >
-                  Contact
-                </a>
-              </li>
+          <div className="space-y-8 text-center md:text-left">
+            <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white">
+              Resources
+            </h4>
+            <ul className="space-y-4 text-blue-100/70 font-bold text-[11px] uppercase tracking-widest">
+              {['Join Community', 'Our Sponsors', 'Partners', 'Contact'].map((item, i) => (
+                <li key={i}>
+                  <a
+                    href="#"
+                    className="hover:text-white transition-colors duration-300 inline-flex items-center gap-2 group"
+                  >
+                    <div className="w-1 h-1 rounded-full bg-[#4B98C8] scale-0 group-hover:scale-100 transition-transform" />
+                    {item}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact Section */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-[#4B98C8]">
-              Get in Touch
+          {/* Newsletter Section */}
+          <div className="space-y-8 text-center md:text-left">
+            <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white">
+              Newsletter
             </h4>
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="text-blue-100 mb-1">Email</p>
-                <a
-                  href="mailto:alexandria.acm.chapter@gmail.com"
-                  className="text-[#90B8D4] hover:text-white transition-colors duration-300"
+            <div className="space-y-5">
+              <p className="text-blue-100/80 text-sm font-medium leading-relaxed">
+                Stay updated with our latest news and upcoming technical events.
+              </p>
+              <div className="space-y-3">
+                <input 
+                  type="email" 
+                  placeholder="Your Email" 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium placeholder:text-white/30 focus:bg-white/10 transition-all text-white outline-none"
+                />
+                <button
+                  className="w-full bg-[#4B98C8] text-white font-bold py-3 rounded-xl shadow-lg shadow-black/20 hover:bg-[#3679a3] transition-all duration-300 active:scale-[0.98] uppercase text-[10px] tracking-[0.2em]"
                 >
-                  alexandria.acm.chapter@gmail.com
-                </a>
+                  Join Mailing List
+                </button>
               </div>
-              <button
-                className="w-full bg-gradient-to-r from-[#4B98C8] to-[#205E85] hover:shadow-lg text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
-                onClick={() => console.log("Open mailing list modal")}
-              >
-                Join Our Mailing List
-              </button>
             </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[#4B98C8] border-opacity-30 my-12"></div>
+        <div className="h-px bg-white/5 w-full my-16" />
 
         {/* Footer Bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between text-sm text-blue-100">
-          <p>© {currentYear} ACM Alexandria Chapter. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a
-              href="#"
-              className="hover:text-white transition-colors duration-300"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="hover:text-white transition-colors duration-300"
-            >
-              Terms of Service
-            </a>
+        <div className="flex flex-col md:flex-row items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 gap-6 text-center">
+          <p>© {currentYear} ACM Alexandria Student Chapter.</p>
+          <div className="flex space-x-8">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Cookies</a>
           </div>
         </div>
       </div>
