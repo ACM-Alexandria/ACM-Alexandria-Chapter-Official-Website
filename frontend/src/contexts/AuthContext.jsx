@@ -11,6 +11,7 @@ import {
   logout as apiLogout,
   register as apiRegister,
   refreshAccessToken,
+  getMe as apiGetMe,
 } from "../services/authService";
 
 const AuthContext = createContext({
@@ -38,11 +39,23 @@ export const AuthProvider = ({ children }) => {
   // Restore session on mount
   useEffect(() => {
     const restoreSession = async () => {
+      const hydrateUser = async () => {
+        try {
+          const data = await apiGetMe();
+          if (data?.email) {
+            setUser({ email: data.email });
+          }
+        } catch {
+          setUser(null);
+        }
+      };
+
       try {
         await tokenService.initializeTokenService();
 
         if (tokenService.hasAccessToken()) {
           setIsAuthenticated(true);
+          await hydrateUser();
           setIsLoading(false);
           return;
         }
@@ -51,6 +64,7 @@ export const AuthProvider = ({ children }) => {
           try {
             await refreshAccessToken();
             setIsAuthenticated(true);
+            await hydrateUser();
           } catch {
             await tokenService.clearAllTokens();
           }

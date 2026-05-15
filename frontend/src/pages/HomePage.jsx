@@ -8,6 +8,8 @@ import ClubsSection from "../components/HomePage/sections/ClubsSection";
 import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
+import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
+import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
 
@@ -19,6 +21,28 @@ const HomePage = () => {
   const [programs, setPrograms] = useState([]);
   const [_, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedClubId, setSelectedClubId] = useState(null);
+  const [isClubSidebarOpen, setIsClubSidebarOpen] = useState(false);
+
+  const handleShowEventDetails = (eventId) => {
+    setSelectedEventId(eventId);
+    setIsSidebarOpen(true);
+  };
+
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
+  const handleShowClubDetails = (clubId) => {
+    setSelectedClubId(clubId);
+    setIsClubSidebarOpen(true);
+  };
+
+  const handleCloseClubSidebar = () => {
+    setIsClubSidebarOpen(false);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,15 +112,30 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar activeSection={activeSection} />
-      <main className="flex-1 pt-[70px]">
+      <main className="flex-1 pt-[74px]">
         <GreetingSection />
         <AboutSection highBoard={highBoard} committees={committee} />
-        <ClubsSection clubs={clubs} />
-        <EventsSection events={events} />
+        <ClubsSection clubs={clubs} onShowClubDetails={handleShowClubDetails} />
+        <EventsSection
+          events={events}
+          onShowEventDetails={handleShowEventDetails}
+        />
         <ProgramsSection programs={programs} />
         <ServicesSection />
       </main>
       <Footer />
+
+      <EventDetailsSidebar
+        eventId={selectedEventId}
+        isOpen={isSidebarOpen}
+        onClose={handleCloseSidebar}
+      />
+
+      <ClubDetailsSidebar
+        clubId={selectedClubId}
+        isOpen={isClubSidebarOpen}
+        onClose={handleCloseClubSidebar}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 const CommitteeMemberCard = ({ member }) => {
   return (
-    <div className="bg-gray-50 hover:bg-gray-100 transition-colors duration-200 rounded-2xl border border-gray-200 w-64 p-5 text-center">
-      <div className="w-24 h-24 mx-auto rounded-full overflow-hidden bg-white border border-gray-200 flex items-center justify-center">
+    <div className="bg-white hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 rounded-3xl border border-slate-100 w-64 p-6 text-center group mx-auto">
+      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
         {member.imageUrl ? (
           <img
             src={member.imageUrl}
@@ -9,18 +9,34 @@ const CommitteeMemberCard = ({ member }) => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-gray-500 text-2xl font-semibold">
-            {member.name?.charAt(0) || "M"}
-          </span>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/10 to-[#205E85]/10">
+            <span className="text-slate-400 text-2xl font-black">
+              {member.name?.charAt(0) || "M"}
+            </span>
+          </div>
         )}
       </div>
 
-      <p className="mt-4 text-gray-800 font-semibold text-lg leading-tight">
+      <p className="mt-5 text-slate-900 font-extrabold text-base tracking-tight leading-tight group-hover:text-[#4B98C8] transition-colors">
         {member.name}
       </p>
-      <p className="mt-2 text-gray-600 text-base leading-tight">
+      <p className="mt-1 text-slate-500 font-bold text-[10px] uppercase tracking-[0.15em] opacity-70">
         {member.role}
       </p>
+
+      {member.linkedinUrl && (
+        <div className="mt-4 flex justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+          <a 
+            href={member.linkedinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-[#0077b5] hover:text-white transition-colors cursor-pointer"
+            title="LinkedIn Profile"
+          >
+            <span className="text-[10px] font-bold">IN</span>
+          </a>
+        </div>
+      )}
     </div>
   );
 };
