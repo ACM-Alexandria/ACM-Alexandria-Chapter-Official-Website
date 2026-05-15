@@ -32,7 +32,7 @@ public class RegisterServiceImpl implements RegisterService {
       throw new PasswordAndConfirmationMisMatch();
     }
     if (!emailExitanceService.isEmailReal(registerDTO.getEmail())) {
-      throw new InvalidEmailException("Invalid Email Format");
+      throw new InvalidEmailException("Invalid Email ");
     }
 
     // Validate email doesn't already exist
