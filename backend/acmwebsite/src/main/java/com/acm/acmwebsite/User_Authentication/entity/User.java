@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.User_Authentication.entity;
 
 import com.acm.acmwebsite.User_Authentication.enums.Department;
+import com.acm.acmwebsite.User_Authentication.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -67,4 +68,9 @@ public class User {
 
   @Column(name = "batch")
   private String batch;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role", nullable = false)
+  @Builder.Default
+  private Role role = Role.USER;
 }

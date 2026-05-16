@@ -45,6 +45,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                 .authorizeHttpRequests(auth -> auth
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Secure admin endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()

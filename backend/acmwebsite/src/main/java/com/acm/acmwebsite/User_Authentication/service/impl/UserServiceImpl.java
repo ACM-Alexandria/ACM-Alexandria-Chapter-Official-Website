@@ -205,7 +205,7 @@ public class UserServiceImpl implements UserService {
       throw new IllegalArgumentException("Incorrect email or password");
     }
     String refreshToken = tokenService.createRefreshToken(user);
-    String accessToken = tokenService.createAccessToken(user.getEmail());
+    String accessToken = tokenService.createAccessToken(user);
     return LoginResponse.builder()
             .email(user.getEmail())
             .id(user.getId())
