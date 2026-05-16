@@ -3,6 +3,7 @@ package com.acm.acmwebsite.User_Authentication.service.impl;
 import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
 import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.InvalidEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.PasswordAndConfirmationMisMatch;
@@ -44,6 +45,7 @@ public class RegisterServiceImpl implements RegisterService {
     User user = new User();
     user.setEmail(registerDTO.getEmail().trim().toLowerCase());
     user.setPasswordHash(passwordEncoder.encode(registerDTO.getPassword()));
+    user.setRole(Role.USER);
 
     User savedUser = userRepository.save(user);
 
