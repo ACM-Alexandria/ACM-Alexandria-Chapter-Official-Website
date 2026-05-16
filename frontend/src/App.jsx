@@ -8,6 +8,8 @@ import ClubsPage from "./pages/ClubsPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserProfilePage from "./pages/UserProfilePage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AdminPage from "./pages/AdminPage";
+import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 
 /**
  * Main App component with routing configuration
@@ -28,6 +30,14 @@ function App() {
           <ProtectedRoute>
             <UserProfilePage />
           </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin" 
+        element={
+          <AdminProtectedRoute>
+            <AdminPage />
+          </AdminProtectedRoute>
         } 
       />
       <Route path="*" element={<Navigate to="/" replace />} />

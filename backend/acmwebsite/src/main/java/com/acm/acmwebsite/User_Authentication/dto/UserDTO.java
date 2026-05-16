@@ -23,5 +23,7 @@ public class UserDTO {
 
   @JsonProperty("updated_at")
   private LocalDateTime updatedAt;
+
+  private String role;
   // no reset password fields here for security reasons
 }
