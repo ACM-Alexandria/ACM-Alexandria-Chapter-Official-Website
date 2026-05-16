@@ -39,7 +39,6 @@ public class ClubService {
             club.setName(updatedClub.getName());
             club.setDescription(updatedClub.getDescription());
             club.setImageUrl(updatedClub.getImageUrl());
-            club.setGoogleFormUrl(updatedClub.getGoogleFormUrl());
             club.setSocialMediaLinks(updatedClub.getSocialMediaLinks());
             return clubRepository.save(club);
                 }

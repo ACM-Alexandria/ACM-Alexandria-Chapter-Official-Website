@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
@@ -43,6 +44,26 @@ const HomePage = () => {
   const handleCloseClubSidebar = () => {
     setIsClubSidebarOpen(false);
   };
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Automatically restores sidebar state if returning from dynamic login redirects (User Request)
+  useEffect(() => {
+    const openEventId = searchParams.get("openEventId");
+    const openClubId = searchParams.get("openClubId");
+
+    if (openEventId) {
+      handleShowEventDetails(Number(openEventId));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("openEventId");
+      setSearchParams(newParams, { replace: true });
+    } else if (openClubId) {
+      handleShowClubDetails(Number(openClubId));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("openClubId");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const loadData = async () => {

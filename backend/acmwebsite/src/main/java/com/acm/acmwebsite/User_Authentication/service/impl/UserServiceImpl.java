@@ -4,6 +4,7 @@ import com.acm.acmwebsite.User_Authentication.dto.LoginRequest;
 import com.acm.acmwebsite.User_Authentication.dto.LoginResponse;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
+import com.acm.acmwebsite.User_Authentication.dto.UserProfileDto;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.DuplicateEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
@@ -14,6 +15,7 @@ import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -41,6 +43,16 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
   private final TokenService tokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+  @Override
+  public Map<String, Object> getUserAuthDetails(String email) {
+    User user = userRepository.findByEmail(email.trim().toLowerCase())
+        .orElseThrow(() -> new UserNotFoundException("User session invalid"));
+    return Map.of(
+        "id", user.getId(),
+        "email", user.getEmail()
+    );
+  }
 
   @Override
   @Transactional(readOnly = true)
@@ -227,5 +239,35 @@ public class UserServiceImpl implements UserService {
     user.setResetPasswordToken(null);
     user.setResetPasswordTokenCreatedAt(null);
     userRepository.save(user);
+  }
+
+  @Override
+  public UserProfileDto getUserProfileById(UUID id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+    return userMapper.toProfileDto(user);
+  }
+
+  @Override
+  public UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+    user.setName(profileDto.getName());
+    user.setPhoneNumber(profileDto.getPhoneNumber());
+    
+    boolean isStudent = Boolean.TRUE.equals(profileDto.getIsAlexEngStudent());
+    user.setIsAlexEngStudent(isStudent);
+
+    if (isStudent) {
+      user.setDepartment(profileDto.getDepartment());
+      user.setBatch(profileDto.getBatch());
+    } else {
+      user.setDepartment(null);
+      user.setBatch(null);
+    }
+
+    User saved = userRepository.save(user);
+    return userMapper.toProfileDto(saved);
   }
 }

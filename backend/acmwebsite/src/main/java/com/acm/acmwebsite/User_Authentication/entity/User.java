@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.entity;
 
+import com.acm.acmwebsite.User_Authentication.enums.Department;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -51,5 +52,19 @@ public class User {
   @Column(name = "forgot_password_count" , nullable = false)
   private Integer forgotPasswordCount = 0;
 
+  @Column(name = "name")
+  private String name;
 
+  @Column(name = "phone_number")
+  private String phoneNumber;
+
+  @Column(name = "is_alex_eng_student")
+  private Boolean isAlexEngStudent;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "department")
+  private Department department;
+
+  @Column(name = "batch")
+  private String batch;
 }

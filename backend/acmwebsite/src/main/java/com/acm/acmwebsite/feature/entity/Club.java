@@ -14,7 +14,6 @@ public class Club {
     @Column(columnDefinition = "TEXT")
     private String description;
     private String imageUrl;
-    private String googleFormUrl;
     @ElementCollection
     @CollectionTable(name = "club_social_links", joinColumns = @JoinColumn(name = "club_id"))
     @Column(name = "link")
@@ -23,12 +22,11 @@ public class Club {
     public Club() {
     }
 
-    public Club(Long id, String name, String description, String imageUrl, String googleFormUrl, List<String> socialMediaLinks) {
+    public Club(Long id, String name, String description, String imageUrl, List<String> socialMediaLinks) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.googleFormUrl = googleFormUrl;
         this.socialMediaLinks = socialMediaLinks;
     }
 
@@ -62,14 +60,6 @@ public class Club {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
     }
 
     public List<String> getSocialMediaLinks() {

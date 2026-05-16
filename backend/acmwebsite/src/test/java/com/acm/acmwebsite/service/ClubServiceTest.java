@@ -40,15 +40,10 @@ public class ClubServiceTest {
         club.setName("CP Club");
         club.setDescription("Programming club");
         club.setImageUrl("img");
-        club.setGoogleFormUrl("form");
         return club;
     }
     private ClubCardDto sampleClubCardDto() {
-        ClubCardDto dto = new ClubCardDto();
-        dto.setId(1L);
-        dto.setName("CP Club");
-        dto.setImageUrl("img");
-        return dto;
+        return new ClubCardDto(1L, "CP Club", "img", "Programming club");
     }
 
     @Test

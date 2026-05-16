@@ -44,7 +44,12 @@ public class AuthController {
       return ResponseEntity.status(401).body(new ErrorMessageResponse("Unauthorized request"));
     }
 
-    return ResponseEntity.ok(Map.of("email", authentication.getName()));
+    try {
+      Map<String, Object> userDetails = userService.getUserAuthDetails(authentication.getName());
+      return ResponseEntity.ok(userDetails);
+    } catch (Exception ex) {
+      return ResponseEntity.status(401).body(new ErrorMessageResponse("User session invalid"));
+    }
   }
 
   @PostMapping("register")

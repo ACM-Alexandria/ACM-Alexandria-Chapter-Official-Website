@@ -6,6 +6,8 @@ import RegisterPage from "./pages/RegisterPage";
 import EventsPage from "./pages/EventsPage";
 import ClubsPage from "./pages/ClubsPage";
 import ForgotPassword from "./pages/ForgotPassword";
+import UserProfilePage from "./pages/UserProfilePage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 /**
  * Main App component with routing configuration
@@ -20,6 +22,14 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/events" element={<EventsPage />} />
       <Route path="/clubs" element={<ClubsPage />} />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <UserProfilePage />
+          </ProtectedRoute>
+        } 
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

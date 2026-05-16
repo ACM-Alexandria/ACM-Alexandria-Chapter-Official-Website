@@ -12,7 +12,6 @@ public class ProgramMapper {
         dto.setId(program.getId());
         dto.setDescription(program.getDescription());
         dto.setEventTime(program.getEventTime());
-        dto.setGoogleFormUrl(program.getGoogleFormUrl());
         dto.setImageUrl(program.getImageUrl());
         dto.setName(program.getName());
         return dto;
@@ -22,7 +21,6 @@ public class ProgramMapper {
         program.setId(programDto.getId());
         program.setDescription(programDto.getDescription());
         program.setEventTime(programDto.getEventTime());
-        program.setGoogleFormUrl(programDto.getGoogleFormUrl());
         program.setImageUrl(programDto.getImageUrl());
         program.setName(programDto.getName());
         return program;
