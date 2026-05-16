@@ -17,7 +17,6 @@ public class Program {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String googleFormUrl;
     private String imageUrl;
     private LocalDateTime eventTime;
 
@@ -48,14 +47,6 @@ public class Program {
         this.description = description;
     }
 
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -72,11 +63,10 @@ public class Program {
         this.eventTime = eventTime;
     }
 
-    public Program(Long id, String name, String description, String googleFormUrl, String imageUrl, LocalDateTime eventTime) {
+    public Program(Long id, String name, String description, String imageUrl, LocalDateTime eventTime) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.googleFormUrl = googleFormUrl;
         this.imageUrl = imageUrl;
         this.eventTime = eventTime;
     }

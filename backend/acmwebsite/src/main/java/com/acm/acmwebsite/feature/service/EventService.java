@@ -42,7 +42,6 @@ public class EventService {
             event.setName(updatedEvent.getName());
             event.setDescription(updatedEvent.getDescription());
             event.setImageUrl(updatedEvent.getImageUrl());
-            event.setGoogleFormUrl(updatedEvent.getGoogleFormUrl());
             event.setEventTime(updatedEvent.getEventTime());
             event.setLocation(updatedEvent.getLocation());
             return eventRepository.save(event);

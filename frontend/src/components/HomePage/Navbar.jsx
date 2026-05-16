@@ -3,7 +3,7 @@ import logo from "../../assets/logo/acm-logo-no-bg.png";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
-import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown } from "react-icons/hi2";
+import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser } from "react-icons/hi2";
 import { FaUserCircle } from "react-icons/fa";
 
 
@@ -79,6 +79,7 @@ const Navbar = ({ activeSection }) => {
   }, []);
 
   return (
+    <>
     <nav className="w-full h-[74px] bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 md:px-12 fixed top-0 z-50 gap-8">
       <Link to="/" className="flex items-center group transition-transform duration-300 hover:scale-105" aria-label="Go to home page">
         <img src={logo} className="h-14 w-auto" alt="ACM Logo" />
@@ -151,6 +152,17 @@ const Navbar = ({ activeSection }) => {
                 <div className="p-2">
                   <button
                     type="button"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      navigate("/profile");
+                    }}
+                  >
+                    <HiOutlineUser className="h-5 w-5 text-slate-500" />
+                    My Profile
+                  </button>
+                  <button
+                    type="button"
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
                     onClick={() => {
                       setShowProfileMenu(false);
@@ -173,19 +185,19 @@ const Navbar = ({ activeSection }) => {
           </Link>
         )}
       </div>
-
-      <LogoutConfirmModal
-        open={showLogoutModal}
-        onCancel={() => setShowLogoutModal(false)}
-        onConfirm={async () => {
-          setShowProfileMenu(false);
-          setShowLogoutModal(false);
-          await logout();
-          navigate("/login");
-        }}
-      />
     </nav>
-  );
+
+    <LogoutConfirmModal
+      open={showLogoutModal}
+      onCancel={() => setShowLogoutModal(false)}
+      onConfirm={async () => {
+        setShowProfileMenu(false);
+        setShowLogoutModal(false);
+        await logout();
+      }}
+    />
+  </>
+);
 };
 
 export default Navbar;

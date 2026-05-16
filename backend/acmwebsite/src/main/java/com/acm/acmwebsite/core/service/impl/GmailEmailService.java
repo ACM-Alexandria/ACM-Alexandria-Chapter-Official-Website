@@ -57,5 +57,37 @@ public class GmailEmailService implements EmailService {
             // In production, you might want to throw a custom exception here
         }
     }
+
+    @Override
+    @Async
+    public void sendRegistrationConfirmationEmail(String to, String itemName, String userName) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+
+            message.setFrom(senderEmail);
+            message.setTo(to);
+            message.setSubject("ACM Website - Registration Confirmation: " + itemName);
+
+            String emailBody = """
+                Hello %s,
+                
+                Congratulations! You have successfully registered for: %s.
+                
+                We are extremely excited to have you participate!
+                Should you have any inquiries or need assistance, please don't hesitate to reach out to our team.
+                
+                Best regards,
+                ACM Alexandria Student Chapter
+                """.formatted(userName, itemName);
+
+            message.setText(emailBody);
+
+            javaMailSender.send(message);
+            log.info("Registration confirmation email sent successfully to {} for item {}", to, itemName);
+
+        } catch (Exception e) {
+            log.error("Failed to send registration confirmation email to {}", to, e);
+        }
+    }
 }
 

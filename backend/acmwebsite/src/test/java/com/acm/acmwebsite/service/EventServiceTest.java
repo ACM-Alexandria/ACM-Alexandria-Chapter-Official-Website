@@ -41,18 +41,13 @@ public class EventServiceTest {
         e.setName("Hackathon");
         e.setDescription("Coding event");
         e.setImageUrl("img");
-        e.setGoogleFormUrl("form");
         e.setLocation("Hall A");
         e.setEventTime(LocalDateTime.now());
         return e;
     }
 
     private EventCardDto sampleEventCardDto() {
-        EventCardDto dto = new EventCardDto();
-        dto.setId(1L);
-        dto.setName("Hackathon");
-        dto.setImageUrl("img");
-        return dto;
+        return new EventCardDto(1L, "Hackathon", "img", "Coding event");
     }
 
     @Test
@@ -112,7 +107,6 @@ public class EventServiceTest {
         updated.setName("New Name");
         updated.setDescription("New Desc");
         updated.setImageUrl("newImg");
-        updated.setGoogleFormUrl("newForm");
         updated.setLocation("New Hall");
         updated.setEventTime(LocalDateTime.now().plusDays(1));
 
