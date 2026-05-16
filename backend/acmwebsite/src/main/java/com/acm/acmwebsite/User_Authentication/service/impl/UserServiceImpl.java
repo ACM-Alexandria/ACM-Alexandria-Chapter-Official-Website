@@ -50,7 +50,8 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new UserNotFoundException("User session invalid"));
     return Map.of(
         "id", user.getId(),
-        "email", user.getEmail()
+        "email", user.getEmail(),
+        "role", user.getRole().name()
     );
   }
 
@@ -209,6 +210,7 @@ public class UserServiceImpl implements UserService {
     return LoginResponse.builder()
             .email(user.getEmail())
             .id(user.getId())
+            .role(user.getRole().name())
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
