@@ -13,18 +13,16 @@ public class CommitteeDto {
     private Message callMessage;
 
     private String topicToken;
-    private String applicationFormLink;
     private List<CommitteeBoardMemberDto> boardRoles;
 
     public CommitteeDto(long id, String name, String description, String logoUrl, Message callMessage, boolean isOpen,
-            String applicationFormLink, List<CommitteeBoardMemberDto> boardRoles) {
+            List<CommitteeBoardMemberDto> boardRoles) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.logoUrl = logoUrl;
         this.callMessage = callMessage;
         this.isOpen = isOpen;
-        this.applicationFormLink = applicationFormLink;
         this.boardRoles = boardRoles;
     }
     public CommitteeDto(){}
@@ -75,14 +73,6 @@ public class CommitteeDto {
 
     public void setCallMessage(Message callMessage) {
         this.callMessage = callMessage;
-    }
-
-    public String getApplicationFormLink() {
-        return applicationFormLink;
-    }
-
-    public void setApplicationFormLink(String applicationFormLink) {
-        this.applicationFormLink = applicationFormLink;
     }
 
     public String getTopicToken() {

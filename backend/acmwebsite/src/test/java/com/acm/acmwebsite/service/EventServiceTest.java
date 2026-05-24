@@ -35,6 +35,8 @@ public class EventServiceTest {
     private EventService eventService;
 
     // ---------- helper ----------
+    private static final LocalDateTime EVENT_TIME = LocalDateTime.of(2026, 5, 25, 10, 0);
+
     private Event sampleEvent() {
         Event e = new Event();
         e.setId(1L);
@@ -42,12 +44,12 @@ public class EventServiceTest {
         e.setDescription("Coding event");
         e.setImageUrl("img");
         e.setLocation("Hall A");
-        e.setEventTime(LocalDateTime.now());
+        e.setEventTime(EVENT_TIME);
         return e;
     }
 
     private EventCardDto sampleEventCardDto() {
-        return new EventCardDto(1L, "Hackathon", "img", "Coding event");
+        return new EventCardDto(1L, "Hackathon", "img", "Coding event", EVENT_TIME, "Hall A");
     }
 
     @Test

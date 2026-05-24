@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Program {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column (nullable = false, unique = true)
