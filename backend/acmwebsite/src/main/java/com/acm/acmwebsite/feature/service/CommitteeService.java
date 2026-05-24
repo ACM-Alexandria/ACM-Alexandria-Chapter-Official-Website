@@ -71,7 +71,6 @@ public class CommitteeService {
         return committeeRepository.findWithDetailsById(id).orElse(null);
     }
 
-    @Transactional
     public Committee saveCommittee(Committee committee) {
         if (committee.getName() == null || committee.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Committee name is required");
@@ -99,7 +98,6 @@ public class CommitteeService {
         if (committeeDto.getLogoUrl() != null)
             committee.setLogoUrl(committeeDto.getLogoUrl());
 
-
         if (committeeDto.getBoardRoles() != null)
             committee.setBoardRoles(committeeMapper.toEntity(committeeDto).getBoardRoles());
 
@@ -125,7 +123,6 @@ public class CommitteeService {
         committeeRepository.deleteById(id);
     }
 
-    @Transactional
     public CommitteeBoardMemberDto addCommitteeBoardMember(Long committeeId, CommitteeBoardMemberDto dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Board member name is required");
@@ -144,7 +141,6 @@ public class CommitteeService {
         return committeeMapper.toBoardDto(saved);
     }
 
-    @Transactional
     public CommitteeBoardMemberDto updateCommitteeBoardMember(Long id, CommitteeBoardMemberDto dto) {
         if (dto.getName() != null && dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Board member name cannot be empty");
@@ -176,7 +172,6 @@ public class CommitteeService {
         return committeeMapper.toBoardDto(saved);
     }
 
-    @Transactional
     public void deleteCommitteeBoardMember(Long id) {
         if (!committeeBoardRepository.existsById(id)) {
             throw new EntityNotFoundException("Committee Board member not found with id " + id);
