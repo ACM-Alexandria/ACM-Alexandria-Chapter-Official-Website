@@ -5,6 +5,7 @@ import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.service.EventService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,16 +29,19 @@ public class EventController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public Event createEvent(@RequestBody Event event) {
     return eventService.createEvent(event);
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   public Event updateEvent(@PathVariable Long id, @RequestBody Event event) {
     return eventService.updateEvent(id, event);
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
     eventService.deleteEvent(id);
     return ResponseEntity.noContent().build();
