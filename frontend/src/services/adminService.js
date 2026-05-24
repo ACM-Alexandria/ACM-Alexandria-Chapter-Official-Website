@@ -11,6 +11,255 @@ export const fetchInsights = async () => {
   }
 };
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. HIGH BOARD MEMBERS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const addHighBoardMember = async (memberData) => {
+  try {
+    const response = await api.post("/api/highboard/members", memberData);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding high board member:", error);
+    throw error.response?.data || new Error("Failed to add high board member.");
+  }
+};
+
+export const updateHighBoardMember = async (id, memberData) => {
+  try {
+    const response = await api.put(`/api/highboard/members/${id}`, memberData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating high board member:", error);
+    throw error.response?.data || new Error("Failed to update high board member.");
+  }
+};
+
+export const deleteHighBoardMember = async (id) => {
+  try {
+    const response = await api.delete(`/api/highboard/members/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting high board member:", error);
+    throw error.response?.data || new Error("Failed to delete high board member.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   2. COMMITTEE BOARD MEMBERS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const addCommitteeBoardMember = async (committeeId, memberData) => {
+  try {
+    const response = await api.post(`/api/committee/${committeeId}/board-members`, memberData);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding committee board member:", error);
+    throw error.response?.data || new Error("Failed to add committee board member.");
+  }
+};
+
+export const updateCommitteeBoardMember = async (id, memberData) => {
+  try {
+    const response = await api.put(`/api/committee/board-members/${id}`, memberData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating committee board member:", error);
+    throw error.response?.data || new Error("Failed to update committee board member.");
+  }
+};
+
+export const deleteCommitteeBoardMember = async (id) => {
+  try {
+    const response = await api.delete(`/api/committee/board-members/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting committee board member:", error);
+    throw error.response?.data || new Error("Failed to delete committee board member.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   3. COMMITTEES CRUD & CALL MANAGEMENT
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const createCommittee = async (committeeData) => {
+  try {
+    const response = await api.post("/api/committee", committeeData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating committee:", error);
+    throw error.response?.data || new Error("Failed to create committee.");
+  }
+};
+
+export const updateCommittee = async (id, committeeData) => {
+  try {
+    const response = await api.put(`/api/committee/${id}`, committeeData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating committee:", error);
+    throw error.response?.data || new Error("Failed to update committee.");
+  }
+};
+
+export const deleteCommittee = async (id) => {
+  try {
+    const response = await api.delete(`/api/committee/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting committee:", error);
+    throw error.response?.data || new Error("Failed to delete committee.");
+  }
+};
+
+export const openCommitteeCall = async (id) => {
+  try {
+    const response = await api.post(`/api/committee/${id}/open-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error opening committee call:", error);
+    throw error.response?.data || new Error("Failed to open committee call.");
+  }
+};
+
+export const closeCommitteeCall = async (id) => {
+  try {
+    const response = await api.post(`/api/committee/${id}/close-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error closing committee call:", error);
+    throw error.response?.data || new Error("Failed to close committee call.");
+  }
+};
+
+export const changeCallMessage = async (id, messageData) => {
+  try {
+    const response = await api.post(`/api/committee/${id}/change-message`, messageData);
+    return response.data;
+  } catch (error) {
+    console.error("Error changing committee call message:", error);
+    throw error.response?.data || new Error("Failed to change call message.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   4. EVENTS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const createEvent = async (eventData) => {
+  try {
+    const response = await api.post("/api/events", eventData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating event:", error);
+    throw error.response?.data || new Error("Failed to create event.");
+  }
+};
+
+export const updateEvent = async (id, eventData) => {
+  try {
+    const response = await api.put(`/api/events/${id}`, eventData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating event:", error);
+    throw error.response?.data || new Error("Failed to update event.");
+  }
+};
+
+export const deleteEvent = async (id) => {
+  try {
+    const response = await api.delete(`/api/events/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    throw error.response?.data || new Error("Failed to delete event.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   5. CLUBS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const createClub = async (clubData) => {
+  try {
+    const response = await api.post("/api/clubs", clubData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating club:", error);
+    throw error.response?.data || new Error("Failed to create club.");
+  }
+};
+
+export const updateClub = async (id, clubData) => {
+  try {
+    const response = await api.put(`/api/clubs/${id}`, clubData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating club:", error);
+    throw error.response?.data || new Error("Failed to update club.");
+  }
+};
+
+export const deleteClub = async (id) => {
+  try {
+    const response = await api.delete(`/api/clubs/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting club:", error);
+    throw error.response?.data || new Error("Failed to delete club.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   6. PROGRAMS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const createProgram = async (programData) => {
+  try {
+    const response = await api.post("/api/program", programData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating program:", error);
+    throw error.response?.data || new Error("Failed to create program.");
+  }
+};
+
+export const updateProgram = async (id, programData) => {
+  try {
+    const response = await api.put(`/api/program/${id}`, programData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating program:", error);
+    throw error.response?.data || new Error("Failed to update program.");
+  }
+};
+
+export const deleteProgram = async (id) => {
+  try {
+    const response = await api.delete(`/api/program/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting program:", error);
+    throw error.response?.data || new Error("Failed to delete program.");
+  }
+};
+
 export default {
   fetchInsights,
+  addHighBoardMember,
+  updateHighBoardMember,
+  deleteHighBoardMember,
+  addCommitteeBoardMember,
+  updateCommitteeBoardMember,
+  deleteCommitteeBoardMember,
+  createCommittee,
+  updateCommittee,
+  deleteCommittee,
+  openCommitteeCall,
+  closeCommitteeCall,
+  changeCallMessage,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  createClub,
+  updateClub,
+  deleteClub,
+  createProgram,
+  updateProgram,
+  deleteProgram,
 };
