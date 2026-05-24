@@ -103,21 +103,40 @@ const AdminPage = () => {
       if (tab === "highboard") {
         const data = await fetchHighBoard();
         setHighBoard(data.sort((a, b) => (a.order || 99) - (b.order || 99)));
+
       } else if (tab === "committees" || tab === "committeeBoard") {
         const data = await fetchCommittee();
-        setCommittees(data);
-        if (data.length > 0 && !selectedCommitteeId) {
-          setSelectedCommitteeId(data[0].id.toString());
+        // Ensure boardRoles are sorted by order within each committee
+        const sortedData = data.map((c) => ({
+          ...c,
+          boardRoles: (c.boardRoles || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
+        }));
+        setCommittees(sortedData);
+        if (sortedData.length > 0 && !selectedCommitteeId) {
+          setSelectedCommitteeId(sortedData[0].id.toString());
         }
+
       } else if (tab === "events") {
         const data = await fetchEvents(page);
-        setEvents(data);
+        // Sort events by eventTime descending (latest first)
+        const sorted = {
+          ...data,
+          content: data.content.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime)),
+        };
+        setEvents(sorted);
       } else if (tab === "clubs") {
         const data = await fetchClubs(page);
-        setClubs(data);
+        // Sort clubs alphabetically by name
+        const sorted = {
+          ...data,
+          content: data.content.sort((a, b) => a.name.localeCompare(b.name)),
+        };
+        setClubs(sorted);
       } else if (tab === "programs") {
         const data = await fetchPrograms();
-        setPrograms(data);
+        // Sort programs by eventTime descending (latest first)
+        const sorted = data.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime));
+        setPrograms(sorted);
       }
     } catch (err) {
       console.error(err);
