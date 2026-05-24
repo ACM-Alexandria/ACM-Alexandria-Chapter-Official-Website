@@ -10,7 +10,7 @@ import java.util.List;
 public class Committee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false, unique = true, length = 100)
@@ -31,23 +31,19 @@ public class Committee {
     // this pair is unique for each description
     // private String topicToken;
 
-    private String applicationFormLink;
-
     @OneToMany(mappedBy = "committee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommitteeBoard> boardRoles = new ArrayList<>();
 
     public Committee() {
     }
 
-    public Committee(String name, String description, String logoUrl, boolean isOpen, Message messageForCalls,
-            String applicationFormLink) {
+    public Committee(String name, String description, String logoUrl, boolean isOpen, Message messageForCalls) {
 
         this.name = name;
         this.description = description;
         this.logoUrl = logoUrl;
         this.isOpen = isOpen;
         // this.topicToken="committee"+"-"+this.name;
-        this.applicationFormLink = applicationFormLink;
         this.messageForCalls = messageForCalls;
     }
 
@@ -57,14 +53,6 @@ public class Committee {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getApplicationFormLink() {
-        return applicationFormLink;
-    }
-
-    public void setApplicationFormLink(String applicationFormLink) {
-        this.applicationFormLink = applicationFormLink;
     }
 
     public Message getCallMessage() {

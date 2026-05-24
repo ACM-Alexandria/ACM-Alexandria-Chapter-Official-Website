@@ -24,12 +24,24 @@ public class HighBoardService {
 
   @Transactional
   public HighBoard addHighBoardMember(HighBoard highBoard) {
+    if (highBoard.getName() == null || highBoard.getName().trim().isEmpty()) {
+      throw new IllegalArgumentException("Name is required");
+    }
+    if (highBoard.getRole() == null || highBoard.getRole().trim().isEmpty()) {
+      throw new IllegalArgumentException("Role is required");
+    }
     return highBoardRepository.save(highBoard);
   }
 
   @Transactional
   public HighBoard updateHighBoardMember(Long id, HighBoard updated) {
     return highBoardRepository.findById(id).map(member -> {
+      if (updated.getName() == null || updated.getName().trim().isEmpty()) {
+        throw new IllegalArgumentException("Name is required");
+      }
+      if (updated.getRole() == null || updated.getRole().trim().isEmpty()) {
+        throw new IllegalArgumentException("Role is required");
+      }
       member.setName(updated.getName());
       member.setRole(updated.getRole());
       member.setImageUrl(updated.getImageUrl());

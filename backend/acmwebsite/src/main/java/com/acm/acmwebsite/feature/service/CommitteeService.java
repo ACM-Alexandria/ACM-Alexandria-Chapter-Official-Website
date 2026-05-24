@@ -73,12 +73,18 @@ public class CommitteeService {
 
     @Transactional
     public Committee saveCommittee(Committee committee) {
+        if (committee.getName() == null || committee.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Committee name is required");
+        }
         committee = committeeRepository.save(committee);
         return committee;
     }
 
     @Transactional
     public CommitteeDto updateCommittee(Long id, CommitteeDto committeeDto) {
+        if (committeeDto.getName() != null && committeeDto.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Committee name cannot be empty");
+        }
 
         Committee committee = committeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
@@ -93,8 +99,6 @@ public class CommitteeService {
         if (committeeDto.getLogoUrl() != null)
             committee.setLogoUrl(committeeDto.getLogoUrl());
 
-        if (committeeDto.getApplicationFormLink() != null)
-            committee.setApplicationFormLink(committeeDto.getApplicationFormLink());
 
         if (committeeDto.getBoardRoles() != null)
             committee.setBoardRoles(committeeMapper.toEntity(committeeDto).getBoardRoles());
@@ -123,6 +127,13 @@ public class CommitteeService {
 
     @Transactional
     public CommitteeBoardMemberDto addCommitteeBoardMember(Long committeeId, CommitteeBoardMemberDto dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Board member name is required");
+        }
+        if (dto.getRole() == null || dto.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Board member role is required");
+        }
+
         Committee committee = committeeRepository.findById(committeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found with id " + committeeId));
 
@@ -135,6 +146,13 @@ public class CommitteeService {
 
     @Transactional
     public CommitteeBoardMemberDto updateCommitteeBoardMember(Long id, CommitteeBoardMemberDto dto) {
+        if (dto.getName() != null && dto.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Board member name cannot be empty");
+        }
+        if (dto.getRole() != null && dto.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Board member role cannot be empty");
+        }
+
         CommitteeBoard boardEntity = committeeBoardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee Board member not found with id " + id));
 

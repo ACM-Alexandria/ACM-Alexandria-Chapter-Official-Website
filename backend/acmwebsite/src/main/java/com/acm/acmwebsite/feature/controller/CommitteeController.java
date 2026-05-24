@@ -9,7 +9,6 @@ import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -71,6 +70,8 @@ public class CommitteeController {
 
         try {
             committeeService.saveCommittee(newCommittee);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", "this committee already exists"));
         }
@@ -80,7 +81,6 @@ public class CommitteeController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
     public ResponseEntity<Void> deleteCommittee(@PathVariable Long id) {
         var committee = committeeService.getCommitteeById(id);
         if (committee == null) {

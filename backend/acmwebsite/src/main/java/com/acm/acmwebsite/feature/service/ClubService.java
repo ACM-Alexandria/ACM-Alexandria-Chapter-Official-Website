@@ -32,10 +32,16 @@ public class ClubService {
         return clubRepository.findById(id);
     }
     public Club createClub(Club club) {
+        if (club.getName() == null || club.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Club name is required");
+        }
         return clubRepository.save(club);
     }
     public Club updateClub(Long id,Club updatedClub) {
         return clubRepository.findById(id).map(club -> {
+            if (updatedClub.getName() == null || updatedClub.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Club name is required");
+            }
             club.setName(updatedClub.getName());
             club.setDescription(updatedClub.getDescription());
             club.setImageUrl(updatedClub.getImageUrl());
