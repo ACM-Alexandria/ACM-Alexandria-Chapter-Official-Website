@@ -14,10 +14,10 @@ public class CommitteeDto {
 
     private String topicToken;
     private String applicationFormLink;
-    private List<CommitteeBoardDto> boardRoles;
+    private List<CommitteeBoardMemberDto> boardRoles;
 
     public CommitteeDto(long id, String name, String description, String logoUrl, Message callMessage, boolean isOpen,
-            String applicationFormLink, List<CommitteeBoardDto> boardRoles) {
+            String applicationFormLink, List<CommitteeBoardMemberDto> boardRoles) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -93,11 +93,11 @@ public class CommitteeDto {
         this.topicToken = topicToken;
     }
 
-    public List<CommitteeBoardDto> getBoardRoles() {
+    public List<CommitteeBoardMemberDto> getBoardRoles() {
         return boardRoles;
     }
 
-    public void setBoardRoles(List<CommitteeBoardDto> boardRoles) {
+    public void setBoardRoles(List<CommitteeBoardMemberDto> boardRoles) {
         this.boardRoles = boardRoles;
     }
 }

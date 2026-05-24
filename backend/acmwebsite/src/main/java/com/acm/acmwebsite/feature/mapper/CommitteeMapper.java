@@ -1,6 +1,6 @@
 package com.acm.acmwebsite.feature.mapper;
 
-import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardDto;
+import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.CommitteeBoard;
@@ -15,8 +15,8 @@ public interface CommitteeMapper {
     @Mapping(target = "id", ignore = true)
     Committee toEntity(CommitteeDto dto);
 
-    CommitteeBoardDto toBoardDto(CommitteeBoard board);
+    CommitteeBoardMemberDto toBoardDto(CommitteeBoard board);
 
     @Mapping(target = "committee", ignore = true)
-    CommitteeBoard toBoardEntity(CommitteeBoardDto dto);
+    CommitteeBoard toBoardEntity(CommitteeBoardMemberDto dto);
 }

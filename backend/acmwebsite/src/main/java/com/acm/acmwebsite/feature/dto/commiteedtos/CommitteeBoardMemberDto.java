@@ -1,6 +1,6 @@
 package com.acm.acmwebsite.feature.dto.commiteedtos;
 
-public class CommitteeBoardDto {
+public class CommitteeBoardMemberDto {
   private Long id;
   private String name;
   private String imageUrl;
@@ -8,7 +8,10 @@ public class CommitteeBoardDto {
   private Integer order;
   private String linkedinUrl;
 
-  public CommitteeBoardDto(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
+  public CommitteeBoardMemberDto() {
+  }
+
+  public CommitteeBoardMemberDto(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
     this.id = id;
     this.name = name;
     this.imageUrl = imageUrl;
