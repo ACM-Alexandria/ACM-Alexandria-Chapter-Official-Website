@@ -10,6 +10,11 @@ import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.EmailService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
+import com.acm.acmwebsite.feature.entity.CommitteeBoard;
+import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
+import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
+import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +35,12 @@ class CommitteeServiceTest {
     CommitteeService committeService;
     @Mock
     CommitteeRepository commiteeRepository;
+
+    @Mock
+    CommitteeBoardRepository committeeBoardRepository;
+
+    @Mock
+    CommitteeMapper committeeMapper;
 
     @Mock
     SubscriptionService subscriptionService;
@@ -180,7 +191,62 @@ class CommitteeServiceTest {
         assertNull(result);
     }
 
+    @Test
+    @DisplayName("addCommitteeBoardMember works successfully")
+    void addCommitteeBoardMemberSuccessfully() {
+        Committee committee = createDummyCommittee();
+        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(null, "John", "img", "President", 1, "link");
+        CommitteeBoard boardEntity = new CommitteeBoard(null, "John", "img", "President", 1, "link");
+        CommitteeBoard savedEntity = new CommitteeBoard(1L, "John", "img", "President", 1, "link");
+        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "John", "img", "President", 1, "link");
 
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(committeeMapper.toBoardEntity(dto)).thenReturn(boardEntity);
+        when(committeeBoardRepository.save(boardEntity)).thenReturn(savedEntity);
+        when(committeeMapper.toBoardDto(savedEntity)).thenReturn(savedDto);
 
+        CommitteeBoardMemberDto result = committeService.addCommitteeBoardMember(1L, dto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("John", result.getName());
+    }
+
+    @Test
+    @DisplayName("updateCommitteeBoardMember updates existing entity fields")
+    void updateCommitteeBoardMemberSuccessfully() {
+        CommitteeBoard boardEntity = new CommitteeBoard(1L, "Old Name", "img", "President", 1, "link");
+        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(1L, "New Name", "new_img", "Vice", 2, "new_link");
+        CommitteeBoard savedEntity = new CommitteeBoard(1L, "New Name", "new_img", "Vice", 2, "new_link");
+        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "New Name", "new_img", "Vice", 2, "new_link");
+
+        when(committeeBoardRepository.findById(1L)).thenReturn(Optional.of(boardEntity));
+        when(committeeBoardRepository.save(boardEntity)).thenReturn(savedEntity);
+        when(committeeMapper.toBoardDto(savedEntity)).thenReturn(savedDto);
+
+        CommitteeBoardMemberDto result = committeService.updateCommitteeBoardMember(1L, dto);
+
+        assertNotNull(result);
+        assertEquals("New Name", result.getName());
+        assertEquals("Vice", result.getRole());
+    }
+
+    @Test
+    @DisplayName("deleteCommitteeBoardMember deletes successfully when exists")
+    void deleteCommitteeBoardMemberSuccessfully() {
+        when(committeeBoardRepository.existsById(1L)).thenReturn(true);
+
+        committeService.deleteCommitteeBoardMember(1L);
+
+        verify(committeeBoardRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteCommitteeBoardMember throws exception when not found")
+    void deleteCommitteeBoardMemberThrowsWhenNotFound() {
+        when(committeeBoardRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> committeService.deleteCommitteeBoardMember(99L));
+    }
 
 }
