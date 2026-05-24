@@ -57,16 +57,16 @@ const AdminPage = () => {
 
   const metrics = insights
     ? [
-        { label: "Total Users",    value: insights.totalUsers,              icon: FiUsers,       color: B,         subText: "Registered accounts" },
-        { label: "High Board Members", value: insights.totalBoardMembers,   icon: FiUserCheck,   color: BD,        subText: "Core leadership" },
-        { label: "Committee Board", value: insights.totalCommitteeBoardMembers, icon: FiUserCheck, color: "#7C5CDB", subText: "Committee leadership" },
-        { label: "Committees",     value: insights.totalCommittees,         icon: FiLayers,      color: "#7C5CDB", subText: "Active branches" },
-        { label: "Events",        value: insights.totalEvents,             icon: FiCalendar,    color: "#E8724A", subText: "Scheduled events" },
-        { label: "Clubs",         value: insights.totalClubs,              icon: FiAward,       color: "#2CBFA1", subText: "Interest groups" },
-        { label: "Programs",      value: insights.totalPrograms,           icon: FiBookOpen,    color: "#5A9BD5", subText: "Curriculums" },
-        { label: "Event Signups", value: insights.totalEventRegistrations, icon: FiCheckCircle, color: "#D94F7B", subText: "Participants" },
-        { label: "Club Signups",  value: insights.totalClubRegistrations,  icon: FiCheckCircle, color: "#F5A623", subText: "Members" },
-        { label: "Subscriptions", value: insights.totalSubscriptions,      icon: FiFileText,    color: "#64748b", subText: "Newsletter" },
+        { label: "Total Users",    value: insights.totalUsers,              icon: FiUsers,       color: B },
+        { label: "High Board Members", value: insights.totalBoardMembers,   icon: FiUserCheck,   color: BD },
+        { label: "Committee Board", value: insights.totalCommitteeBoardMembers, icon: FiUserCheck, color: "#7C5CDB" },
+        { label: "Committees",     value: insights.totalCommittees,         icon: FiLayers,      color: "#7C5CDB" },
+        { label: "Events",        value: insights.totalEvents,             icon: FiCalendar,    color: "#E8724A" },
+        { label: "Clubs",         value: insights.totalClubs,              icon: FiAward,       color: "#2CBFA1" },
+        { label: "Programs",      value: insights.totalPrograms,           icon: FiBookOpen,    color: "#5A9BD5" },
+        { label: "Events Registrations", value: insights.totalEventRegistrations, icon: FiCheckCircle, color: "#D94F7B" },
+        { label: "Clubs Registrations",  value: insights.totalClubRegistrations,  icon: FiCheckCircle, color: "#F5A623" },
+        { label: "Programs Subscriptions", value: insights.totalSubscriptions,      icon: FiFileText,    color: "#64748b" },
       ]
     : [];
 
