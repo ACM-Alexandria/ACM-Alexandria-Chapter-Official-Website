@@ -22,7 +22,6 @@ public class HighBoardService {
     return highBoardRepository.findAll();
   }
 
-  @Transactional
   public HighBoard addHighBoardMember(HighBoard highBoard) {
     if (highBoard.getName() == null || highBoard.getName().trim().isEmpty()) {
       throw new IllegalArgumentException("Name is required");
@@ -33,7 +32,6 @@ public class HighBoardService {
     return highBoardRepository.save(highBoard);
   }
 
-  @Transactional
   public HighBoard updateHighBoardMember(Long id, HighBoard updated) {
     return highBoardRepository.findById(id).map(member -> {
       if (updated.getName() == null || updated.getName().trim().isEmpty()) {
@@ -51,7 +49,6 @@ public class HighBoardService {
     }).orElseThrow(() -> new EntityNotFoundException("High Board member not found with id " + id));
   }
 
-  @Transactional
   public void deleteHighBoardMember(Long id) {
     if (!highBoardRepository.existsById(id)) {
       throw new EntityNotFoundException("High Board member not found with id " + id);
