@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String subject;
     @Column(columnDefinition = "TEXT")

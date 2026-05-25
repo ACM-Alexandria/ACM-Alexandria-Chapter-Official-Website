@@ -25,17 +25,27 @@ public class JwtUtil {
     this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
   }
 
-  public String generateToken(String username) {
+  public String generateToken(String email, String role) {
 
     return Jwts.builder()
-        .setSubject(username)
+        .setSubject(email)
+        .claim("role", role)
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + expiration))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
   }
 
-  public String getUsername(String token) {
+  public String getRole(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody()
+        .get("role", String.class);
+  }
+
+  public String getEmail(String token) {
     return Jwts.parserBuilder()
         .setSigningKey(key)
         .build()

@@ -38,6 +38,9 @@ public class ProgramService {
 
 
     public ProgramDto updateProgram(Long id, ProgramDto updatedProgram) {
+        if (updatedProgram.getName() == null || updatedProgram.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Program name is required");
+        }
         Program program = programRepository.findById(id).orElseThrow(() -> new RuntimeException("Program not found!"));
         program.setName(updatedProgram.getName());
 
@@ -56,6 +59,9 @@ public class ProgramService {
 
 
     public ProgramDto createProgram(ProgramDto programDto) {
+        if (programDto.getName() == null || programDto.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Program name is required");
+        }
         Program program = programMapper.toProgram(programDto);
         return programMapper.toProgramDto(programRepository.save(program));
     }

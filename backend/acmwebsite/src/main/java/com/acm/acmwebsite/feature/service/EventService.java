@@ -34,11 +34,17 @@ public class EventService {
     }
 
     public Event createEvent(Event event) {
+        if (event.getName() == null || event.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Event name is required");
+        }
         return eventRepository.save(event);
     }
 
     public Event updateEvent(Long id, Event updatedEvent) {
         return eventRepository.findById(id).map(event -> {
+            if (updatedEvent.getName() == null || updatedEvent.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Event name is required");
+            }
             event.setName(updatedEvent.getName());
             event.setDescription(updatedEvent.getDescription());
             event.setImageUrl(updatedEvent.getImageUrl());

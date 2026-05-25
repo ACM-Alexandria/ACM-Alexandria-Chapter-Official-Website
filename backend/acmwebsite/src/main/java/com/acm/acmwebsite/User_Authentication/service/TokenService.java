@@ -10,7 +10,7 @@ public interface TokenService {
 
   void validateRefreshToken(String refreshTokenString);
 
-  String createAccessToken(String username);
+  String createAccessToken(User user);
 
   boolean isValidAccessToken(String accessTokenString);
 

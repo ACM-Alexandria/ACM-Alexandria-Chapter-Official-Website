@@ -8,7 +8,7 @@ import com.acm.acmwebsite.feature.entity.*;
 import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.exception.*;
 import com.acm.acmwebsite.feature.repository.*;
-import com.acm.acmwebsite.feature.service.RegistrationService;
+import com.acm.acmwebsite.feature.service.ClubRegistrationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,16 +26,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RegistrationServiceTest {
+public class ClubRegistrationServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private EventRepository eventRepository;
-    @Mock
-    private EventRegistrationRepository eventRegistrationRepository;
-    @Mock
-    private EventFormQuestionRepository eventFormQuestionRepository;
     @Mock
     private ClubRepository clubRepository;
     @Mock
@@ -46,35 +40,35 @@ public class RegistrationServiceTest {
     private com.acm.acmwebsite.core.service.EmailService coreEmailService;
 
     @InjectMocks
-    private RegistrationService registrationService;
+    private ClubRegistrationService clubRegistrationService;
 
     @Test
-    void getEventQuestions_shouldReturnQuestions() {
-        when(eventRepository.existsById(1L)).thenReturn(true);
-        EventFormQuestion question = EventFormQuestion.builder()
+    void getClubQuestions_shouldReturnQuestions() {
+        when(clubRepository.existsById(1L)).thenReturn(true);
+        ClubFormQuestion question = ClubFormQuestion.builder()
                 .id(10L)
-                .questionText("What's your name?")
+                .questionText("Why do you want to join?")
                 .questionType(QuestionType.TEXT)
                 .isRequired(true)
                 .build();
-        when(eventFormQuestionRepository.findByEventId(1L)).thenReturn(List.of(question));
+        when(clubFormQuestionRepository.findByClubId(1L)).thenReturn(List.of(question));
 
-        List<FormQuestionResponseDto> result = registrationService.getEventQuestions(1L);
+        List<FormQuestionResponseDto> result = clubRegistrationService.getQuestions(1L);
 
         assertFalse(result.isEmpty());
-        assertEquals("What's your name?", result.get(0).getQuestionText());
+        assertEquals("Why do you want to join?", result.get(0).getQuestionText());
         assertEquals("TEXT", result.get(0).getQuestionType());
     }
 
     @Test
-    void getEventQuestions_eventNotFound_shouldThrow() {
-        when(eventRepository.existsById(1L)).thenReturn(false);
+    void getClubQuestions_clubNotFound_shouldThrow() {
+        when(clubRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(ResourceNotFoundException.class, () -> registrationService.getEventQuestions(1L));
+        assertThrows(ResourceNotFoundException.class, () -> clubRegistrationService.getQuestions(1L));
     }
 
     @Test
-    void registerUserForEvent_successful() {
+    void registerUserForClub_successful() {
         UUID userId = UUID.randomUUID();
         User user = User.builder()
                 .id(userId)
@@ -83,35 +77,35 @@ public class RegistrationServiceTest {
                 .phoneNumber("123456")
                 .isAlexEngStudent(true)
                 .build();
-        Event event = new Event();
-        event.setId(1L);
-        event.setName("ACM Hackathon");
+        Club club = new Club();
+        club.setId(1L);
+        club.setName("ACM AI Club");
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         request.setUserId(userId);
         Map<Long, String> answers = new HashMap<>();
-        answers.put(100L, "Java");
+        answers.put(100L, "Python");
         request.setAnswers(answers);
 
-        EventFormQuestion question = EventFormQuestion.builder()
+        ClubFormQuestion question = ClubFormQuestion.builder()
                 .id(100L)
                 .questionText("Your fav Language?")
                 .isRequired(true)
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
-        when(eventRegistrationRepository.existsByUserIdAndEventId(userId, 1L)).thenReturn(false);
-        when(eventFormQuestionRepository.findByEventId(1L)).thenReturn(List.of(question));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
+        when(clubRegistrationRepository.existsByUserIdAndClubId(userId, 1L)).thenReturn(false);
+        when(clubFormQuestionRepository.findByClubId(1L)).thenReturn(List.of(question));
 
-        registrationService.registerUserForEvent(userId, 1L, request);
+        clubRegistrationService.registerUser(userId, 1L, request);
 
-        verify(eventRegistrationRepository).save(any(EventRegistration.class));
-        verify(coreEmailService).sendRegistrationConfirmationEmail(eq("test@acm.org"), eq("ACM Hackathon"), eq("ACM Member"));
+        verify(clubRegistrationRepository).save(any(ClubRegistration.class));
+        verify(coreEmailService).sendRegistrationConfirmationEmail(eq("test@acm.org"), eq("ACM AI Club"), eq("ACM Member"));
     }
 
     @Test
-    void registerUserForEvent_incompleteProfile_shouldThrow() {
+    void registerUserForClub_incompleteProfile_shouldThrow() {
         UUID userId = UUID.randomUUID();
         User incompleteUser = User.builder()
                 .id(userId)
@@ -119,14 +113,14 @@ public class RegistrationServiceTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(incompleteUser));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
 
         RegistrationRequestDto request = new RegistrationRequestDto();
-        assertThrows(ProfileIncompleteException.class, () -> registrationService.registerUserForEvent(userId, 1L, request));
+        assertThrows(ProfileIncompleteException.class, () -> clubRegistrationService.registerUser(userId, 1L, request));
     }
 
     @Test
-    void registerUserForEvent_duplicateRegistration_shouldThrow() {
+    void registerUserForClub_duplicateRegistration_shouldThrow() {
         UUID userId = UUID.randomUUID();
         User user = User.builder()
                 .id(userId)
@@ -136,15 +130,15 @@ public class RegistrationServiceTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
-        when(eventRegistrationRepository.existsByUserIdAndEventId(userId, 1L)).thenReturn(true);
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
+        when(clubRegistrationRepository.existsByUserIdAndClubId(userId, 1L)).thenReturn(true);
 
         RegistrationRequestDto request = new RegistrationRequestDto();
-        assertThrows(DuplicateRegistrationException.class, () -> registrationService.registerUserForEvent(userId, 1L, request));
+        assertThrows(DuplicateRegistrationException.class, () -> clubRegistrationService.registerUser(userId, 1L, request));
     }
 
     @Test
-    void registerUserForEvent_missingRequiredAnswer_shouldThrow() {
+    void registerUserForClub_missingRequiredAnswer_shouldThrow() {
         UUID userId = UUID.randomUUID();
         User user = User.builder()
                 .id(userId)
@@ -153,20 +147,20 @@ public class RegistrationServiceTest {
                 .isAlexEngStudent(false)
                 .build();
 
-        EventFormQuestion requiredQuestion = EventFormQuestion.builder()
+        ClubFormQuestion requiredQuestion = ClubFormQuestion.builder()
                 .id(200L)
                 .questionText("Necessary answer")
                 .isRequired(true)
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
-        when(eventRegistrationRepository.existsByUserIdAndEventId(userId, 1L)).thenReturn(false);
-        when(eventFormQuestionRepository.findByEventId(1L)).thenReturn(List.of(requiredQuestion));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
+        when(clubRegistrationRepository.existsByUserIdAndClubId(userId, 1L)).thenReturn(false);
+        when(clubFormQuestionRepository.findByClubId(1L)).thenReturn(List.of(requiredQuestion));
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         request.setAnswers(new HashMap<>()); // No answer provided for question 200
 
-        assertThrows(MissingRequiredAnswerException.class, () -> registrationService.registerUserForEvent(userId, 1L, request));
+        assertThrows(MissingRequiredAnswerException.class, () -> clubRegistrationService.registerUser(userId, 1L, request));
     }
 }

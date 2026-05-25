@@ -7,7 +7,7 @@ import java.util.concurrent.Flow;
 @Entity
 public class Email {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long emailId;
 
     private String email;
