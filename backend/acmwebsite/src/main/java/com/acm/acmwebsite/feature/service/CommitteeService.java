@@ -88,18 +88,7 @@ public class CommitteeService {
         Committee committee = committeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
 
-        // Partial update logic
-        if (committeeDto.getName() != null)
-            committee.setName(committeeDto.getName());
-
-        if (committeeDto.getDescription() != null)
-            committee.setDescription(committeeDto.getDescription());
-
-        if (committeeDto.getLogoUrl() != null)
-            committee.setLogoUrl(committeeDto.getLogoUrl());
-
-        if (committeeDto.getBoardRoles() != null)
-            committee.setBoardRoles(committeeMapper.toEntity(committeeDto).getBoardRoles());
+        committeeMapper.updateCommitteeFromDto(committeeDto, committee);
 
         committee = committeeRepository.save(committee);
 
@@ -152,21 +141,7 @@ public class CommitteeService {
         CommitteeBoard boardEntity = committeeBoardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee Board member not found with id " + id));
 
-        if (dto.getName() != null) {
-            boardEntity.setName(dto.getName());
-        }
-        if (dto.getRole() != null) {
-            boardEntity.setRole(dto.getRole());
-        }
-        if (dto.getImageUrl() != null) {
-            boardEntity.setImageUrl(dto.getImageUrl());
-        }
-        if (dto.getOrder() != null) {
-            boardEntity.setOrder(dto.getOrder());
-        }
-        if (dto.getLinkedinUrl() != null) {
-            boardEntity.setLinkedinUrl(dto.getLinkedinUrl());
-        }
+        committeeMapper.updateBoardEntityFromDto(dto, boardEntity);
 
         CommitteeBoard saved = committeeBoardRepository.save(boardEntity);
         return committeeMapper.toBoardDto(saved);

@@ -32,3 +32,7 @@ spring.thymeleaf.suffix=.html
 spring.thymeleaf.mode=HTML
 spring.thymeleaf.encoding=UTF-8
 spring.thymeleaf.cache=false
+
+# Admin Seeder Configuration
+admin.email=example@gmail.com
+admin.password=yourpassword
