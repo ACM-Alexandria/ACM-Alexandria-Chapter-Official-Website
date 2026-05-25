@@ -71,8 +71,8 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public String createAccessToken(String email) {
-    return jwtUtil.generateToken(email);
+  public String createAccessToken(User user) {
+    return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
   }
 
   @Override

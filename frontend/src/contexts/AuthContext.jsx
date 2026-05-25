@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
           if (data && (data.email || data.id)) {
             setUser({ 
               id: data.id || data.userId || null, 
-              email: data.email || null 
+              email: data.email || null,
+              role: data.role || null
             });
             setIsAuthenticated(true);
             return true;
@@ -127,7 +128,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
 
     if (data.id && data.email) {
-      setUser({ id: data.id, email: data.email });
+      setUser({ id: data.id, email: data.email, role: data.role || null });
     }
 
     return data;

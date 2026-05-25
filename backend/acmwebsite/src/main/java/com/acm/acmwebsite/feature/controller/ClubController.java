@@ -5,6 +5,7 @@ import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.service.ClubService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,21 +27,19 @@ public class ClubController {
                 .orElse(ResponseEntity.notFound().build());
     }
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Club createClub(@RequestBody Club club) {
         return clubService.createClub(club);
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Club updateClub(@PathVariable Long id,@RequestBody Club club) {
         return clubService.updateClub(id, club);
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteClub(@PathVariable Long id) {
         clubService.deleteClubById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}")
-    public Club updateClubField(@PathVariable Long id, @RequestBody Club club) {
-        return clubService.updateClub(id, club);
     }
 }
