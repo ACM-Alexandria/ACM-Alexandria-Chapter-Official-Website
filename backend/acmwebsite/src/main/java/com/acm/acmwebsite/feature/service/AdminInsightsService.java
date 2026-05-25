@@ -29,19 +29,26 @@ public class AdminInsightsService {
     private final SubscriptionRepository subscriptionRepository;
 
     public AdminInsightsDto getInsights() {
-        // Counts
-        long totalUsers = userRepository.count();
-        long totalEvents = eventRepository.count();
-        long totalClubs = clubRepository.count();
-        long totalPrograms = programRepository.count();
-        long totalBoardMembers = highBoardRepository.count();
-        long totalCommitteeBoardMembers = committeeBoardRepository.count();
-        long totalCommittees = committeeRepository.count();
-        long totalEventRegistrations = eventRegistrationRepository.count();
-        long totalClubRegistrations = clubRegistrationRepository.count();
-        long totalSubscriptions = subscriptionRepository.count();
+        return AdminInsightsDto.builder()
+                .totalUsers(userRepository.count())
+                .totalEvents(eventRepository.count())
+                .totalClubs(clubRepository.count())
+                .totalPrograms(programRepository.count())
+                .totalBoardMembers(highBoardRepository.count())
+                .totalCommitteeBoardMembers(committeeBoardRepository.count())
+                .totalCommittees(committeeRepository.count())
+                .totalEventRegistrations(eventRegistrationRepository.count())
+                .totalClubRegistrations(clubRegistrationRepository.count())
+                .totalSubscriptions(subscriptionRepository.count())
+                .usersByDepartment(getUsersByDepartment())
+                .usersByBatch(getUsersByBatch())
+                .userGrowth(getUserGrowth())
+                .popularEvents(getPopularEvents())
+                .popularClubs(getPopularClubs())
+                .build();
+    }
 
-        // Department breakdown
+    private Map<String, Long> getUsersByDepartment() {
         Map<String, Long> usersByDept = new HashMap<>();
         List<Object[]> deptCounts = userRepository.countUsersByDepartment();
         for (Object[] row : deptCounts) {
@@ -49,8 +56,10 @@ public class AdminInsightsService {
                 usersByDept.put(row[0].toString(), (Long) row[1]);
             }
         }
+        return usersByDept;
+    }
 
-        // Batch breakdown
+    private Map<String, Long> getUsersByBatch() {
         Map<String, Long> usersByBatch = new HashMap<>();
         List<Object[]> batchCounts = userRepository.countUsersByBatch();
         for (Object[] row : batchCounts) {
@@ -58,8 +67,10 @@ public class AdminInsightsService {
                 usersByBatch.put(row[0].toString(), (Long) row[1]);
             }
         }
+        return usersByBatch;
+    }
 
-        // User Growth Over Time
+    private List<AdminInsightsDto.UserGrowthPoint> getUserGrowth() {
         List<LocalDateTime> createdTimes = userRepository.findAllCreatedTimes();
         Map<String, Long> dailyCounts = new LinkedHashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -76,37 +87,22 @@ public class AdminInsightsService {
             cumulativeSum += entry.getValue();
             userGrowth.add(new AdminInsightsDto.UserGrowthPoint(entry.getKey(), cumulativeSum));
         }
+        return userGrowth;
+    }
 
-        // Popular Events
-        List<AdminInsightsDto.RegistrationSummaryPoint> popularEvents = eventRegistrationRepository.countRegistrationsByEvent()
+    private List<AdminInsightsDto.RegistrationSummaryPoint> getPopularEvents() {
+        return eventRegistrationRepository.countRegistrationsByEvent()
                 .stream()
                 .map(arr -> new AdminInsightsDto.RegistrationSummaryPoint((Long) arr[0], (String) arr[1], (Long) arr[2]))
                 .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
                 .collect(Collectors.toList());
+    }
 
-        // Popular Clubs
-        List<AdminInsightsDto.RegistrationSummaryPoint> popularClubs = clubRegistrationRepository.countRegistrationsByClub()
+    private List<AdminInsightsDto.RegistrationSummaryPoint> getPopularClubs() {
+        return clubRegistrationRepository.countRegistrationsByClub()
                 .stream()
                 .map(arr -> new AdminInsightsDto.RegistrationSummaryPoint((Long) arr[0], (String) arr[1], (Long) arr[2]))
                 .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
                 .collect(Collectors.toList());
-
-        return AdminInsightsDto.builder()
-                .totalUsers(totalUsers)
-                .totalEvents(totalEvents)
-                .totalClubs(totalClubs)
-                .totalPrograms(totalPrograms)
-                .totalBoardMembers(totalBoardMembers)
-                .totalCommitteeBoardMembers(totalCommitteeBoardMembers)
-                .totalCommittees(totalCommittees)
-                .totalEventRegistrations(totalEventRegistrations)
-                .totalClubRegistrations(totalClubRegistrations)
-                .totalSubscriptions(totalSubscriptions)
-                .usersByDepartment(usersByDept)
-                .usersByBatch(usersByBatch)
-                .userGrowth(userGrowth)
-                .popularEvents(popularEvents)
-                .popularClubs(popularClubs)
-                .build();
     }
 }
