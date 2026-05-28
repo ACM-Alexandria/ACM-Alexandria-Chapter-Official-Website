@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
     boolean existsByUserIdAndEventId(UUID userId, Long eventId);
 
+    List<EventRegistration> findByEventId(Long eventId);
+
     @Query("SELECT r.event.id, r.event.name, COUNT(r) FROM EventRegistration r GROUP BY r.event.id, r.event.name")
     List<Object[]> countRegistrationsByEvent();
 }

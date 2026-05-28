@@ -1,25 +1,49 @@
 package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.ClubRegistration;
+import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
+import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
+import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
+import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClubService {
     private final ClubRepository clubRepository;
     private final ClubMapper clubMapper;
+    private final ClubRegistrationRepository clubRegistrationRepository;
+    private final ClubFormQuestionRepository clubFormQuestionRepository;
+    private final GoogleSheetsService googleSheetsService;
 
-    public ClubService(ClubRepository clubRepository, ClubMapper clubMapper) {
+    @Value("${google.sheets.clubs-folder-id:}")
+    private String clubsFolderId;
+
+    public ClubService(ClubRepository clubRepository, ClubMapper clubMapper,
+                       ClubRegistrationRepository clubRegistrationRepository,
+                       ClubFormQuestionRepository clubFormQuestionRepository,
+                       GoogleSheetsService googleSheetsService) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
+        this.clubRegistrationRepository = clubRegistrationRepository;
+        this.clubFormQuestionRepository = clubFormQuestionRepository;
+        this.googleSheetsService = googleSheetsService;
     }
 
 
@@ -52,5 +76,115 @@ public class ClubService {
     }
     public void deleteClubById(long id) {
         clubRepository.deleteById(id);
+    }
+
+    public RegistrationAnalysisDto getRegistrationAnalysis(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        List<ClubRegistration> registrations = clubRegistrationRepository.findByClubId(clubId);
+
+        long alexCount = registrations.stream()
+                .filter(r -> r.getUser() != null && Boolean.TRUE.equals(r.getUser().getIsAlexEngStudent()))
+                .count();
+
+        Map<String, Long> departments = registrations.stream()
+                .filter(r -> r.getUser() != null)
+                .collect(Collectors.groupingBy(
+                        r -> r.getUser().getDepartment() != null ? r.getUser().getDepartment().name() : "N/A",
+                        Collectors.counting()
+                ));
+
+        Map<String, Long> batches = registrations.stream()
+                .filter(r -> r.getUser() != null)
+                .collect(Collectors.groupingBy(
+                        r -> r.getUser().getBatch() != null && !r.getUser().getBatch().trim().isEmpty() ? r.getUser().getBatch() : "N/A",
+                        Collectors.counting()
+                ));
+
+        return RegistrationAnalysisDto.builder()
+                .totalRegistrations(registrations.size())
+                .alexUniStudentCount(alexCount)
+                .nonAlexUniStudentCount(registrations.size() - alexCount)
+                .departmentCounts(departments)
+                .batchCounts(batches)
+                .googleSheetUrl(club.getGoogleSheetUrl())
+                .sheetLastUpdatedAt(club.getSheetLastUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    public RegistrationAnalysisDto syncRegistrationsSheet(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        List<ClubRegistration> registrations = clubRegistrationRepository.findByClubId(clubId);
+        List<ClubFormQuestion> questions = clubFormQuestionRepository.findByClubId(clubId);
+
+        List<List<Object>> rows = new ArrayList<>();
+        // Row 1: Header/Title info
+        rows.add(Arrays.asList("Club Name:", club.getName()));
+        rows.add(Collections.emptyList()); // empty row spacer
+
+        // Row 3: Column Headers
+        List<Object> headers = new ArrayList<>(Arrays.asList(
+                "ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
+        ));
+        for (ClubFormQuestion question : questions) {
+            headers.add(question.getQuestionText());
+        }
+        rows.add(headers);
+
+        // Rows 4+: Registrants Data
+        for (ClubRegistration reg : registrations) {
+            User user = reg.getUser();
+            if (user == null) continue;
+
+            List<Object> row = new ArrayList<>(Arrays.asList(
+                    reg.getId(),
+                    user.getName() != null ? user.getName() : "",
+                    user.getEmail() != null ? user.getEmail() : "",
+                    user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                    user.getIsAlexEngStudent() != null && user.getIsAlexEngStudent() ? "Yes" : "No",
+                    user.getBatch() != null ? user.getBatch() : "",
+                    user.getDepartment() != null ? user.getDepartment().name() : ""
+            ));
+
+            for (ClubFormQuestion question : questions) {
+                String answer = reg.getAnswers() != null ? reg.getAnswers().getOrDefault(question.getId(), "") : "";
+                row.add(answer);
+            }
+            rows.add(row);
+        }
+
+        String spreadsheetUrl = club.getGoogleSheetUrl();
+        String spreadsheetId = googleSheetsService.extractSpreadsheetId(spreadsheetUrl);
+
+        boolean needsNewSheet = (spreadsheetId == null);
+
+        if (!needsNewSheet) {
+            try {
+                // Try clearing and writing to existing sheet
+                googleSheetsService.clearSpreadsheet(spreadsheetId);
+                googleSheetsService.writeSpreadsheetData(spreadsheetId, rows);
+                club.setSheetLastUpdatedAt(LocalDateTime.now());
+                clubRepository.save(club);
+            } catch (GoogleSheetsNotFoundException e) {
+                needsNewSheet = true;
+            }
+        }
+
+        if (needsNewSheet) {
+            String title = "ACM Alexandria - Club: " + club.getName() + " - Registrations";
+            String newUrl = googleSheetsService.createSpreadsheet(title, clubsFolderId);
+            String newId = googleSheetsService.extractSpreadsheetId(newUrl);
+            googleSheetsService.writeSpreadsheetData(newId, rows);
+
+            club.setGoogleSheetUrl(newUrl);
+            club.setSheetLastUpdatedAt(LocalDateTime.now());
+            clubRepository.save(club);
+        }
+
+        return getRegistrationAnalysis(clubId);
     }
 }

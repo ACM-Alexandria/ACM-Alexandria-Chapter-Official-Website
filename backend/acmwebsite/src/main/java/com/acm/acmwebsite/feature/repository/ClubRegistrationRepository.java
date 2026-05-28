@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface ClubRegistrationRepository extends JpaRepository<ClubRegistration, Long> {
     boolean existsByUserIdAndClubId(UUID userId, Long clubId);
 
+    List<ClubRegistration> findByClubId(Long clubId);
+
     @Query("SELECT r.club.id, r.club.name, COUNT(r) FROM ClubRegistration r GROUP BY r.club.id, r.club.name")
     List<Object[]> countRegistrationsByClub();
 }

@@ -18,6 +18,10 @@ public class Club {
     @CollectionTable(name = "club_social_links", joinColumns = @JoinColumn(name = "club_id"))
     @Column(name = "link")
     private List<String> socialMediaLinks;
+    @Column(name = "google_sheet_url")
+    private String googleSheetUrl;
+    @Column(name = "sheet_last_updated_at")
+    private java.time.LocalDateTime sheetLastUpdatedAt;
 
     public Club() {
     }
@@ -68,5 +72,21 @@ public class Club {
 
     public void setSocialMediaLinks(List<String> socialMediaLinks) {
         this.socialMediaLinks = socialMediaLinks;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public java.time.LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(java.time.LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 }

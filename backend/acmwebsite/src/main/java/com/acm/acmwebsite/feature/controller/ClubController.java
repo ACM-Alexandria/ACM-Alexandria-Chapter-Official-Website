@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.service.ClubService;
 import org.springframework.data.domain.Page;
@@ -41,5 +42,17 @@ public class ClubController {
     public ResponseEntity<Void> deleteClub(@PathVariable Long id) {
         clubService.deleteClubById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/registrations/analysis")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RegistrationAnalysisDto> getClubRegistrationAnalysis(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.getRegistrationAnalysis(id));
+    }
+
+    @PostMapping("/{id}/registrations/sheet")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RegistrationAnalysisDto> syncClubRegistrationsSheet(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.syncRegistrationsSheet(id));
     }
 }
