@@ -5,6 +5,7 @@ import {
   FiExternalLink,
   FiMail,
   FiUser,
+  FiUsers,
   FiLayers,
   FiCalendar,
   FiAward,
@@ -19,6 +20,7 @@ const ResourceTable = ({
   onDeleteClick,
   onToggleCall,
   onEditMessageClick,
+  onRegistrationClick,
 }) => {
   const [imgErrors, setImgErrors] = useState({});
 
@@ -178,6 +180,15 @@ const ResourceTable = ({
                       className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
                     >
                       <FiMail className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {(activeTab === "events" || activeTab === "clubs") && (
+                    <button
+                      onClick={() => onRegistrationClick(item)}
+                      title="View Registration Panel"
+                      className="p-2 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 rounded-lg transition-colors"
+                    >
+                      <FiUsers className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button

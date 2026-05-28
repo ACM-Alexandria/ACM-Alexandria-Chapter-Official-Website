@@ -314,6 +314,7 @@ const UserProfilePage = () => {
                         <span className="font-extrabold text-slate-800 truncate block text-lg leading-tight">
                           {profile.department === "CSED" ? "Computer & Systems (CSED)" : 
                            profile.department === "CCE" ? "Computer & Communications (CCE)" : 
+                           profile.department === "OTHER" ? "Other" : 
                            <em className="text-slate-300 font-semibold not-italic">Not provided</em>}
                         </span>
                       </div>
@@ -465,6 +466,7 @@ const UserProfilePage = () => {
                         <option value="">-- Select Department --</option>
                         <option value="CSED">Computer & Systems (CSED)</option>
                         <option value="CCE">Computer & Communications (CCE)</option>
+                        <option value="OTHER">Other</option>
                       </select>
                       <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
