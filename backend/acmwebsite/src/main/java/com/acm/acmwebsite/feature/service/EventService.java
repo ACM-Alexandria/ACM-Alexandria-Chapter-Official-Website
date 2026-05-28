@@ -139,7 +139,7 @@ public class EventService {
 
         // Row 4: Column Headers
         List<Object> headers = new ArrayList<>(Arrays.asList(
-                "ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
+                "#", "Registeration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
         ));
         for (EventFormQuestion question : questions) {
             headers.add(question.getQuestionText());
@@ -147,11 +147,13 @@ public class EventService {
         rows.add(headers);
 
         // Rows 5+: Registrants Data
+        int seqNum = 1;
         for (EventRegistration reg : registrations) {
             User user = reg.getUser();
             if (user == null) continue;
 
             List<Object> row = new ArrayList<>(Arrays.asList(
+                    seqNum++,
                     reg.getId(),
                     user.getName() != null ? user.getName() : "",
                     user.getEmail() != null ? user.getEmail() : "",
