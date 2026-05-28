@@ -200,6 +200,7 @@ const ProfileGatewayModal = ({
                       <option value="">-- Select Department --</option>
                       <option value="CSED">Computer & Systems (CSED)</option>
                       <option value="CCE">Computer & Communications (CCE)</option>
+                      <option value="OTHER">Other</option>
                     </select>
                     <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
