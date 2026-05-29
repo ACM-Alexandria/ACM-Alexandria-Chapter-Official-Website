@@ -3,11 +3,8 @@ package com.acm.acmwebsite.feature.service;
 import com.acm.acmwebsite.feature.exception.*;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.Permission;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
-import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +24,6 @@ public class GoogleSheetsService {
 
     private final Sheets sheetsService;
     private final Drive driveService;
-
-    @Value("${google.sheets.share-email:}")
-    private String shareEmail;
 
     public GoogleSheetsService(ObjectProvider<Sheets> sheetsProvider, ObjectProvider<Drive> driveProvider) {
         this.sheetsService = sheetsProvider.getIfAvailable();
@@ -77,11 +71,6 @@ public class GoogleSheetsService {
     public String createSpreadsheet(String title, String folderId) {
         checkConfigured();
 
-        if (shareEmail == null || shareEmail.trim().isEmpty()) {
-            throw new GoogleSheetsCredentialsException(
-                    "Google Sheets share-email is not configured. Cannot share file.");
-        }
-
         try {
             if (folderId != null && !folderId.trim().isEmpty()) {
                 log.info("Creating spreadsheet with title: {} inside folder: {}", title, folderId);
@@ -106,9 +95,6 @@ public class GoogleSheetsService {
 
             log.info("Spreadsheet created successfully. ID: {}. URL: {}", spreadsheetId, spreadsheetUrl);
 
-            // Share the spreadsheet with editor access
-            shareSpreadsheet(spreadsheetId, shareEmail);
-
             return spreadsheetUrl;
         } catch (GoogleJsonResponseException e) {
             handleGoogleException(e, "create spreadsheet");
@@ -116,31 +102,6 @@ public class GoogleSheetsService {
             throw new GoogleSheetsException("Network error occurred while creating spreadsheet", e);
         }
         return null;
-    }
-
-    /**
-     * Shares a spreadsheet with a specific user email as a writer.
-     */
-    private void shareSpreadsheet(String spreadsheetId, String email) throws IOException {
-        log.info("Sharing spreadsheet {} with email: {} as writer.", spreadsheetId, email);
-        try {
-            Permission permission = new Permission()
-                    .setType("user")
-                    .setRole("writer")
-                    .setEmailAddress(email);
-
-            driveService.permissions().create(spreadsheetId, permission)
-                    .setSendNotificationEmail(false)
-                    .execute();
-            log.info("Permissions updated successfully for spreadsheet {}", spreadsheetId);
-        } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 403 || e.getStatusCode() == 400) {
-                throw new GoogleSheetsSharingException("Failed to share sheet with email " + email
-                        + ". Ensure it is a valid Google Account and domain sharing restrictions allow external sharing.",
-                        e);
-            }
-            throw e;
-        }
     }
 
     /**
@@ -194,7 +155,7 @@ public class GoogleSheetsService {
             throw new GoogleSheetsQuotaException(
                     "Google Sheets API quota limit reached. Please wait a few minutes and try again.", e);
         } else if (code == 403) {
-            throw new GoogleSheetsSharingException(
+            throw new GoogleSheetsAcessDenialException(
                     "Access denied by Google APIs. Please check Google Console project API configuration.", e);
         } else if (code == 404) {
             throw new GoogleSheetsNotFoundException(

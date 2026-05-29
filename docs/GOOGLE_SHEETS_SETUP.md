@@ -67,7 +67,6 @@ Open your `backend/acmwebsite/src/main/resources/application.properties` file an
 
 ```properties
 # Google Sheets Integration Settings
-google.sheets.share-email=YOUR_PERSONAL_EMAIL@gmail.com
 google.sheets.client-id=YOUR_CLIENT_ID.apps.googleusercontent.com
 google.sheets.client-secret=YOUR_CLIENT_SECRET
 google.sheets.refresh-token=YOUR_REFRESH_TOKEN
