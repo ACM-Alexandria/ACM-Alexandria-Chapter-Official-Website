@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
+import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.service.EventService;
 import org.springframework.data.domain.Page;
@@ -47,4 +48,15 @@ public class EventController {
     return ResponseEntity.noContent().build();
   }
 
+  @GetMapping("/{id}/registrations/analysis")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<RegistrationAnalysisDto> getEventRegistrationAnalysis(@PathVariable Long id) {
+    return ResponseEntity.ok(eventService.getRegistrationAnalysis(id));
+  }
+
+  @PostMapping("/{id}/registrations/sheet")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<RegistrationAnalysisDto> syncEventRegistrationsSheet(@PathVariable Long id) {
+    return ResponseEntity.ok(eventService.syncRegistrationsSheet(id));
+  }
 }

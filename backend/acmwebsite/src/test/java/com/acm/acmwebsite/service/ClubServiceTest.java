@@ -4,7 +4,10 @@ import com.acm.acmwebsite.feature.dto.ClubCardDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
+import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.ClubService;
+import com.acm.acmwebsite.feature.service.GoogleSheetsService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +33,15 @@ public class ClubServiceTest {
 
     @Mock
     private ClubMapper clubMapper;
+
+    @Mock
+    private ClubRegistrationRepository clubRegistrationRepository;
+
+    @Mock
+    private ClubFormQuestionRepository clubFormQuestionRepository;
+
+    @Mock
+    private GoogleSheetsService googleSheetsService;
 
     @InjectMocks
     private ClubService clubService;

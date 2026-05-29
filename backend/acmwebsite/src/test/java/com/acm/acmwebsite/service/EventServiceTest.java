@@ -4,7 +4,10 @@ import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.mapper.EventMapper;
 import com.acm.acmwebsite.feature.repository.EventRepository;
+import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.EventService;
+import com.acm.acmwebsite.feature.service.GoogleSheetsService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +33,15 @@ public class EventServiceTest {
 
     @Mock
     private EventMapper eventMapper;
+
+    @Mock
+    private EventRegistrationRepository eventRegistrationRepository;
+
+    @Mock
+    private EventFormQuestionRepository eventFormQuestionRepository;
+
+    @Mock
+    private GoogleSheetsService googleSheetsService;
 
     @InjectMocks
     private EventService eventService;

@@ -36,3 +36,10 @@ spring.thymeleaf.cache=false
 # Admin Seeder Configuration
 admin.email=example@gmail.com
 admin.password=yourpassword
+
+# Google Sheets Integration
+google.sheets.client-id=your-client-id.apps.googleusercontent.com
+google.sheets.client-secret=your-client-secret
+google.sheets.refresh-token=your-refresh-token
+google.sheets.events-folder-id=your-events-folder-id
+google.sheets.clubs-folder-id=your-clubs-folder-id

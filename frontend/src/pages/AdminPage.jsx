@@ -19,6 +19,7 @@ import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTab
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
 import DeleteConfirmModal from "../components/AdminPage/ManagementSection/DeleteConfirmModal";
 import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
+import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import {
   FiUsers,
   FiCalendar,
@@ -86,6 +87,14 @@ const AdminPage = () => {
   const [messageSubject, setMessageSubject] = useState("");
   const [messageBody, setMessageBody] = useState("");
   const [modalError, setModalError] = useState(null);
+
+  // Registration Panel States
+  const [regModalOpen, setRegModalOpen] = useState(false);
+  const [selectedResourceForAnalysis, setSelectedResourceForAnalysis] = useState(null);
+  const [regAnalysisData, setRegAnalysisData] = useState(null);
+  const [regAnalysisLoading, setRegAnalysisLoading] = useState(false);
+  const [regSyncLoading, setRegSyncLoading] = useState(false);
+  const [regModalError, setRegModalError] = useState(null);
 
   const mgmtTabs = [
     { id: "highboard", label: "High Board", icon: FiUsers },
@@ -376,6 +385,57 @@ const AdminPage = () => {
     }
   };
 
+  const handleRegistrationClick = async (item) => {
+    const resourceType = mgmtTab === "events" ? "event" : "club";
+    setSelectedResourceForAnalysis({
+      id: item.id,
+      name: item.name,
+      type: resourceType,
+    });
+    setRegModalOpen(true);
+    setRegAnalysisLoading(true);
+    setRegModalError(null);
+    setRegAnalysisData(null);
+    try {
+      const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
+      setRegAnalysisData(data);
+    } catch (err) {
+      console.error(err);
+      setRegModalError(err.message || err.error || "Failed to load registration analytics.");
+    } finally {
+      setRegAnalysisLoading(false);
+    }
+  };
+
+  const handleSyncRegistrationSheet = async () => {
+    if (!selectedResourceForAnalysis) return;
+    const { id, type } = selectedResourceForAnalysis;
+    setRegSyncLoading(true);
+    setRegModalError(null);
+    try {
+      const updatedData = await adminService.syncRegistrationSheet(type, id);
+      setRegAnalysisData(updatedData);
+      
+      // Update local state list so URL and timestamp are updated in the main table data
+      if (type === "event") {
+        setEvents(prev => ({
+          ...prev,
+          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+        }));
+      } else {
+        setClubs(prev => ({
+          ...prev,
+          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      setRegModalError(err.message || err.error || "Failed to synchronize spreadsheet.");
+    } finally {
+      setRegSyncLoading(false);
+    }
+  };
+
   const loadInsights = async () => {
     try {
       setLoading(true);
@@ -604,6 +664,7 @@ const AdminPage = () => {
                   onDeleteClick={handleMgmtDeleteClick}
                   onToggleCall={handleToggleCall}
                   onEditMessageClick={handleEditMessageClick}
+                  onRegistrationClick={handleRegistrationClick}
                 />
               </div>
 
@@ -675,6 +736,18 @@ const AdminPage = () => {
               setMessageBody={setMessageBody}
               loading={mgmtLoading}
               error={modalError}
+            />
+
+            <RegistrationPanelModal
+              open={regModalOpen}
+              onClose={() => { setRegModalOpen(false); setRegModalError(null); }}
+              resourceName={selectedResourceForAnalysis?.name || ""}
+              resourceType={selectedResourceForAnalysis?.type || ""}
+              analysis={regAnalysisData}
+              loading={regAnalysisLoading}
+              syncLoading={regSyncLoading}
+              onSyncSheet={handleSyncRegistrationSheet}
+              error={regModalError}
             />
           </div>
         )}
