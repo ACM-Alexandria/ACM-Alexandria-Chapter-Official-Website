@@ -22,9 +22,6 @@ public class GoogleSheetsConfig {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleSheetsConfig.class);
 
-    @Value("${google.sheets.share-email:}")
-    private String shareEmail;
-
     @Value("${google.sheets.client-id:}")
     private String clientId;
 
