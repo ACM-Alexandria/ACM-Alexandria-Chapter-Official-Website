@@ -239,6 +239,31 @@ export const deleteProgram = async (id) => {
   }
 };
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   7. REGISTRATION ANALYSIS & GOOGLE SHEETS SYNC
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchRegistrationAnalysis = async (resourceType, id) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching ${resourceType} registration analysis:`, error);
+    throw error.response?.data || new Error(`Failed to fetch ${resourceType} registration analysis.`);
+  }
+};
+
+export const syncRegistrationSheet = async (resourceType, id) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error syncing ${resourceType} registration sheet:`, error);
+    throw error.response?.data || new Error(`Failed to sync ${resourceType} registration sheet.`);
+  }
+};
+
 export default {
   fetchInsights,
   addHighBoardMember,
@@ -262,4 +287,6 @@ export default {
   createProgram,
   updateProgram,
   deleteProgram,
+  fetchRegistrationAnalysis,
+  syncRegistrationSheet,
 };

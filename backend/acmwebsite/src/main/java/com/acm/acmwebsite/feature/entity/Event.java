@@ -16,6 +16,10 @@ public class Event {
     private LocalDateTime eventTime;
     private String Location;
     private String imageUrl;
+    @Column(name = "google_sheet_url")
+    private String googleSheetUrl;
+    @Column(name = "sheet_last_updated_at")
+    private LocalDateTime sheetLastUpdatedAt;
 
     public Event() {
     }
@@ -75,5 +79,21 @@ public class Event {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 }
