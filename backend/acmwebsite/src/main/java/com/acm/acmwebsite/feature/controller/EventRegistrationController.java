@@ -1,11 +1,14 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.RegistrationRequestDto;
 import com.acm.acmwebsite.feature.service.EventRegistrationService;
+import com.acm.acmwebsite.feature.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +19,38 @@ import java.util.List;
 public class EventRegistrationController {
 
     private final EventRegistrationService eventRegistrationService;
+    private final EventService eventService;
 
     @GetMapping("/events/{id}/questions")
     public ResponseEntity<List<FormQuestionResponseDto>> getEventQuestions(@PathVariable("id") Long eventId) {
         List<FormQuestionResponseDto> questions = eventRegistrationService.getQuestions(eventId);
         return ResponseEntity.ok(questions);
+    }
+
+    @PostMapping("/events/{id}/questions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<FormQuestionResponseDto> createEventQuestion(
+            @PathVariable("id") Long eventId,
+            @RequestBody FormQuestionRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createQuestion(eventId, request));
+    }
+
+    @PutMapping("/events/{id}/questions/{questionId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<FormQuestionResponseDto> updateEventQuestion(
+            @PathVariable("id") Long eventId,
+            @PathVariable Long questionId,
+            @RequestBody FormQuestionRequestDto request) {
+        return ResponseEntity.ok(eventService.updateQuestion(eventId, questionId, request));
+    }
+
+    @DeleteMapping("/events/{id}/questions/{questionId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteEventQuestion(
+            @PathVariable("id") Long eventId,
+            @PathVariable Long questionId) {
+        eventService.deleteQuestion(eventId, questionId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/events/{id}/register")

@@ -1,7 +1,11 @@
 package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
+import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
@@ -22,6 +26,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +108,36 @@ public class ClubServiceTest {
 
         assertEquals("CP Club", saved.getName());
         verify(clubRepository).save(club);
+    }
+
+    @Test
+    void createQuestion_shouldSaveClubQuestion() {
+        Club club = createClubSample();
+        FormQuestionRequestDto request = FormQuestionRequestDto.builder()
+                .questionText("Why do you want to join?")
+                .questionType("multiple_choice")
+                .isRequired(true)
+                .options(List.of("Practice", "  ", "Community"))
+                .build();
+
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+        when(clubFormQuestionRepository.save(any(ClubFormQuestion.class))).thenAnswer(invocation -> {
+            ClubFormQuestion question = invocation.getArgument(0);
+            question.setId(30L);
+            return question;
+        });
+
+        FormQuestionResponseDto result = clubService.createQuestion(50L, request);
+
+        assertEquals(30L, result.getId());
+        assertEquals("Why do you want to join?", result.getQuestionText());
+        assertEquals(QuestionType.MULTIPLE_CHOICE.name(), result.getQuestionType());
+        assertTrue(result.getIsRequired());
+        verify(clubFormQuestionRepository).save(argThat(question ->
+                question.getClub() == club
+                        && question.getQuestionType() == QuestionType.MULTIPLE_CHOICE
+                        && question.getOptions().equals(List.of("Practice", "Community"))
+        ));
     }
 
     @Test
