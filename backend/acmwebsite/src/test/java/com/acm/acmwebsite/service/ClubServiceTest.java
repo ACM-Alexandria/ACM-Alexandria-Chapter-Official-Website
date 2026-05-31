@@ -156,4 +156,50 @@ public class ClubServiceTest {
         clubService.deleteClubById(1L);
         verify(clubRepository).deleteById(1L);
     }
+
+    @Test
+    void getClubSocialLinks_found() {
+        Club club = createClubSample();
+        club.setSocialMediaLinks(List.of("https://facebook.com", "https://twitter.com"));
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+
+        List<String> result = clubService.getClubSocialLinks(50L);
+
+        assertEquals(2, result.size());
+        assertEquals("https://facebook.com", result.get(0));
+    }
+
+    @Test
+    void getClubSocialLinks_notFound_shouldThrow() {
+        when(clubRepository.findById(50L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                com.acm.acmwebsite.feature.exception.ResourceNotFoundException.class,
+                () -> clubService.getClubSocialLinks(50L)
+        );
+    }
+
+    @Test
+    void updateClubSocialLinks_shouldSave() {
+        Club club = createClubSample();
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+        when(clubRepository.save(any(Club.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<String> result = clubService.updateClubSocialLinks(50L, List.of("https://facebook.com", "  ", "https://linkedin.com"));
+
+        assertEquals(2, result.size());
+        assertEquals("https://facebook.com", result.get(0));
+        assertEquals("https://linkedin.com", result.get(1));
+        verify(clubRepository).save(club);
+    }
+
+    @Test
+    void updateClubSocialLinks_notFound_shouldThrow() {
+        when(clubRepository.findById(50L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                com.acm.acmwebsite.feature.exception.ResourceNotFoundException.class,
+                () -> clubService.updateClubSocialLinks(50L, List.of("https://facebook.com"))
+        );
+    }
 }
