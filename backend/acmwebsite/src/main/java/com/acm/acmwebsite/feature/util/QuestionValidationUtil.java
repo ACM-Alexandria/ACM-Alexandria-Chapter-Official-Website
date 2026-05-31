@@ -36,10 +36,10 @@ public final class QuestionValidationUtil {
         if (options == null) {
             return new ArrayList<>();
         }
-        return options.stream()
+        return new ArrayList<>(options.stream()
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(option -> !option.isBlank())
-                .toList();
+                .toList());
     }
 }
