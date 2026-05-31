@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
@@ -58,12 +59,11 @@ class CommitteeServiceTest {
 
         long targetId = 2344L;
         Message testMessage = new Message("Hello!","mock");
-        Email email = new Email("dev@example.com");
-        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription activeSub = new Subscription(user, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         activeSub.setId(targetId);
-        activeSub.setStatus(SubscriptionStatus.ACTIVE);
-        activeSub.setEmail(email);
+        activeSub.setUser(user);
         List<Subscription> subscriptions = List.of(activeSub);
 
 
@@ -73,7 +73,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE, targetId, testMessage);
 
-        verify(emailService, times(1)).sendEmail(email, testMessage);
+        verify(emailService, times(1)).sendEmail(user.getEmail(), testMessage);
 
     }
 
@@ -81,17 +81,17 @@ class CommitteeServiceTest {
     @DisplayName("send call message with wrong subscribeTo param")
     void snedCallMessageWithWrongSubscribeTO(){
         long targetId=2233L;
-        Email email = new Email("dev@example.com");
-        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription activeSub = new Subscription(user, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         lenient().when(subscriptionService.getAllSubscribersByTopic(SubscripeTo.COMMITTEE,targetId)).thenReturn(
                List.of(activeSub)
         );
 
 
-        committeService.sendCallMessage(SubscripeTo.EVENT,targetId,new Message("message !","mock"));
+        committeService.sendCallMessage(SubscripeTo.NEWS,targetId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendEmail(any(),any());
+        verify(emailService, never()).sendEmail(any(String.class),any());
     }
 
     @Test
@@ -100,8 +100,8 @@ class CommitteeServiceTest {
         //given
         long targetId = 2344L;
         long wrongId=3344L;
-        Email email = new Email("dev@example.com");
-        Subscription activeSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription activeSub = new Subscription(user, SubscripeTo.COMMITTEE, targetId);
         activeSub.setStatus(SubscriptionStatus.ACTIVE);
         lenient().when(subscriptionService.getAllSubscribersByTopic(SubscripeTo.COMMITTEE,targetId)).thenReturn(
                 List.of(activeSub)
@@ -109,7 +109,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE,wrongId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendEmail(any(),any());
+        verify(emailService, never()).sendEmail(any(String.class),any());
 
     }
     private Committee createDummyCommittee(){
@@ -126,10 +126,10 @@ class CommitteeServiceTest {
         // Arrange
         long targetId = 2344L;
         Message testMessage = new Message("Important Update","mock");
-        Email email = new Email("dev@example.com");
-        Subscription inactiveSub = new Subscription(email, SubscripeTo.COMMITTEE, targetId);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription inactiveSub = new Subscription(user, SubscripeTo.COMMITTEE, targetId);
         inactiveSub.setStatus(SubscriptionStatus.PENDING); // Set to INACTIVE
-        inactiveSub.setEmail(new Email("user@example.com"));
+        inactiveSub.setUser(User.builder().email("user@example.com").build());
 
         when(subscriptionService.getAllSubscribersByTopic(SubscripeTo.COMMITTEE, targetId))
                 .thenReturn(List.of(inactiveSub));
@@ -139,7 +139,7 @@ class CommitteeServiceTest {
 
         // Assert
         // If your 'if' check is working, this email should never be sent
-        verify(emailService, never()).sendEmail(any(), any());
+        verify(emailService, never()).sendEmail(any(String.class), any());
     }
 
     @Test

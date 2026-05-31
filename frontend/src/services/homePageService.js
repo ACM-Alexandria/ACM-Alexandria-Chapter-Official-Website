@@ -115,3 +115,39 @@ export const fetchSocialLinks = async () => {
   }
 };
 
+// Subscribe to committee
+export const subscribeToCommittee = async (id) => {
+  const response = await api.post(`/api/committee/${id}/subscribe`);
+  return response.data;
+};
+
+// Unsubscribe from committee
+export const unsubscribeFromCommittee = async (id) => {
+  const response = await api.post(`/api/committee/${id}/unsubscribe`);
+  return response.data;
+};
+
+// Get committee subscription status
+export const fetchCommitteeSubscriptionStatus = async (id) => {
+  const response = await api.get(`/api/committee/${id}/subscription-status`);
+  return response.data; // { subscribed: boolean }
+};
+
+// Subscribe to news
+export const subscribeToNews = async () => {
+  const response = await api.post("/api/subscriptions/news/subscribe");
+  return response.data;
+};
+
+// Unsubscribe from news
+export const unsubscribeFromNews = async () => {
+  const response = await api.post("/api/subscriptions/news/unsubscribe");
+  return response.data;
+};
+
+// Get news subscription status
+export const fetchNewsSubscriptionStatus = async () => {
+  const response = await api.get("/api/subscriptions/news/subscription-status");
+  return response.data; // { subscribed: boolean }
+};
+

@@ -138,7 +138,7 @@ public class EventService {
 
     private void notifySubscribersAboutNewEvent(Event event) {
         try {
-            subscriptionService.sendMessageToAllActiveSubscribers(buildNewEventMessage(event));
+            subscriptionService.sendMessageToNewsSubscribers(buildNewEventMessage(event));
         } catch (Exception e) {
         }
     }

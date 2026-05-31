@@ -7,6 +7,7 @@ import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.entity.ClubRegistration;
 import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
+import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
@@ -34,6 +35,7 @@ public class ClubService {
     private final ClubRegistrationRepository clubRegistrationRepository;
     private final ClubFormQuestionRepository clubFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
+    private final SubscriptionService subscriptionService;
 
     @Value("${google.sheets.clubs-folder-id:}")
     private String clubsFolderId;
@@ -41,12 +43,14 @@ public class ClubService {
     public ClubService(ClubRepository clubRepository, ClubMapper clubMapper,
                        ClubRegistrationRepository clubRegistrationRepository,
                        ClubFormQuestionRepository clubFormQuestionRepository,
-                       GoogleSheetsService googleSheetsService) {
+                       GoogleSheetsService googleSheetsService,
+                       SubscriptionService subscriptionService) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
         this.clubRegistrationRepository = clubRegistrationRepository;
         this.clubFormQuestionRepository = clubFormQuestionRepository;
         this.googleSheetsService = googleSheetsService;
+        this.subscriptionService = subscriptionService;
     }
 
 
@@ -62,7 +66,37 @@ public class ClubService {
         if (club.getName() == null || club.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
         }
-        return clubRepository.save(club);
+        Club savedClub = clubRepository.save(club);
+        notifySubscribersAboutNewClub(savedClub);
+        return savedClub;
+    }
+
+    private void notifySubscribersAboutNewClub(Club club) {
+        try {
+            subscriptionService.sendMessageToNewsSubscribers(buildNewClubMessage(club));
+        } catch (Exception e) {
+        }
+    }
+
+    private Message buildNewClubMessage(Club club) {
+        String description = club.getDescription() != null && !club.getDescription().isBlank()
+                ? club.getDescription()
+                : "No description available";
+
+        String body = """
+                Hello,
+
+                A new ACM Alexandria club has been created: %s.
+
+                Description: %s
+
+                Stay tuned for more details on the website.
+
+                Best regards,
+                ACM Alexandria Student Chapter
+                """.formatted(club.getName(), description);
+
+        return new Message("New ACM Alexandria Club: " + club.getName(), body);
     }
 
     @Transactional
