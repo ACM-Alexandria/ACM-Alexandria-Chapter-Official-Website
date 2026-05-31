@@ -1,12 +1,15 @@
 package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.entity.ClubRegistration;
 import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
+import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
@@ -61,6 +64,46 @@ public class ClubService {
         }
         return clubRepository.save(club);
     }
+
+    @Transactional
+    public FormQuestionResponseDto createQuestion(Long clubId, FormQuestionRequestDto request) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        ClubFormQuestion question = ClubFormQuestion.builder()
+                .club(club)
+                .questionText(QuestionValidationUtil.validateQuestionText(request))
+                .questionType(QuestionValidationUtil.parseQuestionType(request))
+                .isRequired(Boolean.TRUE.equals(request.getIsRequired()))
+                .options(QuestionValidationUtil.normalizeOptions(request.getOptions()))
+                .build();
+
+        return toResponseDto(clubFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public FormQuestionResponseDto updateQuestion(Long clubId, Long questionId, FormQuestionRequestDto request) {
+        ClubFormQuestion question = clubFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getClub() != null && Objects.equals(q.getClub().getId(), clubId))
+                .orElseThrow(() -> new ResourceNotFoundException("Club question not found with id " + questionId));
+
+        question.setQuestionText(QuestionValidationUtil.validateQuestionText(request));
+        question.setQuestionType(QuestionValidationUtil.parseQuestionType(request));
+        question.setIsRequired(Boolean.TRUE.equals(request.getIsRequired()));
+        question.setOptions(QuestionValidationUtil.normalizeOptions(request.getOptions()));
+
+        return toResponseDto(clubFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public void deleteQuestion(Long clubId, Long questionId) {
+        ClubFormQuestion question = clubFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getClub() != null && Objects.equals(q.getClub().getId(), clubId))
+                .orElseThrow(() -> new ResourceNotFoundException("Club question not found with id " + questionId));
+
+        clubFormQuestionRepository.delete(question);
+    }
+
     public Club updateClub(Long id,Club updatedClub) {
         return clubRepository.findById(id).map(club -> {
             if (updatedClub.getName() == null || updatedClub.getName().trim().isEmpty()) {
@@ -77,6 +120,17 @@ public class ClubService {
     public void deleteClubById(long id) {
         clubRepository.deleteById(id);
     }
+
+    private FormQuestionResponseDto toResponseDto(ClubFormQuestion question) {
+        return FormQuestionResponseDto.builder()
+                .id(question.getId())
+                .questionText(question.getQuestionText())
+                .questionType(question.getQuestionType().name())
+                .isRequired(question.getIsRequired())
+                .options(question.getOptions())
+                .build();
+    }
+
 
     public RegistrationAnalysisDto getRegistrationAnalysis(Long clubId) {
         Club club = clubRepository.findById(clubId)

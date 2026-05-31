@@ -35,6 +35,13 @@ public class SubscriptionService {
         return  subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToId(subscripeTo,id);
     }
 
+    public void sendMessageToAllActiveSubscribers(Message message) {
+        List<Email> subscriberEmails = subscriptionRepository.findDistinctEmailsByStatus(SubscriptionStatus.ACTIVE);
+        for (Email email : subscriberEmails) {
+            emailService.sendEmail(email, message);
+        }
+    }
+
 
 
     public void addSubscription(Subscription subscription){
