@@ -11,7 +11,6 @@ import java.util.Map;
 public class RegistrationValidationUtil {
 
     private RegistrationValidationUtil() {
-        // Utility class
     }
 
     // Helper to ensure basic user details are complete

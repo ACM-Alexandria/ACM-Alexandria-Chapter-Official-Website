@@ -43,40 +43,76 @@ const ResourceFormModal = ({
 
         {/* Modal Form */}
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Common Fields: Name/Title */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              Name / Title
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.name || ""}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g. John Doe"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-            />
-          </div>
+          {/* Social Links Fields */}
+          {activeTab === "socialLinks" && (
+            <>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Platform Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.platform || ""}
+                  onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                  placeholder="e.g. Facebook, Instagram, LinkedIn, etc."
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  URL
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={formData.url || ""}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  placeholder="https://example.com/acm-alexandria"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+            </>
+          )}
 
-          {/* Common Fields: Image/Logo Url */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              {activeTab === "committees" ? "Logo URL" : "Image URL"}
-            </label>
-            <input
-              type="url"
-              value={formData.imageUrl || formData.logoUrl || ""}
-              onChange={(e) =>
-                setFormData(
-                  activeTab === "committees"
-                    ? { ...formData, logoUrl: e.target.value }
-                    : { ...formData, imageUrl: e.target.value }
-                )
-              }
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-            />
-          </div>
+          {/* Common Fields: Name/Title (for all except socialLinks) */}
+          {activeTab !== "socialLinks" && (
+            <>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Name / Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name || ""}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. John Doe"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+
+              {/* Common Fields: Image/Logo Url */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  {activeTab === "committees" ? "Logo URL" : "Image URL"}
+                </label>
+                <input
+                  type="url"
+                  value={formData.imageUrl || formData.logoUrl || ""}
+                  onChange={(e) =>
+                    setFormData(
+                      activeTab === "committees"
+                        ? { ...formData, logoUrl: e.target.value }
+                        : { ...formData, imageUrl: e.target.value }
+                    )
+                  }
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+            </>
+          )}
 
           {/* High Board and Committee Board fields */}
           {(activeTab === "highboard" || activeTab === "committeeBoard") && (
