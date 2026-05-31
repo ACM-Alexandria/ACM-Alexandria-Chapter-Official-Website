@@ -1,13 +1,18 @@
 package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.EventFormQuestion;
+import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.EventMapper;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.EventService;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +48,9 @@ public class EventServiceTest {
 
     @Mock
     private GoogleSheetsService googleSheetsService;
+
+    @Mock
+    private SubscriptionService subscriptionService;
 
     @InjectMocks
     private EventService eventService;
@@ -111,6 +120,39 @@ public class EventServiceTest {
 
         assertEquals("Hackathon", saved.getName());
         verify(eventRepository).save(e);
+        verify(subscriptionService).sendMessageToAllActiveSubscribers(argThat(message ->
+                message.getSubject().contains("Hackathon")
+        ));
+    }
+
+    @Test
+    void createQuestion_shouldSaveEventQuestion() {
+        Event event = sampleEvent();
+        FormQuestionRequestDto request = FormQuestionRequestDto.builder()
+                .questionText("Why do you want to attend?")
+                .questionType("text")
+                .isRequired(true)
+                .options(List.of("  ", "ignored"))
+                .build();
+
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(eventFormQuestionRepository.save(any(EventFormQuestion.class))).thenAnswer(invocation -> {
+            EventFormQuestion question = invocation.getArgument(0);
+            question.setId(20L);
+            return question;
+        });
+
+        FormQuestionResponseDto result = eventService.createQuestion(1L, request);
+
+        assertEquals(20L, result.getId());
+        assertEquals("Why do you want to attend?", result.getQuestionText());
+        assertEquals(QuestionType.TEXT.name(), result.getQuestionType());
+        assertTrue(result.getIsRequired());
+        verify(eventFormQuestionRepository).save(argThat(question ->
+                question.getEvent() == event
+                        && question.getQuestionType() == QuestionType.TEXT
+                        && question.getOptions().equals(List.of("ignored"))
+        ));
     }
 
     @Test
