@@ -9,9 +9,11 @@ import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
+import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.ClubService;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -47,6 +49,9 @@ public class ClubServiceTest {
 
     @Mock
     private GoogleSheetsService googleSheetsService;
+
+    @Mock
+    private SubscriptionService subscriptionService;
 
     @InjectMocks
     private ClubService clubService;
@@ -108,6 +113,9 @@ public class ClubServiceTest {
 
         assertEquals("CP Club", saved.getName());
         verify(clubRepository).save(club);
+        verify(subscriptionService).sendMessageToNewsSubscribers(argThat(message ->
+                message.getSubject().contains("CP Club")
+        ));
     }
 
     @Test

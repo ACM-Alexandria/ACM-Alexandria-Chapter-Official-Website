@@ -39,7 +39,7 @@ public class AdminInsightsService {
                 .totalCommittees(committeeRepository.count())
                 .totalEventRegistrations(eventRegistrationRepository.count())
                 .totalClubRegistrations(clubRegistrationRepository.count())
-                .totalSubscriptions(subscriptionRepository.count())
+                .totalSubscriptions(subscriptionRepository.countByUserId())
                 .usersByDepartment(getUsersByDepartment())
                 .usersByBatch(getUsersByBatch())
                 .userGrowth(getUserGrowth())

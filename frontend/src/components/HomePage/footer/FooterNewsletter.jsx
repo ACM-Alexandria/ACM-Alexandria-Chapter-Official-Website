@@ -1,6 +1,63 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
+import UnsubscribeConfirmModal from "../../UnsubscribeConfirmModal";
+import {
+  subscribeToNews,
+  unsubscribeFromNews,
+  fetchNewsSubscriptionStatus,
+} from "../../../services/homePageService";
 
 const FooterNewsletter = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      if (!isAuthenticated) return;
+      setStatusLoading(true);
+      try {
+        const data = await fetchNewsSubscriptionStatus();
+        setSubscribed(data.subscribed);
+      } catch (err) {
+        console.error("Error fetching news status:", err);
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+    checkStatus();
+  }, [isAuthenticated]);
+
+  const handleToggleSubscribe = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    setModalOpen(true);
+  };
+
+  const handleConfirmToggle = async () => {
+    setLoading(true);
+    try {
+      if (subscribed) {
+        await unsubscribeFromNews();
+        setSubscribed(false);
+      } else {
+        await subscribeToNews();
+        setSubscribed(true);
+      }
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Error toggling news subscription:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8 text-center md:text-left">
       <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white">
@@ -8,23 +65,46 @@ const FooterNewsletter = () => {
       </h4>
       <div className="space-y-5">
         <p className="text-blue-100/80 text-sm font-medium leading-relaxed">
-          Stay updated with our latest news and upcoming technical events.
+          {isAuthenticated
+            ? "Stay updated with our latest news and upcoming technical events."
+            : "Login to stay updated with our latest news and upcoming technical events."}
         </p>
         <div className="space-y-3">
-          <input 
-            type="email" 
-            placeholder="Your Email" 
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium placeholder:text-white/30 focus:bg-white/10 transition-all text-white outline-none"
-            disabled
-          />
-          <button
-            className="w-full bg-[#4B98C8]/60 text-white/60 font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] cursor-not-allowed"
-            disabled
-          >
-            Join Mailing List (Paused)
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={handleToggleSubscribe}
+              disabled={loading || statusLoading}
+              className={`w-full font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] transition-all cursor-pointer ${
+                subscribed
+                  ? "bg-[#ef4444]/80 hover:bg-[#ef4444] text-white"
+                  : "bg-[#4B98C8] hover:bg-[#4B98C8]/80 text-white"
+              }`}
+            >
+              {loading || statusLoading
+                ? "Processing..."
+                : subscribed
+                ? "Unsubscribe from News"
+                : "Subscribe to News"}
+            </button>
+          ) : (
+            <button
+              onClick={handleToggleSubscribe}
+              className="w-full bg-[#4B98C8] hover:bg-[#4B98C8]/80 text-white font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all"
+            >
+              Login to Subscribe
+            </button>
+          )}
         </div>
       </div>
+
+      <UnsubscribeConfirmModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmToggle}
+        topicName="ACM Newsletter Updates"
+        loading={loading}
+        isSubscribe={!subscribed}
+      />
     </div>
   );
 };

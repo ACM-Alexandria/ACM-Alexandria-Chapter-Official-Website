@@ -42,7 +42,7 @@ public class CommitteeService {
         var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
             if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {
-                emailService.sendEmail(subscription.getEmail(), message);
+                emailService.sendEmail(subscription.getUser().getEmail(), message);
             }
         }
     }
