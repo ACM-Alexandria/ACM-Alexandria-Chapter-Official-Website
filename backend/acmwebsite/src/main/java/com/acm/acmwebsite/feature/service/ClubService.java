@@ -117,6 +117,28 @@ public class ClubService {
                 }
         ).orElseThrow(()->new RuntimeException("Club not found"));
     }
+
+    @Transactional(readOnly = true)
+    public List<String> getClubSocialLinks(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+        return club.getSocialMediaLinks() != null ? club.getSocialMediaLinks() : new ArrayList<>();
+    }
+
+    @Transactional
+    public List<String> updateClubSocialLinks(Long clubId, List<String> socialLinks) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        List<String> cleanLinks = socialLinks == null ? new ArrayList<>() : socialLinks.stream()
+                .filter(link -> link != null && !link.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        club.setSocialMediaLinks(cleanLinks);
+        clubRepository.save(club);
+        return cleanLinks;
+    }
     public void deleteClubById(long id) {
         clubRepository.deleteById(id);
     }

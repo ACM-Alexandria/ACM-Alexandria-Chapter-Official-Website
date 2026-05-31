@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/clubs")
 public class ClubController {
@@ -83,5 +85,18 @@ public class ClubController {
             @PathVariable Long questionId) {
         clubService.deleteQuestion(clubId, questionId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/social-links")
+    public ResponseEntity<List<String>> getClubSocialLinks(@PathVariable("id") Long clubId) {
+        return ResponseEntity.ok(clubService.getClubSocialLinks(clubId));
+    }
+
+    @PutMapping("/{id}/social-links")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<String>> updateClubSocialLinks(
+            @PathVariable("id") Long clubId,
+            @RequestBody List<String> socialLinks) {
+        return ResponseEntity.ok(clubService.updateClubSocialLinks(clubId, socialLinks));
     }
 }
