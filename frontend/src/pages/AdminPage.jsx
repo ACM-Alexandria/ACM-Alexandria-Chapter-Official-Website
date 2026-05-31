@@ -20,6 +20,8 @@ import ResourceFormModal from "../components/AdminPage/ManagementSection/Resourc
 import DeleteConfirmModal from "../components/AdminPage/ManagementSection/DeleteConfirmModal";
 import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
 import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
+import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
+import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import {
   FiUsers,
   FiCalendar,
@@ -40,6 +42,8 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiAlertTriangle,
+  FiShare2,
+  FiHelpCircle,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -67,6 +71,16 @@ const AdminPage = () => {
   const [events, setEvents] = useState({ content: [], number: 0, totalPages: 1 });
   const [clubs, setClubs] = useState({ content: [], number: 0, totalPages: 1 });
   const [programs, setPrograms] = useState([]);
+  const [socialLinks, setSocialLinks] = useState([]);
+
+  // Club Socials modal states
+  const [socialsModalOpen, setSocialsModalOpen] = useState(false);
+  const [selectedClubForSocials, setSelectedClubForSocials] = useState(null);
+
+  // Form Questions modal states
+  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
+  const [selectedResourceForQuestions, setSelectedResourceForQuestions] = useState(null);
+  const [questionsResourceType, setQuestionsResourceType] = useState("event");
 
   // Committee Board Member Specifics
   const [selectedCommitteeId, setSelectedCommitteeId] = useState("");
@@ -103,6 +117,7 @@ const AdminPage = () => {
     { id: "events", label: "Events", icon: FiCalendar },
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
+    { id: "socialLinks", label: "Social Links", icon: FiShare2 },
   ];
 
   const loadMgmtTabData = async (tab, page = 0) => {
@@ -146,6 +161,9 @@ const AdminPage = () => {
         // Sort programs by eventTime descending (latest first)
         const sorted = data.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime));
         setPrograms(sorted);
+      } else if (tab === "socialLinks") {
+        const data = await adminService.fetchSocialLinks();
+        setSocialLinks(data);
       }
     } catch (err) {
       console.error(err);
@@ -201,6 +219,12 @@ const AdminPage = () => {
           p.name.toLowerCase().includes(q) ||
           (p.description && p.description.toLowerCase().includes(q))
       );
+    } else if (mgmtTab === "socialLinks") {
+      return socialLinks.filter(
+        (sl) =>
+          sl.platform.toLowerCase().includes(q) ||
+          sl.url.toLowerCase().includes(q)
+      );
     }
     return [];
   };
@@ -223,6 +247,8 @@ const AdminPage = () => {
       setFormData({ name: "", description: "", imageUrl: "" });
     } else if (mgmtTab === "programs") {
       setFormData({ name: "", description: "", imageUrl: "", eventTime: "" });
+    } else if (mgmtTab === "socialLinks") {
+      setFormData({ platform: "", url: "" });
     }
     setFormOpen(true);
   };
@@ -286,6 +312,12 @@ const AdminPage = () => {
         } else {
           await adminService.updateProgram(editingItem.id, formData);
         }
+      } else if (mgmtTab === "socialLinks") {
+        if (formMode === "add") {
+          await adminService.createSocialLink(formData);
+        } else {
+          await adminService.updateSocialLink(editingItem.id, formData);
+        }
       }
  
       setFormOpen(false);
@@ -322,6 +354,8 @@ const AdminPage = () => {
         await adminService.deleteClub(deletingItem.id);
       } else if (mgmtTab === "programs") {
         await adminService.deleteProgram(deletingItem.id);
+      } else if (mgmtTab === "socialLinks") {
+        await adminService.deleteSocialLink(deletingItem.id);
       }
  
       setDeleteOpen(false);
@@ -405,6 +439,17 @@ const AdminPage = () => {
     } finally {
       setRegAnalysisLoading(false);
     }
+  };
+
+  const handleQuestionsClick = (item) => {
+    setSelectedResourceForQuestions(item);
+    setQuestionsResourceType(mgmtTab === "events" ? "event" : "club");
+    setQuestionsModalOpen(true);
+  };
+
+  const handleSocialsClick = (item) => {
+    setSelectedClubForSocials(item);
+    setSocialsModalOpen(true);
   };
 
   const handleSyncRegistrationSheet = async () => {
@@ -665,6 +710,8 @@ const AdminPage = () => {
                   onToggleCall={handleToggleCall}
                   onEditMessageClick={handleEditMessageClick}
                   onRegistrationClick={handleRegistrationClick}
+                  onQuestionsClick={handleQuestionsClick}
+                  onSocialsClick={handleSocialsClick}
                 />
               </div>
 
@@ -748,6 +795,21 @@ const AdminPage = () => {
               syncLoading={regSyncLoading}
               onSyncSheet={handleSyncRegistrationSheet}
               error={regModalError}
+            />
+
+            <ClubSocialsModal
+              open={socialsModalOpen}
+              onClose={() => { setSocialsModalOpen(false); setModalError(null); }}
+              club={selectedClubForSocials}
+              onSaved={() => loadMgmtTabData(mgmtTab)}
+            />
+
+            <QuestionsManagementModal
+              open={questionsModalOpen}
+              onClose={() => { setQuestionsModalOpen(false); setModalError(null); }}
+              resourceId={selectedResourceForQuestions?.id}
+              resourceName={selectedResourceForQuestions?.name}
+              resourceType={questionsResourceType}
             />
           </div>
         )}

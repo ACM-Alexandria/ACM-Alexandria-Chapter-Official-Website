@@ -206,6 +206,26 @@ export const deleteClub = async (id) => {
   }
 };
 
+export const fetchClubSocialLinks = async (clubId) => {
+  try {
+    const response = await api.get(`/api/clubs/${clubId}/social-links`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching club social links:", error);
+    throw error.response?.data || new Error("Failed to fetch club social links.");
+  }
+};
+
+export const updateClubSocialLinks = async (clubId, socialLinks) => {
+  try {
+    const response = await api.put(`/api/clubs/${clubId}/social-links`, socialLinks);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating club social links:", error);
+    throw error.response?.data || new Error("Failed to update club social links.");
+  }
+};
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    6. PROGRAMS CRUD
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -264,6 +284,96 @@ export const syncRegistrationSheet = async (resourceType, id) => {
   }
 };
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   8. FORM QUESTIONS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchQuestions = async (resourceType, resourceId) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching ${resourceType} questions:`, error);
+    throw error.response?.data || new Error(`Failed to fetch ${resourceType} questions.`);
+  }
+};
+
+export const createQuestion = async (resourceType, resourceId, questionData) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error creating ${resourceType} question:`, error);
+    throw error.response?.data || new Error(`Failed to create ${resourceType} question.`);
+  }
+};
+
+export const updateQuestion = async (resourceType, resourceId, questionId, questionData) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating ${resourceType} question:`, error);
+    throw error.response?.data || new Error(`Failed to update ${resourceType} question.`);
+  }
+};
+
+export const deleteQuestion = async (resourceType, resourceId, questionId) => {
+  try {
+    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting ${resourceType} question:`, error);
+    throw error.response?.data || new Error(`Failed to delete ${resourceType} question.`);
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   9. GLOBAL ACM SOCIAL LINKS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchSocialLinks = async () => {
+  try {
+    const response = await api.get("/api/socialLinks");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching social links:", error);
+    throw error.response?.data || new Error("Failed to fetch social links.");
+  }
+};
+
+export const createSocialLink = async (socialLinkData) => {
+  try {
+    const response = await api.post("/api/socialLinks", socialLinkData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating social link:", error);
+    throw error.response?.data || new Error("Failed to create social link.");
+  }
+};
+
+export const updateSocialLink = async (id, socialLinkData) => {
+  try {
+    const response = await api.put(`/api/socialLinks/${id}`, socialLinkData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating social link:", error);
+    throw error.response?.data || new Error("Failed to update social link.");
+  }
+};
+
+export const deleteSocialLink = async (id) => {
+  try {
+    const response = await api.delete(`/api/socialLinks/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting social link:", error);
+    throw error.response?.data || new Error("Failed to delete social link.");
+  }
+};
+
 export default {
   fetchInsights,
   addHighBoardMember,
@@ -284,9 +394,19 @@ export default {
   createClub,
   updateClub,
   deleteClub,
+  fetchClubSocialLinks,
+  updateClubSocialLinks,
   createProgram,
   updateProgram,
   deleteProgram,
   fetchRegistrationAnalysis,
   syncRegistrationSheet,
+  fetchQuestions,
+  createQuestion,
+  updateQuestion,
+  deleteQuestion,
+  fetchSocialLinks,
+  createSocialLink,
+  updateSocialLink,
+  deleteSocialLink,
 };
