@@ -25,18 +25,22 @@ public class EmailService {
     }
 
     @Async
-    public void sendEmail(Email to, Message message) {
+    public void sendEmail(String toEmail, Message message) {
         MimeMessage msg = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-            helper.setTo(to.getEmail());
+            helper.setTo(toEmail);
             helper.setSubject(message.getSubject());
             helper.setText(message.getBody(), false);
             mailSender.send(msg);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Async
+    public void sendEmail(Email to, Message message) {
+        sendEmail(to.getEmail(), message);
     }
     public Email saveEmail(Email email) {
         emailRepository.save(email);

@@ -81,7 +81,15 @@ const Navbar = ({ activeSection }) => {
   return (
     <>
     <nav className="w-full h-[74px] bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 md:px-12 fixed top-0 z-50 gap-8">
-      <Link to="/" className="flex items-center group transition-transform duration-300 hover:scale-105" aria-label="Go to home page">
+      <Link 
+        to="/" 
+        onClick={(e) => {
+          e.preventDefault();
+          handleSectionNavigation("greeting");
+        }}
+        className="flex items-center group transition-transform duration-300 hover:scale-105" 
+        aria-label="Go to home page"
+      >
         <img src={logo} className="h-14 w-auto" alt="ACM Logo" />
         <div className="ml-3 hidden sm:block">
           <p className="text-slate-900 font-extrabold text-sm tracking-tight leading-tight uppercase">ACM Alexandria</p>

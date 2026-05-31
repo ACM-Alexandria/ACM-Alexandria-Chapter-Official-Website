@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 
 import java.util.List;
@@ -133,15 +134,49 @@ public class CommitteeController {
 
     @PostMapping("/{id}/subscribe")
     public ResponseEntity<?> subscribeToCommittee(@PathVariable Long id,
-            @RequestBody SubscriptionDto subscriptionDto) {
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
         try {
-            subscriptionService.subscribeToCommittee(id, subscriptionDto);
+            subscriptionService.subscribeToCommittee(id, authentication.getName());
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/unsubscribe")
+    public ResponseEntity<?> unsubscribeFromCommittee(@PathVariable Long id,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        try {
+            subscriptionService.unsubscribeFromCommittee(id, authentication.getName());
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/subscription-status")
+    public ResponseEntity<?> getCommitteeSubscriptionStatus(@PathVariable Long id,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getName() == null) {
+            return ResponseEntity.ok(Map.of("subscribed", false));
+        }
+        try {
+            boolean isSubscribed = subscriptionService.isSubscribedToCommittee(id, authentication.getName());
+            return ResponseEntity.ok(Map.of("subscribed", isSubscribed));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("subscribed", false));
         }
     }
 

@@ -1,12 +1,16 @@
 package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.entity.ClubRegistration;
 import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
+import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
+import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
@@ -31,6 +35,7 @@ public class ClubService {
     private final ClubRegistrationRepository clubRegistrationRepository;
     private final ClubFormQuestionRepository clubFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
+    private final SubscriptionService subscriptionService;
 
     @Value("${google.sheets.clubs-folder-id:}")
     private String clubsFolderId;
@@ -38,12 +43,14 @@ public class ClubService {
     public ClubService(ClubRepository clubRepository, ClubMapper clubMapper,
                        ClubRegistrationRepository clubRegistrationRepository,
                        ClubFormQuestionRepository clubFormQuestionRepository,
-                       GoogleSheetsService googleSheetsService) {
+                       GoogleSheetsService googleSheetsService,
+                       SubscriptionService subscriptionService) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
         this.clubRegistrationRepository = clubRegistrationRepository;
         this.clubFormQuestionRepository = clubFormQuestionRepository;
         this.googleSheetsService = googleSheetsService;
+        this.subscriptionService = subscriptionService;
     }
 
 
@@ -59,8 +66,78 @@ public class ClubService {
         if (club.getName() == null || club.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
         }
-        return clubRepository.save(club);
+        Club savedClub = clubRepository.save(club);
+        notifySubscribersAboutNewClub(savedClub);
+        return savedClub;
     }
+
+    private void notifySubscribersAboutNewClub(Club club) {
+        try {
+            subscriptionService.sendMessageToNewsSubscribers(buildNewClubMessage(club));
+        } catch (Exception e) {
+        }
+    }
+
+    private Message buildNewClubMessage(Club club) {
+        String description = club.getDescription() != null && !club.getDescription().isBlank()
+                ? club.getDescription()
+                : "No description available";
+
+        String body = """
+                Hello,
+
+                A new ACM Alexandria club has been created: %s.
+
+                Description: %s
+
+                Stay tuned for more details on the website.
+
+                Best regards,
+                ACM Alexandria Student Chapter
+                """.formatted(club.getName(), description);
+
+        return new Message("New ACM Alexandria Club: " + club.getName(), body);
+    }
+
+    @Transactional
+    public FormQuestionResponseDto createQuestion(Long clubId, FormQuestionRequestDto request) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        ClubFormQuestion question = ClubFormQuestion.builder()
+                .club(club)
+                .questionText(QuestionValidationUtil.validateQuestionText(request))
+                .questionType(QuestionValidationUtil.parseQuestionType(request))
+                .isRequired(Boolean.TRUE.equals(request.getIsRequired()))
+                .options(QuestionValidationUtil.normalizeOptions(request.getOptions()))
+                .build();
+
+        return toResponseDto(clubFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public FormQuestionResponseDto updateQuestion(Long clubId, Long questionId, FormQuestionRequestDto request) {
+        ClubFormQuestion question = clubFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getClub() != null && Objects.equals(q.getClub().getId(), clubId))
+                .orElseThrow(() -> new ResourceNotFoundException("Club question not found with id " + questionId));
+
+        question.setQuestionText(QuestionValidationUtil.validateQuestionText(request));
+        question.setQuestionType(QuestionValidationUtil.parseQuestionType(request));
+        question.setIsRequired(Boolean.TRUE.equals(request.getIsRequired()));
+        question.setOptions(QuestionValidationUtil.normalizeOptions(request.getOptions()));
+
+        return toResponseDto(clubFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public void deleteQuestion(Long clubId, Long questionId) {
+        ClubFormQuestion question = clubFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getClub() != null && Objects.equals(q.getClub().getId(), clubId))
+                .orElseThrow(() -> new ResourceNotFoundException("Club question not found with id " + questionId));
+
+        clubFormQuestionRepository.delete(question);
+    }
+
     public Club updateClub(Long id,Club updatedClub) {
         return clubRepository.findById(id).map(club -> {
             if (updatedClub.getName() == null || updatedClub.getName().trim().isEmpty()) {
@@ -74,9 +151,42 @@ public class ClubService {
                 }
         ).orElseThrow(()->new RuntimeException("Club not found"));
     }
+
+    @Transactional(readOnly = true)
+    public List<String> getClubSocialLinks(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+        return club.getSocialMediaLinks() != null ? club.getSocialMediaLinks() : new ArrayList<>();
+    }
+
+    @Transactional
+    public List<String> updateClubSocialLinks(Long clubId, List<String> socialLinks) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
+
+        List<String> cleanLinks = socialLinks == null ? new ArrayList<>() : socialLinks.stream()
+                .filter(link -> link != null && !link.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        club.setSocialMediaLinks(cleanLinks);
+        clubRepository.save(club);
+        return cleanLinks;
+    }
     public void deleteClubById(long id) {
         clubRepository.deleteById(id);
     }
+
+    private FormQuestionResponseDto toResponseDto(ClubFormQuestion question) {
+        return FormQuestionResponseDto.builder()
+                .id(question.getId())
+                .questionText(question.getQuestionText())
+                .questionType(question.getQuestionType().name())
+                .isRequired(question.getIsRequired())
+                .options(question.getOptions())
+                .build();
+    }
+
 
     public RegistrationAnalysisDto getRegistrationAnalysis(Long clubId) {
         Club club = clubRepository.findById(clubId)

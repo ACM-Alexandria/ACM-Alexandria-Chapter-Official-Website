@@ -8,18 +8,15 @@ import {
   fetchClubs,
   fetchPrograms,
 } from "../services/homePageService";
-import UserGrowthChart from "../components/AdminPage/InsightsSection/UserGrowthChart";
-import DepartmentChart from "../components/AdminPage/InsightsSection/DepartmentChart";
-import BatchChart from "../components/AdminPage/InsightsSection/BatchChart";
-import PopularityLeaderboard from "../components/AdminPage/InsightsSection/PopularityLeaderboard";
-import MetricCard from "../components/AdminPage/InsightsSection/MetricCard";
-import SkeletonBody from "../components/AdminPage/InsightsSection/SkeletonBody";
+import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemInsightsTab";
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
 import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTable";
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
 import DeleteConfirmModal from "../components/AdminPage/ManagementSection/DeleteConfirmModal";
 import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
 import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
+import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
+import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import {
   FiUsers,
   FiCalendar,
@@ -40,6 +37,8 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiAlertTriangle,
+  FiShare2,
+  FiHelpCircle,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -67,6 +66,16 @@ const AdminPage = () => {
   const [events, setEvents] = useState({ content: [], number: 0, totalPages: 1 });
   const [clubs, setClubs] = useState({ content: [], number: 0, totalPages: 1 });
   const [programs, setPrograms] = useState([]);
+  const [socialLinks, setSocialLinks] = useState([]);
+
+  // Club Socials modal states
+  const [socialsModalOpen, setSocialsModalOpen] = useState(false);
+  const [selectedClubForSocials, setSelectedClubForSocials] = useState(null);
+
+  // Form Questions modal states
+  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
+  const [selectedResourceForQuestions, setSelectedResourceForQuestions] = useState(null);
+  const [questionsResourceType, setQuestionsResourceType] = useState("event");
 
   // Committee Board Member Specifics
   const [selectedCommitteeId, setSelectedCommitteeId] = useState("");
@@ -103,6 +112,7 @@ const AdminPage = () => {
     { id: "events", label: "Events", icon: FiCalendar },
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
+    { id: "socialLinks", label: "Social Links", icon: FiShare2 },
   ];
 
   const loadMgmtTabData = async (tab, page = 0) => {
@@ -146,6 +156,9 @@ const AdminPage = () => {
         // Sort programs by eventTime descending (latest first)
         const sorted = data.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime));
         setPrograms(sorted);
+      } else if (tab === "socialLinks") {
+        const data = await adminService.fetchSocialLinks();
+        setSocialLinks(data);
       }
     } catch (err) {
       console.error(err);
@@ -201,6 +214,12 @@ const AdminPage = () => {
           p.name.toLowerCase().includes(q) ||
           (p.description && p.description.toLowerCase().includes(q))
       );
+    } else if (mgmtTab === "socialLinks") {
+      return socialLinks.filter(
+        (sl) =>
+          sl.platform.toLowerCase().includes(q) ||
+          sl.url.toLowerCase().includes(q)
+      );
     }
     return [];
   };
@@ -223,6 +242,8 @@ const AdminPage = () => {
       setFormData({ name: "", description: "", imageUrl: "" });
     } else if (mgmtTab === "programs") {
       setFormData({ name: "", description: "", imageUrl: "", eventTime: "" });
+    } else if (mgmtTab === "socialLinks") {
+      setFormData({ platform: "", url: "" });
     }
     setFormOpen(true);
   };
@@ -286,6 +307,12 @@ const AdminPage = () => {
         } else {
           await adminService.updateProgram(editingItem.id, formData);
         }
+      } else if (mgmtTab === "socialLinks") {
+        if (formMode === "add") {
+          await adminService.createSocialLink(formData);
+        } else {
+          await adminService.updateSocialLink(editingItem.id, formData);
+        }
       }
  
       setFormOpen(false);
@@ -322,6 +349,8 @@ const AdminPage = () => {
         await adminService.deleteClub(deletingItem.id);
       } else if (mgmtTab === "programs") {
         await adminService.deleteProgram(deletingItem.id);
+      } else if (mgmtTab === "socialLinks") {
+        await adminService.deleteSocialLink(deletingItem.id);
       }
  
       setDeleteOpen(false);
@@ -407,6 +436,17 @@ const AdminPage = () => {
     }
   };
 
+  const handleQuestionsClick = (item) => {
+    setSelectedResourceForQuestions(item);
+    setQuestionsResourceType(mgmtTab === "events" ? "event" : "club");
+    setQuestionsModalOpen(true);
+  };
+
+  const handleSocialsClick = (item) => {
+    setSelectedClubForSocials(item);
+    setSocialsModalOpen(true);
+  };
+
   const handleSyncRegistrationSheet = async () => {
     if (!selectedResourceForAnalysis) return;
     const { id, type } = selectedResourceForAnalysis;
@@ -454,20 +494,7 @@ const AdminPage = () => {
     loadInsights();
   }, []);
 
-  const metrics = insights
-    ? [
-        { label: "Total Users",    value: insights.totalUsers,              icon: FiUsers,       color: B },
-        { label: "High Board Members", value: insights.totalBoardMembers,   icon: FiUserCheck,   color: BD },
-        { label: "Committee Board", value: insights.totalCommitteeBoardMembers, icon: FiUserCheck, color: "#7C5CDB" },
-        { label: "Committees",     value: insights.totalCommittees,         icon: FiLayers,      color: "#7C5CDB" },
-        { label: "Events",        value: insights.totalEvents,             icon: FiCalendar,    color: "#E8724A" },
-        { label: "Clubs",         value: insights.totalClubs,              icon: FiAward,       color: "#2CBFA1" },
-        { label: "Programs",      value: insights.totalPrograms,           icon: FiBookOpen,    color: "#5A9BD5" },
-        { label: "Events Registrations", value: insights.totalEventRegistrations, icon: FiCheckCircle, color: "#D94F7B" },
-        { label: "Clubs Registrations",  value: insights.totalClubRegistrations,  icon: FiCheckCircle, color: "#F5A623" },
-        { label: "Programs Subscriptions", value: insights.totalSubscriptions,      icon: FiFileText,    color: "#64748b" },
-      ]
-    : [];
+
 
   const tabs = [
     { id: "insights",   label: "System Insights",    icon: FiTrendingUp },
@@ -529,58 +556,12 @@ const AdminPage = () => {
 
         {/* ━━━━ TAB 1: INSIGHTS ━━━━ */}
         {activeTab === "insights" && (
-          <div style={{ animation: "fadeIn 0.4s ease both" }}>
-            {loading && !insights ? (
-              <SkeletonBody />
-            ) : error ? (
-              <div className="bg-white rounded-2xl border border-red-200 p-10 text-center max-w-md mx-auto shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
-                  <FiAlertCircle className="w-6 h-6" />
-                </div>
-                <p className="text-red-700 font-bold text-sm mb-4">{error}</p>
-                <button
-                  onClick={loadInsights}
-                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow active:scale-95 transition-all"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Row 1: KPI Metrics Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {metrics.map((m, i) => (
-                    <MetricCard key={i} {...m} />
-                  ))}
-                </div>
-
-                {/* Row 2: User Growth (full width) */}
-                <UserGrowthChart data={insights.userGrowth} />
-
-                {/* Row 3: Department + Batch pie charts side by side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <DepartmentChart data={insights.usersByDepartment} />
-                  <BatchChart data={insights.usersByBatch} />
-                </div>
-
-                {/* Row 4: Top Events + Top Clubs leaderboards side by side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <PopularityLeaderboard
-                    title="Top Events"
-                    icon={FiCalendar}
-                    data={insights.popularEvents}
-                    accentColor="#E8724A"
-                  />
-                  <PopularityLeaderboard
-                    title="Top Clubs"
-                    icon={FiAward}
-                    data={insights.popularClubs}
-                    accentColor="#2CBFA1"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <SystemInsightsTab
+            insights={insights}
+            loading={loading}
+            error={error}
+            onRefresh={loadInsights}
+          />
         )}
 
         {/* ━━━━ TAB 2: MANAGEMENT ━━━━ */}
@@ -665,6 +646,8 @@ const AdminPage = () => {
                   onToggleCall={handleToggleCall}
                   onEditMessageClick={handleEditMessageClick}
                   onRegistrationClick={handleRegistrationClick}
+                  onQuestionsClick={handleQuestionsClick}
+                  onSocialsClick={handleSocialsClick}
                 />
               </div>
 
@@ -748,6 +731,21 @@ const AdminPage = () => {
               syncLoading={regSyncLoading}
               onSyncSheet={handleSyncRegistrationSheet}
               error={regModalError}
+            />
+
+            <ClubSocialsModal
+              open={socialsModalOpen}
+              onClose={() => { setSocialsModalOpen(false); setModalError(null); }}
+              club={selectedClubForSocials}
+              onSaved={() => loadMgmtTabData(mgmtTab)}
+            />
+
+            <QuestionsManagementModal
+              open={questionsModalOpen}
+              onClose={() => { setQuestionsModalOpen(false); setModalError(null); }}
+              resourceId={selectedResourceForQuestions?.id}
+              resourceName={selectedResourceForQuestions?.name}
+              resourceType={questionsResourceType}
             />
           </div>
         )}
