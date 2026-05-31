@@ -103,3 +103,15 @@ export const fetchHomePageData = async () => {
     programs: results[4].status === "fulfilled" ? results[4].value : [],
   };
 };
+
+// Fetch social links
+export const fetchSocialLinks = async () => {
+  try {
+    const response = await api.get("/api/socialLinks");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching social links:", error);
+    throw error;
+  }
+};
+
