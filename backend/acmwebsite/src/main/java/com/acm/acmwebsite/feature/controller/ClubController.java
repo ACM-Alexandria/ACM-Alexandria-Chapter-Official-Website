@@ -1,10 +1,13 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.service.ClubService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -54,5 +57,31 @@ public class ClubController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RegistrationAnalysisDto> syncClubRegistrationsSheet(@PathVariable Long id) {
         return ResponseEntity.ok(clubService.syncRegistrationsSheet(id));
+    }
+
+    @PostMapping("/{id}/questions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<FormQuestionResponseDto> createClubQuestion(
+            @PathVariable("id") Long clubId,
+            @RequestBody FormQuestionRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(clubService.createQuestion(clubId, request));
+    }
+
+    @PutMapping("/{id}/questions/{questionId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<FormQuestionResponseDto> updateClubQuestion(
+            @PathVariable("id") Long clubId,
+            @PathVariable Long questionId,
+            @RequestBody FormQuestionRequestDto request) {
+        return ResponseEntity.ok(clubService.updateQuestion(clubId, questionId, request));
+    }
+
+    @DeleteMapping("/{id}/questions/{questionId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteClubQuestion(
+            @PathVariable("id") Long clubId,
+            @PathVariable Long questionId) {
+        clubService.deleteQuestion(clubId, questionId);
+        return ResponseEntity.noContent().build();
     }
 }
