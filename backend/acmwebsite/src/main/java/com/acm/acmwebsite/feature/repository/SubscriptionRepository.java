@@ -28,6 +28,6 @@ public interface SubscriptionRepository extends CrudRepository<Subscription,Long
     @Query("SELECT s FROM Subscription s WHERE s.user.email = :email AND s.subscribeTo = :topic AND s.subscribeToId = :id")
     Optional<Subscription> findSubscriptionByUserEmailAndSubscribeToAndSubscribeToId(@Param("email") String email, @Param("topic") SubscripeTo topic, @Param("id") Long id);
 
-    @Query("SELECT COUNT(DISTINCT s.user.id) FROM Subscription s")
+    @Query("SELECT COUNT(DISTINCT s.user.id) FROM Subscription s WHERE s.status = 'ACTIVE'")
     long countByUserId();
 }
