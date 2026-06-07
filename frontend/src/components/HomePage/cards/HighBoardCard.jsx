@@ -10,7 +10,7 @@ const HighBoardCard = ({ member, index }) => {
       data-aos-delay={index * 100}
     >
       <div className="relative h-64 overflow-hidden bg-slate-100">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+        <div className="hidden lg:block absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
         
         {member.imageUrl && !imageError ? (
           <img
@@ -27,7 +27,7 @@ const HighBoardCard = ({ member, index }) => {
           </div>
         )}
 
-        <div className="absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+        <div className="hidden lg:flex absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 justify-center">
           <div className="flex justify-center gap-3">
             {member.linkedinUrl && (
               <a 
@@ -51,6 +51,19 @@ const HighBoardCard = ({ member, index }) => {
         <p className="text-sm font-bold text-[#4B98C8] uppercase tracking-widest opacity-80">
           {member.role}
         </p>
+        {member.linkedinUrl && (
+          <div className="flex lg:hidden justify-center mt-3">
+            <a 
+              href={member.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-[#0077b5] hover:text-white transition-colors cursor-pointer"
+              title="LinkedIn Profile"
+            >
+              <span className="text-[10px] font-bold">IN</span>
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

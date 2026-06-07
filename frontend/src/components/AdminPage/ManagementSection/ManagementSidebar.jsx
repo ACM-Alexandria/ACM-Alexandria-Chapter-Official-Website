@@ -9,7 +9,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery }) =>
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">
         Resources
       </p>
-      <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1 pb-2 lg:pb-0">
+      <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1 pb-2 lg:pb-0 scrollbar-hide">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
