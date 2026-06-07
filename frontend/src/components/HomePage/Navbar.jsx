@@ -11,6 +11,7 @@ const Navbar = ({ activeSection }) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navListRef = useRef(null);
   const profileMenuRef = useRef(null);
   const navigate = useNavigate();
@@ -77,6 +78,18 @@ const Navbar = ({ activeSection }) => {
     window.addEventListener("mousedown", handleOutsideClick);
     return () => window.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  // Prevent scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <>
@@ -205,8 +218,81 @@ const Navbar = ({ activeSection }) => {
             Sign In
           </Link>
         )}
+
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          className="flex lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Open navigation menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </nav>
+
+    {/* Mobile Drawer Backdrop */}
+    <div
+      className={`fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={() => setIsMobileMenuOpen(false)}
+    />
+
+    {/* Mobile Drawer Content */}
+    <div
+      className={`fixed top-0 right-0 bottom-0 z-50 w-full max-w-[320px] bg-white shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] transform lg:hidden flex flex-col ${
+        isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+      }`}
+    >
+      {/* Drawer Header */}
+      <div className="flex items-center justify-between p-6 border-b border-slate-100">
+        <div className="flex items-center">
+          <img src={logo} className="h-10 w-auto" alt="ACM Logo" />
+          <div className="ml-2.5">
+            <p className="text-slate-900 font-extrabold text-xs tracking-tight uppercase">ACM Alexandria</p>
+            <p className="text-[#4B98C8] text-[8px] font-bold tracking-widest uppercase">Student Chapter</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="p-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-label="Close navigation menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Drawer Links */}
+      <ul className="flex-1 list-none p-6 space-y-4 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = activeSection === item.id;
+          return (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleSectionNavigation(item.id);
+                }}
+                className={`w-full text-left py-3 px-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? "bg-slate-50 text-[#205E85]"
+                    : "text-slate-500 hover:bg-slate-50/50 hover:text-[#4B98C8]"
+                }`}
+              >
+                {item.label}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
 
     <LogoutConfirmModal
       open={showLogoutModal}
