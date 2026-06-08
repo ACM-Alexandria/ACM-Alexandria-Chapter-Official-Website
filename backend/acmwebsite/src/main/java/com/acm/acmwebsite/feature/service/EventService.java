@@ -138,32 +138,9 @@ public class EventService {
 
     private void notifySubscribersAboutNewEvent(Event event) {
         try {
-            subscriptionService.sendMessageToNewsSubscribers(buildNewEventMessage(event));
+            subscriptionService.sendNewEventNotificationToNewsSubscribers(event);
         } catch (Exception e) {
         }
-    }
-
-    private Message buildNewEventMessage(Event event) {
-        String eventTime = event.getEventTime() != null ? event.getEventTime().toString() : "To be announced";
-        String location = event.getLocation() != null && !event.getLocation().isBlank()
-                ? event.getLocation()
-                : "To be announced";
-
-        String body = """
-                Hello,
-
-                A new ACM Alexandria event has been created: %s.
-
-                Time: %s
-                Location: %s
-
-                Stay tuned for more details on the website.
-
-                Best regards,
-                ACM Alexandria Student Chapter
-                """.formatted(event.getName(), eventTime, location);
-
-        return new Message("New ACM Alexandria Event: " + event.getName(), body);
     }
 
     private FormQuestionResponseDto toResponseDto(EventFormQuestion question) {

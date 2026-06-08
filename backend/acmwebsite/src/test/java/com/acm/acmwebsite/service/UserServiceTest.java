@@ -8,6 +8,7 @@ import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.impl.RegisterServiceImpl;
+import com.acm.acmwebsite.core.service.EmailService;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ public class UserServiceTest {
   @Mock PasswordEncoder passwordEncoder;
   @Mock UserMapper userMapper;
   @Mock com.acm.acmwebsite.User_Authentication.service.EmailExitanceService emailExitanceService;
+  @Mock EmailService emailService;
   @InjectMocks RegisterServiceImpl registerService;
 
   @Test
@@ -32,6 +34,7 @@ public class UserServiceTest {
     RegisterDTO registerDTO = new RegisterDTO("test@email.com", "pass123@", "pass123@");
 
     User savedUser = new User();
+    savedUser.setEmail(registerDTO.getEmail());
     UUID id = mock(UUID.class);
     SuccessRegisterResponse response = new SuccessRegisterResponse(id, "test@email.com");
 
@@ -47,5 +50,6 @@ public class UserServiceTest {
     // ASSERT
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result.getEmail()).isEqualTo("test@email.com");
+    verify(emailService, times(1)).sendWelcomeEmail(eq("test@email.com"), eq("ACM Member"));
   }
 }

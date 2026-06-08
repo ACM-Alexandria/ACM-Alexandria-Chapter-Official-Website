@@ -120,9 +120,7 @@ public class EventServiceTest {
 
         assertEquals("Hackathon", saved.getName());
         verify(eventRepository).save(e);
-        verify(subscriptionService).sendMessageToNewsSubscribers(argThat(message ->
-                message.getSubject().contains("Hackathon")
-        ));
+        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
     }
 
     @Test

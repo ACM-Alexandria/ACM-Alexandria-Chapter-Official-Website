@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
@@ -9,7 +10,6 @@ import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.enums.SubscriptionStatus;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.service.CommitteeService;
-import com.acm.acmwebsite.feature.service.EmailService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
@@ -73,7 +73,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE, targetId, testMessage);
 
-        verify(emailService, times(1)).sendEmail(user.getEmail(), testMessage);
+        verify(emailService, times(1)).sendCommitteeCallEmail(user.getEmail(), testMessage.getSubject(), testMessage.getBody());
 
     }
 
@@ -91,7 +91,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.NEWS,targetId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendEmail(any(String.class),any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
     }
 
     @Test
@@ -109,7 +109,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE,wrongId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendEmail(any(String.class),any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
 
     }
     private Committee createDummyCommittee(){
@@ -139,7 +139,7 @@ class CommitteeServiceTest {
 
         // Assert
         // If your 'if' check is working, this email should never be sent
-        verify(emailService, never()).sendEmail(any(String.class), any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
     }
 
     @Test

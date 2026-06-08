@@ -1,24 +1,4 @@
 <!DOCTYPE html>
-<!--
-  ==========================================================================
-  ACM Alexandria Chapter — Reusable Email Base Layout
-  ==========================================================================
-  This is the master layout for all transactional emails. Child templates
-  inject content via Thymeleaf fragment replacement into the "content" slot.
-
-  Design tokens (keep in sync across all templates):
-    Primary gradient : #4B98C8 → #205E85
-    Text dark        : #1a2332
-    Text muted       : #64748b
-    Background       : #f0f4f8
-    Card background  : #ffffff
-    Accent light     : #e8f4fd
-    Border subtle    : #e2e8f0
-
-  Compatibility: Gmail, Outlook 2016+, Apple Mail, Yahoo Mail, Thunderbird.
-  Uses table-based layout + inline styles for maximum client support.
-  ==========================================================================
--->
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -28,119 +8,109 @@
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
   <title th:text="${emailTitle != null ? emailTitle : 'ACM Alexandria Chapter'}">ACM Alexandria Chapter</title>
 
-  <!-- ====================================================================
-       Embedded CSS — email-client compatible
-       Gmail strips <style> from non-AMP emails in some cases, so critical
-       styles are ALSO applied inline on elements. This block provides
-       progressive enhancement for clients that DO support <style>.
-       ==================================================================== -->
+  <!-- Google Fonts Connection -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style type="text/css">
-    /* ----- CSS Reset for Email Clients ----- */
+    /* Reset Styles */
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
     body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
     a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
-    /* Outlook DPI fix */
     #outlook a { padding: 0; }
     .ExternalClass { width: 100%; }
     .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
 
-    /* ----- ACM Design System — Typography ----- */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background-color: #f0f4f8;
-      color: #1a2332;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
     }
 
-    /* ----- ACM Design System — Components ----- */
+    /* ACM Interactive Buttons */
     .acm-btn {
       display: inline-block;
-      padding: 14px 36px;
-      font-size: 16px;
+      padding: 14px 38px;
+      font-size: 15px;
       font-weight: 700;
       color: #ffffff !important;
       text-decoration: none;
-      border-radius: 8px;
-      /* Gradient fallback for Outlook → solid background-color on the <td> */
+      border-radius: 50px;
       background: linear-gradient(135deg, #4B98C8, #205E85);
       text-align: center;
-      mso-padding-alt: 14px 36px;
+      mso-padding-alt: 14px 38px;
+      box-shadow: 0 4px 14px rgba(75, 152, 200, 0.3);
+      transition: all 0.3s ease;
     }
-    .acm-btn:hover { opacity: 0.92; }
+    .acm-btn:hover {
+      box-shadow: 0 6px 20px rgba(75, 152, 200, 0.4);
+      transform: translateY(-1px);
+    }
 
     .acm-link {
       color: #4B98C8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .acm-link:hover {
+      color: #205E85;
       text-decoration: underline;
     }
-    .acm-link:hover { color: #205E85; }
 
-    /* ----- Responsive ----- */
+    /* Responsive Queries */
     @media only screen and (max-width: 620px) {
       .email-container { width: 100% !important; max-width: 100% !important; }
-      .email-padding { padding-left: 20px !important; padding-right: 20px !important; }
-      .stack-column { display: block !important; width: 100% !important; }
-      .acm-btn { padding: 12px 24px !important; font-size: 15px !important; }
+      .email-padding { padding-left: 24px !important; padding-right: 24px !important; }
+      .acm-btn { padding: 12px 28px !important; font-size: 14px !important; }
     }
   </style>
 
   <!--[if mso]>
   <style type="text/css">
-    /* Outlook-specific overrides */
     body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
   </style>
   <![endif]-->
 </head>
 
-<!--
-  Body background uses both CSS and bgcolor attribute for maximum compatibility.
-  Outlook ignores CSS background-color on <body>, but reads bgcolor.
--->
-<body style="margin: 0; padding: 0; background-color: #f0f4f8;" bgcolor="#f0f4f8">
+<body style="margin: 0; padding: 0; background-color: #f8fafc;" bgcolor="#f8fafc">
 
-  <!-- ====================================================================
-       PREHEADER TEXT — Hidden preview text shown in email client list view.
-       Override from child templates via th:with or variable.
-       ==================================================================== -->
-  <div style="display: none; font-size: 1px; color: #f0f4f8; line-height: 1px; max-height: 0; max-width: 0; opacity: 0; overflow: hidden;"
+  <!-- Preheader text hidden from email body -->
+  <div style="display: none; font-size: 1px; color: #f8fafc; line-height: 1px; max-height: 0; max-width: 0; opacity: 0; overflow: hidden;"
        th:text="${preheaderText != null ? preheaderText : ''}">
   </div>
 
-  <!-- ====================================================================
-       OUTER WRAPPER TABLE — Full-width, centers everything
-       ==================================================================== -->
+  <!-- Outer centered table -->
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-         style="background-color: #f0f4f8;" bgcolor="#f0f4f8">
+         style="background-color: #f8fafc;" bgcolor="#f8fafc">
     <tr>
-      <td align="center" style="padding: 24px 16px;">
+      <td align="center" style="padding: 32px 16px;">
 
-        <!-- ================================================================
-             EMAIL CONTAINER — Max 600px, white card
-             ================================================================ -->
+        <!-- Main Email Container -->
         <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0"
-               width="600" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(26,35,50,0.08);">
+               width="600" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);">
 
-          <!-- ============================================================
-               HEADER — ACM branded gradient bar with logo
-               ============================================================ -->
+          <!-- Premium Gradient Header Banner -->
           <tr>
-            <td style="background: linear-gradient(135deg, #4B98C8, #205E85); padding: 32px 40px; text-align: center;"
-                bgcolor="#205E85">
+            <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 36px 40px; text-align: center; border-bottom: 4px solid #4B98C8;"
+                bgcolor="#1e293b">
               <!--[if mso]>
-              <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:100px;">
-                <v:fill type="gradient" color="#4B98C8" color2="#205E85" angle="135" />
+              <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:120px;">
+                <v:fill type="gradient" color="#0f172a" color2="#1e293b" angle="135" />
                 <v:textbox inset="0,0,0,0">
               <![endif]-->
 
-              <!-- Logo placeholder — replace src with your hosted logo URL -->
-              <img th:src="${logoUrl != null ? logoUrl : 'https://via.placeholder.com/180x60/ffffff/205E85?text=ACM+Alexandria'}"
-                   src="https://via.placeholder.com/180x60/ffffff/205E85?text=ACM+Alexandria"
-                   alt="ACM Alexandria Chapter"
-                   width="180"
-                   style="display: block; margin: 0 auto 12px auto; max-width: 180px; height: auto;" />
+              <!-- ACM Alexandria Branded Logo -->
+              <img th:src="${logoUrl != null ? logoUrl : 'https://raw.githubusercontent.com/ACM-Alexandria/ACM-Alexandria-Chapter-Official-Website/main/frontend/src/assets/logo/acm-logo-no-bg.png'}"
+                   src="https://raw.githubusercontent.com/ACM-Alexandria/ACM-Alexandria-Chapter-Official-Website/main/frontend/src/assets/logo/acm-logo-no-bg.png"
+                   alt="ACM Alexandria"
+                   width="150"
+                   style="display: block; margin: 0 auto 12px auto; max-width: 150px; height: auto;" />
 
-              <p style="margin: 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: 0.5px;">
-                Empowering Students Through Technology
+              <p style="margin: 0; font-size: 13px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px;">
+                Alexandria Student Chapter
               </p>
 
               <!--[if mso]>
@@ -150,79 +120,80 @@
             </td>
           </tr>
 
-          <!-- ============================================================
-               CONTENT SLOT — Child templates inject content here.
-               Usage in child:
-                 <div th:replace="~{mail/base-layout :: content(~{::content})}">
-               ============================================================ -->
+          <!-- Dynamic Content Fragment Injection -->
           <tr>
-            <td class="email-padding" style="padding: 40px 48px;">
-              <!-- th:fragment defines the replaceable slot.
-                   The ~{content} parameter receives the child's markup. -->
+            <td class="email-padding" style="padding: 44px 48px;">
               <th:block th:fragment="content(content)">
                 <th:block th:replace="${content}" />
               </th:block>
             </td>
           </tr>
 
-          <!-- ============================================================
-               DIVIDER — Subtle horizontal rule
-               ============================================================ -->
+          <!-- Divider -->
           <tr>
             <td style="padding: 0 48px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td style="border-top: 1px solid #e2e8f0; font-size: 0; line-height: 0;">&nbsp;</td>
+                  <td style="border-top: 1px solid #f1f5f9; font-size: 0; line-height: 0;">&nbsp;</td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ============================================================
-               FOOTER — Copyright, unsubscribe, social links placeholders
-               ============================================================ -->
+          <!-- Footer Section -->
           <tr>
-            <td class="email-padding" style="padding: 28px 48px 36px 48px; text-align: center;">
-              <!-- Organization name -->
-              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #4B98C8;">
-                ACM Alexandria Chapter
+            <td class="email-padding" style="padding: 32px 48px 40px 48px; text-align: center; background-color: #fafafa;">
+              <!-- Social Icons / Links -->
+              <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #0f172a;">
+                Connect With Us
               </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto 24px auto;">
+                <tr>
+                  <td style="padding: 0 8px;">
+                    <a href="https://facebook.com/ACMAlexandria" target="_blank" style="color: #4B98C8; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Facebook</a>
+                  </td>
+                  <td style="color: #cbd5e1;">&bull;</td>
+                  <td style="padding: 0 8px;">
+                    <a href="https://linkedin.com/company/acm-alexandria-student-chapter" target="_blank" style="color: #4B98C8; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">LinkedIn</a>
+                  </td>
+                  <td style="color: #cbd5e1;">&bull;</td>
+                  <td style="padding: 0 8px;">
+                    <a href="https://github.com/ACM-Alexandria" target="_blank" style="color: #4B98C8; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">GitHub</a>
+                  </td>
+                </tr>
+              </table>
 
-              <!-- Address / tagline placeholder -->
-              <p style="margin: 0 0 16px 0; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+              <!-- Organization Info -->
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; line-height: 1.6; font-weight: 500;">
                 Faculty of Engineering, Alexandria University<br />
                 Alexandria, Egypt
               </p>
 
               <!-- Copyright -->
-              <p style="margin: 0 0 8px 0; font-size: 12px; color: #94a3b8;"
+              <p style="margin: 0 0 16px 0; font-size: 12px; color: #94a3b8;"
                  th:text="'&copy; ' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' ACM Alexandria Chapter. All rights reserved.'">
                 &copy; 2026 ACM Alexandria Chapter. All rights reserved.
               </p>
 
-              <!-- Unsubscribe placeholder -->
-              <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-                <a th:href="${unsubscribeUrl != null ? unsubscribeUrl : '#'}"
-                   href="#"
-                   style="color: #94a3b8; text-decoration: underline;">Unsubscribe</a>
-                &nbsp;|&nbsp;
-                <a th:href="${preferencesUrl != null ? preferencesUrl : '#'}"
-                   href="#"
-                   style="color: #94a3b8; text-decoration: underline;">Email Preferences</a>
+              <!-- Unsubscribe and Preferences -->
+              <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.5;">
+                You are receiving this because you signed up on our website.<br />
+                <a th:href="${unsubscribeUrl != null ? unsubscribeUrl : '#'}" href="#" style="color: #64748b; text-decoration: underline; font-weight: 600;">Unsubscribe</a>
+                &nbsp;&bull;&nbsp;
+                <a th:href="${preferencesUrl != null ? preferencesUrl : '#'}" href="#" style="color: #64748b; text-decoration: underline; font-weight: 600;">Preferences</a>
               </p>
             </td>
           </tr>
 
         </table>
-        <!-- /email-container -->
 
-        <!-- Below-card subtle branding (outside the white card) -->
+        <!-- Subtle sub-card copyright / notification disclaimer -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"
                style="max-width: 600px; width: 100%;">
           <tr>
-            <td style="padding: 20px 0; text-align: center; font-size: 11px; color: #94a3b8;">
-              This email was sent by ACM Alexandria Chapter.<br />
-              Please do not reply to this automated message.
+            <td style="padding: 24px 0 0 0; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.5;">
+              This is an automated notification. Please do not reply directly to this email.<br />
+              For support, reach out to us at <a href="mailto:support@acm-alex.org" style="color: #64748b; text-decoration: underline;">support@acm-alex.org</a>.
             </td>
           </tr>
         </table>

@@ -2,10 +2,13 @@ package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Email;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
+import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.enums.*;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.EmailRepository;
@@ -40,12 +43,29 @@ public class SubscriptionService {
         return subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToId(subscripeTo, id);
     }
 
-    public void sendMessageToNewsSubscribers(Message message) {
+    public void sendNewEventNotificationToNewsSubscribers(Event event) {
         List<Subscription> activeSubscriptions = subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToIdAndStatus(
                 SubscripeTo.NEWS, 0L, SubscriptionStatus.ACTIVE);
+        String eventTime = event.getEventTime() != null ? event.getEventTime().toString() : "To be announced";
+        String location = event.getLocation() != null && !event.getLocation().isBlank()
+                ? event.getLocation()
+                : "To be announced";
         for (Subscription sub : activeSubscriptions) {
             if (sub.getUser() != null) {
-                emailService.sendEmail(sub.getUser().getEmail(), message);
+                emailService.sendNewEventAnnouncementEmail(sub.getUser().getEmail(), event.getName(), eventTime, location);
+            }
+        }
+    }
+
+    public void sendNewClubNotificationToNewsSubscribers(Club club) {
+        List<Subscription> activeSubscriptions = subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToIdAndStatus(
+                SubscripeTo.NEWS, 0L, SubscriptionStatus.ACTIVE);
+        String description = club.getDescription() != null && !club.getDescription().isBlank()
+                ? club.getDescription()
+                : "No description available";
+        for (Subscription sub : activeSubscriptions) {
+            if (sub.getUser() != null) {
+                emailService.sendNewClubAnnouncementEmail(sub.getUser().getEmail(), club.getName(), description);
             }
         }
     }
@@ -66,11 +86,11 @@ public class SubscriptionService {
     }
 
     public Email addEmail(Email email) {
-        return emailService.saveEmail(email);
+        return emailRepository.save(email);
     }
 
     Optional<Email> getEmailByEmail(String email) {
-        return emailService.getObjectByEmail(email);
+        return emailRepository.getEmailByEmail(email);
     }
 
     public void sendConfirmationEmail(Subscription subscription, Message message) {
@@ -78,7 +98,7 @@ public class SubscriptionService {
             return;
         }
 
-        emailService.sendEmail(subscription.getUser().getEmail(), message);
+        emailService.sendSubscriptionConfirmationEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody());
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setConfirmedAt(LocalDateTime.now());
         subscriptionRepository.save(subscription);

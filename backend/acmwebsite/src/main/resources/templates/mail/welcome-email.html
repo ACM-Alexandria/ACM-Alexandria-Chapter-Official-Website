@@ -56,11 +56,11 @@
       </p>
       <p style="margin: 0 0 16px 0; font-size: 16px; color: #1a2332; line-height: 1.7;">
         Thank you for joining the <strong style="color: #4B98C8;">ACM Alexandria Chapter</strong>
-        community. To get started, please verify your email address by clicking the button below:
+        community. To get started, please visit our website by clicking the button below:
       </p>
 
       <!-- ============================================================
-           CTA BUTTON — Verify Email
+           CTA BUTTON — Go to Website
            Uses a table-based "bulletproof button" pattern for Outlook.
            Outlook ignores border-radius and CSS backgrounds on <a>,
            so we wrap in a <td> with bgcolor as fallback.
@@ -72,24 +72,24 @@
             <!--[if mso]>
             <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
                          xmlns:w="urn:schemas-microsoft-com:office:word"
-                         href="${verificationUrl}"
+                         href="${websiteUrl}"
                          style="height:50px;v-text-anchor:middle;width:240px;"
                          arcsize="16%"
                          stroke="false"
                          fillcolor="#205E85">
               <w:anchorlock/>
               <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">
-                Verify My Email
+                Go to Website
               </center>
             </v:roundrect>
             <![endif]-->
             <!--[if !mso]><!-->
-            <a th:href="${verificationUrl}"
+            <a th:href="${websiteUrl}"
                href="#"
                target="_blank"
                style="display: inline-block; padding: 14px 40px; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 8px; background: linear-gradient(135deg, #4B98C8, #205E85); text-align: center; mso-padding-alt: 14px 40px; transition: opacity 0.2s;"
                class="acm-btn">
-              Verify My Email
+              Explore Our Chapter
             </a>
             <!--<![endif]-->
           </td>
@@ -97,30 +97,7 @@
       </table>
 
       <!-- Fallback link (in case button doesn't render) -->
-      <p style="margin: 0 0 16px 0; font-size: 14px; color: #64748b; line-height: 1.6;">
-        If the button above doesn't work, copy and paste this link into your browser:
-      </p>
-      <p style="margin: 0 0 28px 0; font-size: 13px; word-break: break-all; line-height: 1.5;">
-        <a th:href="${verificationUrl}"
-           th:text="${verificationUrl}"
-           href="#"
-           style="color: #4B98C8; text-decoration: underline;"
-           class="acm-link">
-          https://acm-alex.org/verify?token=example
-        </a>
-      </p>
-
-      <!-- Expiry / security notice -->
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-        <tr>
-          <td style="background-color: #f0f7fd; border-left: 4px solid #4B98C8; padding: 16px 20px; border-radius: 0 8px 8px 0;">
-            <p style="margin: 0; font-size: 14px; color: #1a2332; line-height: 1.6;">
-              ⏰ <strong>This link expires in 24 hours.</strong><br />
-              If you didn't create an account with ACM Alexandria, you can safely ignore this email.
-            </p>
-          </td>
-        </tr>
-      </table>
+      
 
       <!-- What's next section -->
       <div style="margin-top: 32px;">
@@ -136,7 +113,7 @@
               </div>
             </td>
             <td style="padding: 8px 0 8px 12px; font-size: 15px; color: #1a2332; line-height: 1.6;">
-              <strong>Verify</strong> your email using the button above
+              <strong>Login</strong> to your account on the website
             </td>
           </tr>
           <!-- Step 2 -->
@@ -147,7 +124,7 @@
               </div>
             </td>
             <td style="padding: 8px 0 8px 12px; font-size: 15px; color: #1a2332; line-height: 1.6;">
-              <strong>Complete</strong> your profile and select your interests
+              <strong>Complete</strong> your profile information
             </td>
           </tr>
           <!-- Step 3 -->
@@ -158,7 +135,7 @@
               </div>
             </td>
             <td style="padding: 8px 0 8px 12px; font-size: 15px; color: #1a2332; line-height: 1.6;">
-              <strong>Explore</strong> clubs, events, and programs
+              <strong>Explore</strong> our clubs, events, and programs
             </td>
           </tr>
         </table>
