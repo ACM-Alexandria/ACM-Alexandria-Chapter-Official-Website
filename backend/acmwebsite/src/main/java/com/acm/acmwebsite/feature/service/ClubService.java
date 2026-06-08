@@ -73,30 +73,9 @@ public class ClubService {
 
     private void notifySubscribersAboutNewClub(Club club) {
         try {
-            subscriptionService.sendMessageToNewsSubscribers(buildNewClubMessage(club));
+            subscriptionService.sendNewClubNotificationToNewsSubscribers(club);
         } catch (Exception e) {
         }
-    }
-
-    private Message buildNewClubMessage(Club club) {
-        String description = club.getDescription() != null && !club.getDescription().isBlank()
-                ? club.getDescription()
-                : "No description available";
-
-        String body = """
-                Hello,
-
-                A new ACM Alexandria club has been created: %s.
-
-                Description: %s
-
-                Stay tuned for more details on the website.
-
-                Best regards,
-                ACM Alexandria Student Chapter
-                """.formatted(club.getName(), description);
-
-        return new Message("New ACM Alexandria Club: " + club.getName(), body);
     }
 
     @Transactional

@@ -2,12 +2,16 @@ package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
+import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.enums.SubscriptionStatus;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
-import com.acm.acmwebsite.feature.service.EmailService;
+import com.acm.acmwebsite.feature.repository.EmailRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,12 @@ class SubscriptionServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    EmailRepository emailRepository;
+
+    @Mock
+    CommitteeRepository committeeRepository;
+
     @InjectMocks
     SubscriptionService subscriptionService;
 
@@ -46,7 +56,7 @@ class SubscriptionServiceTest {
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
 
-        verify(emailService,times(1)).sendEmail(any(String.class), any(Message.class));
+        verify(emailService,times(1)).sendSubscriptionConfirmationEmail(eq("dev@example.com"), eq("hello!"), eq("mock"));
         verify(subscriptionRepository,times(1)).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should be updated to ACTIVE");
         assertNotNull(subscription.getConfirmedAt(), "ConfirmedAt timestamp should be set");
@@ -61,7 +71,7 @@ class SubscriptionServiceTest {
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
-        verify(emailService,never()).sendEmail(any(String.class), any(Message.class));
+        verify(emailService,never()).sendSubscriptionConfirmationEmail(any(String.class), any(String.class), any(String.class));
         verify(subscriptionRepository,never()).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should not be changed ");
     }

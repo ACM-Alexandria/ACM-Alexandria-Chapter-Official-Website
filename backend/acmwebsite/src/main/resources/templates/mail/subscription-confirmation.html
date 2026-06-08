@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Subscription Confirmed — ACM Alexandria</title>
+</head>
+<body>
+
+  <div th:replace="~{mail/base-layout :: content(~{::content})}">
+    <th:block th:ref="content">
+
+      <!-- Category Eyebrow Badge -->
+      <span style="display: inline-block; background-color: #f0fdf4; color: #15803d; font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 20px;">
+        Subscription Active
+      </span>
+
+      <!-- Heading -->
+      <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.3;">
+        Welcome to the Mailing List!
+      </h1>
+
+      <p style="margin: 0 0 16px 0; font-size: 16px; color: #0f172a; line-height: 1.7;">
+        Hello,
+      </p>
+
+      <p style="margin: 0 0 24px 0; font-size: 15px; color: #334155; line-height: 1.7;" th:text="${messageText}">
+        Your subscription to our mailing list has been confirmed.
+      </p>
+
+      <p style="margin: 0 0 24px 0; font-size: 15px; color: #334155; line-height: 1.7;">
+        You will now receive the latest updates, event reminders, and exclusive notifications directly in your inbox.
+      </p>
+
+      <!-- Welcome Info Callout -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 28px 0 0 0;">
+        <tr>
+          <td style="background-color: #f8fafc; border-left: 4px solid #4B98C8; padding: 18px 24px; border-radius: 0 12px 12px 0;">
+            <p style="margin: 0; font-size: 14px; color: #475569; line-height: 1.6; font-weight: 500;">
+              ✨ <strong>Tip:</strong> To ensure our updates always reach your inbox, please add our email address to your contacts list.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+    </th:block>
+  </div>
+
+</body>
+</html>

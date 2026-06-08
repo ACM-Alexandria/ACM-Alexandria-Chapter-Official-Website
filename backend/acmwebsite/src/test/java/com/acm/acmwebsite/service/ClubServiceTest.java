@@ -113,9 +113,7 @@ public class ClubServiceTest {
 
         assertEquals("CP Club", saved.getName());
         verify(clubRepository).save(club);
-        verify(subscriptionService).sendMessageToNewsSubscribers(argThat(message ->
-                message.getSubject().contains("CP Club")
-        ));
+        verify(subscriptionService).sendNewClubNotificationToNewsSubscribers(club);
     }
 
     @Test

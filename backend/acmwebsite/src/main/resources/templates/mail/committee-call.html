@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Committee Announcement — ACM Alexandria</title>
+</head>
+<body>
+
+  <div th:replace="~{mail/base-layout :: content(~{::content})}">
+    <th:block th:ref="content">
+
+      <!-- Category Eyebrow Badge -->
+      <span style="display: inline-block; background-color: #fef3c7; color: #d97706; font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 20px;">
+        Recruitment Announcement
+      </span>
+
+      <!-- Heading -->
+      <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.3;" th:text="${title}">
+        Committee Call Active
+      </h1>
+
+      <p style="margin: 0 0 16px 0; font-size: 16px; color: #0f172a; line-height: 1.7;">
+        Hello,
+      </p>
+
+      <!-- Message content box -->
+      <div style="font-size: 15px; color: #334155; line-height: 1.7; margin-bottom: 24px; white-space: pre-wrap;" th:text="${messageText}">
+        Message body content goes here.
+      </div>
+
+      <!-- CTA Button to view committee / apply -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 36px 0;">
+        <tr>
+          <td align="center">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                         xmlns:w="urn:schemas-microsoft-com:office:word"
+                         th:href="${buttonUrl != null ? buttonUrl : '#'}"
+                         style="height:50px;v-text-anchor:middle;width:240px;"
+                         arcsize="50%"
+                         stroke="false"
+                         fillcolor="#205E85">
+              <w:anchorlock/>
+              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
+                Explore Committees
+              </center>
+            </v:roundrect>
+            <![endif]-->
+            <!--[if !mso]><!-->
+            <a th:href="${buttonUrl != null ? buttonUrl : 'http://localhost:5173'}"
+               target="_blank"
+               style="display: inline-block; padding: 14px 44px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 50px; background: linear-gradient(135deg, #4B98C8, #205E85); text-align: center; mso-padding-alt: 14px 44px; transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(75, 152, 200, 0.3);"
+               class="acm-btn">
+              Explore Committees
+            </a>
+            <!--<![endif]-->
+          </td>
+        </tr>
+      </table>
+
+    </th:block>
+  </div>
+
+</body>
+</html>

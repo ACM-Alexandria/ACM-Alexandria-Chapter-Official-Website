@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>New Club Launch — ACM Alexandria</title>
+</head>
+<body>
+
+  <div th:replace="~{mail/base-layout :: content(~{::content})}">
+    <th:block th:ref="content">
+
+      <!-- Category Eyebrow Badge -->
+      <span style="display: inline-block; background-color: #f3e8ff; color: #a855f7; font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 20px;">
+        New Club Launch
+      </span>
+
+      <!-- Heading -->
+      <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.3;" th:text="'New Club: ' + ${clubName}">
+        New ACM Alexandria Club
+      </h1>
+
+      <p style="margin: 0 0 16px 0; font-size: 16px; color: #0f172a; line-height: 1.7;">
+        Hello,
+      </p>
+
+      <p style="margin: 0 0 24px 0; font-size: 15px; color: #334155; line-height: 1.7;">
+        We are thrilled to announce the launch of a new ACM Alexandria student club! Explore details below:
+      </p>
+
+      <!-- Club Detail Container -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+             style="background-color: #faf5ff; border-radius: 12px; border: 1px solid #f3e8ff; margin-bottom: 32px;">
+        <tr>
+          <td style="padding: 24px;">
+            <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px;">Club Name</p>
+            <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 800; color: #0f172a;" th:text="${clubName}">Club Name</h3>
+            
+            <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px;">Description</p>
+            <p style="margin: 0; font-size: 14px; color: #581c87; line-height: 1.6; font-weight: 500;" th:text="${description}">Club Description</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- CTA Button to register / view club -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 36px 0;">
+        <tr>
+          <td align="center">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                         xmlns:w="urn:schemas-microsoft-com:office:word"
+                         th:href="${buttonUrl != null ? buttonUrl : '#'}"
+                         style="height:50px;v-text-anchor:middle;width:240px;"
+                         arcsize="50%"
+                         stroke="false"
+                         fillcolor="#205E85">
+              <w:anchorlock/>
+              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
+                Explore Club
+              </center>
+            </v:roundrect>
+            <![endif]-->
+            <!--[if !mso]><!-->
+            <a th:href="${buttonUrl != null ? buttonUrl : 'http://localhost:5173'}"
+               target="_blank"
+               style="display: inline-block; padding: 14px 44px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 50px; background: linear-gradient(135deg, #4B98C8, #205E85); text-align: center; mso-padding-alt: 14px 44px; transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(75, 152, 200, 0.3);"
+               class="acm-btn">
+              Explore Club
+            </a>
+            <!--<![endif]-->
+          </td>
+        </tr>
+      </table>
+
+    </th:block>
+  </div>
+
+</body>
+</html>

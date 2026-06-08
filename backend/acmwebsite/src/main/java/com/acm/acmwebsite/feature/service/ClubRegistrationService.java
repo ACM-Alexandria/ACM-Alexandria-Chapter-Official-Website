@@ -16,6 +16,7 @@ import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.core.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class ClubRegistrationService implements RegistrationService {
     private final ClubRepository clubRepository;
     private final ClubRegistrationRepository clubRegistrationRepository;
     private final ClubFormQuestionRepository clubFormQuestionRepository;
-    private final com.acm.acmwebsite.core.service.EmailService coreEmailService;
+    private final EmailService coreEmailService;
 
     @Override
     public List<FormQuestionResponseDto> getQuestions(Long clubId) {

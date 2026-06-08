@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 import com.acm.acmwebsite.feature.entity.Committee;
@@ -42,7 +43,7 @@ public class CommitteeService {
         var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
             if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {
-                emailService.sendEmail(subscription.getUser().getEmail(), message);
+                emailService.sendCommitteeCallEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody());
             }
         }
     }
