@@ -20,7 +20,7 @@ const HomePage = () => {
   const [highBoard, setHighBoard] = useState([]);
   const [events, setEvents] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [_, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -135,13 +135,14 @@ const HomePage = () => {
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
-        <AboutSection highBoard={highBoard} committees={committee} />
-        <ClubsSection clubs={clubs} onShowClubDetails={handleShowClubDetails} />
+        <AboutSection loading={loading} highBoard={highBoard} committees={committee} />
+        <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
         <EventsSection
+          loading={loading}
           events={events}
           onShowEventDetails={handleShowEventDetails}
         />
-        <ProgramsSection programs={programs} />
+        <ProgramsSection loading={loading} programs={programs} />
         <ServicesSection />
       </main>
       <Footer />

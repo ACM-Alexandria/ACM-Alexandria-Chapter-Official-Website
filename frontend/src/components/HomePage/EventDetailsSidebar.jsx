@@ -98,11 +98,20 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = originalOverflow;
       cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!eventId) return null;
 
@@ -127,7 +136,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-xl transition-all duration-300 hover:bg-white hover:text-slate-900 hover:scale-105 active:scale-95"
+              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 backdrop-blur-md text-white border border-slate-700/50 shadow-xl transition-all duration-300 hover:bg-slate-900 hover:scale-105 active:scale-95"
               aria-label="Close"
             >
               <HiOutlineX className="w-6 h-6" />

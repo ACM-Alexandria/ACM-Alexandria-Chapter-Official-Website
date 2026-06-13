@@ -40,3 +40,4 @@ application.properties
 
 ### VS Code ###
 .vscode/
+.agent

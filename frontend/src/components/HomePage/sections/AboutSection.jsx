@@ -1,7 +1,7 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
 
-const AboutSection = ({ highBoard = [], committees = [] }) => {
+const AboutSection = ({ loading, highBoard = [], committees = [] }) => {
   const orderedHighBoard = [...highBoard].sort((a, b) => {
     const firstOrder = a?.order ?? Number.MAX_SAFE_INTEGER;
     const secondOrder = b?.order ?? Number.MAX_SAFE_INTEGER;
@@ -10,25 +10,16 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
 
   return (
     <section id="about" className="w-full py-24 px-6 relative overflow-hidden bg-gray-50/50">
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <h2
-            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
-            data-aos="fade-up"
-          >
-            About Us
-          </h2>
-          <h3 
+          <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight"
             data-aos="fade-up"
-            data-aos-delay="100"
           >
-            Leading the Future of <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Computing</span>
-          </h3>
+            Leading the Future of <span className="text-[#205E85]">Computing</span>
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-24">
@@ -56,9 +47,10 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
               networking events, we foster an environment where innovation thrives
               and lasting professional relationships are built."
             </p>
-            <div className="mt-6 flex items-center gap-4">
-              <div className="w-12 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] rounded-full" />
-              <p className="font-bold text-slate-900 uppercase tracking-widest text-xs">Our Mission</p>
+            <div className="mt-6 flex items-center gap-2">
+              <span className="inline-block px-3 py-1 bg-[#4B98C8]/10 text-[#205E85] font-bold rounded-lg text-xs uppercase tracking-wider">
+                Our Mission
+              </span>
             </div>
           </div>
         </div>
@@ -80,7 +72,13 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
             <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
           </div>
 
-          {orderedHighBoard.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-slate-100 rounded-3xl h-72 border border-slate-200/50" />
+              ))}
+            </div>
+          ) : orderedHighBoard.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {orderedHighBoard.map((member, index) => (
                 <HighBoardCard key={member.id || index} member={member} index={index} />
@@ -112,7 +110,13 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
             <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
           </div>
 
-          {committees && committees.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-slate-100 rounded-3xl h-64 border border-slate-200/50" />
+              ))}
+            </div>
+          ) : committees && committees.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {committees.map((committee, index) => (
                 <div
