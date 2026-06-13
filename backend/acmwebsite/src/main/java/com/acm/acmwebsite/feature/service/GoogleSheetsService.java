@@ -99,7 +99,7 @@ public class GoogleSheetsService {
         } catch (GoogleJsonResponseException e) {
             handleGoogleException(e, "create spreadsheet");
         } catch (IOException e) {
-            throw new GoogleSheetsException("Network error occurred while creating spreadsheet", e);
+            handleIOException(e, "creating spreadsheet");
         }
         return null;
     }
@@ -118,7 +118,7 @@ public class GoogleSheetsService {
         } catch (GoogleJsonResponseException e) {
             handleGoogleException(e, "clear spreadsheet");
         } catch (IOException e) {
-            throw new GoogleSheetsException("Network error occurred while clearing spreadsheet", e);
+            handleIOException(e, "clearing spreadsheet");
         }
     }
 
@@ -139,8 +139,27 @@ public class GoogleSheetsService {
         } catch (GoogleJsonResponseException e) {
             handleGoogleException(e, "write spreadsheet data");
         } catch (IOException e) {
-            throw new GoogleSheetsException("Network error occurred while writing spreadsheet data", e);
+            handleIOException(e, "writing spreadsheet data");
         }
+    }
+
+    /**
+     * Handles network or IO errors, checking for expired/revoked credentials.
+     */
+    private void handleIOException(IOException e, String operation) {
+        log.error("Network/IO error during {}: {}", operation, e.getMessage(), e);
+
+        Throwable cause = e;
+        while (cause != null) {
+            String msg = cause.getMessage();
+            if (msg != null && (msg.contains("invalid_grant") || msg.contains("Token has been expired or revoked"))) {
+                throw new GoogleSheetsCredentialsException(
+                        "Google Sheets integration failed: OAuth refresh token is invalid, expired, or revoked. Please configure a new refresh token.", e);
+            }
+            cause = cause.getCause();
+        }
+
+        throw new GoogleSheetsException("Network error occurred while " + operation, e);
     }
 
     /**
@@ -166,3 +185,4 @@ public class GoogleSheetsService {
         }
     }
 }
+
