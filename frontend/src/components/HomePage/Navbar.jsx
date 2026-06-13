@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser, HiOutlineShieldCheck } from "react-icons/hi2";
-import { FaUserCircle } from "react-icons/fa";
+
 
 
 const Navbar = ({ activeSection }) => {
@@ -18,10 +18,7 @@ const Navbar = ({ activeSection }) => {
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
 
-  const navLinkClass =
-    "no-underline text-white text-[22px] font-semibold hover:opacity-80 transition-all duration-300 px-6 flex items-center h-full relative z-10";
-  const activeLinkClass =
-    "no-underline text-white text-[22px] font-semibold hover:opacity-80 transition-all duration-300 px-6 flex items-center h-full relative z-10";
+
 
   const navItems = [
     { id: "about", label: "About Us" },
@@ -79,15 +76,27 @@ const Navbar = ({ activeSection }) => {
     return () => window.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  // Prevent scroll when mobile menu is open
+  // Prevent scroll and close when mobile menu is open on Escape key
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMobileMenuOpen]);
 
@@ -292,6 +301,72 @@ const Navbar = ({ activeSection }) => {
           );
         })}
       </ul>
+
+      {/* Drawer Footer (Auth & User Info) */}
+      <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+        {isLoading ? (
+          <div className="flex justify-center py-2">
+            <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[#4B98C8] animate-spin" />
+          </div>
+        ) : isAuthenticated ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                {user?.email?.[0].toUpperCase() || "U"}
+              </div>
+              <div className="truncate">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Signed in as</p>
+                <p className="text-xs font-bold text-slate-700 truncate">{user?.email}</p>
+              </div>
+            </div>
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  navigate("/profile");
+                }}
+              >
+                <HiOutlineUser className="h-4 w-4 text-slate-500" />
+                My Profile
+              </button>
+              {user?.role === 'ADMIN' && (
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate("/admin");
+                  }}
+                >
+                  <HiOutlineShieldCheck className="h-4 w-4 text-slate-500" />
+                  Admin Tools
+                </button>
+              )}
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setShowLogoutModal(true);
+                }}
+              >
+                <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
+                Log out
+              </button>
+            </div>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex w-full items-center justify-center py-3 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white text-sm font-bold rounded-xl shadow-md transition-all duration-300 active:scale-95"
+          >
+            Sign In
+          </Link>
+        )}
+      </div>
     </div>
 
     <LogoutConfirmModal

@@ -1,7 +1,7 @@
 import ClubCard from "../cards/ClubCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const ClubsSection = ({ clubs, onShowClubDetails }) => {
+const ClubsSection = ({ loading, clubs, onShowClubDetails }) => {
   // Display only first 2 clubs
   const displayedClubs = clubs && clubs.length > 0 ? clubs.slice(0, 2) : [];
 
@@ -10,29 +10,20 @@ const ClubsSection = ({ clubs, onShowClubDetails }) => {
       id="clubs"
       className="w-full py-24 px-6 bg-white relative overflow-hidden"
     >
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
-          <h2
-            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
-            data-aos="fade-up"
-          >
-            Our Clubs
-          </h2>
-          <h3 
+          <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
             data-aos="fade-up"
-            data-aos-delay="100"
           >
-            Connect & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Collaborate</span>
-          </h3>
+            Connect & <span className="text-[#205E85]">Collaborate</span>
+          </h2>
           <p
             className="text-slate-500 text-lg max-w-2xl mx-auto font-medium"
             data-aos="fade-up"
-            data-aos-delay="200"
+            data-aos-delay="100"
           >
             Join one of our vibrant clubs and connect with like-minded students
             passionate about technology and innovation.
@@ -40,7 +31,13 @@ const ClubsSection = ({ clubs, onShowClubDetails }) => {
         </div>
 
         {/* Clubs Grid - Show only first 3 */}
-        {displayedClubs && displayedClubs.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-60 border border-slate-200/50" />
+            ))}
+          </div>
+        ) : displayedClubs && displayedClubs.length > 0 ? (
           <div className="space-y-16">
             <div
               className={`grid gap-8 ${

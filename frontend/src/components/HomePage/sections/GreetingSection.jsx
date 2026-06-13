@@ -41,7 +41,7 @@ const GreetingSection = () => {
             className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-[1.1]"
             style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}
           >
-            ACM <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Alexandria</span>
+            ACM <span className="text-[#205E85]">Alexandria</span>
           </h1>
           
           <div className="text-xl md:text-2xl text-slate-500 font-medium leading-relaxed mb-10">
