@@ -43,3 +43,4 @@ google.sheets.client-secret=your-client-secret
 google.sheets.refresh-token=your-refresh-token
 google.sheets.events-folder-id=your-events-folder-id
 google.sheets.clubs-folder-id=your-clubs-folder-id
+google.sheets.committees-registrations-folder-id=your-committees-registrations-folder-id
