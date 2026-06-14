@@ -13,6 +13,9 @@ import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
+import com.acm.acmwebsite.feature.entity.CommitteeCall;
+import com.acm.acmwebsite.feature.repository.MessageRepository;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -48,6 +51,12 @@ class CommitteeServiceTest {
 
     @Mock
     EmailService emailService;
+
+    @Mock
+    CommitteeCallRepository committeeCallRepository;
+
+    @Mock
+    MessageRepository messageRepository;
 
 
 
@@ -247,6 +256,63 @@ class CommitteeServiceTest {
         when(committeeBoardRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> committeService.deleteCommitteeBoardMember(99L));
+    }
+
+    @Test
+    @DisplayName("openCommitteeCall successfully creates call and sets open to true")
+    void openCommitteeCallSuccessfully() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+        committee.setCallMessage(new Message("Subject", "Body"));
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
+        when(subscriptionService.getAllSubscribersByTopic(any(), any())).thenReturn(List.of());
+
+        committeService.openCommitteeCall(1L);
+
+        assertTrue(committee.isOpen());
+        verify(committeeCallRepository, times(1)).save(any(CommitteeCall.class));
+    }
+
+    @Test
+    @DisplayName("openCommitteeCall throws exception when already open")
+    void openCommitteeCallThrowsWhenAlreadyOpen() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(true);
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+
+        assertThrows(IllegalStateException.class, () -> committeService.openCommitteeCall(1L));
+    }
+
+    @Test
+    @DisplayName("closeCommitteeCall successfully closes call and sets open to false")
+    void closeCommitteeCallSuccessfully() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(true);
+        CommitteeCall activeCall = CommitteeCall.builder().id(10L).committee(committee).build();
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
+        when(committeeCallRepository.findActiveCallByCommitteeId(1L)).thenReturn(Optional.of(activeCall));
+
+        committeService.closeCommitteeCall(1L);
+
+        assertFalse(committee.isOpen());
+        assertNotNull(activeCall.getClosedAt());
+        verify(committeeCallRepository, times(1)).save(activeCall);
+    }
+
+    @Test
+    @DisplayName("closeCommitteeCall throws exception when already closed")
+    void closeCommitteeCallThrowsWhenAlreadyClosed() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+
+        assertThrows(IllegalStateException.class, () -> committeService.closeCommitteeCall(1L));
     }
 
 }

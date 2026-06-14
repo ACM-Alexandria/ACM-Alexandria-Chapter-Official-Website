@@ -4,6 +4,7 @@ import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 import com.acm.acmwebsite.feature.entity.Committee;
+import com.acm.acmwebsite.feature.entity.CommitteeCall;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
@@ -13,10 +14,12 @@ import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.MessageRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,16 +30,18 @@ public class CommitteeService {
     private final EmailService emailService;
     private final MessageRepository messageRepository;
     private final CommitteeMapper committeeMapper;
+    private final CommitteeCallRepository committeeCallRepository;
 
     public CommitteeService(CommitteeRepository committeeRepository, CommitteeBoardRepository committeeBoardRepository,
             CommitteeMapper committeeMapper, SubscriptionService subscriptionService, EmailService emailService,
-            MessageRepository messageRepository) {
+            MessageRepository messageRepository, CommitteeCallRepository committeeCallRepository) {
         this.committeeRepository = committeeRepository;
         this.committeeBoardRepository = committeeBoardRepository;
         this.subscriptionService = subscriptionService;
         this.emailService = emailService;
         this.messageRepository = messageRepository;
         this.committeeMapper = committeeMapper;
+        this.committeeCallRepository = committeeCallRepository;
     }
 
     public void sendCallMessage(SubscripeTo subscripeTo, Long id, Message message) {
@@ -60,8 +65,34 @@ public class CommitteeService {
         committee.setOpen(true);
         saveCommittee(committee);
 
+        CommitteeCall call = CommitteeCall.builder()
+                .committee(committee)
+                .openedAt(LocalDateTime.now())
+                .build();
+        committeeCallRepository.save(call);
+
         // This is now part of the same atomic operation
         sendCallMessage(SubscripeTo.COMMITTEE, committee.getId(), committee.getCallMessage());
+    }
+
+    @Transactional
+    public void closeCommitteeCall(Long id) {
+        Committee committee = committeeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
+
+        if (!committee.isOpen()) {
+            throw new IllegalStateException("The call is already closed!");
+        }
+
+        committee.setOpen(false);
+        saveCommittee(committee);
+
+        CommitteeCall activeCall = committeeCallRepository.findActiveCallByCommitteeId(id)
+                .orElse(null);
+        if (activeCall != null) {
+            activeCall.setClosedAt(LocalDateTime.now());
+            committeeCallRepository.save(activeCall);
+        }
     }
 
     public List<Committee> getAllCommittees() {
