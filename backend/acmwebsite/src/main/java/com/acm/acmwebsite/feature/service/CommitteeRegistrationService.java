@@ -89,7 +89,7 @@ public class CommitteeRegistrationService implements RegistrationService {
         committeeRegistrationRepository.save(registration);
 
         try {
-            coreEmailService.sendRegistrationConfirmationEmail(user.getEmail(), committee.getName() + " Committee Application", user.getName());
+            coreEmailService.sendCommitteeRegistrationConfirmationEmail(user.getEmail(), committee.getName(), user.getName());
         } catch (Exception e) {
             // Non-blocking
         }

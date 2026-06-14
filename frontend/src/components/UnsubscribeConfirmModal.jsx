@@ -25,7 +25,7 @@ const UnsubscribeConfirmModal = ({ open, onClose, onConfirm, topicName, loading,
         <p className="text-xs text-slate-400 font-semibold mt-2 leading-relaxed">
           {isSubscribe ? (
             <>
-              Are you sure you want to receive notifications from <span className="font-extrabold text-slate-700">"{topicName}"</span>?
+              Are you sure you want to receive notification when <span className="font-extrabold text-slate-700">"{topicName}"</span> call is open?
             </>
           ) : (
             <>

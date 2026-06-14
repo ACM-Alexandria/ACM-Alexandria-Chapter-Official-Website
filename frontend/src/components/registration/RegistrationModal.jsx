@@ -3,8 +3,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { 
   fetchEventQuestions, 
   fetchClubQuestions, 
+  fetchCommitteeQuestions,
   registerForEvent, 
-  registerForClub 
+  registerForClub,
+  registerForCommittee,
 } from "../../services/registrationService";
 import { 
   fetchUserProfile, 
@@ -115,7 +117,9 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         // 2. Pre-load custom database questions for dynamic rendering
         const data = type === "event" 
           ? await fetchEventQuestions(entityId)
-          : await fetchClubQuestions(entityId);
+          : type === "club"
+            ? await fetchClubQuestions(entityId)
+            : await fetchCommitteeQuestions(entityId);
         
         setQuestions(data || []);
         
@@ -219,8 +223,10 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
     try {
       if (type === "event") {
         await registerForEvent(entityId, user.id, answers);
-      } else {
+      } else if (type === "club") {
         await registerForClub(entityId, user.id, answers);
+      } else {
+        await registerForCommittee(entityId, user.id, answers);
       }
       setSuccess(true);
     } catch (err) {

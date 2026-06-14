@@ -74,11 +74,51 @@ export const checkClubRegistrationStatus = async (clubId, userId) => {
   }
 };
 
+// Fetches dynamic form questions configured for a specific committee.
+export const fetchCommitteeQuestions = async (committeeId) => {
+  try {
+    const response = await api.get(`/api/committee/${committeeId}/questions`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching questions for committee ${committeeId}:`, error);
+    throw error.response?.data || new Error("Failed to fetch committee questions.");
+  }
+};
+
+// Submits registration payload (answers map) for a committee.
+export const registerForCommittee = async (committeeId, userId, answers = {}) => {
+  try {
+    const payload = { userId, answers };
+    const response = await api.post(`/api/committee/${committeeId}/register`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(`Error registering for committee ${committeeId}:`, error);
+    throw error.response?.data || new Error("Committee application failed.");
+  }
+};
+
+// Checks if user has already applied for the currently open call of a committee.
+export const checkCommitteeRegistrationStatus = async (committeeId, userId) => {
+  try {
+    const response = await api.get(`/api/committee/${committeeId}/is-registered`, {
+      params: { userId }
+    });
+    return response.data.registered;
+  } catch (error) {
+    console.error(`Error checking committee registration status:`, error);
+    return false;
+  }
+};
+
 export default {
   fetchEventQuestions,
   fetchClubQuestions,
+  fetchCommitteeQuestions,
   registerForEvent,
   registerForClub,
+  registerForCommittee,
   checkEventRegistrationStatus,
   checkClubRegistrationStatus,
+  checkCommitteeRegistrationStatus,
 };
+

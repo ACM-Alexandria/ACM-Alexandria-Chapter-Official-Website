@@ -264,7 +264,7 @@ export const deleteProgram = async (id) => {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchRegistrationAnalysis = async (resourceType, id) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee/calls";
     const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
     return response.data;
   } catch (error) {
@@ -275,7 +275,7 @@ export const fetchRegistrationAnalysis = async (resourceType, id) => {
 
 export const syncRegistrationSheet = async (resourceType, id) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee/calls";
     const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
     return response.data;
   } catch (error) {
@@ -289,7 +289,7 @@ export const syncRegistrationSheet = async (resourceType, id) => {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchQuestions = async (resourceType, resourceId) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
     const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
     return response.data;
   } catch (error) {
@@ -300,7 +300,7 @@ export const fetchQuestions = async (resourceType, resourceId) => {
 
 export const createQuestion = async (resourceType, resourceId, questionData) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
     const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
     return response.data;
   } catch (error) {
@@ -311,7 +311,7 @@ export const createQuestion = async (resourceType, resourceId, questionData) => 
 
 export const updateQuestion = async (resourceType, resourceId, questionId, questionData) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
     const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
     return response.data;
   } catch (error) {
@@ -322,7 +322,7 @@ export const updateQuestion = async (resourceType, resourceId, questionId, quest
 
 export const deleteQuestion = async (resourceType, resourceId, questionId) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : "clubs";
+    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
     const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
     return response.data;
   } catch (error) {
@@ -330,6 +330,20 @@ export const deleteQuestion = async (resourceType, resourceId, questionId) => {
     throw error.response?.data || new Error(`Failed to delete ${resourceType} question.`);
   }
 };
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   8.5. COMMITTEE CALLS HISTORY
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchCommitteeCalls = async (committeeId) => {
+  try {
+    const response = await api.get(`/api/committee/${committeeId}/calls`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching calls for committee ${committeeId}:`, error);
+    throw error.response?.data || new Error("Failed to fetch committee calls.");
+  }
+};
+
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    9. GLOBAL ACM SOCIAL LINKS CRUD
@@ -409,4 +423,5 @@ export default {
   createSocialLink,
   updateSocialLink,
   deleteSocialLink,
+  fetchCommitteeCalls,
 };
