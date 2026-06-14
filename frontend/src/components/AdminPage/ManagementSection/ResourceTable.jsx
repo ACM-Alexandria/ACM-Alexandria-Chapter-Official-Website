@@ -199,13 +199,29 @@ const ResourceTable = ({
               <td className="py-3.5 pr-2 text-right">
                 <div className="flex justify-end gap-2.5">
                   {activeTab === "committees" && (
-                    <button
-                      onClick={() => onEditMessageClick(item)}
-                      title="Edit Call Email Message"
-                      className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
-                    >
-                      <FiMail className="w-3.5 h-3.5" />
-                    </button>
+                    <>
+                      <button
+                        onClick={() => onRegistrationClick(item)}
+                        title="View Call History & Registrations"
+                        className="p-2 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 rounded-lg transition-colors"
+                      >
+                        <FiUsers className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onQuestionsClick(item)}
+                        title="Manage Registration Questions"
+                        className="p-2 bg-slate-50 hover:bg-sky-50 text-slate-600 hover:text-sky-600 rounded-lg transition-colors"
+                      >
+                        <FiHelpCircle className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onEditMessageClick(item)}
+                        title="Edit Call Email Message"
+                        className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
+                      >
+                        <FiMail className="w-3.5 h-3.5" />
+                      </button>
+                    </>
                   )}
                   {(activeTab === "events" || activeTab === "clubs") && (
                     <button

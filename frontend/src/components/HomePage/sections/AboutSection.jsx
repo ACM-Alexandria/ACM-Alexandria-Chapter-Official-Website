@@ -1,7 +1,7 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
 
-const AboutSection = ({ loading, highBoard = [], committees = [] }) => {
+const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, isRegistrationModalOpen }) => {
   const orderedHighBoard = [...highBoard].sort((a, b) => {
     const firstOrder = a?.order ?? Number.MAX_SAFE_INTEGER;
     const secondOrder = b?.order ?? Number.MAX_SAFE_INTEGER;
@@ -129,7 +129,11 @@ const AboutSection = ({ loading, highBoard = [], committees = [] }) => {
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
                 >
-                  <CommitteeCard committee={committee} />
+                  <CommitteeCard 
+                    committee={committee} 
+                    onApplyClick={onApplyClick} 
+                    isRegistrationModalOpen={isRegistrationModalOpen}
+                  />
                 </div>
               ))}
             </div>

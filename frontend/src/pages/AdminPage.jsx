@@ -415,7 +415,7 @@ const AdminPage = () => {
   };
 
   const handleRegistrationClick = async (item) => {
-    const resourceType = mgmtTab === "events" ? "event" : "club";
+    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : "committee";
     setSelectedResourceForAnalysis({
       id: item.id,
       name: item.name,
@@ -425,20 +425,25 @@ const AdminPage = () => {
     setRegAnalysisLoading(true);
     setRegModalError(null);
     setRegAnalysisData(null);
-    try {
-      const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
-      setRegAnalysisData(data);
-    } catch (err) {
-      console.error(err);
-      setRegModalError(err.message || err.error || "Failed to load registration analytics.");
-    } finally {
+    
+    if (resourceType !== "committee") {
+      try {
+        const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
+        setRegAnalysisData(data);
+      } catch (err) {
+        console.error(err);
+        setRegModalError(err.message || err.error || "Failed to load registration analytics.");
+      } finally {
+        setRegAnalysisLoading(false);
+      }
+    } else {
       setRegAnalysisLoading(false);
     }
   };
 
   const handleQuestionsClick = (item) => {
     setSelectedResourceForQuestions(item);
-    setQuestionsResourceType(mgmtTab === "events" ? "event" : "club");
+    setQuestionsResourceType(mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : "committee");
     setQuestionsModalOpen(true);
   };
 
@@ -724,6 +729,7 @@ const AdminPage = () => {
             <RegistrationPanelModal
               open={regModalOpen}
               onClose={() => { setRegModalOpen(false); setRegModalError(null); }}
+              resourceId={selectedResourceForAnalysis?.id}
               resourceName={selectedResourceForAnalysis?.name || ""}
               resourceType={selectedResourceForAnalysis?.type || ""}
               analysis={regAnalysisData}

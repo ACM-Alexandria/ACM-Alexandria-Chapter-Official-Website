@@ -109,7 +109,7 @@ public class CommitteeRegistrationServiceTest {
         registrationService.registerUser(userId, 1L, request);
 
         verify(committeeRegistrationRepository).save(any(CommitteeRegistration.class));
-        verify(coreEmailService).sendRegistrationConfirmationEmail(eq("test@acm.org"), eq("Tech Committee Application"), eq("ACM Member"));
+        verify(coreEmailService).sendCommitteeRegistrationConfirmationEmail(eq("test@acm.org"), eq("Tech"), eq("ACM Member"));
     }
 
     @Test

@@ -230,5 +230,33 @@ public class GmailEmailService implements EmailService {
             log.error("Failed to send committee call email to {}", to, e);
         }
     }
+
+    @Override
+    @Async
+    public void sendCommitteeRegistrationConfirmationEmail(String to, String committeeName, String userName) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject("ACM Website - Committee Application Received: " + committeeName);
+
+            Context context = new Context();
+            context.setVariable("emailTitle", "Committee Application Received — ACM Alexandria");
+            context.setVariable("preheaderText", "We have received your application for the " + committeeName + " Committee.");
+            context.setVariable("userName", userName);
+            context.setVariable("committeeName", committeeName);
+
+            String htmlContent = templateEngine.process("mail/committee-registration-confirmation", context);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("Committee registration confirmation email sent successfully to {} for committee {}", to, committeeName);
+
+        } catch (Exception e) {
+            log.error("Failed to send committee registration confirmation email to {}", to, e);
+        }
+    }
 }
 

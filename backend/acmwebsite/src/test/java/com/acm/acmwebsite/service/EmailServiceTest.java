@@ -124,4 +124,17 @@ class EmailServiceTest {
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
+
+    @Test
+    @DisplayName("Should send committee registration confirmation email successfully")
+    void shouldSendCommitteeRegistrationConfirmationEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/committee-registration-confirmation"), any(Context.class)))
+                .thenReturn("<html>committee-registered</html>");
+
+        emailService.sendCommitteeRegistrationConfirmationEmail("user@example.com", "Technical", "John Doe");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
 }

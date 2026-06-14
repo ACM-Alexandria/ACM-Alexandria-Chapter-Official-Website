@@ -11,6 +11,7 @@ import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
+import RegistrationModal from "../components/registration/RegistrationModal";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
 
@@ -26,6 +27,13 @@ const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(null);
   const [isClubSidebarOpen, setIsClubSidebarOpen] = useState(false);
+  const [selectedCommitteeIdForReg, setSelectedCommitteeIdForReg] = useState(null);
+  const [isCommitteeRegOpen, setIsCommitteeRegOpen] = useState(false);
+
+  const handleApplyClick = (committeeId) => {
+    setSelectedCommitteeIdForReg(committeeId);
+    setIsCommitteeRegOpen(true);
+  };
 
   const handleShowEventDetails = (eventId) => {
     setSelectedEventId(eventId);
@@ -51,6 +59,7 @@ const HomePage = () => {
   useEffect(() => {
     const openEventId = searchParams.get("openEventId");
     const openClubId = searchParams.get("openClubId");
+    const openCommitteeId = searchParams.get("openCommitteeId");
 
     if (openEventId) {
       handleShowEventDetails(Number(openEventId));
@@ -61,6 +70,12 @@ const HomePage = () => {
       handleShowClubDetails(Number(openClubId));
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("openClubId");
+      setSearchParams(newParams, { replace: true });
+    } else if (openCommitteeId) {
+      setSelectedCommitteeIdForReg(Number(openCommitteeId));
+      setIsCommitteeRegOpen(true);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("openCommitteeId");
       setSearchParams(newParams, { replace: true });
     }
   }, [searchParams]);
@@ -135,7 +150,13 @@ const HomePage = () => {
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
-        <AboutSection loading={loading} highBoard={highBoard} committees={committee} />
+        <AboutSection 
+          loading={loading} 
+          highBoard={highBoard} 
+          committees={committee} 
+          onApplyClick={handleApplyClick} 
+          isRegistrationModalOpen={isCommitteeRegOpen}
+        />
         <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
         <EventsSection
           loading={loading}
@@ -157,6 +178,14 @@ const HomePage = () => {
         clubId={selectedClubId}
         isOpen={isClubSidebarOpen}
         onClose={handleCloseClubSidebar}
+      />
+
+      <RegistrationModal
+        isOpen={isCommitteeRegOpen}
+        onClose={() => setIsCommitteeRegOpen(false)}
+        entityId={selectedCommitteeIdForReg}
+        type="committee"
+        entityName={committee.find(c => c.id === selectedCommitteeIdForReg)?.name || ""}
       />
     </div>
   );
