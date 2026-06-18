@@ -23,7 +23,7 @@ public class Committee {
 
     private boolean isOpen = false;
 
-    @OneToOne()
+    @OneToOne(cascade = CascadeType.ALL)
     private Message messageForCalls;
 
     // used to map the topic to the email in subscription like

@@ -388,6 +388,22 @@ export const deleteSocialLink = async (id) => {
   }
 };
 
+export const uploadImage = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await api.post("/api/images/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error.response?.data || new Error("Failed to upload image.");
+  }
+};
+
 export default {
   fetchInsights,
   addHighBoardMember,
@@ -424,4 +440,5 @@ export default {
   updateSocialLink,
   deleteSocialLink,
   fetchCommitteeCalls,
+  uploadImage,
 };

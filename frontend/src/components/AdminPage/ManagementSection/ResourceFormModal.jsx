@@ -1,5 +1,6 @@
-import React from "react";
-import { FiX } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiX, FiUploadCloud, FiTrash2, FiLoader } from "react-icons/fi";
+import { uploadImage } from "../../../services/adminService";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
@@ -13,8 +14,93 @@ const ResourceFormModal = ({
   formData,
   setFormData,
   loading,
+  error,
 }) => {
   if (!open) return null;
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
+  useEffect(() => {
+    if (!open) {
+      setUploading(false);
+      setUploadError(null);
+    }
+  }, [open]);
+
+  const isCommittee = activeTab === "committees";
+  const currentValue = isCommittee ? formData.logoUrl : formData.imageUrl;
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("File size exceeds 10MB limit.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const data = await uploadImage(file);
+      const url = data.url;
+      setFormData(
+        isCommittee
+          ? { ...formData, logoUrl: url }
+          : { ...formData, imageUrl: url }
+      );
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setUploadError(err.message || "Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("File size exceeds 10MB limit.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const data = await uploadImage(file);
+      const url = data.url;
+      setFormData(
+        isCommittee
+          ? { ...formData, logoUrl: url }
+          : { ...formData, imageUrl: url }
+      );
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setUploadError(err.message || "Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemove = () => {
+    setFormData(
+      isCommittee
+        ? { ...formData, logoUrl: "" }
+        : { ...formData, imageUrl: "" }
+    );
+    setUploadError(null);
+  };
+
 
   const getTitle = () => {
     const modeStr = formMode === "add" ? "Create New" : "Edit";
@@ -92,24 +178,86 @@ const ResourceFormModal = ({
                 />
               </div>
 
-              {/* Common Fields: Image/Logo Url */}
+              {/* Common Fields: Image/Logo Upload */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  {activeTab === "committees" ? "Logo URL" : "Image URL"}
+                  {isCommittee ? "Logo" : "Image"}
                 </label>
-                <input
-                  type="url"
-                  value={formData.imageUrl || formData.logoUrl || ""}
-                  onChange={(e) =>
-                    setFormData(
-                      activeTab === "committees"
-                        ? { ...formData, logoUrl: e.target.value }
-                        : { ...formData, imageUrl: e.target.value }
-                    )
-                  }
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                />
+
+                {currentValue ? (
+                  // Preview state
+                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <img
+                      src={currentValue}
+                      alt="Preview"
+                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 shadow-sm"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-slate-700 truncate">
+                        {currentValue.split("/").pop()}
+                      </p>
+                      <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">
+                        Uploaded to Cloudinary
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemove}
+                      className="p-2 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-lg transition-colors active:scale-95"
+                      title="Delete image"
+                    >
+                      <FiTrash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  // Upload drop zone
+                  <div
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    className={`relative border-2 border-dashed rounded-xl p-6 transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
+                      uploading
+                        ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
+                        : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id="image-file-input"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {uploading ? (
+                      <>
+                        <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
+                        <p className="text-[11px] font-bold text-slate-600">
+                          Uploading image to Cloudinary...
+                        </p>
+                        <p className="text-[9px] text-slate-400 mt-1">
+                          Please wait, this may take a moment.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
+                        <p className="text-[11px] font-bold text-slate-600">
+                          Click to upload or drag & drop
+                        </p>
+                        <p className="text-[9px] text-slate-400 mt-1">
+                          PNG, JPG, JPEG up to 10MB
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {uploadError && (
+                  <p className="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 rounded-full bg-red-500"></span>
+                    {uploadError}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -213,22 +361,30 @@ const ResourceFormModal = ({
             </div>
           )}
 
+          {/* Error display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 flex items-center gap-2 mb-4">
+              <span className="text-xs font-semibold">{error}</span>
+            </div>
+          )}
+
           {/* Actions row */}
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+              disabled={loading || uploading}
+              className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || uploading}
               className="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40"
               style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
             >
-              {loading ? "Saving..." : "Save Record"}
+              {loading ? "Saving..." : uploading ? "Uploading..." : "Save Record"}
             </button>
           </div>
         </form>
