@@ -388,6 +388,48 @@ export const deleteSocialLink = async (id) => {
   }
 };
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   10. ACM GALLERY
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchGalleryImages = async () => {
+  try {
+    const response = await api.get("/api/gallery");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching gallery images:", error);
+    throw error.response?.data || new Error("Failed to fetch gallery images.");
+  }
+};
+
+export const addGalleryImage = async (imageData) => {
+  try {
+    const response = await api.post("/api/gallery", imageData);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding gallery image:", error);
+    throw error.response?.data || new Error("Failed to add gallery image.");
+  }
+};
+
+export const updateGalleryImage = async (id, imageData) => {
+  try {
+    const response = await api.put(`/api/gallery/${id}`, imageData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating gallery image:", error);
+    throw error.response?.data || new Error("Failed to update gallery image.");
+  }
+};
+
+export const deleteGalleryImage = async (id) => {
+  try {
+    await api.delete(`/api/gallery/${id}`);
+  } catch (error) {
+    console.error("Error deleting gallery image:", error);
+    throw error.response?.data || new Error("Failed to delete gallery image.");
+  }
+};
+
 export const uploadImage = async (file) => {
   try {
     const formData = new FormData();
@@ -440,5 +482,9 @@ export default {
   updateSocialLink,
   deleteSocialLink,
   fetchCommitteeCalls,
+  fetchGalleryImages,
+  addGalleryImage,
+  updateGalleryImage,
+  deleteGalleryImage,
   uploadImage,
 };

@@ -63,7 +63,7 @@ const GreetingSection = () => {
               onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold rounded-xl shadow-lg shadow-blue-200/50 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 active:scale-95"
             >
-              Get Started
+              Explore Our Chapter
             </button>
           </div>
         </div>
