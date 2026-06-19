@@ -104,9 +104,7 @@ const HomePage = () => {
   // Initialize AOS animations
   useEffect(() => {
     AOS.init({
-      duration: 1000,
-      once: true,
-      offset: 100,
+      disable: true,
     });
   }, []);
 
@@ -145,26 +143,38 @@ const HomePage = () => {
     };
   }, []);
 
+  const isEnabled = (envVal) => envVal !== "false";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
-        <AboutSection 
-          loading={loading} 
-          highBoard={highBoard} 
-          committees={committee} 
-          onApplyClick={handleApplyClick} 
-          isRegistrationModalOpen={isCommitteeRegOpen}
-        />
-        <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
-        <EventsSection
-          loading={loading}
-          events={events}
-          onShowEventDetails={handleShowEventDetails}
-        />
-        <ProgramsSection loading={loading} programs={programs} />
-        <ServicesSection />
+        {isEnabled(import.meta.env.VITE_ENABLE_ABOUT) && (
+          <AboutSection 
+            loading={loading} 
+            highBoard={highBoard} 
+            committees={committee} 
+            onApplyClick={handleApplyClick} 
+            isRegistrationModalOpen={isCommitteeRegOpen}
+          />
+        )}
+        {isEnabled(import.meta.env.VITE_ENABLE_CLUBS) && (
+          <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
+        )}
+        {isEnabled(import.meta.env.VITE_ENABLE_EVENTS) && (
+          <EventsSection
+            loading={loading}
+            events={events}
+            onShowEventDetails={handleShowEventDetails}
+          />
+        )}
+        {isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && (
+          <ProgramsSection loading={loading} programs={programs} />
+        )}
+        {isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && (
+          <ServicesSection />
+        )}
       </main>
       <Footer />
 
