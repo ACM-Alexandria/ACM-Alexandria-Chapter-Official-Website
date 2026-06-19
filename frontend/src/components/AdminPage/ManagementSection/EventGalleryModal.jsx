@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   FiX,
   FiUploadCloud,
@@ -33,9 +33,18 @@ const uploadFile = (file) => {
 /* ── Lightbox (used inside EventGalleryModal) ── */
 const AdminLightbox = ({ images, startIndex, onClose }) => {
   const [current, setCurrent] = useState(startIndex);
+  const [direction, setDirection] = useState("next"); // 'next' | 'prev'
+  const touchStartX = useRef(null);
 
-  const prev = useCallback(() => setCurrent((c) => (c - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setCurrent((c) => (c + 1) % images.length), [images.length]);
+  const prev = useCallback(() => {
+    setDirection("prev");
+    setCurrent((c) => (c - 1 + images.length) % images.length);
+  }, [images.length]);
+
+  const next = useCallback(() => {
+    setDirection("next");
+    setCurrent((c) => (c + 1) % images.length);
+  }, [images.length]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -47,8 +56,27 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
     return () => window.removeEventListener("keydown", handler);
   }, [prev, next, onClose]);
 
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    touchStartX.current = null;
+  };
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md animate-[fadeIn_0.2s_ease]">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md animate-[fadeIn_0.2s_ease]"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <style>{`
+        @keyframes slideInFromRight { from { opacity: 0; transform: translateX(60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes slideInFromLeft  { from { opacity: 0; transform: translateX(-60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .slide-next { animation: slideInFromRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+        .slide-prev { animation: slideInFromLeft  0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+      `}</style>
+
       {/* Close */}
       <button
         onClick={onClose}
@@ -79,7 +107,7 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
         key={current}
         src={images[current]}
         alt={`Gallery ${current + 1}`}
-        className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl animate-[scaleIn_0.2s_ease]"
+        className={`max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
       />
 
       {/* Next */}

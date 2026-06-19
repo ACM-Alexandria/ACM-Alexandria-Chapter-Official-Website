@@ -1,5 +1,6 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
+import GallerySection from "./GallerySection";
 
 const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, isRegistrationModalOpen }) => {
   const orderedHighBoard = [...highBoard].sort((a, b) => {
@@ -145,6 +146,9 @@ const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, 
             </div>
           )}
         </div>
+
+        {/* Gallery Section */}
+        <GallerySection />
       </div>
     </section>
   );

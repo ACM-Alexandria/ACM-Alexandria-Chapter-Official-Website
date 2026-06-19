@@ -64,7 +64,9 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                                 "/api/committee/**",
                                 "/api/program/**",
                                 "/api/socialLinks",
-                                "/api/socialLinks/**")
+                                "/api/socialLinks/**",
+                                "/api/gallery",
+                                "/api/gallery/**")
                         .permitAll()
                         // All other requests require a valid JWT
                         .anyRequest().authenticated())

@@ -18,6 +18,7 @@ import RegistrationPanelModal from "../components/AdminPage/ManagementSection/Re
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
 import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
+import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import {
   FiUsers,
   FiCalendar,
@@ -40,6 +41,7 @@ import {
   FiAlertTriangle,
   FiShare2,
   FiHelpCircle,
+  FiGrid,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -117,6 +119,7 @@ const AdminPage = () => {
     { id: "events", label: "Events", icon: FiCalendar },
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
+    { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
   ];
 
@@ -591,57 +594,61 @@ const AdminPage = () => {
 
             <div className="flex-1 w-full bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <div>
-                    <h2 className="text-lg font-extrabold text-slate-800 tracking-tight capitalize">
-                      Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab}
-                    </h2>
-                    <p className="text-xs text-slate-400 font-medium">
-                      Add, edit, or delete items within this database category.
-                    </p>
-                  </div>
+                {/* Header Controls — hidden for gallery which renders its own header */}
+                {mgmtTab !== "gallery" && (
+                  <>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                      <div>
+                        <h2 className="text-lg font-extrabold text-slate-800 tracking-tight capitalize">
+                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab}
+                        </h2>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Add, edit, or delete items within this database category.
+                        </p>
+                      </div>
 
-                  <button
-                    onClick={handleMgmtAddClick}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow active:scale-95 transition-all"
-                    style={{ backgroundColor: B }}
-                  >
-                    <FiPlus className="w-4 h-4" />
-                    Add New
-                  </button>
-                </div>
+                      <button
+                        onClick={handleMgmtAddClick}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow active:scale-95 transition-all"
+                        style={{ backgroundColor: B }}
+                      >
+                        <FiPlus className="w-4 h-4" />
+                        Add New
+                      </button>
+                    </div>
 
-                {/* Search Bar / Selector Row */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <div className="relative flex-1">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <FiSearch className="w-4 h-4" />
-                    </span>
-                    <input
-                      type="text"
-                      value={mgmtSearchQuery}
-                      onChange={(e) => setMgmtSearchQuery(e.target.value)}
-                      placeholder="Search by name or description..."
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                    />
-                  </div>
+                    {/* Search Bar / Selector Row */}
+                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                      <div className="relative flex-1">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <FiSearch className="w-4 h-4" />
+                        </span>
+                        <input
+                          type="text"
+                          value={mgmtSearchQuery}
+                          onChange={(e) => setMgmtSearchQuery(e.target.value)}
+                          placeholder="Search by name or description..."
+                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                        />
+                      </div>
 
-                  {/* Committee Selector for Committee Board Management */}
-                  {mgmtTab === "committeeBoard" && (
-                    <select
-                      value={selectedCommitteeId}
-                      onChange={(e) => setSelectedCommitteeId(e.target.value)}
-                      className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                    >
-                      {committees.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
+                      {/* Committee Selector for Committee Board Management */}
+                      {mgmtTab === "committeeBoard" && (
+                        <select
+                          value={selectedCommitteeId}
+                          onChange={(e) => setSelectedCommitteeId(e.target.value)}
+                          className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                        >
+                          {committees.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 {/* Error Alert */}
                 {mgmtError && (
@@ -651,20 +658,24 @@ const AdminPage = () => {
                   </div>
                 )}
 
-                {/* Table Data */}
-                <ResourceTable
-                  activeTab={mgmtTab}
-                  filteredItems={getFilteredMgmtData()}
-                  loading={mgmtLoading}
-                  onEditClick={handleMgmtEditClick}
-                  onDeleteClick={handleMgmtDeleteClick}
-                  onToggleCall={handleToggleCall}
-                  onEditMessageClick={handleEditMessageClick}
-                  onRegistrationClick={handleRegistrationClick}
-                  onQuestionsClick={handleQuestionsClick}
-                  onSocialsClick={handleSocialsClick}
-                  onGalleryClick={handleGalleryClick}
-                />
+                {/* Table Data — skipped for gallery tab which renders its own UI */}
+                {mgmtTab === "gallery" ? (
+                  <GalleryTab />
+                ) : (
+                  <ResourceTable
+                    activeTab={mgmtTab}
+                    filteredItems={getFilteredMgmtData()}
+                    loading={mgmtLoading}
+                    onEditClick={handleMgmtEditClick}
+                    onDeleteClick={handleMgmtDeleteClick}
+                    onToggleCall={handleToggleCall}
+                    onEditMessageClick={handleEditMessageClick}
+                    onRegistrationClick={handleRegistrationClick}
+                    onQuestionsClick={handleQuestionsClick}
+                    onSocialsClick={handleSocialsClick}
+                    onGalleryClick={handleGalleryClick}
+                  />
+                )}
               </div>
 
               {/* Pagination controls for paginated resources */}

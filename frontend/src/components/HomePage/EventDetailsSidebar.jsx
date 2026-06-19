@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchEventById } from "../../services/homePageService";
 import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX, HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
+import { FiMaximize2 } from "react-icons/fi";
 import RegistrationModal from "../registration/RegistrationModal";
 import { checkEventRegistrationStatus } from "../../services/registrationService";
 
@@ -27,9 +28,18 @@ const formatDateTime = (eventTime) => {
 /* ── Sidebar Lightbox ── */
 const SidebarLightbox = ({ images, startIndex, onClose }) => {
   const [current, setCurrent] = useState(startIndex);
+  const [direction, setDirection] = useState("next");
+  const touchStartX = useRef(null);
 
-  const prev = useCallback(() => setCurrent((c) => (c - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setCurrent((c) => (c + 1) % images.length), [images.length]);
+  const prev = useCallback(() => {
+    setDirection("prev");
+    setCurrent((c) => (c - 1 + images.length) % images.length);
+  }, [images.length]);
+  
+  const next = useCallback(() => {
+    setDirection("next");
+    setCurrent((c) => (c + 1) % images.length);
+  }, [images.length]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -41,8 +51,27 @@ const SidebarLightbox = ({ images, startIndex, onClose }) => {
     return () => window.removeEventListener("keydown", handler);
   }, [prev, next, onClose]);
 
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    touchStartX.current = null;
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md animate-[fadeIn_0.2s_ease]">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md animate-[fadeIn_0.2s_ease]"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <style>{`
+        @keyframes slideInFromRight { from { opacity: 0; transform: translateX(60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes slideInFromLeft  { from { opacity: 0; transform: translateX(-60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .slide-next { animation: slideInFromRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+        .slide-prev { animation: slideInFromLeft  0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+      `}</style>
+
       {/* Close */}
       <button
         type="button"
@@ -75,7 +104,7 @@ const SidebarLightbox = ({ images, startIndex, onClose }) => {
         key={current}
         src={images[current]}
         alt={`Gallery ${current + 1}`}
-        className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl animate-[scaleIn_0.2s_ease]"
+        className={`max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
       />
 
       {/* Next */}
@@ -328,7 +357,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                            <FiMaximize2 className="w-6 h-6 text-white drop-shadow-md" />
                           </div>
                         </div>
                       ))}

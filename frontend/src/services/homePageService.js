@@ -151,3 +151,13 @@ export const fetchNewsSubscriptionStatus = async () => {
   return response.data; // { subscribed: boolean }
 };
 
+// Fetch public gallery images
+export const fetchGalleryImages = async () => {
+  try {
+    const response = await api.get("/api/gallery");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching gallery images:", error);
+    throw error;
+  }
+};

@@ -39,7 +39,7 @@ const ClubCard = ({ club, index, onShowDetails }) => {
         )}
 
         <div className="absolute top-4 right-4 z-20">
-          <div className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider">
+          <div className="px-3 py-1 bg-slate-950/60 backdrop-blur-md rounded-full border border-slate-700/30 text-white text-[10px] font-bold uppercase tracking-wider">
             Club
           </div>
         </div>
