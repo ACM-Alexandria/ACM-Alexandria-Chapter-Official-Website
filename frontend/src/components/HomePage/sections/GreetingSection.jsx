@@ -20,7 +20,7 @@ const GreetingSection = () => {
 
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 relative z-10">
         {/* Logo Container */}
-        <div className="relative group" style={{ animation: "floatIn 1s cubic-bezier(0.22,1,0.36,1) both" }}>
+        <div className="relative group" style={{ animation: "floatIn 0.6s cubic-bezier(0.25,1,0.5,1) both" }}>
           <div className="absolute -inset-4 bg-gradient-to-tr from-[#4B98C8]/20 to-[#205E85]/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           <img
             src={logo}
@@ -33,13 +33,13 @@ const GreetingSection = () => {
         <div className="text-center md:text-left max-w-2xl">
           <h2 
             className="text-lg md:text-xl font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-4"
-            style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
+            style={{ animation: "slideLeft 0.5s cubic-bezier(0.25,1,0.5,1) 0.1s both" }}
           >
             Welcome to
           </h2>
           <h1 
             className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-[1.1]"
-            style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}
+            style={{ animation: "slideLeft 0.5s cubic-bezier(0.25,1,0.5,1) 0.2s both" }}
           >
             ACM <span className="text-[#205E85]">Alexandria</span>
           </h1>
@@ -50,7 +50,7 @@ const GreetingSection = () => {
                 key={i}
                 className="inline-block mr-[0.25em]"
                 style={{
-                  animation: `revealWord 0.5s cubic-bezier(0.22,1,0.36,1) ${0.8 + i * 0.08}s both`
+                  animation: `revealWord 0.3s cubic-bezier(0.25,1,0.5,1) ${0.4 + i * 0.04}s both`
                 }}
               >
                 {word}
@@ -58,7 +58,7 @@ const GreetingSection = () => {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4" style={{ animation: "fadeIn 1s ease 1.8s both" }}>
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4" style={{ animation: "fadeIn 0.5s ease 0.9s both" }}>
             <button
               onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold rounded-xl shadow-lg shadow-blue-200/50 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 active:scale-95"

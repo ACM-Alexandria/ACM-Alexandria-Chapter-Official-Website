@@ -194,7 +194,6 @@ const GallerySection = () => {
         prevCarousel();
       }
     }
-    carouselTouchStartX.current = null;
   };
 
   // Calculates the relative display index in the carousel loop
