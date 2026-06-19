@@ -111,6 +111,7 @@ public class EventService {
         eventFormQuestionRepository.delete(question);
     }
 
+    @Transactional
     public Event updateEvent(Long id, Event updatedEvent) {
         return eventRepository.findById(id).map(event -> {
             if (updatedEvent.getName() == null || updatedEvent.getName().trim().isEmpty()) {
@@ -119,11 +120,22 @@ public class EventService {
             event.setName(updatedEvent.getName());
             event.setDescription(updatedEvent.getDescription());
             event.setImageUrl(updatedEvent.getImageUrl());
+            
+            // Cleanly update collection to avoid Hibernate losing track of the persistent bag
+            if (event.getAttachedImages() != null) {
+                event.getAttachedImages().clear();
+                if (updatedEvent.getAttachedImages() != null) {
+                    event.getAttachedImages().addAll(updatedEvent.getAttachedImages());
+                }
+            } else {
+                event.setAttachedImages(updatedEvent.getAttachedImages() != null ? 
+                    new ArrayList<>(updatedEvent.getAttachedImages()) : new ArrayList<>());
+            }
+            
             event.setEventTime(updatedEvent.getEventTime());
             event.setLocation(updatedEvent.getLocation());
             return eventRepository.save(event);
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
-
     }
 
     public void deleteEvent(long id) {

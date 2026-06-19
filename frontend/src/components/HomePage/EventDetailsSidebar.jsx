@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchEventById } from "../../services/homePageService";
-import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX } from "react-icons/hi";
+import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX, HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 import RegistrationModal from "../registration/RegistrationModal";
 import { checkEventRegistrationStatus } from "../../services/registrationService";
 
@@ -24,6 +24,75 @@ const formatDateTime = (eventTime) => {
   }
 };
 
+/* ── Sidebar Lightbox ── */
+const SidebarLightbox = ({ images, startIndex, onClose }) => {
+  const [current, setCurrent] = useState(startIndex);
+
+  const prev = useCallback(() => setCurrent((c) => (c - 1 + images.length) % images.length), [images.length]);
+  const next = useCallback(() => setCurrent((c) => (c + 1) % images.length), [images.length]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [prev, next, onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md animate-[fadeIn_0.2s_ease]">
+      {/* Close */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 hover:scale-105 active:scale-95 transition-all"
+        aria-label="Close"
+      >
+        <HiOutlineX className="w-6 h-6" />
+      </button>
+
+      {/* Counter */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-1.5 rounded-full bg-slate-800/70 text-white text-[11px] font-bold tracking-wider">
+        {current + 1} / {images.length}
+      </div>
+
+      {/* Prev */}
+      {images.length > 1 && (
+        <button
+          type="button"
+          onClick={prev}
+          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          aria-label="Previous"
+        >
+          <HiOutlineChevronLeft className="w-7 h-7" />
+        </button>
+      )}
+
+      {/* Image */}
+      <img
+        key={current}
+        src={images[current]}
+        alt={`Gallery ${current + 1}`}
+        className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl animate-[scaleIn_0.2s_ease]"
+      />
+
+      {/* Next */}
+      {images.length > 1 && (
+        <button
+          type="button"
+          onClick={next}
+          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          aria-label="Next"
+        >
+          <HiOutlineChevronRight className="w-7 h-7" />
+        </button>
+      )}
+    </div>
+  );
+};
+
 const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +102,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
   const [imageError, setImageError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
   // Registration presence trackers (User Request)
   const [isRegistered, setIsRegistered] = useState(false);
@@ -88,6 +158,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) {
       setIsVisible(false);
+      setActiveLightboxIndex(null);
       return;
     }
 
@@ -237,6 +308,34 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                   </p>
                 </div>
 
+                {/* Gallery Section */}
+                {event.attachedImages && event.attachedImages.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                      Event Gallery
+                      <div className="h-px flex-1 bg-slate-100" />
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {event.attachedImages.map((imgUrl, index) => (
+                        <div
+                          key={index}
+                          onClick={() => setActiveLightboxIndex(index)}
+                          className="relative rounded-2xl overflow-hidden aspect-video border border-slate-100 bg-slate-50 cursor-pointer shadow-sm group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Gallery ${index + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Section */}
                 {(() => {
                   const isPast = event.eventTime ? new Date(event.eventTime) < new Date() : false;
@@ -306,6 +405,15 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
         type="event"
         entityName={event?.name}
       />
+
+      {/* Lightbox Modal */}
+      {activeLightboxIndex !== null && event?.attachedImages?.length > 0 && (
+        <SidebarLightbox
+          images={event.attachedImages}
+          startIndex={activeLightboxIndex}
+          onClose={() => setActiveLightboxIndex(null)}
+        />
+      )}
     </div>
   );
 };

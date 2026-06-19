@@ -17,6 +17,7 @@ import CallMessageModal from "../components/AdminPage/ManagementSection/CallMess
 import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
 import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
+import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
 import {
   FiUsers,
   FiCalendar,
@@ -104,6 +105,10 @@ const AdminPage = () => {
   const [regAnalysisLoading, setRegAnalysisLoading] = useState(false);
   const [regSyncLoading, setRegSyncLoading] = useState(false);
   const [regModalError, setRegModalError] = useState(null);
+
+  // Event Gallery modal states
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
 
   const mgmtTabs = [
     { id: "highboard", label: "High Board", icon: FiUsers },
@@ -237,7 +242,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "committeeBoard") {
       setFormData({ name: "", role: "", imageUrl: "", order: null, linkedinUrl: "" });
     } else if (mgmtTab === "events") {
-      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "" });
+      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [] });
     } else if (mgmtTab === "clubs") {
       setFormData({ name: "", description: "", imageUrl: "" });
     } else if (mgmtTab === "programs") {
@@ -452,6 +457,11 @@ const AdminPage = () => {
     setSocialsModalOpen(true);
   };
 
+  const handleGalleryClick = (item) => {
+    setSelectedEventForGallery(item);
+    setGalleryModalOpen(true);
+  };
+
   const handleSyncRegistrationSheet = async () => {
     if (!selectedResourceForAnalysis) return;
     const { id, type } = selectedResourceForAnalysis;
@@ -653,6 +663,7 @@ const AdminPage = () => {
                   onRegistrationClick={handleRegistrationClick}
                   onQuestionsClick={handleQuestionsClick}
                   onSocialsClick={handleSocialsClick}
+                  onGalleryClick={handleGalleryClick}
                 />
               </div>
 
@@ -752,6 +763,13 @@ const AdminPage = () => {
               resourceId={selectedResourceForQuestions?.id}
               resourceName={selectedResourceForQuestions?.name}
               resourceType={questionsResourceType}
+            />
+
+            <EventGalleryModal
+              open={galleryModalOpen}
+              onClose={() => { setGalleryModalOpen(false); setSelectedEventForGallery(null); }}
+              event={selectedEventForGallery}
+              onSave={() => loadMgmtTabData(mgmtTab)}
             />
           </div>
         )}

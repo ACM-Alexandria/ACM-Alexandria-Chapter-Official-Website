@@ -3,6 +3,8 @@ package com.acm.acmwebsite.feature.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Event {
@@ -20,6 +22,11 @@ public class Event {
     private String googleSheetUrl;
     @Column(name = "sheet_last_updated_at")
     private LocalDateTime sheetLastUpdatedAt;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_attached_images", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "image_url")
+    private List<String> attachedImages = new ArrayList<>();
 
     public Event() {
     }
@@ -95,5 +102,13 @@ public class Event {
 
     public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
         this.sheetLastUpdatedAt = sheetLastUpdatedAt;
+    }
+
+    public List<String> getAttachedImages() {
+        return attachedImages;
+    }
+
+    public void setAttachedImages(List<String> attachedImages) {
+        this.attachedImages = attachedImages;
     }
 }

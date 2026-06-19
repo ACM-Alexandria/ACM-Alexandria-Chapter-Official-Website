@@ -12,6 +12,7 @@ import {
   FiBookOpen,
   FiShare2,
   FiHelpCircle,
+  FiImage,
 } from "react-icons/fi";
 
 const ResourceTable = ({
@@ -25,6 +26,7 @@ const ResourceTable = ({
   onRegistrationClick,
   onQuestionsClick,
   onSocialsClick,
+  onGalleryClick,
 }) => {
   const [imgErrors, setImgErrors] = useState({});
 
@@ -239,6 +241,15 @@ const ResourceTable = ({
                       className="p-2 bg-slate-50 hover:bg-sky-50 text-slate-600 hover:text-sky-600 rounded-lg transition-colors"
                     >
                       <FiHelpCircle className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {activeTab === "events" && (
+                    <button
+                      onClick={() => onGalleryClick(item)}
+                      title="Manage Event Gallery"
+                      className="p-2 bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-600 rounded-lg transition-colors"
+                    >
+                      <FiImage className="w-3.5 h-3.5" />
                     </button>
                   )}
                   {activeTab === "clubs" && (
