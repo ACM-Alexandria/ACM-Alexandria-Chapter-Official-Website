@@ -27,6 +27,8 @@ public class AdminInsightsService {
     private final EventRegistrationRepository eventRegistrationRepository;
     private final ClubRegistrationRepository clubRegistrationRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final RadioSeasonRepository radioSeasonRepository;
+    private final RadioEpisodeRepository radioEpisodeRepository;
 
     public AdminInsightsDto getInsights() {
         return AdminInsightsDto.builder()
@@ -40,6 +42,8 @@ public class AdminInsightsService {
                 .totalEventRegistrations(eventRegistrationRepository.count())
                 .totalClubRegistrations(clubRegistrationRepository.count())
                 .totalSubscriptions(subscriptionRepository.countByUserId())
+                .totalRadioSeasons(radioSeasonRepository.count())
+                .totalRadioEpisodes(radioEpisodeRepository.count())
                 .usersByDepartment(getUsersByDepartment())
                 .usersByBatch(getUsersByBatch())
                 .userGrowth(getUserGrowth())

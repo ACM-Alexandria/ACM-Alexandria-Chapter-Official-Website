@@ -15,6 +15,8 @@ import {
   FiCheckCircle,
   FiBookOpen,
   FiAlertCircle,
+  FiRadio,
+  FiVolume2,
 } from "react-icons/fi";
 
 const B = "#4B98C8";
@@ -33,6 +35,8 @@ const SystemInsightsTab = ({ insights, loading, error, onRefresh }) => {
         { label: "Events Registrations",         value: insights.totalEventRegistrations,     icon: FiCheckCircle, color: "#D94F7B" },
         { label: "Clubs Registrations",          value: insights.totalClubRegistrations,      icon: FiCheckCircle, color: "#F5A623" },
         { label: "Programs",                     value: insights.totalPrograms,               icon: FiBookOpen,    color: "#5A9BD5" },
+        { label: "Radio Seasons",                value: insights.totalRadioSeasons,           icon: FiRadio,       color: "#8B5CF6" },
+        { label: "Radio Episodes",               value: insights.totalRadioEpisodes,          icon: FiVolume2,     color: "#EC4899" },
       ]
     : [];
 
