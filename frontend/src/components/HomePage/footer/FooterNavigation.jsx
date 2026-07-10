@@ -1,13 +1,15 @@
 import React from "react";
 
 const FooterNavigation = ({ onNavigate }) => {
+  const isEnabled = (envVal) => envVal !== "false";
+
   const navItems = [
-    { id: "about", label: "About Us" },
-    { id: "clubs", label: "Our Clubs" },
-    { id: "events", label: "Events" },
-    { id: "programs", label: "Programs" },
-    { id: "services", label: "Services" },
-  ];
+    isEnabled(import.meta.env.VITE_ENABLE_ABOUT) && { id: "about", label: "About Us" },
+    isEnabled(import.meta.env.VITE_ENABLE_CLUBS) && { id: "clubs", label: "Our Clubs" },
+    isEnabled(import.meta.env.VITE_ENABLE_EVENTS) && { id: "events", label: "Events" },
+    isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && { id: "programs", label: "Programs" },
+    isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && { id: "services", label: "Services" },
+  ].filter(Boolean);
 
   return (
     <div className="space-y-8 text-center md:text-left">
