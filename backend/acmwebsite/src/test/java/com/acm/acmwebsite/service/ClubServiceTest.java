@@ -160,6 +160,8 @@ public class ClubServiceTest {
     @Test
     void deleteClub_shouldCallRepository() {
         clubService.deleteClubById(1L);
+        verify(clubRegistrationRepository).deleteByClubId(1L);
+        verify(clubFormQuestionRepository).deleteByClubId(1L);
         verify(clubRepository).deleteById(1L);
     }
 

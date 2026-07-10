@@ -138,7 +138,10 @@ public class EventService {
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
     }
 
+    @Transactional
     public void deleteEvent(long id) {
+        eventRegistrationRepository.deleteByEventId(id);
+        eventFormQuestionRepository.deleteByEventId(id);
         eventRepository.deleteById(id);
     }
 

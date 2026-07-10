@@ -4,6 +4,8 @@ import com.acm.acmwebsite.feature.dto.ProgramDto;
 import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.mapper.ProgramMapper;
 import com.acm.acmwebsite.feature.repository.ProgramRepository;
+import com.acm.acmwebsite.feature.repository.ProgramFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.ProgramRegistrationRepository;
 import com.acm.acmwebsite.feature.service.ProgramService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,12 @@ public class ProgramServiceTest {
 
     @Mock
     private ProgramMapper programMapper;
+
+    @Mock
+    private ProgramFormQuestionRepository programFormQuestionRepository;
+
+    @Mock
+    private ProgramRegistrationRepository programRegistrationRepository;
 
     @Mock
     private SubscriptionService subscriptionService;
@@ -110,6 +118,8 @@ public class ProgramServiceTest {
     @Test
     void deleteProgram_shouldCallRepository() {
         programService.deleteProgram(1L);
+        verify(programRegistrationRepository).deleteByProgramId(1L);
+        verify(programFormQuestionRepository).deleteByProgramId(1L);
         verify(programRepository).deleteById(1L);
     }
 

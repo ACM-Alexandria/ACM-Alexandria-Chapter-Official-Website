@@ -14,6 +14,8 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
 
     List<EventRegistration> findByEventId(Long eventId);
 
+    void deleteByEventId(Long eventId);
+
     @Query("SELECT r.event.id, r.event.name, COUNT(r) FROM EventRegistration r GROUP BY r.event.id, r.event.name")
     List<Object[]> countRegistrationsByEvent();
 }

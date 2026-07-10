@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ClubFormQuestionRepository extends JpaRepository<ClubFormQuestion, Long> {
     List<ClubFormQuestion> findByClubId(Long clubId);
+
+    void deleteByClubId(Long clubId);
 }

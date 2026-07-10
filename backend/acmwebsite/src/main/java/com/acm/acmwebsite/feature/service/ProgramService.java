@@ -68,7 +68,10 @@ public class ProgramService {
         return programRepository.findById(id).map(programMapper::toProgramDto);
     }
 
+    @Transactional
     public void deleteProgram(long id) {
+        programRegistrationRepository.deleteByProgramId(id);
+        programFormQuestionRepository.deleteByProgramId(id);
         programRepository.deleteById(id);
     }
 

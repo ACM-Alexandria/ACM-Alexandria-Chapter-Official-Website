@@ -194,6 +194,8 @@ public class EventServiceTest {
     @Test
     void deleteEvent_shouldCallRepository() {
         eventService.deleteEvent(1L);
+        verify(eventRegistrationRepository).deleteByEventId(1L);
+        verify(eventFormQuestionRepository).deleteByEventId(1L);
         verify(eventRepository).deleteById(1L);
     }
 
