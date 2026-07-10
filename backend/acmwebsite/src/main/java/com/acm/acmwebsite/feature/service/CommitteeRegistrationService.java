@@ -204,72 +204,30 @@ public class CommitteeRegistrationService implements RegistrationService {
         List<CommitteeRegistration> registrations = committeeRegistrationRepository.findByCommitteeCallId(committeeCallId);
         List<CommitteeFormQuestion> questions = committeeFormQuestionRepository.findByCommitteeId(committee.getId());
 
-        List<List<Object>> rows = new ArrayList<>();
-        // Row 1: Header/Title info
-        rows.add(Arrays.asList("Committee Name:", committee.getName()));
-        rows.add(Arrays.asList("Call Opened At:", call.getOpenedAt() != null ? call.getOpenedAt().toString() : "N/A"));
-        rows.add(Arrays.asList("Call Closed At:", call.getClosedAt() != null ? call.getClosedAt().toString() : "N/A"));
-        rows.add(Collections.emptyList()); // empty row spacer
+        List<String> prefixHeaders = Arrays.asList(
+                "Committee Name:", committee.getName(),
+                "Call Opened At:", call.getOpenedAt() != null ? call.getOpenedAt().toString() : "N/A",
+                "Call Closed At:", call.getClosedAt() != null ? call.getClosedAt().toString() : "N/A"
+        );
+        String title = "ACM Alexandria - Committee: " + committee.getName() + " - Call " + call.getOpenedAt().toLocalDate() + " - Registrations";
 
-        // Row 5: Column Headers
-        List<Object> headers = new ArrayList<>(Arrays.asList(
-                "#", "Registration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
-        ));
-        for (CommitteeFormQuestion question : questions) {
-            headers.add(question.getQuestionText());
-        }
-        rows.add(headers);
+        String url = googleSheetsService.syncRegistrationData(
+                title,
+                committeesRegistrationsFolderId,
+                call.getGoogleSheetUrl(),
+                prefixHeaders,
+                registrations,
+                questions,
+                CommitteeRegistration::getUser,
+                CommitteeRegistration::getId,
+                CommitteeRegistration::getAnswers,
+                CommitteeFormQuestion::getId,
+                CommitteeFormQuestion::getQuestionText
+        );
 
-        // Rows 6+: Registrants Data
-        int seqNum = 1;
-        for (CommitteeRegistration reg : registrations) {
-            User user = reg.getUser();
-            if (user == null) continue;
-
-            List<Object> row = new ArrayList<>(Arrays.asList(
-                    seqNum++,
-                    reg.getId(),
-                    user.getName() != null ? user.getName() : "",
-                    user.getEmail() != null ? user.getEmail() : "",
-                    user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
-                    user.getIsAlexEngStudent() != null && user.getIsAlexEngStudent() ? "Yes" : "No",
-                    user.getBatch() != null ? user.getBatch() : "",
-                    user.getDepartment() != null ? user.getDepartment().name() : ""
-            ));
-
-            for (CommitteeFormQuestion question : questions) {
-                String answer = reg.getAnswers() != null ? reg.getAnswers().getOrDefault(question.getId(), "") : "";
-                row.add(answer);
-            }
-            rows.add(row);
-        }
-
-        String spreadsheetUrl = call.getGoogleSheetUrl();
-        String spreadsheetId = googleSheetsService.extractSpreadsheetId(spreadsheetUrl);
-
-        boolean needsNewSheet = (spreadsheetId == null);
-
-        if (!needsNewSheet) {
-            try {
-                googleSheetsService.clearSpreadsheet(spreadsheetId);
-                googleSheetsService.writeSpreadsheetData(spreadsheetId, rows);
-                call.setSheetLastUpdatedAt(LocalDateTime.now());
-                committeeCallRepository.save(call);
-            } catch (GoogleSheetsNotFoundException e) {
-                needsNewSheet = true;
-            }
-        }
-
-        if (needsNewSheet) {
-            String title = "ACM Alexandria - Committee: " + committee.getName() + " - Call " + call.getOpenedAt().toLocalDate() + " - Registrations";
-            String newUrl = googleSheetsService.createSpreadsheet(title, committeesRegistrationsFolderId);
-            String newId = googleSheetsService.extractSpreadsheetId(newUrl);
-            googleSheetsService.writeSpreadsheetData(newId, rows);
-
-            call.setGoogleSheetUrl(newUrl);
-            call.setSheetLastUpdatedAt(LocalDateTime.now());
-            committeeCallRepository.save(call);
-        }
+        call.setGoogleSheetUrl(url);
+        call.setSheetLastUpdatedAt(LocalDateTime.now());
+        committeeCallRepository.save(call);
 
         return getRegistrationAnalysis(committeeCallId);
     }

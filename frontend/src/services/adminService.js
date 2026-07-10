@@ -259,12 +259,26 @@ export const deleteProgram = async (id) => {
   }
 };
 
+export const toggleProgramRegistration = async (programId, open) => {
+  try {
+    const response = await api.post(`/api/program/${programId}/toggle-registration?open=${open}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error toggling program registration:", error);
+    throw error.response?.data || new Error("Failed to toggle program registration.");
+  }
+};
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    7. REGISTRATION ANALYSIS & GOOGLE SHEETS SYNC
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchRegistrationAnalysis = async (resourceType, id) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee/calls";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee/calls";
     const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
     return response.data;
   } catch (error) {
@@ -275,7 +289,11 @@ export const fetchRegistrationAnalysis = async (resourceType, id) => {
 
 export const syncRegistrationSheet = async (resourceType, id) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee/calls";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee/calls";
     const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
     return response.data;
   } catch (error) {
@@ -289,7 +307,11 @@ export const syncRegistrationSheet = async (resourceType, id) => {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchQuestions = async (resourceType, resourceId) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee";
     const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
     return response.data;
   } catch (error) {
@@ -300,7 +322,11 @@ export const fetchQuestions = async (resourceType, resourceId) => {
 
 export const createQuestion = async (resourceType, resourceId, questionData) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee";
     const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
     return response.data;
   } catch (error) {
@@ -311,7 +337,11 @@ export const createQuestion = async (resourceType, resourceId, questionData) => 
 
 export const updateQuestion = async (resourceType, resourceId, questionId, questionData) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee";
     const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
     return response.data;
   } catch (error) {
@@ -322,7 +352,11 @@ export const updateQuestion = async (resourceType, resourceId, questionId, quest
 
 export const deleteQuestion = async (resourceType, resourceId, questionId) => {
   try {
-    const resourcePath = resourceType === "event" ? "events" : resourceType === "club" ? "clubs" : "committee";
+    const resourcePath =
+      resourceType === "event" ? "events" :
+      resourceType === "club" ? "clubs" :
+      resourceType === "program" ? "program" :
+      "committee";
     const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
     return response.data;
   } catch (error) {
@@ -471,6 +505,7 @@ export default {
   createProgram,
   updateProgram,
   deleteProgram,
+  toggleProgramRegistration,
   fetchRegistrationAnalysis,
   syncRegistrationSheet,
   fetchQuestions,

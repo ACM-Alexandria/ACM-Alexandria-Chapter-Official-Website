@@ -110,15 +110,53 @@ export const checkCommitteeRegistrationStatus = async (committeeId, userId) => {
   }
 };
 
+// Fetches dynamic form questions configured for a specific program.
+export const fetchProgramQuestions = async (programId) => {
+  try {
+    const response = await api.get(`/api/program/${programId}/questions`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching questions for program ${programId}:`, error);
+    throw error.response?.data || new Error("Failed to fetch program questions.");
+  }
+};
+
+// Submits registration payload (answers map) for a program.
+export const registerForProgram = async (programId, userId, answers = {}) => {
+  try {
+    const payload = { userId, answers };
+    const response = await api.post(`/api/program/${programId}/register`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(`Error registering for program ${programId}:`, error);
+    throw error.response?.data || new Error("Program registration failed.");
+  }
+};
+
+// Checks if user is registered for a program.
+export const checkProgramRegistrationStatus = async (programId, userId) => {
+  try {
+    const response = await api.get(`/api/program/${programId}/is-registered`, {
+      params: { userId }
+    });
+    return response.data.registered;
+  } catch (error) {
+    console.error(`Error checking program registration status:`, error);
+    return false;
+  }
+};
+
 export default {
   fetchEventQuestions,
   fetchClubQuestions,
   fetchCommitteeQuestions,
+  fetchProgramQuestions,
   registerForEvent,
   registerForClub,
   registerForCommittee,
+  registerForProgram,
   checkEventRegistrationStatus,
   checkClubRegistrationStatus,
   checkCommitteeRegistrationStatus,
+  checkProgramRegistrationStatus,
 };
-

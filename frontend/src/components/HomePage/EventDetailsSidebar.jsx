@@ -217,12 +217,12 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-opacity duration-500 ${isVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 ${isVisible ? "pointer-events-auto" : "pointer-events-none"}`}
       aria-hidden={!isVisible}
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 

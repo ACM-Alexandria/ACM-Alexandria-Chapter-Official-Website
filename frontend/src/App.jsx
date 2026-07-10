@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import EventsPage from "./pages/EventsPage";
 import ClubsPage from "./pages/ClubsPage";
+import ProgramsPage from "./pages/ProgramsPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserProfilePage from "./pages/UserProfilePage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -24,6 +25,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/events" element={<EventsPage />} />
       <Route path="/clubs" element={<ClubsPage />} />
+      <Route path="/programs" element={<ProgramsPage />} />
       <Route 
         path="/profile" 
         element={

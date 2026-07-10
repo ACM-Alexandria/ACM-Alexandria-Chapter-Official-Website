@@ -4,9 +4,11 @@ import {
   fetchEventQuestions, 
   fetchClubQuestions, 
   fetchCommitteeQuestions,
+  fetchProgramQuestions,
   registerForEvent, 
   registerForClub,
   registerForCommittee,
+  registerForProgram,
 } from "../../services/registrationService";
 import { 
   fetchUserProfile, 
@@ -119,7 +121,9 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
           ? await fetchEventQuestions(entityId)
           : type === "club"
             ? await fetchClubQuestions(entityId)
-            : await fetchCommitteeQuestions(entityId);
+            : type === "program"
+              ? await fetchProgramQuestions(entityId)
+              : await fetchCommitteeQuestions(entityId);
         
         setQuestions(data || []);
         
@@ -225,6 +229,8 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         await registerForEvent(entityId, user.id, answers);
       } else if (type === "club") {
         await registerForClub(entityId, user.id, answers);
+      } else if (type === "program") {
+        await registerForProgram(entityId, user.id, answers);
       } else {
         await registerForCommittee(entityId, user.id, answers);
       }

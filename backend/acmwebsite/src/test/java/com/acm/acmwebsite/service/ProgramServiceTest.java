@@ -38,7 +38,9 @@ public class ProgramServiceTest {
         p.setName("Bootcamp");
         p.setDescription("Desc");
         p.setImageUrl("img");
-        p.setEventTime(LocalDateTime.now());
+        p.setStartDate(LocalDateTime.now());
+        p.setEndDate(LocalDateTime.now().plusDays(7));
+        p.setTime("Every Sunday 6:00 PM");
         return p;
     }
 
@@ -47,7 +49,9 @@ public class ProgramServiceTest {
         d.setName("Bootcamp");
         d.setDescription("Desc");
         d.setImageUrl("img");
-        d.setEventTime(LocalDateTime.now());
+        d.setStartDate(LocalDateTime.now());
+        d.setEndDate(LocalDateTime.now().plusDays(7));
+        d.setTime("Every Sunday 6:00 PM");
         return d;
     }
 
@@ -57,14 +61,14 @@ public class ProgramServiceTest {
     void getAll_shouldMapAllPrograms() {
         List<Program> programs = List.of(program());
 
-        when(programRepository.findAll()).thenReturn(programs);
+        when(programRepository.findAll(any(org.springframework.data.domain.Sort.class))).thenReturn(programs);
         when(programMapper.toProgramDto(any()))
                 .thenReturn(dto());
 
         List<ProgramDto> result = programService.getAllPrograms();
 
         assertEquals(1, result.size());
-        verify(programRepository).findAll();
+        verify(programRepository).findAll(any(org.springframework.data.domain.Sort.class));
         verify(programMapper).toProgramDto(programs.get(0));
     }
 

@@ -101,10 +101,10 @@ const ResourceTable = ({
               <th className="pb-3">Role</th>
             )}
             {(activeTab === "events" || activeTab === "programs") && (
-              <th className="pb-3">{activeTab === "events" ? "Time & Location" : "Event Time"}</th>
+              <th className="pb-3">{activeTab === "events" ? "Time & Location" : "Duration & Schedule"}</th>
             )}
-            {activeTab === "committees" && (
-              <th className="pb-3">Call Status</th>
+            {(activeTab === "committees" || activeTab === "programs") && (
+              <th className="pb-3">{activeTab === "committees" ? "Call Status" : "Registration Status"}</th>
             )}
             {activeTab === "socialLinks" && (
               <th className="pb-3">URL</th>
@@ -137,43 +137,54 @@ const ResourceTable = ({
               )}
 
               {/* Event details column */}
-              {(activeTab === "events" || activeTab === "programs") && (
+              {activeTab === "events" && (
                 <td className="py-3.5 text-slate-500">
-                  {activeTab === "events" && (
-                    <p className="font-bold">{item.location || "Online"}</p>
-                  )}
+                  <p className="font-bold">{item.location || "Online"}</p>
                   {item.eventTime ? (
                     <p className="text-[10px] text-slate-400 mt-0.5 font-bold">
                       {new Date(item.eventTime).toLocaleString()}
                     </p>
                   ) : (
-                    activeTab === "programs" && <p className="text-[10px] text-slate-400 mt-0.5">No time set</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">No time set</p>
                   )}
                 </td>
               )}
 
-              {/* Committee Call Status column */}
-              {activeTab === "committees" && (
+              {activeTab === "programs" && (
+                <td className="py-3.5 text-slate-500">
+                  <p className="font-bold">{item.time || "No schedule set"}</p>
+                  {item.startDate && item.endDate ? (
+                    <p className="text-[10px] text-slate-400 mt-0.5 font-bold">
+                      {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 mt-0.5">No dates set</p>
+                  )}
+                </td>
+              )}
+
+              {/* Committee Call Status or Program Registration Status column */}
+              {(activeTab === "committees" || activeTab === "programs") && (
                 <td className="py-3.5">
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                        item.open || item.isOpen
+                        (activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen)
                           ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                           : "bg-slate-50 text-slate-500 border-slate-200"
                       }`}
                     >
-                      {item.open || item.isOpen ? "Open" : "Closed"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen) ? "Open" : "Closed"}
                     </span>
                     <button
                       onClick={() => onToggleCall(item)}
                       className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 ${
-                        item.open || item.isOpen
+                        (activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen)
                           ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                           : "bg-sky-50 text-[#4B98C8] border-sky-200 hover:bg-sky-100"
                       }`}
                     >
-                      {item.open || item.isOpen ? "Close Call" : "Open Call"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen) ? "Close Call" : "Open Call"}
                     </button>
                   </div>
                 </td>
@@ -225,7 +236,7 @@ const ResourceTable = ({
                       </button>
                     </>
                   )}
-                  {(activeTab === "events" || activeTab === "clubs") && (
+                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && (
                     <button
                       onClick={() => onRegistrationClick(item)}
                       title="View Registration Panel"
@@ -234,7 +245,7 @@ const ResourceTable = ({
                       <FiUsers className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  {(activeTab === "events" || activeTab === "clubs") && (
+                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && (
                     <button
                       onClick={() => onQuestionsClick(item)}
                       title="Manage Registration Questions"

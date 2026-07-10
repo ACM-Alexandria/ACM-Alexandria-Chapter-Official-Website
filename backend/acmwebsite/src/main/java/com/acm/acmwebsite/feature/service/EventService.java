@@ -209,72 +209,29 @@ public class EventService {
         List<EventRegistration> registrations = eventRegistrationRepository.findByEventId(eventId);
         List<EventFormQuestion> questions = eventFormQuestionRepository.findByEventId(eventId);
 
-        List<List<Object>> rows = new ArrayList<>();
-        // Row 1: Header/Title info
-        rows.add(Arrays.asList("Event Name:", event.getName()));
-        rows.add(Arrays.asList("Event Time:", event.getEventTime() != null ? event.getEventTime().toString() : "N/A"));
-        rows.add(Collections.emptyList()); // empty row spacer
+        List<String> prefixHeaders = Arrays.asList(
+                "Event Name:", event.getName(),
+                "Event Time:", event.getEventTime() != null ? event.getEventTime().toString() : "N/A"
+        );
+        String title = "ACM Alexandria - Event: " + event.getName() + " - Registrations";
 
-        // Row 4: Column Headers
-        List<Object> headers = new ArrayList<>(Arrays.asList(
-                "#", "Registeration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
-        ));
-        for (EventFormQuestion question : questions) {
-            headers.add(question.getQuestionText());
-        }
-        rows.add(headers);
+        String url = googleSheetsService.syncRegistrationData(
+                title,
+                eventsFolderId,
+                event.getGoogleSheetUrl(),
+                prefixHeaders,
+                registrations,
+                questions,
+                EventRegistration::getUser,
+                EventRegistration::getId,
+                EventRegistration::getAnswers,
+                EventFormQuestion::getId,
+                EventFormQuestion::getQuestionText
+        );
 
-        // Rows 5+: Registrants Data
-        int seqNum = 1;
-        for (EventRegistration reg : registrations) {
-            User user = reg.getUser();
-            if (user == null) continue;
-
-            List<Object> row = new ArrayList<>(Arrays.asList(
-                    seqNum++,
-                    reg.getId(),
-                    user.getName() != null ? user.getName() : "",
-                    user.getEmail() != null ? user.getEmail() : "",
-                    user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
-                    user.getIsAlexEngStudent() != null && user.getIsAlexEngStudent() ? "Yes" : "No",
-                    user.getBatch() != null ? user.getBatch() : "",
-                    user.getDepartment() != null ? user.getDepartment().name() : ""
-            ));
-
-            for (EventFormQuestion question : questions) {
-                String answer = reg.getAnswers() != null ? reg.getAnswers().getOrDefault(question.getId(), "") : "";
-                row.add(answer);
-            }
-            rows.add(row);
-        }
-
-        String spreadsheetUrl = event.getGoogleSheetUrl();
-        String spreadsheetId = googleSheetsService.extractSpreadsheetId(spreadsheetUrl);
-
-        boolean needsNewSheet = (spreadsheetId == null);
-
-        if (!needsNewSheet) {
-            try {
-                // Try clearing and writing to existing sheet
-                googleSheetsService.clearSpreadsheet(spreadsheetId);
-                googleSheetsService.writeSpreadsheetData(spreadsheetId, rows);
-                event.setSheetLastUpdatedAt(LocalDateTime.now());
-                eventRepository.save(event);
-            } catch (GoogleSheetsNotFoundException e) {
-                needsNewSheet = true;
-            }
-        }
-
-        if (needsNewSheet) {
-            String title = "ACM Alexandria - Event: " + event.getName() + " - Registrations";
-            String newUrl = googleSheetsService.createSpreadsheet(title, eventsFolderId);
-            String newId = googleSheetsService.extractSpreadsheetId(newUrl);
-            googleSheetsService.writeSpreadsheetData(newId, rows);
-
-            event.setGoogleSheetUrl(newUrl);
-            event.setSheetLastUpdatedAt(LocalDateTime.now());
-            eventRepository.save(event);
-        }
+        event.setGoogleSheetUrl(url);
+        event.setSheetLastUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
 
         return getRegistrationAnalysis(eventId);
     }

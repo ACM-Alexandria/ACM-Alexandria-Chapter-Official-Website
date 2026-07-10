@@ -309,35 +309,96 @@ const ResourceFormModal = ({
             </>
           )}
 
-          {/* Event & Program specific fields */}
-          {(activeTab === "events" || activeTab === "programs") && (
+          {/* Event specific fields */}
+          {activeTab === "events" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Event Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.eventTime || ""}
+                  onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={formData.location || ""}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
+                  placeholder="e.g. Hall A / Zoom (Optional)"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Program specific fields */}
+          {activeTab === "programs" && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Event Date & Time
+                    Start Date
                   </label>
                   <input
                     type="datetime-local"
-                    value={formData.eventTime || ""}
-                    onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
+                    value={formData.startDate || ""}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value || null })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
-                {activeTab === "events" && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.location || ""}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
-                      placeholder="e.g. Hall A / Zoom (Optional)"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    End Date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.endDate || ""}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Schedule Time
+                </label>
+                <input
+                  type="text"
+                  value={formData.time || ""}
+                  onChange={(e) => setFormData({ ...formData, time: e.target.value || "" })}
+                  placeholder="e.g. Every Sunday 6:00 PM"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
+
+              {/* Registration Open Toggle */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div>
+                  <p className="text-xs font-extrabold text-slate-700">Registration Open</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Allow users to register for this program
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                    formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      formData.registrationOpen ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
               </div>
             </>
           )}

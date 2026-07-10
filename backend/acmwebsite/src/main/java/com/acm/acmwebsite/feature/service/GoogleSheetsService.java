@@ -184,5 +184,92 @@ public class GoogleSheetsService {
                     "Google Sheets integration failed during: " + operation + " (" + e.getMessage() + ")", e);
         }
     }
+
+    /**
+     * Generic helper to compile registration data and synchronize it with Google Sheets.
+     */
+    public <T, Q> String syncRegistrationData(
+            String title,
+            String folderId,
+            String currentSpreadsheetUrl,
+            List<String> prefixHeaders,
+            List<T> registrations,
+            List<Q> questions,
+            java.util.function.Function<T, com.acm.acmwebsite.User_Authentication.entity.User> userExtractor,
+            java.util.function.Function<T, Long> idExtractor,
+            java.util.function.Function<T, java.util.Map<Long, String>> answersExtractor,
+            java.util.function.Function<Q, Long> questionIdExtractor,
+            java.util.function.Function<Q, String> questionTextExtractor
+    ) {
+        List<List<Object>> rows = new java.util.ArrayList<>();
+
+        // Add prefix headers (metadata)
+        if (prefixHeaders != null) {
+            for (int i = 0; i < prefixHeaders.size(); i += 2) {
+                if (i + 1 < prefixHeaders.size()) {
+                    rows.add(java.util.Arrays.asList(prefixHeaders.get(i), prefixHeaders.get(i + 1)));
+                } else {
+                    rows.add(java.util.Collections.singletonList(prefixHeaders.get(i)));
+                }
+            }
+            rows.add(java.util.Collections.emptyList());
+        }
+
+        // Add Column Headers
+        List<Object> headers = new java.util.ArrayList<>(java.util.Arrays.asList(
+                "#", "Registration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
+        ));
+        for (Q question : questions) {
+            headers.add(questionTextExtractor.apply(question));
+        }
+        rows.add(headers);
+
+        // Add Registrants Data
+        int seqNum = 1;
+        for (T reg : registrations) {
+            com.acm.acmwebsite.User_Authentication.entity.User user = userExtractor.apply(reg);
+            if (user == null) continue;
+
+            List<Object> row = new java.util.ArrayList<>(java.util.Arrays.asList(
+                    seqNum++,
+                    idExtractor.apply(reg),
+                    user.getName() != null ? user.getName() : "",
+                    user.getEmail() != null ? user.getEmail() : "",
+                    user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                    user.getIsAlexEngStudent() != null && user.getIsAlexEngStudent() ? "Yes" : "No",
+                    user.getBatch() != null ? user.getBatch() : "",
+                    user.getDepartment() != null ? user.getDepartment().name() : ""
+            ));
+
+            java.util.Map<Long, String> answers = answersExtractor.apply(reg);
+            for (Q question : questions) {
+                Long qId = questionIdExtractor.apply(question);
+                String answer = answers != null ? answers.getOrDefault(qId, "") : "";
+                row.add(answer);
+            }
+            rows.add(row);
+        }
+
+        // Write to Spreadsheet
+        String spreadsheetId = extractSpreadsheetId(currentSpreadsheetUrl);
+        boolean needsNewSheet = (spreadsheetId == null);
+
+        if (!needsNewSheet) {
+            try {
+                clearSpreadsheet(spreadsheetId);
+                writeSpreadsheetData(spreadsheetId, rows);
+            } catch (GoogleSheetsNotFoundException e) {
+                needsNewSheet = true;
+            }
+        }
+
+        if (needsNewSheet) {
+            String newUrl = createSpreadsheet(title, folderId);
+            String newId = extractSpreadsheetId(newUrl);
+            writeSpreadsheetData(newId, rows);
+            return newUrl;
+        }
+        return currentSpreadsheetUrl;
+    }
 }
 

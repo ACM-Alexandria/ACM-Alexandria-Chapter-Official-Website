@@ -1,7 +1,6 @@
 package com.acm.acmwebsite.feature.entity;
 
 import jakarta.persistence.*;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +10,25 @@ public class Program {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     private String imageUrl;
-    private LocalDateTime eventTime;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private String time;
+
+    @Column(name = "registration_open", nullable = false)
+    private boolean registrationOpen = false;
+
+    @Column(name = "google_sheet_url")
+    private String googleSheetUrl;
+
+    @Column(name = "sheet_last_updated_at")
+    private LocalDateTime sheetLastUpdatedAt;
 
     public Program() {
     }
@@ -55,19 +65,61 @@ public class Program {
         this.imageUrl = imageUrl;
     }
 
-    public LocalDateTime getEventTime() {
-        return eventTime;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
-    public void setEventTime(LocalDateTime eventTime) {
-        this.eventTime = eventTime;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
     }
 
-    public Program(Long id, String name, String description, String imageUrl, LocalDateTime eventTime) {
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
+    }
+
+    public Program(Long id, String name, String description, String imageUrl, LocalDateTime startDate, LocalDateTime endDate, String time) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.eventTime = eventTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.time = time;
     }
 }
