@@ -9,6 +9,7 @@ import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.enums.*;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.EmailRepository;
@@ -66,6 +67,20 @@ public class SubscriptionService {
         for (Subscription sub : activeSubscriptions) {
             if (sub.getUser() != null) {
                 emailService.sendNewClubAnnouncementEmail(sub.getUser().getEmail(), club.getName(), description);
+            }
+        }
+    }
+
+    public void sendNewProgramNotificationToNewsSubscribers(Program program) {
+        List<Subscription> activeSubscriptions = subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToIdAndStatus(
+                SubscripeTo.NEWS, 0L, SubscriptionStatus.ACTIVE);
+        String description = program.getDescription() != null && !program.getDescription().isBlank()
+                ? program.getDescription()
+                : "No description available";
+        String startDate = program.getStartDate() != null ? program.getStartDate().toString() : "To be announced";
+        for (Subscription sub : activeSubscriptions) {
+            if (sub.getUser() != null) {
+                emailService.sendNewProgramAnnouncementEmail(sub.getUser().getEmail(), program.getName(), description, startDate);
             }
         }
     }

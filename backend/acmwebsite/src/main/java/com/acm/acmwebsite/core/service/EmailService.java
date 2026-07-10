@@ -16,6 +16,8 @@ public interface EmailService {
 
     void sendNewClubAnnouncementEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String clubName, String description);
 
+    void sendNewProgramAnnouncementEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String programName, String description, String startDate);
+
     void sendCommitteeCallEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String subject, String body);
 
     void sendCommitteeRegistrationConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String committeeName, String userName);
