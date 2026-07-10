@@ -120,8 +120,8 @@ const ProgramsPage = () => {
 
           {/* Loading Skeleton */}
           {loading && (
-            <div className="grid grid-cols-1 gap-8">
-              {Array.from({ length: 3 }).map((_, i) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+              {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="animate-pulse flex flex-col md:flex-row bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden h-72">
                   <div className="w-full md:w-2/5 bg-slate-200" />
                   <div className="flex-1 p-10 space-y-4">
@@ -149,7 +149,7 @@ const ProgramsPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
                   {filteredPrograms.map((program, index) => (
                     <ProgramCard
                       key={program.id}
