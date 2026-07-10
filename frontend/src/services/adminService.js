@@ -480,6 +480,76 @@ export const uploadImage = async (file) => {
   }
 };
 
+export const createSeason = async (seasonData) => {
+  try {
+    const response = await api.post("/api/radio/seasons", seasonData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating season:", error);
+    throw error.response?.data || new Error("Failed to create season.");
+  }
+};
+
+export const updateSeason = async (id, seasonData) => {
+  try {
+    const response = await api.put(`/api/radio/seasons/${id}`, seasonData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating season:", error);
+    throw error.response?.data || new Error("Failed to update season.");
+  }
+};
+
+export const deleteSeason = async (id) => {
+  try {
+    const response = await api.delete(`/api/radio/seasons/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting season:", error);
+    throw error.response?.data || new Error("Failed to delete season.");
+  }
+};
+
+export const createEpisode = async (episodeData) => {
+  try {
+    const response = await api.post("/api/radio/episodes", episodeData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating episode:", error);
+    throw error.response?.data || new Error("Failed to create episode.");
+  }
+};
+
+export const updateEpisode = async (id, episodeData) => {
+  try {
+    const response = await api.put(`/api/radio/episodes/${id}`, episodeData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating episode:", error);
+    throw error.response?.data || new Error("Failed to update episode.");
+  }
+};
+
+export const deleteEpisode = async (id) => {
+  try {
+    const response = await api.delete(`/api/radio/episodes/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting episode:", error);
+    throw error.response?.data || new Error("Failed to delete episode.");
+  }
+};
+
+export const fetchEpisodesBySeason = async (seasonId, page = 0) => {
+  try {
+    const response = await api.get(`/api/radio/seasons/${seasonId}/episodes?page=${page}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching paginated episodes:", error);
+    throw error.response?.data || new Error("Failed to fetch episodes.");
+  }
+};
+
 export default {
   fetchInsights,
   addHighBoardMember,
@@ -522,4 +592,11 @@ export default {
   updateGalleryImage,
   deleteGalleryImage,
   uploadImage,
+  createSeason,
+  updateSeason,
+  deleteSeason,
+  createEpisode,
+  updateEpisode,
+  deleteEpisode,
+  fetchEpisodesBySeason,
 };

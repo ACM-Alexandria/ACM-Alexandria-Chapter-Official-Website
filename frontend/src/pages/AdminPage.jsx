@@ -7,6 +7,7 @@ import {
   fetchEvents,
   fetchClubs,
   fetchPrograms,
+  fetchSeasons,
 } from "../services/homePageService";
 import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemInsightsTab";
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
@@ -17,6 +18,7 @@ import CallMessageModal from "../components/AdminPage/ManagementSection/CallMess
 import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
 import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
+import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import {
@@ -42,6 +44,7 @@ import {
   FiShare2,
   FiHelpCircle,
   FiGrid,
+  FiRadio,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -69,7 +72,12 @@ const AdminPage = () => {
   const [events, setEvents] = useState({ content: [], number: 0, totalPages: 1 });
   const [clubs, setClubs] = useState({ content: [], number: 0, totalPages: 1 });
   const [programs, setPrograms] = useState({ content: [], number: 0, totalPages: 1 });
+  const [seasons, setSeasons] = useState({ content: [], number: 0, totalPages: 1 });
   const [socialLinks, setSocialLinks] = useState([]);
+
+  // Episodes management modal states
+  const [episodesModalOpen, setEpisodesModalOpen] = useState(false);
+  const [selectedSeasonForEpisodes, setSelectedSeasonForEpisodes] = useState(null);
 
   // Club Socials modal states
   const [socialsModalOpen, setSocialsModalOpen] = useState(false);
@@ -119,6 +127,7 @@ const AdminPage = () => {
     { id: "events", label: "Events", icon: FiCalendar },
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
+    { id: "radio", label: "Radio", icon: FiRadio },
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
   ];
@@ -162,6 +171,13 @@ const AdminPage = () => {
       } else if (tab === "programs") {
         const data = await fetchPrograms(page);
         setPrograms(data);
+      } else if (tab === "radio") {
+        const data = await fetchSeasons(page);
+        const sorted = {
+          ...data,
+          content: (data.content || []).sort((a, b) => b.seasonNumber - a.seasonNumber),
+        };
+        setSeasons(sorted);
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
@@ -220,6 +236,11 @@ const AdminPage = () => {
           p.name.toLowerCase().includes(q) ||
           (p.description && p.description.toLowerCase().includes(q))
       );
+    } else if (mgmtTab === "radio") {
+      return seasons.content.filter(
+        (s) =>
+          s.seasonNumber.toString().includes(q)
+      );
     } else if (mgmtTab === "socialLinks") {
       return socialLinks.filter(
         (sl) =>
@@ -248,6 +269,8 @@ const AdminPage = () => {
       setFormData({ name: "", description: "", imageUrl: "" });
     } else if (mgmtTab === "programs") {
       setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
+    } else if (mgmtTab === "radio") {
+      setFormData({ seasonNumber: "", imageUrl: "" });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
     }
@@ -317,6 +340,12 @@ const AdminPage = () => {
         } else {
           await adminService.updateProgram(editingItem.id, formData);
         }
+      } else if (mgmtTab === "radio") {
+        if (formMode === "add") {
+          await adminService.createSeason(formData);
+        } else {
+          await adminService.updateSeason(editingItem.id, formData);
+        }
       } else if (mgmtTab === "socialLinks") {
         if (formMode === "add") {
           await adminService.createSocialLink(formData);
@@ -359,6 +388,8 @@ const AdminPage = () => {
         await adminService.deleteClub(deletingItem.id);
       } else if (mgmtTab === "programs") {
         await adminService.deleteProgram(deletingItem.id);
+      } else if (mgmtTab === "radio") {
+        await adminService.deleteSeason(deletingItem.id);
       } else if (mgmtTab === "socialLinks") {
         await adminService.deleteSocialLink(deletingItem.id);
       }
@@ -373,6 +404,11 @@ const AdminPage = () => {
     } finally {
       setMgmtLoading(false);
     }
+  };
+
+  const handleEpisodesClick = (season) => {
+    setSelectedSeasonForEpisodes(season);
+    setEpisodesModalOpen(true);
   };
  
   const handleToggleCall = async (item) => {
@@ -617,7 +653,7 @@ const AdminPage = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
                         <h2 className="text-lg font-extrabold text-slate-800 tracking-tight capitalize">
-                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab}
+                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab}
                         </h2>
                         <p className="text-xs text-slate-400 font-medium">
                           Add, edit, or delete items within this database category.
@@ -691,22 +727,23 @@ const AdminPage = () => {
                     onQuestionsClick={handleQuestionsClick}
                     onSocialsClick={handleSocialsClick}
                     onGalleryClick={handleGalleryClick}
+                    onEpisodesClick={handleEpisodesClick}
                   />
                 )}
               </div>
 
               {/* Pagination controls for paginated resources */}
-              {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs") && (
+              {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs" || mgmtTab === "radio") && (
                 <div className="flex items-center justify-between border-t border-slate-100 pt-5 mt-6">
                   <span className="text-xs text-slate-400 font-bold">
-                    Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) + 1} of{" "}
-                    {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : programs.totalPages}
+                    Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1} of{" "}
+                    {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : mgmtTab === "radio" ? seasons.totalPages : programs.totalPages}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      disabled={mgmtTab === "events" ? events.number === 0 : mgmtTab === "clubs" ? clubs.number === 0 : programs.number === 0}
+                      disabled={mgmtTab === "events" ? events.number === 0 : mgmtTab === "clubs" ? clubs.number === 0 : mgmtTab === "radio" ? seasons.number === 0 : programs.number === 0}
                       onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) - 1)
+                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) - 1)
                       }
                       className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
@@ -718,10 +755,12 @@ const AdminPage = () => {
                           ? events.number >= events.totalPages - 1
                           : mgmtTab === "clubs"
                             ? clubs.number >= clubs.totalPages - 1
-                            : programs.number >= programs.totalPages - 1
+                            : mgmtTab === "radio"
+                              ? seasons.number >= seasons.totalPages - 1
+                              : programs.number >= programs.totalPages - 1
                       }
                       onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) + 1)
+                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1)
                       }
                       className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
@@ -793,6 +832,13 @@ const AdminPage = () => {
               resourceId={selectedResourceForQuestions?.id}
               resourceName={selectedResourceForQuestions?.name}
               resourceType={questionsResourceType}
+            />
+
+            <EpisodesManagementModal
+              open={episodesModalOpen}
+              onClose={() => { setEpisodesModalOpen(false); setModalError(null); }}
+              seasonId={selectedSeasonForEpisodes?.id}
+              seasonNumber={selectedSeasonForEpisodes?.seasonNumber}
             />
 
             <EventGalleryModal

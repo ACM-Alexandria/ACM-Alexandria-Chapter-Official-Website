@@ -8,6 +8,7 @@ import AboutSection from "../components/HomePage/sections/AboutSection";
 import ClubsSection from "../components/HomePage/sections/ClubsSection";
 import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
+import RadioSection from "../components/HomePage/sections/RadioSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
@@ -22,6 +23,7 @@ const HomePage = () => {
   const [highBoard, setHighBoard] = useState([]);
   const [events, setEvents] = useState([]);
   const [programs, setPrograms] = useState([]);
+  const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
   const [selectedEventId, setSelectedEventId] = useState(null);
@@ -109,6 +111,7 @@ const HomePage = () => {
         setHighBoard(data.highBoard || []);
         setEvents(data.events || []);
         setPrograms(data.programs || []);
+        setSeasons(data.seasons || []);
       } catch (err) {
         console.error("Error loading home page data:", err);
       } finally {
@@ -189,6 +192,9 @@ const HomePage = () => {
         )}
         {isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && (
           <ProgramsSection loading={loading} programs={programs} onShowProgramDetails={handleShowProgramDetails} />
+        )}
+        {isEnabled(import.meta.env.VITE_ENABLE_RADIO) && (
+          <RadioSection loading={loading} seasons={seasons} />
         )}
         {isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && (
           <ServicesSection />

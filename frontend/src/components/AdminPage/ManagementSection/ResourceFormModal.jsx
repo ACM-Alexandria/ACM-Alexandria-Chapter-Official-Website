@@ -107,6 +107,7 @@ const ResourceFormModal = ({
     let catStr = "";
     if (activeTab === "highboard") catStr = "High Board Member";
     else if (activeTab === "committeeBoard") catStr = "Committee Board Member";
+    else if (activeTab === "radio") catStr = "Radio Season";
     else catStr = activeTab.charAt(0).toUpperCase() + activeTab.slice(1, -1);
     return `${modeStr} ${catStr}`;
   };
@@ -161,22 +162,42 @@ const ResourceFormModal = ({
             </>
           )}
 
-          {/* Common Fields: Name/Title (for all except socialLinks) */}
+          {/* Radio Season Fields */}
+          {activeTab === "radio" && (
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Season Number
+              </label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={formData.seasonNumber ?? ""}
+                onChange={(e) => setFormData({ ...formData, seasonNumber: e.target.value ? parseInt(e.target.value) : "" })}
+                placeholder="e.g. 1"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+              />
+            </div>
+          )}
+
+          {/* Common Fields: Name/Title (for all except socialLinks and radio) */}
           {activeTab !== "socialLinks" && (
             <>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  Name / Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name || ""}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. John Doe"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                />
-              </div>
+              {activeTab !== "radio" && (
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Name / Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name || ""}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. John Doe"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  />
+                </div>
+              )}
 
               {/* Common Fields: Image/Logo Upload */}
               <div>
