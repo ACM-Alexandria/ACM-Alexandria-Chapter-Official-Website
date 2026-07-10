@@ -27,6 +27,7 @@ const Navbar = ({ activeSection }) => {
     isEnabled(import.meta.env.VITE_ENABLE_CLUBS) && { id: "clubs", label: "Clubs" },
     isEnabled(import.meta.env.VITE_ENABLE_EVENTS) && { id: "events", label: "Events" },
     isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && { id: "programs", label: "Programs" },
+    isEnabled(import.meta.env.VITE_ENABLE_RADIO) && { id: "radio", label: "Radio" },
     isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && { id: "services", label: "Services" },
   ].filter(Boolean);
 

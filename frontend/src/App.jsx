@@ -8,6 +8,8 @@ import ClubsPage from "./pages/ClubsPage";
 import ProgramsPage from "./pages/ProgramsPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserProfilePage from "./pages/UserProfilePage";
+import RadioPage from "./pages/RadioPage";
+import SeasonDetailPage from "./pages/SeasonDetailPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AdminPage from "./pages/AdminPage";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
@@ -26,6 +28,8 @@ function App() {
       <Route path="/events" element={<EventsPage />} />
       <Route path="/clubs" element={<ClubsPage />} />
       <Route path="/programs" element={<ProgramsPage />} />
+      <Route path="/radio" element={<RadioPage />} />
+      <Route path="/radio/seasons/:id" element={<SeasonDetailPage />} />
       <Route 
         path="/profile" 
         element={

@@ -96,6 +96,7 @@ export const fetchHomePageData = async () => {
     fetchHighBoard().catch(() => []),
     fetchEvents(0).catch(() => ({ content: [] })),
     fetchPrograms(0).catch(() => ({ content: [] })),
+    fetchSeasons().catch(() => []),
   ]);
 
   const extractContent = (result) => {
@@ -112,6 +113,7 @@ export const fetchHomePageData = async () => {
     highBoard: results[2].status === "fulfilled" ? results[2].value : [],
     events: extractContent(results[3]),
     programs: extractContent(results[4]),
+    seasons: extractContent(results[5]),
   };
 };
 
@@ -169,6 +171,28 @@ export const fetchGalleryImages = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching gallery images:", error);
+    throw error;
+  }
+};
+
+// Fetch seasons with pagination
+export const fetchSeasons = async (page = 0) => {
+  try {
+    const response = await api.get(`/api/radio/seasons?page=${page}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching seasons:", error);
+    throw error;
+  }
+};
+
+// Fetch single season details
+export const fetchSeasonById = async (id) => {
+  try {
+    const response = await api.get(`/api/radio/seasons/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching season details:", error);
     throw error;
   }
 };

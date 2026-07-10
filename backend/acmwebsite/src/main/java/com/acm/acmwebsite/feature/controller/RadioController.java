@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @RestController
@@ -23,8 +24,8 @@ public class RadioController {
     // ── Public Endpoints ──
 
     @GetMapping("/seasons")
-    public ResponseEntity<List<RadioSeasonDto>> getAllSeasons() {
-        return ResponseEntity.ok(radioService.getAllSeasons());
+    public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(radioService.getSeasonsByPage(page));
     }
 
     @GetMapping("/seasons/{id}")
@@ -32,6 +33,13 @@ public class RadioController {
         return radioService.getSeasonById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/seasons/{id}/episodes")
+    public ResponseEntity<Page<RadioEpisodeDto>> getEpisodesBySeason(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(radioService.getEpisodesBySeason(id, page));
     }
 
     // ── Admin-only Season Operations ──

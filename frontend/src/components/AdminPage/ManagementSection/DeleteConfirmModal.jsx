@@ -14,7 +14,7 @@ const DeleteConfirmModal = ({ open, onClose, onConfirm, deletingItem, loading })
           Delete Record?
         </h3>
         <p className="text-xs text-slate-400 font-semibold mt-2 leading-relaxed">
-          Are you sure you want to delete <span className="font-extrabold text-slate-700">"{deletingItem?.name}"</span>?
+          Are you sure you want to delete <span className="font-extrabold text-slate-700">"{deletingItem?.name || `Season ${deletingItem?.seasonNumber}`}"</span>?
           This action is permanent and cannot be undone.
         </p>
         <div className="flex gap-3 justify-center mt-6">

@@ -23,6 +23,8 @@ public class AdminInsightsDto {
     private long totalEventRegistrations;
     private long totalClubRegistrations;
     private long totalSubscriptions;
+    private long totalRadioSeasons;
+    private long totalRadioEpisodes;
 
     private Map<String, Long> usersByDepartment;
     private Map<String, Long> usersByBatch;

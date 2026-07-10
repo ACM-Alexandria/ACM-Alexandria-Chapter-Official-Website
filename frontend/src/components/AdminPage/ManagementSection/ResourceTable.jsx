@@ -13,6 +13,8 @@ import {
   FiShare2,
   FiHelpCircle,
   FiImage,
+  FiRadio,
+  FiVolume2,
 } from "react-icons/fi";
 
 const ResourceTable = ({
@@ -27,6 +29,7 @@ const ResourceTable = ({
   onQuestionsClick,
   onSocialsClick,
   onGalleryClick,
+  onEpisodesClick,
 }) => {
   const [imgErrors, setImgErrors] = useState({});
 
@@ -57,6 +60,9 @@ const ResourceTable = ({
       } else if (activeTab === "socialLinks") {
         IconComponent = FiShare2;
         bgColor = "bg-rose-50 text-rose-500 border border-rose-100";
+      } else if (activeTab === "radio") {
+        IconComponent = FiRadio;
+        bgColor = "bg-purple-50 text-purple-500 border border-purple-100";
       }
 
       return (
@@ -122,7 +128,7 @@ const ResourceTable = ({
                   {renderMedia(item)}
                   <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
                     <p className="font-extrabold text-slate-800 truncate">
-                      {activeTab === "socialLinks" ? item.platform : item.name}
+                      {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : item.name}
                     </p>
                     {item.description && (
                       <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>
@@ -270,6 +276,15 @@ const ResourceTable = ({
                       className="p-2 bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-500 rounded-lg transition-colors"
                     >
                       <FiShare2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {activeTab === "radio" && (
+                    <button
+                      onClick={() => onEpisodesClick(item)}
+                      title="Manage Season Episodes"
+                      className="p-2 bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-600 rounded-lg transition-colors"
+                    >
+                      <FiVolume2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button

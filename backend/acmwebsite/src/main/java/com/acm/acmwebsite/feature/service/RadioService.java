@@ -8,6 +8,9 @@ import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.mapper.RadioMapper;
 import com.acm.acmwebsite.feature.repository.RadioEpisodeRepository;
 import com.acm.acmwebsite.feature.repository.RadioSeasonRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +36,10 @@ public class RadioService {
     // ── Season CRUD ──
 
     @Transactional(readOnly = true)
-    public List<RadioSeasonDto> getAllSeasons() {
-        return radioSeasonRepository.findAll(Sort.by(Sort.Direction.DESC, "seasonNumber")).stream()
-                .map(radioMapper::toSeasonDto)
-                .collect(Collectors.toList());
+    public Page<RadioSeasonDto> getSeasonsByPage(int pageNumber) {
+        pageNumber = Math.max(0, pageNumber);
+        Pageable pageable = PageRequest.of(pageNumber, 4, Sort.by(Sort.Direction.DESC, "seasonNumber"));
+        return radioSeasonRepository.findAll(pageable).map(radioMapper::toSeasonDto);
     }
 
     @Transactional(readOnly = true)
@@ -87,6 +90,13 @@ public class RadioService {
     }
 
     // ── Episode CRUD ──
+
+    @Transactional(readOnly = true)
+    public Page<RadioEpisodeDto> getEpisodesBySeason(Long seasonId, int pageNumber) {
+        pageNumber = Math.max(0, pageNumber);
+        Pageable pageable = PageRequest.of(pageNumber, 5, Sort.by(Sort.Direction.ASC, "episodeNumber"));
+        return radioEpisodeRepository.findByRadioSeasonId(seasonId, pageable).map(radioMapper::toEpisodeDto);
+    }
 
     public RadioEpisodeDto createEpisode(RadioEpisodeDto episodeDto) {
         if (episodeDto.getRadioSeasonId() == null) {
