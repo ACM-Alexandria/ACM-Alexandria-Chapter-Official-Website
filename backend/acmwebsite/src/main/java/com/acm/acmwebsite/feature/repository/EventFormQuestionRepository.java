@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface EventFormQuestionRepository extends JpaRepository<EventFormQuestion, Long> {
     List<EventFormQuestion> findByEventId(Long eventId);
+
+    void deleteByEventId(Long eventId);
 }

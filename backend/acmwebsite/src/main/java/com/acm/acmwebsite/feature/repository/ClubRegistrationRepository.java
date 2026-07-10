@@ -14,6 +14,8 @@ public interface ClubRegistrationRepository extends JpaRepository<ClubRegistrati
 
     List<ClubRegistration> findByClubId(Long clubId);
 
+    void deleteByClubId(Long clubId);
+
     @Query("SELECT r.club.id, r.club.name, COUNT(r) FROM ClubRegistration r GROUP BY r.club.id, r.club.name")
     List<Object[]> countRegistrationsByClub();
 }

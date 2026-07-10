@@ -152,7 +152,10 @@ public class ClubService {
         clubRepository.save(club);
         return cleanLinks;
     }
+    @Transactional
     public void deleteClubById(long id) {
+        clubRegistrationRepository.deleteByClubId(id);
+        clubFormQuestionRepository.deleteByClubId(id);
         clubRepository.deleteById(id);
     }
 

@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ProgramFormQuestionRepository extends JpaRepository<ProgramFormQuestion, Long> {
     List<ProgramFormQuestion> findByProgramId(Long programId);
+
+    void deleteByProgramId(Long programId);
 }
