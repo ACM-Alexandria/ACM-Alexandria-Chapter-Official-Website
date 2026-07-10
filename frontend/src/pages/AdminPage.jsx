@@ -68,7 +68,7 @@ const AdminPage = () => {
   const [committees, setCommittees] = useState([]);
   const [events, setEvents] = useState({ content: [], number: 0, totalPages: 1 });
   const [clubs, setClubs] = useState({ content: [], number: 0, totalPages: 1 });
-  const [programs, setPrograms] = useState([]);
+  const [programs, setPrograms] = useState({ content: [], number: 0, totalPages: 1 });
   const [socialLinks, setSocialLinks] = useState([]);
 
   // Club Socials modal states
@@ -160,10 +160,8 @@ const AdminPage = () => {
         };
         setClubs(sorted);
       } else if (tab === "programs") {
-        const data = await fetchPrograms();
-        // Sort programs by eventTime descending (latest first)
-        const sorted = data.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime));
-        setPrograms(sorted);
+        const data = await fetchPrograms(page);
+        setPrograms(data);
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
@@ -217,7 +215,7 @@ const AdminPage = () => {
           (c.description && c.description.toLowerCase().includes(q))
       );
     } else if (mgmtTab === "programs") {
-      return programs.filter(
+      return programs.content.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
           (p.description && p.description.toLowerCase().includes(q))
@@ -249,7 +247,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "clubs") {
       setFormData({ name: "", description: "", imageUrl: "" });
     } else if (mgmtTab === "programs") {
-      setFormData({ name: "", description: "", imageUrl: "", eventTime: "" });
+      setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
     }
@@ -262,10 +260,14 @@ const AdminPage = () => {
     setMgmtError(null);
     setModalError(null);
 
-    if ((mgmtTab === "events" || mgmtTab === "programs") && item.eventTime) {
+    if (mgmtTab === "events" && item.eventTime) {
       const date = new Date(item.eventTime);
       const formattedDate = date.toISOString().slice(0, 16);
       setFormData({ ...item, eventTime: formattedDate });
+    } else if (mgmtTab === "programs") {
+      const formattedStartDate = item.startDate ? new Date(item.startDate).toISOString().slice(0, 16) : "";
+      const formattedEndDate = item.endDate ? new Date(item.endDate).toISOString().slice(0, 16) : "";
+      setFormData({ ...item, startDate: formattedStartDate, endDate: formattedEndDate });
     } else {
       setFormData({ ...item });
     }
@@ -373,20 +375,25 @@ const AdminPage = () => {
     }
   };
  
-  const handleToggleCall = async (committee) => {
+  const handleToggleCall = async (item) => {
     setMgmtLoading(true);
     setMgmtError(null);
     try {
-      const isCurrentlyOpen = committee.open || committee.isOpen;
-      if (isCurrentlyOpen) {
-        await adminService.closeCommitteeCall(committee.id);
+      if (mgmtTab === "programs") {
+        const isCurrentlyOpen = item.registrationOpen;
+        await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
       } else {
-        await adminService.openCommitteeCall(committee.id);
+        const isCurrentlyOpen = item.open || item.isOpen;
+        if (isCurrentlyOpen) {
+          await adminService.closeCommitteeCall(item.id);
+        } else {
+          await adminService.openCommitteeCall(item.id);
+        }
       }
       await loadMgmtTabData(mgmtTab);
     } catch (err) {
       console.error(err);
-      setMgmtError(err.message || "Failed to update committee call status.");
+      setMgmtError(err.message || `Failed to update ${mgmtTab === "programs" ? "program registration" : "committee call"} status.`);
     } finally {
       setMgmtLoading(false);
     }
@@ -423,7 +430,7 @@ const AdminPage = () => {
   };
 
   const handleRegistrationClick = async (item) => {
-    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : "committee";
+    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : mgmtTab === "programs" ? "program" : "committee";
     setSelectedResourceForAnalysis({
       id: item.id,
       name: item.name,
@@ -451,7 +458,12 @@ const AdminPage = () => {
 
   const handleQuestionsClick = (item) => {
     setSelectedResourceForQuestions(item);
-    setQuestionsResourceType(mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : "committee");
+    setQuestionsResourceType(
+      mgmtTab === "events" ? "event" :
+      mgmtTab === "clubs" ? "club" :
+      mgmtTab === "programs" ? "program" :
+      "committee"
+    );
     setQuestionsModalOpen(true);
   };
 
@@ -480,8 +492,13 @@ const AdminPage = () => {
           ...prev,
           content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
         }));
-      } else {
+      } else if (type === "club") {
         setClubs(prev => ({
+          ...prev,
+          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+        }));
+      } else if (type === "program") {
+        setPrograms(prev => ({
           ...prev,
           content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
         }));
@@ -679,17 +696,17 @@ const AdminPage = () => {
               </div>
 
               {/* Pagination controls for paginated resources */}
-              {(mgmtTab === "events" || mgmtTab === "clubs") && (
+              {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs") && (
                 <div className="flex items-center justify-between border-t border-slate-100 pt-5 mt-6">
                   <span className="text-xs text-slate-400 font-bold">
-                    Page {(mgmtTab === "events" ? events.number : clubs.number) + 1} of{" "}
-                    {mgmtTab === "events" ? events.totalPages : clubs.totalPages}
+                    Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) + 1} of{" "}
+                    {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : programs.totalPages}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      disabled={mgmtTab === "events" ? events.number === 0 : clubs.number === 0}
+                      disabled={mgmtTab === "events" ? events.number === 0 : mgmtTab === "clubs" ? clubs.number === 0 : programs.number === 0}
                       onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : clubs.number) - 1)
+                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) - 1)
                       }
                       className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
@@ -699,10 +716,12 @@ const AdminPage = () => {
                       disabled={
                         mgmtTab === "events"
                           ? events.number >= events.totalPages - 1
-                          : clubs.number >= clubs.totalPages - 1
+                          : mgmtTab === "clubs"
+                            ? clubs.number >= clubs.totalPages - 1
+                            : programs.number >= programs.totalPages - 1
                       }
                       onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : clubs.number) + 1)
+                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : programs.number) + 1)
                       }
                       className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >

@@ -1,7 +1,12 @@
 import { useState } from "react";
 
-const ProgramCard = ({ program, index }) => {
+const ProgramCard = ({ program, index, onShowDetails }) => {
   const [imageError, setImageError] = useState(false);
+
+  const handleOpenDetails = () => {
+    if (!program?.id) return;
+    onShowDetails?.(program.id);
+  };
 
   const formatTime = (timeString) => {
     if (!timeString) return "";
@@ -33,9 +38,10 @@ const ProgramCard = ({ program, index }) => {
 
   return (
     <div
-      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 flex flex-col md:flex-row h-full"
+      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col md:flex-row h-full"
       data-aos="fade-up"
       data-aos-delay={index * 100}
+      onClick={handleOpenDetails}
     >
       {/* Program Image Container */}
       <div className="relative w-full md:w-2/5 h-64 md:h-auto overflow-hidden bg-slate-100 shrink-0">
@@ -73,18 +79,41 @@ const ProgramCard = ({ program, index }) => {
         </p>
 
         {/* Program Meta Info */}
-        {program.eventTime && (
+        {(program.startDate || program.time) && (
           <div className="mt-auto grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</p>
-              <p className="text-sm font-extrabold text-slate-700 tracking-tight">{formatDate(program.eventTime)}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duration</p>
+              <p className="text-sm font-extrabold text-slate-700 tracking-tight">
+                {program.startDate && program.endDate ? (
+                  <>
+                    {formatDate(program.startDate)}
+                    <span className="block text-slate-400 text-xs font-semibold my-0.5">to</span>
+                    {formatDate(program.endDate)}
+                  </>
+                ) : program.startDate ? (
+                  formatDate(program.startDate)
+                ) : (
+                  "TBD"
+                )}
+              </p>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</p>
-              <p className="text-sm font-extrabold text-slate-700 tracking-tight">{formatTime(program.eventTime)}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Schedule</p>
+              <p className="text-sm font-extrabold text-slate-700 tracking-tight line-clamp-2">{program.time || "TBD"}</p>
             </div>
           </div>
         )}
+
+        {/* View Details CTA */}
+        <div className="mt-auto pt-6 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
+          <div className="h-px flex-1 bg-slate-100" />
+          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="h-px flex-1 bg-slate-100" />
+        </div>
       </div>
     </div>
   );

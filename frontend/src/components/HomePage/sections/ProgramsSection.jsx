@@ -1,7 +1,7 @@
 import ProgramCard from "../cards/ProgramCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const ProgramsSection = ({ loading, programs }) => {
+const ProgramsSection = ({ loading, programs, onShowProgramDetails }) => {
   // Display only first 2 programs
   const displayedPrograms =
     programs && programs.length > 0 ? programs.slice(0, 2) : [];
@@ -48,14 +48,14 @@ const ProgramsSection = ({ loading, programs }) => {
               }`}
             >
               {displayedPrograms.map((program, index) => (
-                <ProgramCard key={program.id} program={program} index={index} />
+                <ProgramCard key={program.id} program={program} index={index} onShowDetails={onShowProgramDetails} />
               ))}
             </div>
 
             {/* Explore All Programs Button */}
             {programs && programs.length > 2 && (
               <div className="flex justify-center" data-aos="fade-up">
-                <ExploreMoreButton text="Explore All Programs" />
+                <ExploreMoreButton text="Explore All Programs" to="/programs" />
               </div>
             )}
           </div>

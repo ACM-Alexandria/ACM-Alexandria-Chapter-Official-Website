@@ -66,13 +66,24 @@ export const fetchEventById = async (id) => {
   }
 };
 
-// Fetch programs
-export const fetchPrograms = async () => {
+// Fetch programs with pagination
+export const fetchPrograms = async (page = 0) => {
   try {
-    const response = await api.get("/api/program");
-    return response.data;
+    const response = await api.get(`/api/program?page=${page}`);
+    return response.data; // Spring Page: { content, totalPages, number, ... }
   } catch (error) {
     console.error("Error fetching programs:", error);
+    throw error;
+  }
+};
+
+// Fetch single program by id
+export const fetchProgramById = async (id) => {
+  try {
+    const response = await api.get(`/api/program/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching program details:", error);
     throw error;
   }
 };
@@ -84,7 +95,7 @@ export const fetchHomePageData = async () => {
     fetchCommittee().catch(() => []),
     fetchHighBoard().catch(() => []),
     fetchEvents(0).catch(() => ({ content: [] })),
-    fetchPrograms().catch(() => []),
+    fetchPrograms(0).catch(() => ({ content: [] })),
   ]);
 
   const extractContent = (result) => {
@@ -100,7 +111,7 @@ export const fetchHomePageData = async () => {
     committee: results[1].status === "fulfilled" ? results[1].value : [],
     highBoard: results[2].status === "fulfilled" ? results[2].value : [],
     events: extractContent(results[3]),
-    programs: results[4].status === "fulfilled" ? results[4].value : [],
+    programs: extractContent(results[4]),
   };
 };
 

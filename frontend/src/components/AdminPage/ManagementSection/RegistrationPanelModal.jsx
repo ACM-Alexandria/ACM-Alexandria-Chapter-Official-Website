@@ -126,7 +126,7 @@ const RegistrationPanelModal = ({
               {isCommittee ? `Committee Applications: ${resourceName}` : `Registration Panel: ${resourceName}`}
             </h3>
             <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider">
-              {resourceType === "event" ? "Event" : resourceType === "club" ? "Club" : "Committee"} Registration Insights
+              {resourceType === "event" ? "Event" : resourceType === "club" ? "Club" : resourceType === "program" ? "Program" : "Committee"} Registration Insights
             </p>
           </div>
           <button

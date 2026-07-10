@@ -11,6 +11,7 @@ import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
+import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
 import RegistrationModal from "../components/registration/RegistrationModal";
 import Footer from "../components/HomePage/Footer";
 import { fetchHomePageData } from "../services/homePageService";
@@ -27,6 +28,8 @@ const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(null);
   const [isClubSidebarOpen, setIsClubSidebarOpen] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [isProgramSidebarOpen, setIsProgramSidebarOpen] = useState(false);
   const [selectedCommitteeIdForReg, setSelectedCommitteeIdForReg] = useState(null);
   const [isCommitteeRegOpen, setIsCommitteeRegOpen] = useState(false);
 
@@ -53,6 +56,15 @@ const HomePage = () => {
     setIsClubSidebarOpen(false);
   };
 
+  const handleShowProgramDetails = (programId) => {
+    setSelectedProgramId(programId);
+    setIsProgramSidebarOpen(true);
+  };
+
+  const handleCloseProgramSidebar = () => {
+    setIsProgramSidebarOpen(false);
+  };
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Automatically restores sidebar state if returning from dynamic login redirects (User Request)
@@ -60,6 +72,7 @@ const HomePage = () => {
     const openEventId = searchParams.get("openEventId");
     const openClubId = searchParams.get("openClubId");
     const openCommitteeId = searchParams.get("openCommitteeId");
+    const openProgramId = searchParams.get("openProgramId");
 
     if (openEventId) {
       handleShowEventDetails(Number(openEventId));
@@ -70,6 +83,11 @@ const HomePage = () => {
       handleShowClubDetails(Number(openClubId));
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("openClubId");
+      setSearchParams(newParams, { replace: true });
+    } else if (openProgramId) {
+      handleShowProgramDetails(Number(openProgramId));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("openProgramId");
       setSearchParams(newParams, { replace: true });
     } else if (openCommitteeId) {
       setSelectedCommitteeIdForReg(Number(openCommitteeId));
@@ -170,7 +188,7 @@ const HomePage = () => {
           />
         )}
         {isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && (
-          <ProgramsSection loading={loading} programs={programs} />
+          <ProgramsSection loading={loading} programs={programs} onShowProgramDetails={handleShowProgramDetails} />
         )}
         {isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && (
           <ServicesSection />
@@ -188,6 +206,12 @@ const HomePage = () => {
         clubId={selectedClubId}
         isOpen={isClubSidebarOpen}
         onClose={handleCloseClubSidebar}
+      />
+
+      <ProgramDetailsSidebar
+        programId={selectedProgramId}
+        isOpen={isProgramSidebarOpen}
+        onClose={handleCloseProgramSidebar}
       />
 
       <RegistrationModal

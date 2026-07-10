@@ -210,71 +210,28 @@ public class ClubService {
         List<ClubRegistration> registrations = clubRegistrationRepository.findByClubId(clubId);
         List<ClubFormQuestion> questions = clubFormQuestionRepository.findByClubId(clubId);
 
-        List<List<Object>> rows = new ArrayList<>();
-        // Row 1: Header/Title info
-        rows.add(Arrays.asList("Club Name:", club.getName()));
-        rows.add(Collections.emptyList()); // empty row spacer
+        List<String> prefixHeaders = Arrays.asList(
+                "Club Name:", club.getName()
+        );
+        String title = "ACM Alexandria - Club: " + club.getName() + " - Registrations";
 
-        // Row 3: Column Headers
-        List<Object> headers = new ArrayList<>(Arrays.asList(
-                "#", "Registeration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
-        ));
-        for (ClubFormQuestion question : questions) {
-            headers.add(question.getQuestionText());
-        }
-        rows.add(headers);
+        String url = googleSheetsService.syncRegistrationData(
+                title,
+                clubsFolderId,
+                club.getGoogleSheetUrl(),
+                prefixHeaders,
+                registrations,
+                questions,
+                ClubRegistration::getUser,
+                ClubRegistration::getId,
+                ClubRegistration::getAnswers,
+                ClubFormQuestion::getId,
+                ClubFormQuestion::getQuestionText
+        );
 
-        // Rows 4+: Registrants Data
-        int seqNum = 1;
-        for (ClubRegistration reg : registrations) {
-            User user = reg.getUser();
-            if (user == null) continue;
-
-            List<Object> row = new ArrayList<>(Arrays.asList(
-                    seqNum++,
-                    reg.getId(),
-                    user.getName() != null ? user.getName() : "",
-                    user.getEmail() != null ? user.getEmail() : "",
-                    user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
-                    user.getIsAlexEngStudent() != null && user.getIsAlexEngStudent() ? "Yes" : "No",
-                    user.getBatch() != null ? user.getBatch() : "",
-                    user.getDepartment() != null ? user.getDepartment().name() : ""
-            ));
-
-            for (ClubFormQuestion question : questions) {
-                String answer = reg.getAnswers() != null ? reg.getAnswers().getOrDefault(question.getId(), "") : "";
-                row.add(answer);
-            }
-            rows.add(row);
-        }
-
-        String spreadsheetUrl = club.getGoogleSheetUrl();
-        String spreadsheetId = googleSheetsService.extractSpreadsheetId(spreadsheetUrl);
-
-        boolean needsNewSheet = (spreadsheetId == null);
-
-        if (!needsNewSheet) {
-            try {
-                // Try clearing and writing to existing sheet
-                googleSheetsService.clearSpreadsheet(spreadsheetId);
-                googleSheetsService.writeSpreadsheetData(spreadsheetId, rows);
-                club.setSheetLastUpdatedAt(LocalDateTime.now());
-                clubRepository.save(club);
-            } catch (GoogleSheetsNotFoundException e) {
-                needsNewSheet = true;
-            }
-        }
-
-        if (needsNewSheet) {
-            String title = "ACM Alexandria - Club: " + club.getName() + " - Registrations";
-            String newUrl = googleSheetsService.createSpreadsheet(title, clubsFolderId);
-            String newId = googleSheetsService.extractSpreadsheetId(newUrl);
-            googleSheetsService.writeSpreadsheetData(newId, rows);
-
-            club.setGoogleSheetUrl(newUrl);
-            club.setSheetLastUpdatedAt(LocalDateTime.now());
-            clubRepository.save(club);
-        }
+        club.setGoogleSheetUrl(url);
+        club.setSheetLastUpdatedAt(LocalDateTime.now());
+        clubRepository.save(club);
 
         return getRegistrationAnalysis(clubId);
     }

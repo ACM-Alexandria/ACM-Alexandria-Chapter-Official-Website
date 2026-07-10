@@ -1,37 +1,45 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { fetchClubById } from "../../services/homePageService";
-import { HiOutlineUserGroup, HiOutlineTag, HiOutlineX } from "react-icons/hi";
-import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
+import { fetchProgramById } from "../../services/homePageService";
+import { HiOutlineCalendar, HiOutlineX } from "react-icons/hi";
 import RegistrationModal from "../registration/RegistrationModal";
-import { checkClubRegistrationStatus } from "../../services/registrationService";
+import { checkProgramRegistrationStatus } from "../../services/registrationService";
 
-const getSocialIcon = (url) => {
-  if (url.includes('facebook.com')) return <FaFacebook className="w-6 h-6" />;
-  if (url.includes('instagram.com')) return <FaInstagram className="w-6 h-6" />;
-  if (url.includes('linkedin.com')) return <FaLinkedin className="w-6 h-6" />;
-  if (url.includes('whatsapp.com')) return <FaWhatsapp className="w-6 h-6" />;
-  return <FaLink className="w-6 h-6" />;
+const formatDateTime = (eventTime) => {
+  if (!eventTime) return "TBA";
+  try {
+    const date = new Date(eventTime);
+    return date.toLocaleString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    return eventTime;
+  }
 };
 
-const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
+const ProgramDetailsSidebar = ({ programId, isOpen, onClose }) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const [club, setClub] = useState(null);
+  const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
-  // Club membership trackers (User Request)
+  // Registration presence trackers
   const [isRegistered, setIsRegistered] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
 
-  // Auto-evaluate club registration existence on load/updates
+  // Monitor actual user registration status dynamically
   useEffect(() => {
-    if (!isOpen || !clubId || !isAuthenticated || !user?.id) {
+    if (!isOpen || !programId || !isAuthenticated || !user?.id) {
       setIsRegistered(false);
       return;
     }
@@ -39,10 +47,10 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
     const checkStatus = async () => {
       setCheckingStatus(true);
       try {
-        const registered = await checkClubRegistrationStatus(clubId, user.id);
+        const registered = await checkProgramRegistrationStatus(programId, user.id);
         setIsRegistered(registered);
       } catch (err) {
-        console.error("Error checking club registration status:", err);
+        console.error("Error checking program registration:", err);
       } finally {
         setCheckingStatus(false);
       }
@@ -51,29 +59,28 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
     if (!isRegistrationOpen) {
       checkStatus();
     }
-  }, [isOpen, clubId, isAuthenticated, user?.id, isRegistrationOpen]);
+  }, [isOpen, programId, isAuthenticated, user?.id, isRegistrationOpen]);
 
   useEffect(() => {
-    if (!isOpen || !clubId) return;
+    if (!isOpen || !programId) return;
 
-    const loadClub = async () => {
+    const loadProgram = async () => {
       setLoading(true);
       setError(null);
       setImageError(false);
-
       try {
-        const data = await fetchClubById(clubId);
-        setClub(data);
+        const data = await fetchProgramById(programId);
+        setProgram(data);
       } catch (err) {
-        console.error("Failed to load club details:", err);
-        setError("Unable to load club details right now.");
+        console.error("Failed to load program details:", err);
+        setError("Unable to load program details right now.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadClub();
-  }, [clubId, isOpen]);
+    loadProgram();
+  }, [programId, isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -89,9 +96,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
     document.body.style.overflow = "hidden";
 
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
+      if (e.key === "Escape") onClose();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -103,7 +108,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
-  if (!clubId) return null;
+  if (!programId) return null;
 
   return (
     <div
@@ -134,17 +139,17 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
 
             {loading ? (
               <div className="w-full h-full animate-pulse bg-slate-200" />
-            ) : club?.imageUrl && !imageError ? (
+            ) : program?.imageUrl && !imageError ? (
               <img
-                src={club.imageUrl}
-                alt={club.name}
-                className="w-full h-full object-cover"
+                src={program.imageUrl}
+                alt={program.name}
+                className="w-full h-full object-cover transition-transform duration-1000 scale-105"
                 onError={() => setImageError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8] to-[#205E85]">
                 <span className="text-white text-9xl font-black opacity-10 select-none">
-                  {club?.name?.charAt(0) || "C"}
+                  {program?.name?.charAt(0) || "P"}
                 </span>
               </div>
             )}
@@ -153,13 +158,13 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80" />
 
             <div className="absolute bottom-10 left-10 right-10 z-20">
-              {!loading && club && (
+              {!loading && program && (
                 <div style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) both" }}>
                   <div className="inline-flex rounded-full bg-[#4B98C8] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white mb-4">
-                    Club Spotlight
+                    {program.registrationOpen ? "Registration Open" : "Program"}
                   </div>
                   <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                    {club.name}
+                    {program.name}
                   </h2>
                 </div>
               )}
@@ -179,34 +184,72 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-2">
-                   <HiOutlineX className="w-10 h-10" />
+                  <HiOutlineX className="w-10 h-10" />
                 </div>
                 <p className="text-xl font-extrabold text-slate-900">{error}</p>
                 <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold">Close</button>
               </div>
-            ) : club && (
+            ) : program && (
               <div className="space-y-10" style={{ animation: "fadeIn 1s ease 0.3s both" }}>
+
+                {/* Date & Time */}
+                {(program.startDate || program.time) && (
+                  <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col sm:flex-row sm:items-center gap-6 group transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-slate-100">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#4B98C8] shadow-sm shrink-0">
+                        <HiOutlineCalendar className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Duration</p>
+                        <p className="text-sm font-extrabold text-slate-900 leading-tight">
+                          {program.startDate && program.endDate ? (
+                            `${new Date(program.startDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} - ${new Date(program.endDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`
+                          ) : program.startDate ? (
+                            new Date(program.startDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+                          ) : (
+                            "TBD"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    {program.time && (
+                      <div className="sm:border-l sm:border-slate-200 sm:pl-6">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Schedule</p>
+                        <p className="text-sm font-extrabold text-slate-900 leading-tight">
+                          {program.time}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* About Section */}
                 <div className="space-y-4">
                   <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
-                    About this club
+                    About this program
                     <div className="h-px flex-1 bg-slate-100" />
                   </h4>
                   <p className="text-slate-600 text-lg leading-relaxed font-medium whitespace-pre-line">
-                    {club.description || "Join our community and explore new horizons together. This club is dedicated to fostering innovation and collaboration among students."}
+                    {program.description || "Join our specialized program and take your skills to the next level in computing and technology."}
                   </p>
                 </div>
 
                 {/* Action Section */}
                 <div className="pt-6">
-                  {checkingStatus ? (
+                  {!program.registrationOpen ? (
+                    <button
+                      disabled
+                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 px-10 py-6 text-lg font-black text-slate-400 cursor-not-allowed border border-slate-200"
+                    >
+                      <span className="relative z-10 uppercase tracking-widest text-sm">Registration Closed</span>
+                    </button>
+                  ) : checkingStatus ? (
                     <button
                       disabled
                       className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
                     >
                       <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
-                      <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Membership...</span>
+                      <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
                     </button>
                   ) : isRegistered ? (
                     <button
@@ -217,7 +260,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        Already Joined
+                        Already Registered
                       </span>
                     </button>
                   ) : (
@@ -226,7 +269,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                         if (!isAuthenticated) {
                           const path = window.location.pathname + window.location.search;
                           const delimiter = path.includes("?") ? "&" : "?";
-                          const from = `${path}${delimiter}openClubId=${clubId}`;
+                          const from = `${path}${delimiter}openProgramId=${programId}`;
                           navigate("/login", { state: { from } });
                         } else {
                           setIsRegistrationOpen(true);
@@ -234,7 +277,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                       }}
                       className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
                     >
-                      <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
+                      <span className="relative z-10 uppercase tracking-widest text-sm">Register for this program</span>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
@@ -242,44 +285,21 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                     </button>
                   )}
                 </div>
-
-                {/* Social Media Links Section */}
-                {club.socialMediaLinks && club.socialMediaLinks.length > 0 && (
-                  <div className="pt-8 space-y-4">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
-                      Connect with us
-                      <div className="h-px flex-1 bg-slate-100" />
-                    </h4>
-                    <div className="flex flex-wrap gap-4">
-                      {club.socialMediaLinks.map((link, index) => (
-                        <a
-                          key={index}
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-[#4B98C8] hover:text-white transition-all duration-300 shadow-sm border border-slate-100 hover:-translate-y-1"
-                        >
-                          {getSocialIcon(link)}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
         </div>
       </aside>
 
-      <RegistrationModal 
+      <RegistrationModal
         isOpen={isRegistrationOpen}
         onClose={() => setIsRegistrationOpen(false)}
-        entityId={clubId}
-        type="club"
-        entityName={club?.name}
+        entityId={programId}
+        type="program"
+        entityName={program?.name}
       />
     </div>
   );
 };
 
-export default ClubDetailsSidebar;
+export default ProgramDetailsSidebar;
