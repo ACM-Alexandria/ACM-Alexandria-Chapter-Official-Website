@@ -33,6 +33,7 @@ public class ProgramService {
     private final ProgramFormQuestionRepository programFormQuestionRepository;
     private final ProgramRegistrationRepository programRegistrationRepository;
     private final GoogleSheetsService googleSheetsService;
+    private final SubscriptionService subscriptionService;
 
     @Value("${google.sheets.programs-folder-id:}")
     private String programsFolderId;
@@ -41,12 +42,14 @@ public class ProgramService {
                           ProgramMapper programMapper,
                           ProgramFormQuestionRepository programFormQuestionRepository,
                           ProgramRegistrationRepository programRegistrationRepository,
-                          GoogleSheetsService googleSheetsService) {
+                          GoogleSheetsService googleSheetsService,
+                          SubscriptionService subscriptionService) {
         this.programRepository = programRepository;
         this.programMapper = programMapper;
         this.programFormQuestionRepository = programFormQuestionRepository;
         this.programRegistrationRepository = programRegistrationRepository;
         this.googleSheetsService = googleSheetsService;
+        this.subscriptionService = subscriptionService;
     }
 
     public List<ProgramDto> getAllPrograms() {
@@ -97,7 +100,9 @@ public class ProgramService {
             throw new IllegalArgumentException("Program name is required");
         }
         Program program = programMapper.toProgram(programDto);
-        return programMapper.toProgramDto(programRepository.save(program));
+        Program saved = programRepository.save(program);
+        subscriptionService.sendNewProgramNotificationToNewsSubscribers(saved);
+        return programMapper.toProgramDto(saved);
     }
 
     // ── Registration Toggle ──

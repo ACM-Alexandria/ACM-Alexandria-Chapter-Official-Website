@@ -5,6 +5,7 @@ import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.mapper.ProgramMapper;
 import com.acm.acmwebsite.feature.repository.ProgramRepository;
 import com.acm.acmwebsite.feature.service.ProgramService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +28,9 @@ public class ProgramServiceTest {
 
     @Mock
     private ProgramMapper programMapper;
+
+    @Mock
+    private SubscriptionService subscriptionService;
 
     @InjectMocks
     private ProgramService programService;
@@ -180,6 +184,7 @@ public class ProgramServiceTest {
 
         verify(programMapper).toProgram(input);
         verify(programRepository).save(entity);
+        verify(subscriptionService).sendNewProgramNotificationToNewsSubscribers(saved);
         verify(programMapper).toProgramDto(saved);
     }
 }

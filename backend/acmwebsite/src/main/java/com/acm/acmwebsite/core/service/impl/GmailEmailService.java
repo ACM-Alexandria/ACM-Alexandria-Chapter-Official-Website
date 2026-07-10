@@ -204,6 +204,36 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
+    public void sendNewProgramAnnouncementEmail(String to, String programName, String description, String startDate) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject("New ACM Alexandria Program: " + programName);
+
+            Context context = new Context();
+            context.setVariable("emailTitle", "New ACM Alexandria Program: " + programName);
+            context.setVariable("preheaderText", "We are excited to launch a new ACM Alexandria program!");
+            context.setVariable("programName", programName);
+            context.setVariable("description", description != null ? description : "No description available");
+            context.setVariable("startDate", startDate != null ? startDate : "To be announced");
+            context.setVariable("buttonUrl", frontendUrl + "/programs");
+
+            String htmlContent = templateEngine.process("mail/new-program", context);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("New program announcement email sent successfully to {}", to);
+
+        } catch (Exception e) {
+            log.error("Failed to send new program announcement email to {}", to, e);
+        }
+    }
+
+    @Override
+    @Async
     public void sendCommitteeCallEmail(String to, String subject, String body) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();

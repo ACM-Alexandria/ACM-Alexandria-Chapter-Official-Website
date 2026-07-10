@@ -82,12 +82,12 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
         {(program.startDate || program.time) && (
           <div className="mt-auto grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duration</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Starts</p>
               <p className="text-sm font-extrabold text-slate-700 tracking-tight">
                 {program.startDate && program.endDate ? (
                   <>
                     {formatDate(program.startDate)}
-                    <span className="block text-slate-400 text-xs font-semibold my-0.5">to</span>
+                    <span className="block text-slate-400 text-xs font-semibold my-0.5">Till</span>
                     {formatDate(program.endDate)}
                   </>
                 ) : program.startDate ? (
