@@ -33,6 +33,7 @@ build/
 
 # Environment
 application.properties
+!backend/acmwebsite/src/test/resources/application.properties
 
 
 # OS
