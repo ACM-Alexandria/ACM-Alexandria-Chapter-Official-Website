@@ -25,6 +25,12 @@ public class ImageUploadService {
             throw new IllegalArgumentException("Failed to upload image: The provided file is empty.");
         }
 
+        if (file.getSize() > 5 * 1024 * 1024) {
+            double sizeInMB = file.getSize() / (1024.0 * 1024.0);
+            log.warn("Attempted upload of file exceeding 5MB: {} (size: {} MB)", file.getOriginalFilename(), sizeInMB);
+            throw new IllegalArgumentException(String.format("Failed to upload image: File exceeds the maximum allowed size of 5 MB (actual size: %.2f MB).", sizeInMB));
+        }
+
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             log.warn("Attempted upload of non-image file type: {}", contentType);

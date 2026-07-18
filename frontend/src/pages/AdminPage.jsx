@@ -21,6 +21,7 @@ import QuestionsManagementModal from "../components/AdminPage/ManagementSection/
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
+import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import {
   FiUsers,
   FiCalendar,
@@ -45,6 +46,7 @@ import {
   FiHelpCircle,
   FiGrid,
   FiRadio,
+  FiMessageSquare,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -130,6 +132,7 @@ const AdminPage = () => {
     { id: "radio", label: "Radio", icon: FiRadio },
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
+    { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
   ];
 
   const loadMgmtTabData = async (tab, page = 0) => {
@@ -181,6 +184,8 @@ const AdminPage = () => {
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
+      } else if (tab === "feedback") {
+        // Handled internally in FeedbackTab
       }
     } catch (err) {
       console.error(err);
@@ -647,8 +652,8 @@ const AdminPage = () => {
 
             <div className="flex-1 w-full bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls — hidden for gallery which renders its own header */}
-                {mgmtTab !== "gallery" && (
+                {/* Header Controls — hidden for gallery/feedback which render their own headers */}
+                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && (
                   <>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
@@ -711,9 +716,11 @@ const AdminPage = () => {
                   </div>
                 )}
 
-                {/* Table Data — skipped for gallery tab which renders its own UI */}
+                {/* Table Data — skipped for gallery/feedback tabs which render their own UI */}
                 {mgmtTab === "gallery" ? (
                   <GalleryTab />
+                ) : mgmtTab === "feedback" ? (
+                  <FeedbackTab />
                 ) : (
                   <ResourceTable
                     activeTab={mgmtTab}
