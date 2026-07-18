@@ -1,12 +1,17 @@
 package com.acm.acmwebsite.service;
 
-import com.acm.acmwebsite.feature.entity.Email;
+import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.entity.Subscription;
+import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
 import com.acm.acmwebsite.feature.enums.SubscriptionStatus;
 import com.acm.acmwebsite.feature.repository.SubscriptionRepository;
-import com.acm.acmwebsite.feature.service.EmailService;
+import com.acm.acmwebsite.feature.repository.EmailRepository;
+import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,19 +35,28 @@ class SubscriptionServiceTest {
     @Mock
     EmailService emailService;
 
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    EmailRepository emailRepository;
+
+    @Mock
+    CommitteeRepository committeeRepository;
+
     @InjectMocks
     SubscriptionService subscriptionService;
 
     @Test
     @DisplayName("Send confirmation email to Inactive subscription")
     void shouldSendConfirmationEmail(){
-        Email email = new Email("dev@example.com");
-        Subscription subscription = new Subscription(email, SubscripeTo.COMMITTEE,1234L);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription subscription = new Subscription(user, SubscripeTo.COMMITTEE,1234L);
         subscription.setStatus(SubscriptionStatus.PENDING);
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
 
-        verify(emailService,times(1)).sendEmail(any(),any());
+        verify(emailService,times(1)).sendSubscriptionConfirmationEmail(eq("dev@example.com"), eq("hello!"), eq("mock"));
         verify(subscriptionRepository,times(1)).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should be updated to ACTIVE");
         assertNotNull(subscription.getConfirmedAt(), "ConfirmedAt timestamp should be set");
@@ -51,12 +66,12 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("send confirmation email to active subscription")
     void shouldNotSendConfirmationEmail(){
-        Email email = new Email("dev@example.com");
-        Subscription subscription = new Subscription(email, SubscripeTo.COMMITTEE,1234L);
+        User user = User.builder().email("dev@example.com").build();
+        Subscription subscription = new Subscription(user, SubscripeTo.COMMITTEE,1234L);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
-        verify(emailService,never()).sendEmail(any(),any());
+        verify(emailService,never()).sendSubscriptionConfirmationEmail(any(String.class), any(String.class), any(String.class));
         verify(subscriptionRepository,never()).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should not be changed ");
     }
@@ -78,17 +93,17 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Unsubscribe: Successfully change status to UNSUBSCRIBE")
     void shouldUnsubscribeSuccessfully() {
-        Email email = new Email("dev@example.com");
+        User user = User.builder().email("dev@example.com").build();
         SubscripeTo topic = SubscripeTo.COMMITTEE;
         Long id = 1L;
-        Subscription sub = new Subscription(email, topic, id);
+        Subscription sub = new Subscription(user, topic, id);
         sub.setStatus(SubscriptionStatus.ACTIVE);
 
-        when(subscriptionRepository.findSubscriptionByEmailAndSubscribeToAndSubscribeToId(email.getEmail(), topic, id))
-                .thenReturn(sub);
+        when(subscriptionRepository.findSubscriptionByUserEmailAndSubscribeToAndSubscribeToId(user.getEmail(), topic, id))
+                .thenReturn(Optional.of(sub));
 
 
-        subscriptionService.unsubscribeByEmailAndTopic(email.getEmail(), topic, id);
+        subscriptionService.unsubscribeByEmailAndTopic(user.getEmail(), topic, id);
 
         assertEquals(SubscriptionStatus.UNSUBSCRIBE, sub.getStatus());
         verify(subscriptionRepository).save(sub);
@@ -99,7 +114,8 @@ class SubscriptionServiceTest {
     void shouldReturnSubscribersList() {
         SubscripeTo topic = SubscripeTo.COMMITTEE;
         Long id = 123L;
-        Subscription subscription= new Subscription(new Email("mock"),SubscripeTo.COMMITTEE,123L);
+        User user = User.builder().email("mock").build();
+        Subscription subscription= new Subscription(user,SubscripeTo.COMMITTEE,123L);
         List<Subscription> mockList = List.of(subscription,subscription);
         when(subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToId(topic, id))
                 .thenReturn(mockList);
@@ -116,14 +132,12 @@ class SubscriptionServiceTest {
     @DisplayName("Add Subscription: Should call save on repository")
     void shouldCallSaveOnRepository() {
 
-
-        Subscription sub= new Subscription(new Email("mock"),SubscripeTo.COMMITTEE,123L);
+        User user = User.builder().email("mock").build();
+        Subscription sub= new Subscription(user,SubscripeTo.COMMITTEE,123L);
 
         subscriptionService.addSubscription(sub);
 
         verify(subscriptionRepository, times(1)).save(sub);
     }
-
-
 
 }

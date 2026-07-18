@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { fetchClubById } from "../../services/homePageService";
 import { HiOutlineUserGroup, HiOutlineTag, HiOutlineX } from "react-icons/hi";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
+import RegistrationModal from "../registration/RegistrationModal";
+import { checkClubRegistrationStatus } from "../../services/registrationService";
 
 const getSocialIcon = (url) => {
   if (url.includes('facebook.com')) return <FaFacebook className="w-6 h-6" />;
@@ -12,11 +16,42 @@ const getSocialIcon = (url) => {
 };
 
 const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+
+  // Club membership trackers (User Request)
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+
+  // Auto-evaluate club registration existence on load/updates
+  useEffect(() => {
+    if (!isOpen || !clubId || !isAuthenticated || !user?.id) {
+      setIsRegistered(false);
+      return;
+    }
+
+    const checkStatus = async () => {
+      setCheckingStatus(true);
+      try {
+        const registered = await checkClubRegistrationStatus(clubId, user.id);
+        setIsRegistered(registered);
+      } catch (err) {
+        console.error("Error checking club registration status:", err);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+
+    if (!isRegistrationOpen) {
+      checkStatus();
+    }
+  }, [isOpen, clubId, isAuthenticated, user?.id, isRegistrationOpen]);
 
   useEffect(() => {
     if (!isOpen || !clubId) return;
@@ -53,22 +88,31 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = originalOverflow;
       cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!clubId) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-opacity duration-500 ${isVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 ${isVisible ? "pointer-events-auto" : "pointer-events-none"}`}
       aria-hidden={!isVisible}
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 
@@ -82,7 +126,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-xl transition-all duration-300 hover:bg-white hover:text-slate-900 hover:scale-105 active:scale-95"
+              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 backdrop-blur-md text-white border border-slate-700/50 shadow-xl transition-all duration-300 hover:bg-slate-900 hover:scale-105 active:scale-95"
               aria-label="Close"
             >
               <HiOutlineX className="w-6 h-6" />
@@ -156,11 +200,38 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
 
                 {/* Action Section */}
                 <div className="pt-6">
-                  {club.googleFormUrl ? (
-                    <a
-                      href={club.googleFormUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {checkingStatus ? (
+                    <button
+                      disabled
+                      className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
+                    >
+                      <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
+                      <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Membership...</span>
+                    </button>
+                  ) : isRegistered ? (
+                    <button
+                      disabled
+                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
+                    >
+                      <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Already Joined
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          const path = window.location.pathname + window.location.search;
+                          const delimiter = path.includes("?") ? "&" : "?";
+                          const from = `${path}${delimiter}openClubId=${clubId}`;
+                          navigate("/login", { state: { from } });
+                        } else {
+                          setIsRegistrationOpen(true);
+                        }
+                      }}
                       className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
                     >
                       <span className="relative z-10 uppercase tracking-widest text-sm">Join this club</span>
@@ -168,13 +239,6 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                         <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-300 px-10 py-6 text-lg font-black text-slate-500 cursor-not-allowed"
-                    >
-                      <span className="relative z-10 uppercase tracking-widest text-sm">Registration Closed</span>
                     </button>
                   )}
                 </div>
@@ -206,6 +270,14 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
           </div>
         </div>
       </aside>
+
+      <RegistrationModal 
+        isOpen={isRegistrationOpen}
+        onClose={() => setIsRegistrationOpen(false)}
+        entityId={clubId}
+        type="club"
+        entityName={club?.name}
+      />
     </div>
   );
 };

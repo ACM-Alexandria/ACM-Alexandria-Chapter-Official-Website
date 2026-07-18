@@ -1,0 +1,226 @@
+name: ACM Website CI/CD
+
+on:
+  pull_request:
+    branches: ["**"]
+  push:
+    branches: ["main", "master"]
+
+# =========================================================
+# ================= BACKEND ===============================
+# =========================================================
+
+jobs:
+  backend-setup:
+    name: Backend - Setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
+  backend-build:
+    name: Backend - Build
+    runs-on: ubuntu-latest
+    needs: backend-setup
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
+      - name: Build backend
+        working-directory: backend/acmwebsite
+        run: mvn clean compile -DskipTests
+
+  backend-test:
+    name: Backend - Test & Coverage
+    runs-on: ubuntu-latest
+    needs: backend-build
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
+      - name: Run backend tests & JaCoCo
+        working-directory: backend/acmwebsite
+        run: mvn clean test jacoco:report
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-report
+          path: backend/acmwebsite/target/site/jacoco/
+
+      # ---------- Backend coverage extraction ----------
+      - name: Extract backend coverage
+        id: backend
+        run: |
+          python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          import os
+
+          tree = ET.parse("backend/acmwebsite/target/site/jacoco/jacoco.xml")
+          root = tree.getroot()
+
+          c = root.findall('.//counter[@type="LINE"]')[-1]
+          covered = int(c.get("covered"))
+          missed = int(c.get("missed"))
+          total = covered + missed
+          rate = (covered / total * 100) if total else 0
+
+          indicator = "🟢" if rate >= 80 else "🟡" if rate >= 60 else "🔴"
+
+          # Exclude specific directories: config, dto, entity, exception, repository
+          excluded_dirs = {"config", "dto", "entity", "exception", "repository"}
+          main_files = {}
+
+          for f in Path("backend/acmwebsite/src/main/java").rglob("*.java"):
+              if not any(excluded in f.parts for excluded in excluded_dirs):
+                  parts = list(f.parts)
+
+                  backend_pkg_idx = -1
+                  for i, part in enumerate(parts):
+                      if (
+                          part == "acmwebsite"
+                          and i > 1
+                          and parts[i - 1] == "acm"
+                          and parts[i - 2] == "com"
+                      ):
+                          backend_pkg_idx = i
+                          break
+
+                  if backend_pkg_idx != -1:
+                      route = "/".join(parts[backend_pkg_idx + 1:])
+                      main_files[f.stem] = route
+
+          tests = {
+              f.stem.replace("Test", "")
+              for f in Path("backend/acmwebsite/src/test/java").rglob("*Test.java")
+          }
+
+          untested_names = sorted(set(main_files.keys()) - tests)
+          untested = [main_files[name] for name in untested_names]
+
+          out = os.environ["GITHUB_OUTPUT"]
+          with open(out, "a") as f:
+              f.write(f"indicator={indicator}\n")
+              f.write(f"rate={rate:.2f}\n")
+              f.write(f"covered={covered}\n")
+              f.write(f"total={total}\n")
+              f.write(f"untested_count={len(untested)}\n")
+              f.write("untested<<EOF\n")
+              for x in untested:
+                  f.write(x + "\n")
+              f.write("EOF\n")
+          EOF
+
+      # ---------- PR Coverage Comment ----------
+      - name: Comment Coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          message: |
+            # 📊 TestCoverage Report
+
+            <div style="background-color: #f6f8fa; padding: 16px; border-radius: 8px; border-left: 4px solid #0366d6; margin: 16px 0;">
+
+            ## 📈 Overall Project Coverage
+            <h3 style="color: #24292e; margin: 8px 0;">
+            ${{ steps.backend.outputs.indicator }} <strong>${{ steps.backend.outputs.rate }}%</strong> Coverage
+            </h3>
+
+            <p style="color: #586069; margin: 4px 0;">
+            <code>${{ steps.backend.outputs.covered }} / ${{ steps.backend.outputs.total }}</code> lines covered
+            </p>
+
+            </div>
+
+            ---
+
+            <div style="background-color: #f6f8fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+
+            ## 🧠 Backend Service
+            <h3 style="color: #24292e; margin: 8px 0;">
+            ${{ steps.backend.outputs.indicator }} <strong>${{ steps.backend.outputs.rate }}%</strong> Line Coverage
+            </h3>
+
+            <p style="color: #586069; margin: 4px 0;">
+            <code>${{ steps.backend.outputs.covered }} / ${{ steps.backend.outputs.total }}</code> lines covered
+            </p>
+
+            </div>
+
+            <details>
+            <summary style="cursor: pointer; font-weight: bold; color: #d73a49; font-size: 1.1em; margin: 12px 0;">
+            🚨 Untested Files (<code>${{ steps.backend.outputs.untested_count }}</code>)
+            </summary>
+
+            <div style="margin-top: 12px; background-color: #fff5f5; padding: 12px; border-radius: 6px; border-left: 3px solid #d73a49; max-height: 500px; overflow-y: auto;">
+
+            ```
+            ${{ steps.backend.outputs.untested }}
+            ```
+
+            </div>
+            </details>
+  # =========================================================
+  # ================= FRONTEND ==============================
+  # =========================================================
+
+  frontend-build:
+    name: Frontend - Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node
+
+      - run: npm ci
+        working-directory: frontend
+
+      - run: npm run build
+        working-directory: frontend

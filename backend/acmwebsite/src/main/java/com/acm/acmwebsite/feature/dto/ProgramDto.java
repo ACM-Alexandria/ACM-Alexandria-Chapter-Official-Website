@@ -6,28 +6,29 @@ public class ProgramDto {
     private Long id;
     private String name;
     private String description;
-    private LocalDateTime eventTime;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private String time;
     private String imageUrl;
-    private String googleFormUrl;
+    private boolean registrationOpen;
+    private String googleSheetUrl;
+    private LocalDateTime sheetLastUpdatedAt;
 
-    public ProgramDto(Long id,String name, String description, LocalDateTime eventTime, String imageUrl, String googleFormUrl) {
+    public ProgramDto(Long id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String time, String imageUrl,
+                      boolean registrationOpen, String googleSheetUrl, LocalDateTime sheetLastUpdatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.eventTime = eventTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.time = time;
         this.imageUrl = imageUrl;
-        this.googleFormUrl = googleFormUrl;
+        this.registrationOpen = registrationOpen;
+        this.googleSheetUrl = googleSheetUrl;
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 
     public ProgramDto() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Long getId() {
@@ -38,12 +39,12 @@ public class ProgramDto {
         this.id = id;
     }
 
-    public LocalDateTime getEventTime() {
-        return eventTime;
+    public String getName() {
+        return name;
     }
 
-    public void setEventTime(LocalDateTime eventTime) {
-        this.eventTime = eventTime;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -54,6 +55,29 @@ public class ProgramDto {
         this.description = description;
     }
 
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 
     public String getImageUrl() {
         return imageUrl;
@@ -63,11 +87,27 @@ public class ProgramDto {
         this.imageUrl = imageUrl;
     }
 
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
     }
 
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 }

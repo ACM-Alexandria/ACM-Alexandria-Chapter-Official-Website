@@ -14,21 +14,23 @@ public class Club {
     @Column(columnDefinition = "TEXT")
     private String description;
     private String imageUrl;
-    private String googleFormUrl;
     @ElementCollection
     @CollectionTable(name = "club_social_links", joinColumns = @JoinColumn(name = "club_id"))
     @Column(name = "link")
     private List<String> socialMediaLinks;
+    @Column(name = "google_sheet_url")
+    private String googleSheetUrl;
+    @Column(name = "sheet_last_updated_at")
+    private java.time.LocalDateTime sheetLastUpdatedAt;
 
     public Club() {
     }
 
-    public Club(Long id, String name, String description, String imageUrl, String googleFormUrl, List<String> socialMediaLinks) {
+    public Club(Long id, String name, String description, String imageUrl, List<String> socialMediaLinks) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.googleFormUrl = googleFormUrl;
         this.socialMediaLinks = socialMediaLinks;
     }
 
@@ -64,19 +66,27 @@ public class Club {
         this.imageUrl = imageUrl;
     }
 
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
-    }
-
     public List<String> getSocialMediaLinks() {
         return socialMediaLinks;
     }
 
     public void setSocialMediaLinks(List<String> socialMediaLinks) {
         this.socialMediaLinks = socialMediaLinks;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public java.time.LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(java.time.LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 }

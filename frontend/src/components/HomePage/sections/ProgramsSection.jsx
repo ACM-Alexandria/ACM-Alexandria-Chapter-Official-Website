@@ -1,7 +1,7 @@
 import ProgramCard from "../cards/ProgramCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const ProgramsSection = ({ programs }) => {
+const ProgramsSection = ({ loading, programs, onShowProgramDetails }) => {
   // Display only first 2 programs
   const displayedPrograms =
     programs && programs.length > 0 ? programs.slice(0, 2) : [];
@@ -11,29 +11,20 @@ const ProgramsSection = ({ programs }) => {
       id="programs"
       className="w-full py-24 px-6 bg-white relative overflow-hidden"
     >
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
-
+      
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
-          <h2
-            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
-            data-aos="fade-up"
-          >
-            Our Programs
-          </h2>
-          <h3 
+          <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
             data-aos="fade-up"
-            data-aos-delay="100"
           >
-            Empower Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Skills</span>
-          </h3>
+            Empower Your <span className="text-[#205E85]">Skills</span>
+          </h2>
           <p
             className="text-slate-500 text-lg max-w-2xl mx-auto font-medium"
             data-aos="fade-up"
-            data-aos-delay="200"
+            data-aos-delay="100"
           >
             Explore our programs designed to enhance your skills and knowledge
             in various aspects of computer science and technology.
@@ -41,7 +32,13 @@ const ProgramsSection = ({ programs }) => {
         </div>
 
         {/* Programs Grid - Show only first 2 */}
-        {displayedPrograms && displayedPrograms.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto gap-12">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-60 border border-slate-200/50" />
+            ))}
+          </div>
+        ) : displayedPrograms && displayedPrograms.length > 0 ? (
           <div className="space-y-16">
             <div
               className={`grid gap-12 ${
@@ -51,14 +48,14 @@ const ProgramsSection = ({ programs }) => {
               }`}
             >
               {displayedPrograms.map((program, index) => (
-                <ProgramCard key={program.id} program={program} index={index} />
+                <ProgramCard key={program.id} program={program} index={index} onShowDetails={onShowProgramDetails} />
               ))}
             </div>
 
             {/* Explore All Programs Button */}
             {programs && programs.length > 2 && (
               <div className="flex justify-center" data-aos="fade-up">
-                <ExploreMoreButton text="Explore All Programs" />
+                <ExploreMoreButton text="Explore All Programs" to="/programs" />
               </div>
             )}
           </div>

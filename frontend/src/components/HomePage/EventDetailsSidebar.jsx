@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { fetchEventById } from "../../services/homePageService";
-import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX } from "react-icons/hi";
+import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX, HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
+import { FiMaximize2 } from "react-icons/fi";
+import RegistrationModal from "../registration/RegistrationModal";
+import { checkEventRegistrationStatus } from "../../services/registrationService";
 
 const formatDateTime = (eventTime) => {
   if (!eventTime) return "TBA";
@@ -20,12 +25,142 @@ const formatDateTime = (eventTime) => {
   }
 };
 
+/* ── Sidebar Lightbox ── */
+const SidebarLightbox = ({ images, startIndex, onClose }) => {
+  const [current, setCurrent] = useState(startIndex);
+  const [direction, setDirection] = useState("next");
+  const touchStartX = useRef(null);
+
+  const prev = useCallback(() => {
+    setDirection("prev");
+    setCurrent((c) => (c - 1 + images.length) % images.length);
+  }, [images.length]);
+  
+  const next = useCallback(() => {
+    setDirection("next");
+    setCurrent((c) => (c + 1) % images.length);
+  }, [images.length]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [prev, next, onClose]);
+
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    touchStartX.current = null;
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md animate-[fadeIn_0.2s_ease]"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <style>{`
+        @keyframes slideInFromRight { from { opacity: 0; transform: translateX(60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes slideInFromLeft  { from { opacity: 0; transform: translateX(-60px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .slide-next { animation: slideInFromRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+        .slide-prev { animation: slideInFromLeft  0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+      `}</style>
+
+      {/* Close */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 hover:scale-105 active:scale-95 transition-all"
+        aria-label="Close"
+      >
+        <HiOutlineX className="w-6 h-6" />
+      </button>
+
+      {/* Counter */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-1.5 rounded-full bg-slate-800/70 text-white text-[11px] font-bold tracking-wider">
+        {current + 1} / {images.length}
+      </div>
+
+      {/* Prev */}
+      {images.length > 1 && (
+        <button
+          type="button"
+          onClick={prev}
+          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          aria-label="Previous"
+        >
+          <HiOutlineChevronLeft className="w-7 h-7" />
+        </button>
+      )}
+
+      {/* Image */}
+      <img
+        key={current}
+        src={images[current]}
+        alt={`Gallery ${current + 1}`}
+        className={`max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
+      />
+
+      {/* Next */}
+      {images.length > 1 && (
+        <button
+          type="button"
+          onClick={next}
+          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          aria-label="Next"
+        >
+          <HiOutlineChevronRight className="w-7 h-7" />
+        </button>
+      )}
+    </div>
+  );
+};
+
 const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
+
+  // Registration presence trackers (User Request)
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+
+  // Monitor actual user registration status dynamically
+  useEffect(() => {
+    if (!isOpen || !eventId || !isAuthenticated || !user?.id) {
+      setIsRegistered(false);
+      return;
+    }
+
+    const checkStatus = async () => {
+      setCheckingStatus(true);
+      try {
+        const registered = await checkEventRegistrationStatus(eventId, user.id);
+        setIsRegistered(registered);
+      } catch (err) {
+        console.error("Error checking event registration:", err);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+
+    // Refresh when opening the panel or when closing the signup dialog
+    if (!isRegistrationOpen) {
+      checkStatus();
+    }
+  }, [isOpen, eventId, isAuthenticated, user?.id, isRegistrationOpen]);
 
   useEffect(() => {
     if (!isOpen || !eventId) return;
@@ -52,6 +187,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) {
       setIsVisible(false);
+      setActiveLightboxIndex(null);
       return;
     }
 
@@ -62,22 +198,31 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = originalOverflow;
       cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!eventId) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-opacity duration-500 ${isVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 ${isVisible ? "pointer-events-auto" : "pointer-events-none"}`}
       aria-hidden={!isVisible}
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 
@@ -91,7 +236,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-xl transition-all duration-300 hover:bg-white hover:text-slate-900 hover:scale-105 active:scale-95"
+              className="absolute right-6 top-6 z-30 w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 backdrop-blur-md text-white border border-slate-700/50 shadow-xl transition-all duration-300 hover:bg-slate-900 hover:scale-105 active:scale-95"
               aria-label="Close"
             >
               <HiOutlineX className="w-6 h-6" />
@@ -192,29 +337,112 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                   </p>
                 </div>
 
-                {/* Action Section */}
-                {event.googleFormUrl && (
-                  <div className="pt-6">
-                    <a
-                      href={event.googleFormUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
-                    >
-                      <span className="relative z-10 uppercase tracking-widest text-sm">Register for this event</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                      {/* Shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                    </a>
+                {/* Gallery Section */}
+                {event.attachedImages && event.attachedImages.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                      Event Gallery
+                      <div className="h-px flex-1 bg-slate-100" />
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {event.attachedImages.map((imgUrl, index) => (
+                        <div
+                          key={index}
+                          onClick={() => setActiveLightboxIndex(index)}
+                          className="relative rounded-2xl overflow-hidden aspect-video border border-slate-100 bg-slate-50 cursor-pointer shadow-sm group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Gallery ${index + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <FiMaximize2 className="w-6 h-6 text-white drop-shadow-md" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                {/* Action Section */}
+                {(() => {
+                  const isPast = event.eventTime ? new Date(event.eventTime) < new Date() : false;
+                  return (
+                    <div className="pt-6">
+                      {isPast ? (
+                        <button
+                          disabled
+                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 px-10 py-6 text-lg font-black text-slate-400 cursor-not-allowed border border-slate-200"
+                        >
+                          <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
+                        </button>
+                      ) : checkingStatus ? (
+                        <button
+                          disabled
+                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
+                        >
+                          <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
+                          <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
+                        </button>
+                      ) : isRegistered ? (
+                        <button
+                          disabled
+                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
+                        >
+                          <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Already Registered
+                          </span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              const path = window.location.pathname + window.location.search;
+                              const delimiter = path.includes("?") ? "&" : "?";
+                              const from = `${path}${delimiter}openEventId=${eventId}`;
+                              navigate("/login", { state: { from } });
+                            } else {
+                              setIsRegistrationOpen(true);
+                            }
+                          }}
+                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
+                        >
+                          <span className="relative z-10 uppercase tracking-widest text-sm">Register for this event</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>
         </div>
       </aside>
+
+      <RegistrationModal 
+        isOpen={isRegistrationOpen}
+        onClose={() => setIsRegistrationOpen(false)}
+        entityId={eventId}
+        type="event"
+        entityName={event?.name}
+      />
+
+      {/* Lightbox Modal */}
+      {activeLightboxIndex !== null && event?.attachedImages?.length > 0 && (
+        <SidebarLightbox
+          images={event.attachedImages}
+          startIndex={activeLightboxIndex}
+          onClose={() => setActiveLightboxIndex(null)}
+        />
+      )}
     </div>
   );
 };

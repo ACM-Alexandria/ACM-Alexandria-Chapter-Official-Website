@@ -1,7 +1,10 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
+import GallerySection from "./GallerySection";
 
-const AboutSection = ({ highBoard = [], committees = [] }) => {
+const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, isRegistrationModalOpen }) => {
+  const isEnabled = (envVal) => envVal !== "false";
+
   const orderedHighBoard = [...highBoard].sort((a, b) => {
     const firstOrder = a?.order ?? Number.MAX_SAFE_INTEGER;
     const secondOrder = b?.order ?? Number.MAX_SAFE_INTEGER;
@@ -10,25 +13,16 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
 
   return (
     <section id="about" className="w-full py-24 px-6 relative overflow-hidden bg-gray-50/50">
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <h2
-            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
-            data-aos="fade-up"
-          >
-            About Us
-          </h2>
-          <h3 
+          <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight"
             data-aos="fade-up"
-            data-aos-delay="100"
           >
-            Leading the Future of <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Computing</span>
-          </h3>
+            Leading the Future of <span className="text-[#205E85]">Computing</span>
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-24">
@@ -56,89 +50,116 @@ const AboutSection = ({ highBoard = [], committees = [] }) => {
               networking events, we foster an environment where innovation thrives
               and lasting professional relationships are built."
             </p>
-            <div className="mt-6 flex items-center gap-4">
-              <div className="w-12 h-1 bg-gradient-to-r from-[#4B98C8] to-[#205E85] rounded-full" />
-              <p className="font-bold text-slate-900 uppercase tracking-widest text-xs">Our Mission</p>
+            <div className="mt-6 flex items-center gap-2">
+              <span className="inline-block px-3 py-1 bg-[#4B98C8]/10 text-[#205E85] font-bold rounded-lg text-xs uppercase tracking-wider">
+                Our Mission
+              </span>
             </div>
           </div>
         </div>
 
         {/* High Board Section */}
-        <div className="mt-24">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
-            <div className="text-center md:text-left">
-              <h3
-                className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
-                data-aos="fade-right"
-              >
-                High Board
-              </h3>
-              <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
-                The visionary leadership behind our chapter
-              </p>
+        {isEnabled(import.meta.env.VITE_ENABLE_HIGHBOARD) && (
+          <div className="mt-24">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
+              <div className="text-center md:text-left">
+                <h3
+                  className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+                  data-aos="fade-right"
+                >
+                  High Board
+                </h3>
+                <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
+                  The visionary leadership behind our chapter
+                </p>
+              </div>
+              <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
             </div>
-            <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
-          </div>
 
-          {orderedHighBoard.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {orderedHighBoard.map((member, index) => (
-                <HighBoardCard key={member.id || index} member={member} index={index} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
-              <p className="text-slate-400 font-medium">
-                No high board members available at the moment.
-              </p>
-            </div>
-          )}
-        </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="animate-pulse bg-slate-100 rounded-3xl h-72 border border-slate-200/50" />
+                ))}
+              </div>
+            ) : orderedHighBoard.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {orderedHighBoard.map((member, index) => (
+                  <HighBoardCard key={member.id || index} member={member} index={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+                <p className="text-slate-400 font-medium">
+                  No high board members available at the moment.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Committees Section */}
-        <div className="mt-24">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
-            <div className="text-center md:text-left">
-              <h3
-                className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
-                data-aos="fade-right"
-              >
-                Our Committees
-              </h3>
-              <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
-                The specialized teams driving our initiatives
-              </p>
-            </div>
-            <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
-          </div>
-
-          {committees && committees.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {committees.map((committee, index) => (
-                <div
-                  key={committee.id || index}
-                  className={
-                    (committee?.boardRoles?.length || 0) > 2
-                      ? "md:col-span-2"
-                      : ""
-                  }
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
+        {isEnabled(import.meta.env.VITE_ENABLE_COMMITTEES) && (
+          <div className="mt-24">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
+              <div className="text-center md:text-left">
+                <h3
+                  className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+                  data-aos="fade-right"
                 >
-                  <CommitteeCard committee={committee} />
-                </div>
-              ))}
+                  Our Committees
+                </h3>
+                <p className="text-slate-500 font-medium" data-aos="fade-right" data-aos-delay="100">
+                  The specialized teams driving our initiatives
+                </p>
+              </div>
+              <div className="h-px flex-1 bg-slate-200 hidden md:block mx-8 opacity-50" />
             </div>
-          ) : (
-            <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
-              <p className="text-slate-400 font-medium">
-                No committees available at the moment.
-              </p>
-            </div>
-          )}
-        </div>
+
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="animate-pulse bg-slate-100 rounded-3xl h-64 border border-slate-200/50" />
+                ))}
+              </div>
+            ) : committees && committees.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {committees.map((committee, index) => (
+                  <div
+                    key={committee.id || index}
+                    className={
+                      (committee?.boardRoles?.length || 0) > 2
+                        ? "md:col-span-2"
+                        : ""
+                    }
+                    data-aos="fade-up"
+                    data-aos-delay={index * 100}
+                  >
+                    <CommitteeCard 
+                      committee={committee} 
+                      onApplyClick={onApplyClick} 
+                      isRegistrationModalOpen={isRegistrationModalOpen}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+                <p className="text-slate-400 font-medium">
+                  No committees available at the moment.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Gallery Section */}
+        {isEnabled(import.meta.env.VITE_ENABLE_GALLERY) && (
+          <GallerySection />
+        )}
       </div>
     </section>
+
   );
 };
 

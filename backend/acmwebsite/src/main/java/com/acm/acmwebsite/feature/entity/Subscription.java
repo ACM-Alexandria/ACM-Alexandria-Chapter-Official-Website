@@ -1,39 +1,41 @@
 package com.acm.acmwebsite.feature.entity;
 
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.enums.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 
-//this entity binds specific email the user entered to the Topic he subscribed to
+//this entity binds specific user to the Topic they subscribed to
 @Entity
 @Table(
         name = "subscription",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"emailId", "subscribeTo","subscribeToId"})
+                @UniqueConstraint(columnNames = {"user_id", "subscribeTo","subscribeToId"})
         })
 public class Subscription {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="emailId")
-    private Email email;
+    @JoinColumn(name="user_id", nullable = false)
+    private User user;
 
 
-    //could be eventId or committeid or programId (fk)
-
+    //could be  committeid or news/0L (fk)
     private Long subscribeToId;
 
 
+    @Enumerated(EnumType.STRING)
     private SubscripeTo subscribeTo;
 
 
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SubscriptionStatus status= SubscriptionStatus.PENDING;  //PENDING or ACTIVE or unsubscribed
 
@@ -48,9 +50,11 @@ public class Subscription {
     private final LocalDateTime createdAt = LocalDateTime.now();
 
 
-    public Subscription(Email email, SubscripeTo subscribeTo, Long subscribeToId) {
+    public Subscription() {}
+
+    public Subscription(User user, SubscripeTo subscribeTo, Long subscribeToId) {
         this.subscribeTo = subscribeTo;
-        this.email = email;
+        this.user = user;
         this.subscribeToId = subscribeToId;
     }
 
@@ -70,12 +74,12 @@ public class Subscription {
         this.status = status;
     }
 
-    public Email getEmail() {
-        return email;
+    public User getUser() {
+        return user;
     }
 
-    public void setEmail(Email email) {
-        this.email = email;
+    public void setUser(User user) {
+        this.user = user;
     }
 
 

@@ -1,10 +1,19 @@
 package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
+import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
+import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
+import com.acm.acmwebsite.feature.entity.Message;
+import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.ClubService;
+import com.acm.acmwebsite.feature.service.GoogleSheetsService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +41,18 @@ public class ClubServiceTest {
     @Mock
     private ClubMapper clubMapper;
 
+    @Mock
+    private ClubRegistrationRepository clubRegistrationRepository;
+
+    @Mock
+    private ClubFormQuestionRepository clubFormQuestionRepository;
+
+    @Mock
+    private GoogleSheetsService googleSheetsService;
+
+    @Mock
+    private SubscriptionService subscriptionService;
+
     @InjectMocks
     private ClubService clubService;
 
@@ -40,15 +62,10 @@ public class ClubServiceTest {
         club.setName("CP Club");
         club.setDescription("Programming club");
         club.setImageUrl("img");
-        club.setGoogleFormUrl("form");
         return club;
     }
     private ClubCardDto sampleClubCardDto() {
-        ClubCardDto dto = new ClubCardDto();
-        dto.setId(1L);
-        dto.setName("CP Club");
-        dto.setImageUrl("img");
-        return dto;
+        return new ClubCardDto(1L, "CP Club", "img", "Programming club");
     }
 
     @Test
@@ -96,6 +113,37 @@ public class ClubServiceTest {
 
         assertEquals("CP Club", saved.getName());
         verify(clubRepository).save(club);
+        verify(subscriptionService).sendNewClubNotificationToNewsSubscribers(club);
+    }
+
+    @Test
+    void createQuestion_shouldSaveClubQuestion() {
+        Club club = createClubSample();
+        FormQuestionRequestDto request = FormQuestionRequestDto.builder()
+                .questionText("Why do you want to join?")
+                .questionType("multiple_choice")
+                .isRequired(true)
+                .options(List.of("Practice", "  ", "Community"))
+                .build();
+
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+        when(clubFormQuestionRepository.save(any(ClubFormQuestion.class))).thenAnswer(invocation -> {
+            ClubFormQuestion question = invocation.getArgument(0);
+            question.setId(30L);
+            return question;
+        });
+
+        FormQuestionResponseDto result = clubService.createQuestion(50L, request);
+
+        assertEquals(30L, result.getId());
+        assertEquals("Why do you want to join?", result.getQuestionText());
+        assertEquals(QuestionType.MULTIPLE_CHOICE.name(), result.getQuestionType());
+        assertTrue(result.getIsRequired());
+        verify(clubFormQuestionRepository).save(argThat(question ->
+                question.getClub() == club
+                        && question.getQuestionType() == QuestionType.MULTIPLE_CHOICE
+                        && question.getOptions().equals(List.of("Practice", "Community"))
+        ));
     }
 
     @Test
@@ -112,6 +160,54 @@ public class ClubServiceTest {
     @Test
     void deleteClub_shouldCallRepository() {
         clubService.deleteClubById(1L);
+        verify(clubRegistrationRepository).deleteByClubId(1L);
+        verify(clubFormQuestionRepository).deleteByClubId(1L);
         verify(clubRepository).deleteById(1L);
+    }
+
+    @Test
+    void getClubSocialLinks_found() {
+        Club club = createClubSample();
+        club.setSocialMediaLinks(List.of("https://facebook.com", "https://twitter.com"));
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+
+        List<String> result = clubService.getClubSocialLinks(50L);
+
+        assertEquals(2, result.size());
+        assertEquals("https://facebook.com", result.get(0));
+    }
+
+    @Test
+    void getClubSocialLinks_notFound_shouldThrow() {
+        when(clubRepository.findById(50L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                com.acm.acmwebsite.feature.exception.ResourceNotFoundException.class,
+                () -> clubService.getClubSocialLinks(50L)
+        );
+    }
+
+    @Test
+    void updateClubSocialLinks_shouldSave() {
+        Club club = createClubSample();
+        when(clubRepository.findById(50L)).thenReturn(Optional.of(club));
+        when(clubRepository.save(any(Club.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<String> result = clubService.updateClubSocialLinks(50L, List.of("https://facebook.com", "  ", "https://linkedin.com"));
+
+        assertEquals(2, result.size());
+        assertEquals("https://facebook.com", result.get(0));
+        assertEquals("https://linkedin.com", result.get(1));
+        verify(clubRepository).save(club);
+    }
+
+    @Test
+    void updateClubSocialLinks_notFound_shouldThrow() {
+        when(clubRepository.findById(50L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                com.acm.acmwebsite.feature.exception.ResourceNotFoundException.class,
+                () -> clubService.updateClubSocialLinks(50L, List.of("https://facebook.com"))
+        );
     }
 }

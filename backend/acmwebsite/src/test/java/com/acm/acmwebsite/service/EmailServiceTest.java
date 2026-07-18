@@ -1,10 +1,8 @@
 package com.acm.acmwebsite.service;
 
-import com.acm.acmwebsite.feature.entity.Email;
-import com.acm.acmwebsite.feature.entity.Message;
-import com.acm.acmwebsite.feature.repository.EmailRepository;
-import com.acm.acmwebsite.feature.service.EmailService;
+import com.acm.acmwebsite.core.service.impl.GmailEmailService;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +10,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,109 +23,118 @@ class EmailServiceTest {
     private JavaMailSender mailSender;
 
     @Mock
-    private EmailRepository emailRepository;
+    private TemplateEngine templateEngine;
 
     @InjectMocks
-    private EmailService emailService;
+    private GmailEmailService emailService;
 
-    // --- sendEmail Tests ---
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(emailService, "senderEmail", "from@example.com");
+        ReflectionTestUtils.setField(emailService, "frontendUrl", "http://localhost:5173");
+    }
 
     @Test
-    @DisplayName("Should send email successfully")
-    void shouldSendEmailSuccessfully() {
-        // Arrange
-        Email to = new Email("member@acm.com");
-        Message message = new Message("Test Subject", "Test Body");
+    @DisplayName("Should send password reset email successfully")
+    void shouldSendPasswordResetEmail() {
         MimeMessage mockMimeMessage = mock(MimeMessage.class);
-
-        // Required: service calls mailSender.createMimeMessage()
         when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/password-reset"), any(Context.class)))
+                .thenReturn("<html>reset</html>");
 
-        // Act
-        emailService.sendEmail(to, message);
+        emailService.sendPasswordResetEmail("user@example.com", "dummy-token");
 
-        // Assert
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
 
     @Test
-    @DisplayName("Should throw RuntimeException when mail sending fails")
-    void shouldThrowExceptionOnMailFailure() {
-        // Arrange
-        Email to = new Email("fail@acm.com");
-        Message message = new Message("Fail", "Fail");
+    @DisplayName("Should send registration confirmation email successfully")
+    void shouldSendRegistrationConfirmationEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/registration-confirmation"), any(Context.class)))
+                .thenReturn("<html>registered</html>");
 
-        // Simulating an error during message creation or sending
-        when(mailSender.createMimeMessage()).thenThrow(new RuntimeException("Connection error"));
+        emailService.sendRegistrationConfirmationEmail("user@example.com", "Kickoff Event", "John Doe");
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> emailService.sendEmail(to, message));
-    }
-
-    // --- Repository Interaction Tests ---
-
-    @Test
-    @DisplayName("Should save email and return the saved object")
-    void shouldSaveEmail() {
-        // Arrange
-        Email email = new Email("new@acm.com");
-        when(emailRepository.save(email)).thenReturn(email);
-
-        // Act
-        Email result = emailService.saveEmail(email);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("new@acm.com", result.getEmail());
-        verify(emailRepository, times(1)).save(email);
+        verify(mailSender, times(1)).send(mockMimeMessage);
     }
 
     @Test
-    @DisplayName("Should return true if email address already exists")
-    void shouldCheckIfEmailExists() {
-        // Arrange
-        Email email = new Email("exists@acm.com");
-        when(emailRepository.existsEmailByEmail("exists@acm.com")).thenReturn(true);
+    @DisplayName("Should send welcome email successfully")
+    void shouldSendWelcomeEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/welcome-email"), any(Context.class)))
+                .thenReturn("<html>welcome</html>");
 
-        // Act
-        boolean exists = emailService.isEmailExist(email);
+        emailService.sendWelcomeEmail("user@example.com", "John Doe");
 
-        // Assert
-        assertTrue(exists);
-        verify(emailRepository).existsEmailByEmail("exists@acm.com");
+        verify(mailSender, times(1)).send(mockMimeMessage);
     }
 
     @Test
-    @DisplayName("Should return email object by its database ID")
-    void shouldGetEmailById() {
-        // Arrange
-        long id = 1L;
-        Email expectedEmail = new Email("found@acm.com");
-        when(emailRepository.getEmailByEmailId(id)).thenReturn(expectedEmail);
+    @DisplayName("Should send subscription confirmation email successfully")
+    void shouldSendSubscriptionConfirmationEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/subscription-confirmation"), any(Context.class)))
+                .thenReturn("<html>subscribed</html>");
 
-        // Act
-        Email result = emailService.getEmailById(id);
+        emailService.sendSubscriptionConfirmationEmail("user@example.com", "Subscribed", "Body info");
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("found@acm.com", result.getEmail());
+        verify(mailSender, times(1)).send(mockMimeMessage);
     }
 
     @Test
-    @DisplayName("Should return email object by its string address")
-    void shouldGetObjectByEmail() {
-        // Arrange
-        String emailStr = "search@acm.com";
-        Email expectedEmail = new Email(emailStr);
-        when(emailRepository.getEmailByEmail(emailStr))
-                .thenReturn(Optional.of(expectedEmail));
+    @DisplayName("Should send new event announcement email successfully")
+    void shouldSendNewEventAnnouncementEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/new-event"), any(Context.class)))
+                .thenReturn("<html>event</html>");
 
-        // Act
-        Email result = emailService.getObjectByEmail(emailStr)
-                .orElse(null);
+        emailService.sendNewEventAnnouncementEmail("user@example.com", "Hackathon", "10:00 AM", "Hall A");
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(emailStr, result.getEmail());
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
+
+    @Test
+    @DisplayName("Should send new club announcement email successfully")
+    void shouldSendNewClubAnnouncementEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/new-club"), any(Context.class)))
+                .thenReturn("<html>club</html>");
+
+        emailService.sendNewClubAnnouncementEmail("user@example.com", "CP Club", "Competitive Programming");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
+
+    @Test
+    @DisplayName("Should send committee call email successfully")
+    void shouldSendCommitteeCallEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/committee-call"), any(Context.class)))
+                .thenReturn("<html>committee</html>");
+
+        emailService.sendCommitteeCallEmail("user@example.com", "Call for PR", "Apply now!");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
+
+    @Test
+    @DisplayName("Should send committee registration confirmation email successfully")
+    void shouldSendCommitteeRegistrationConfirmationEmail() {
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/committee-registration-confirmation"), any(Context.class)))
+                .thenReturn("<html>committee-registered</html>");
+
+        emailService.sendCommitteeRegistrationConfirmationEmail("user@example.com", "Technical", "John Doe");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
     }
 }

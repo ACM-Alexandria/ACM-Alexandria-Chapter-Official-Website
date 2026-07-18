@@ -42,35 +42,67 @@ export const AuthProvider = ({ children }) => {
       const hydrateUser = async () => {
         try {
           const data = await apiGetMe();
-          if (data?.email) {
-            setUser({ email: data.email });
+          console.log("[AuthContext] Hydrated CurrentUser Payload:", data);
+
+          // Fallback to email-only if backend is returning legacy payloads
+          if (data && (data.email || data.id)) {
+            setUser({ 
+              id: data.id || data.userId || null, 
+              email: data.email || null,
+              role: data.role || null
+            });
+            setIsAuthenticated(true);
+            return true;
           }
-        } catch {
-          setUser(null);
+        } catch (err) {
+          console.warn("Session hydration failed:", err);
         }
+        // If failed, ensure clean unauthenticated state
+        setUser(null);
+        setIsAuthenticated(false);
+        return false;
       };
 
       try {
         await tokenService.initializeTokenService();
 
         if (tokenService.hasAccessToken()) {
-          setIsAuthenticated(true);
-          await hydrateUser();
-          setIsLoading(false);
-          return;
-        }
-
-        if (tokenService.hasRefreshToken()) {
+          const hydrated = await hydrateUser();
+          // If access token hydrated successfully, we are done!
+          if (hydrated) {
+            setIsLoading(false);
+            return;
+          }
+          
+          // If hydration failed (e.g. expired access token), attempt refresh
+          if (tokenService.hasRefreshToken()) {
+            try {
+              await refreshAccessToken();
+              await hydrateUser();
+            } catch {
+              await tokenService.clearAllTokens();
+            }
+          } else {
+            await tokenService.clearAllTokens();
+          }
+        } else if (tokenService.hasRefreshToken()) {
           try {
             await refreshAccessToken();
-            setIsAuthenticated(true);
             await hydrateUser();
           } catch {
             await tokenService.clearAllTokens();
+            setIsAuthenticated(false);
+            setUser(null);
           }
+        } else {
+          // No tokens available
+          setIsAuthenticated(false);
+          setUser(null);
         }
       } catch (error) {
         console.error("Failed to initialize auth:", error);
+        setIsAuthenticated(false);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -96,7 +128,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
 
     if (data.id && data.email) {
-      setUser({ id: data.id, email: data.email });
+      setUser({ id: data.id, email: data.email, role: data.role || null });
     }
 
     return data;

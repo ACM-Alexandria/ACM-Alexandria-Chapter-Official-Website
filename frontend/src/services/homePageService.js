@@ -66,13 +66,24 @@ export const fetchEventById = async (id) => {
   }
 };
 
-// Fetch programs
-export const fetchPrograms = async () => {
+// Fetch programs with pagination
+export const fetchPrograms = async (page = 0) => {
   try {
-    const response = await api.get("/api/program");
-    return response.data;
+    const response = await api.get(`/api/program?page=${page}`);
+    return response.data; // Spring Page: { content, totalPages, number, ... }
   } catch (error) {
     console.error("Error fetching programs:", error);
+    throw error;
+  }
+};
+
+// Fetch single program by id
+export const fetchProgramById = async (id) => {
+  try {
+    const response = await api.get(`/api/program/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching program details:", error);
     throw error;
   }
 };
@@ -84,7 +95,8 @@ export const fetchHomePageData = async () => {
     fetchCommittee().catch(() => []),
     fetchHighBoard().catch(() => []),
     fetchEvents(0).catch(() => ({ content: [] })),
-    fetchPrograms().catch(() => []),
+    fetchPrograms(0).catch(() => ({ content: [] })),
+    fetchSeasons().catch(() => []),
   ]);
 
   const extractContent = (result) => {
@@ -100,6 +112,87 @@ export const fetchHomePageData = async () => {
     committee: results[1].status === "fulfilled" ? results[1].value : [],
     highBoard: results[2].status === "fulfilled" ? results[2].value : [],
     events: extractContent(results[3]),
-    programs: results[4].status === "fulfilled" ? results[4].value : [],
+    programs: extractContent(results[4]),
+    seasons: extractContent(results[5]),
   };
+};
+
+// Fetch social links
+export const fetchSocialLinks = async () => {
+  try {
+    const response = await api.get("/api/socialLinks");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching social links:", error);
+    throw error;
+  }
+};
+
+// Subscribe to committee
+export const subscribeToCommittee = async (id) => {
+  const response = await api.post(`/api/committee/${id}/subscribe`);
+  return response.data;
+};
+
+// Unsubscribe from committee
+export const unsubscribeFromCommittee = async (id) => {
+  const response = await api.post(`/api/committee/${id}/unsubscribe`);
+  return response.data;
+};
+
+// Get committee subscription status
+export const fetchCommitteeSubscriptionStatus = async (id) => {
+  const response = await api.get(`/api/committee/${id}/subscription-status`);
+  return response.data; // { subscribed: boolean }
+};
+
+// Subscribe to news
+export const subscribeToNews = async () => {
+  const response = await api.post("/api/subscriptions/news/subscribe");
+  return response.data;
+};
+
+// Unsubscribe from news
+export const unsubscribeFromNews = async () => {
+  const response = await api.post("/api/subscriptions/news/unsubscribe");
+  return response.data;
+};
+
+// Get news subscription status
+export const fetchNewsSubscriptionStatus = async () => {
+  const response = await api.get("/api/subscriptions/news/subscription-status");
+  return response.data; // { subscribed: boolean }
+};
+
+// Fetch public gallery images
+export const fetchGalleryImages = async () => {
+  try {
+    const response = await api.get("/api/gallery");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching gallery images:", error);
+    throw error;
+  }
+};
+
+// Fetch seasons with pagination
+export const fetchSeasons = async (page = 0) => {
+  try {
+    const response = await api.get(`/api/radio/seasons?page=${page}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching seasons:", error);
+    throw error;
+  }
+};
+
+// Fetch single season details
+export const fetchSeasonById = async (id) => {
+  try {
+    const response = await api.get(`/api/radio/seasons/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching season details:", error);
+    throw error;
+  }
 };

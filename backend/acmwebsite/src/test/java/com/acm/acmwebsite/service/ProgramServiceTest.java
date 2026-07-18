@@ -4,7 +4,10 @@ import com.acm.acmwebsite.feature.dto.ProgramDto;
 import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.mapper.ProgramMapper;
 import com.acm.acmwebsite.feature.repository.ProgramRepository;
+import com.acm.acmwebsite.feature.repository.ProgramFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.ProgramRegistrationRepository;
 import com.acm.acmwebsite.feature.service.ProgramService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +31,15 @@ public class ProgramServiceTest {
     @Mock
     private ProgramMapper programMapper;
 
+    @Mock
+    private ProgramFormQuestionRepository programFormQuestionRepository;
+
+    @Mock
+    private ProgramRegistrationRepository programRegistrationRepository;
+
+    @Mock
+    private SubscriptionService subscriptionService;
+
     @InjectMocks
     private ProgramService programService;
 
@@ -38,7 +50,9 @@ public class ProgramServiceTest {
         p.setName("Bootcamp");
         p.setDescription("Desc");
         p.setImageUrl("img");
-        p.setEventTime(LocalDateTime.now());
+        p.setStartDate(LocalDateTime.now());
+        p.setEndDate(LocalDateTime.now().plusDays(7));
+        p.setTime("Every Sunday 6:00 PM");
         return p;
     }
 
@@ -47,7 +61,9 @@ public class ProgramServiceTest {
         d.setName("Bootcamp");
         d.setDescription("Desc");
         d.setImageUrl("img");
-        d.setEventTime(LocalDateTime.now());
+        d.setStartDate(LocalDateTime.now());
+        d.setEndDate(LocalDateTime.now().plusDays(7));
+        d.setTime("Every Sunday 6:00 PM");
         return d;
     }
 
@@ -57,14 +73,14 @@ public class ProgramServiceTest {
     void getAll_shouldMapAllPrograms() {
         List<Program> programs = List.of(program());
 
-        when(programRepository.findAll()).thenReturn(programs);
+        when(programRepository.findAll(any(org.springframework.data.domain.Sort.class))).thenReturn(programs);
         when(programMapper.toProgramDto(any()))
                 .thenReturn(dto());
 
         List<ProgramDto> result = programService.getAllPrograms();
 
         assertEquals(1, result.size());
-        verify(programRepository).findAll();
+        verify(programRepository).findAll(any(org.springframework.data.domain.Sort.class));
         verify(programMapper).toProgramDto(programs.get(0));
     }
 
@@ -102,6 +118,8 @@ public class ProgramServiceTest {
     @Test
     void deleteProgram_shouldCallRepository() {
         programService.deleteProgram(1L);
+        verify(programRegistrationRepository).deleteByProgramId(1L);
+        verify(programFormQuestionRepository).deleteByProgramId(1L);
         verify(programRepository).deleteById(1L);
     }
 
@@ -176,6 +194,7 @@ public class ProgramServiceTest {
 
         verify(programMapper).toProgram(input);
         verify(programRepository).save(entity);
+        verify(subscriptionService).sendNewProgramNotificationToNewsSubscribers(saved);
         verify(programMapper).toProgramDto(saved);
     }
 }

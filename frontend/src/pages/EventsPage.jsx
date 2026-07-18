@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "../components/HomePage/Navbar";
@@ -26,6 +27,19 @@ const EventsPage = () => {
     const handleCloseSidebar = () => {
         setIsSidebarOpen(false);
     };
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Recovers sidebar visible configuration if user returns via login redirect pipelines
+    useEffect(() => {
+        const openEventId = searchParams.get("openEventId");
+        if (openEventId) {
+            handleShowEventDetails(Number(openEventId));
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("openEventId");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 80 });

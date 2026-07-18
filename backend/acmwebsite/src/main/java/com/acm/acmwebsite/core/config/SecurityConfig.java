@@ -16,10 +16,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig { // Renamed from CorsConfig as recommended
 
@@ -43,11 +45,17 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                 .authorizeHttpRequests(auth -> auth
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Secure admin endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Explicitly secure registration endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/reset-password",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/user/logout",
                                 "/api/clubs/**",
@@ -55,7 +63,11 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                                 "/api/highboard/**",
                                 "/api/committee/**",
                                 "/api/program/**",
-                                "/api/socialLinks/**")
+                                "/api/socialLinks",
+                                "/api/socialLinks/**",
+                                "/api/gallery",
+                                "/api/gallery/**",
+                                "/api/radio/**")
                         .permitAll()
                         // All other requests require a valid JWT
                         .anyRequest().authenticated())

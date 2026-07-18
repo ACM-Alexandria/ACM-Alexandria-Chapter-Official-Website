@@ -1,26 +1,56 @@
 package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
+import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.EventRegistration;
+import com.acm.acmwebsite.feature.entity.EventFormQuestion;
+import com.acm.acmwebsite.feature.entity.Message;
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.mapper.EventMapper;
+import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.EventRepository;
+import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
+import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
+import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final EventRegistrationRepository eventRegistrationRepository;
+    private final EventFormQuestionRepository eventFormQuestionRepository;
+    private final GoogleSheetsService googleSheetsService;
+    private final SubscriptionService subscriptionService;
 
-    public EventService(EventRepository eventRepository, EventMapper eventMapper) {
+    @Value("${google.sheets.events-folder-id:}")
+    private String eventsFolderId;
+
+    public EventService(EventRepository eventRepository, EventMapper eventMapper,
+                        EventRegistrationRepository eventRegistrationRepository,
+                        EventFormQuestionRepository eventFormQuestionRepository,
+                        GoogleSheetsService googleSheetsService,
+                        SubscriptionService subscriptionService) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
+        this.eventRegistrationRepository = eventRegistrationRepository;
+        this.eventFormQuestionRepository = eventFormQuestionRepository;
+        this.googleSheetsService = googleSheetsService;
+        this.subscriptionService = subscriptionService;
     }
 
     public List<EventCardDto> getAllCards() {
@@ -34,23 +64,84 @@ public class EventService {
     }
 
     public Event createEvent(Event event) {
-        return eventRepository.save(event);
+        if (event.getName() == null || event.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Event name is required");
+        }
+        Event savedEvent = eventRepository.save(event);
+        notifySubscribersAboutNewEvent(savedEvent);
+        return savedEvent;
     }
 
+    @Transactional
+    public FormQuestionResponseDto createQuestion(Long eventId, FormQuestionRequestDto request) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + eventId));
+
+        EventFormQuestion question = EventFormQuestion.builder()
+                .event(event)
+                .questionText(QuestionValidationUtil.validateQuestionText(request))
+                .questionType(QuestionValidationUtil.parseQuestionType(request))
+                .isRequired(Boolean.TRUE.equals(request.getIsRequired()))
+                .options(QuestionValidationUtil.normalizeOptions(request.getOptions()))
+                .build();
+
+        return toResponseDto(eventFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public FormQuestionResponseDto updateQuestion(Long eventId, Long questionId, FormQuestionRequestDto request) {
+        EventFormQuestion question = eventFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getEvent() != null && q.getEvent().getId() == eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event question not found with id " + questionId));
+
+        question.setQuestionText(QuestionValidationUtil.validateQuestionText(request));
+        question.setQuestionType(QuestionValidationUtil.parseQuestionType(request));
+        question.setIsRequired(Boolean.TRUE.equals(request.getIsRequired()));
+        question.setOptions(QuestionValidationUtil.normalizeOptions(request.getOptions()));
+
+        return toResponseDto(eventFormQuestionRepository.save(question));
+    }
+
+    @Transactional
+    public void deleteQuestion(Long eventId, Long questionId) {
+        EventFormQuestion question = eventFormQuestionRepository.findById(questionId)
+                .filter(q -> q.getEvent() != null && q.getEvent().getId() == eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event question not found with id " + questionId));
+
+        eventFormQuestionRepository.delete(question);
+    }
+
+    @Transactional
     public Event updateEvent(Long id, Event updatedEvent) {
         return eventRepository.findById(id).map(event -> {
+            if (updatedEvent.getName() == null || updatedEvent.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Event name is required");
+            }
             event.setName(updatedEvent.getName());
             event.setDescription(updatedEvent.getDescription());
             event.setImageUrl(updatedEvent.getImageUrl());
-            event.setGoogleFormUrl(updatedEvent.getGoogleFormUrl());
+            
+            // Cleanly update collection to avoid Hibernate losing track of the persistent bag
+            if (event.getAttachedImages() != null) {
+                event.getAttachedImages().clear();
+                if (updatedEvent.getAttachedImages() != null) {
+                    event.getAttachedImages().addAll(updatedEvent.getAttachedImages());
+                }
+            } else {
+                event.setAttachedImages(updatedEvent.getAttachedImages() != null ? 
+                    new ArrayList<>(updatedEvent.getAttachedImages()) : new ArrayList<>());
+            }
+            
             event.setEventTime(updatedEvent.getEventTime());
             event.setLocation(updatedEvent.getLocation());
             return eventRepository.save(event);
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
-
     }
 
+    @Transactional
     public void deleteEvent(long id) {
+        eventRegistrationRepository.deleteByEventId(id);
+        eventFormQuestionRepository.deleteByEventId(id);
         eventRepository.deleteById(id);
     }
 
@@ -60,4 +151,91 @@ public class EventService {
         return eventRepository.findAll(page).map(eventMapper::toEventCardDto);
     }
 
+    private void notifySubscribersAboutNewEvent(Event event) {
+        try {
+            subscriptionService.sendNewEventNotificationToNewsSubscribers(event);
+        } catch (Exception e) {
+        }
+    }
+
+    private FormQuestionResponseDto toResponseDto(EventFormQuestion question) {
+        return FormQuestionResponseDto.builder()
+                .id(question.getId())
+                .questionText(question.getQuestionText())
+                .questionType(question.getQuestionType().name())
+                .isRequired(question.getIsRequired())
+                .options(question.getOptions())
+                .build();
+    }
+
+
+    public RegistrationAnalysisDto getRegistrationAnalysis(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + eventId));
+
+        List<EventRegistration> registrations = eventRegistrationRepository.findByEventId(eventId);
+
+        long alexCount = registrations.stream()
+                .filter(r -> r.getUser() != null && Boolean.TRUE.equals(r.getUser().getIsAlexEngStudent()))
+                .count();
+
+        Map<String, Long> departments = registrations.stream()
+                .filter(r -> r.getUser() != null)
+                .collect(Collectors.groupingBy(
+                        r -> r.getUser().getDepartment() != null ? r.getUser().getDepartment().name() : "N/A",
+                        Collectors.counting()
+                ));
+
+        Map<String, Long> batches = registrations.stream()
+                .filter(r -> r.getUser() != null)
+                .collect(Collectors.groupingBy(
+                        r -> r.getUser().getBatch() != null && !r.getUser().getBatch().trim().isEmpty() ? r.getUser().getBatch() : "N/A",
+                        Collectors.counting()
+                ));
+
+        return RegistrationAnalysisDto.builder()
+                .totalRegistrations(registrations.size())
+                .alexUniStudentCount(alexCount)
+                .nonAlexUniStudentCount(registrations.size() - alexCount)
+                .departmentCounts(departments)
+                .batchCounts(batches)
+                .googleSheetUrl(event.getGoogleSheetUrl())
+                .sheetLastUpdatedAt(event.getSheetLastUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    public RegistrationAnalysisDto syncRegistrationsSheet(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + eventId));
+
+        List<EventRegistration> registrations = eventRegistrationRepository.findByEventId(eventId);
+        List<EventFormQuestion> questions = eventFormQuestionRepository.findByEventId(eventId);
+
+        List<String> prefixHeaders = Arrays.asList(
+                "Event Name:", event.getName(),
+                "Event Time:", event.getEventTime() != null ? event.getEventTime().toString() : "N/A"
+        );
+        String title = "ACM Alexandria - Event: " + event.getName() + " - Registrations";
+
+        String url = googleSheetsService.syncRegistrationData(
+                title,
+                eventsFolderId,
+                event.getGoogleSheetUrl(),
+                prefixHeaders,
+                registrations,
+                questions,
+                EventRegistration::getUser,
+                EventRegistration::getId,
+                EventRegistration::getAnswers,
+                EventFormQuestion::getId,
+                EventFormQuestion::getQuestionText
+        );
+
+        event.setGoogleSheetUrl(url);
+        event.setSheetLastUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+
+        return getRegistrationAnalysis(eventId);
+    }
 }

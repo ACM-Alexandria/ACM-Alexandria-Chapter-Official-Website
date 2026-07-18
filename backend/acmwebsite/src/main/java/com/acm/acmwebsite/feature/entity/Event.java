@@ -3,6 +3,8 @@ package com.acm.acmwebsite.feature.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Event {
@@ -15,19 +17,26 @@ public class Event {
     private String description;
     private LocalDateTime eventTime;
     private String Location;
-    private String googleFormUrl;
     private String imageUrl;
+    @Column(name = "google_sheet_url")
+    private String googleSheetUrl;
+    @Column(name = "sheet_last_updated_at")
+    private LocalDateTime sheetLastUpdatedAt;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_attached_images", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "image_url")
+    private List<String> attachedImages = new ArrayList<>();
 
     public Event() {
     }
 
-    public Event(long id, String name, String description, LocalDateTime eventTime, String location, String googleFormUrl, String imageUrl) {
+    public Event(long id, String name, String description, LocalDateTime eventTime, String location, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
         Location = location;
-        this.googleFormUrl = googleFormUrl;
         this.imageUrl = imageUrl;
     }
 
@@ -71,19 +80,35 @@ public class Event {
         Location = location;
     }
 
-    public String getGoogleFormUrl() {
-        return googleFormUrl;
-    }
-
-    public void setGoogleFormUrl(String googleFormUrl) {
-        this.googleFormUrl = googleFormUrl;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getGoogleSheetUrl() {
+        return googleSheetUrl;
+    }
+
+    public void setGoogleSheetUrl(String googleSheetUrl) {
+        this.googleSheetUrl = googleSheetUrl;
+    }
+
+    public LocalDateTime getSheetLastUpdatedAt() {
+        return sheetLastUpdatedAt;
+    }
+
+    public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
+        this.sheetLastUpdatedAt = sheetLastUpdatedAt;
+    }
+
+    public List<String> getAttachedImages() {
+        return attachedImages;
+    }
+
+    public void setAttachedImages(List<String> attachedImages) {
+        this.attachedImages = attachedImages;
     }
 }

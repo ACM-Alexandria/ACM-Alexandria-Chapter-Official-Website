@@ -52,7 +52,7 @@ const EventCard = ({ event, index, onShowDetails }) => {
         <div className="mt-auto pt-6 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
           <div className="h-px flex-1 bg-slate-100" />
           <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 `}
+            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

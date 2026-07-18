@@ -1,35 +1,26 @@
 import EventCard from "../cards/EventCard";
 import ExploreMoreButton from "./ExploreMoreButton";
 
-const EventsSection = ({ events, onShowEventDetails }) => {
+const EventsSection = ({ loading, events, onShowEventDetails }) => {
   // Display only first 3 events
   const displayedEvents = events && events.length > 0 ? events.slice(0, 3) : [];
 
   return (
     <section id="events" className="w-full py-24 px-6 bg-gray-50/50 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
-          <h2
-            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-3"
-            data-aos="fade-up"
-          >
-            Our Events
-          </h2>
-          <h3 
+          <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
             data-aos="fade-up"
-            data-aos-delay="100"
           >
-            Experience <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Excellence</span>
-          </h3>
+            Experience <span className="text-[#205E85]">Excellence</span>
+          </h2>
           <p
             className="text-slate-500 text-lg max-w-2xl mx-auto font-medium"
             data-aos="fade-up"
-            data-aos-delay="200"
+            data-aos-delay="100"
           >
             Stay tuned for exciting events where you can learn, network, and
             grow with our community.
@@ -37,7 +28,13 @@ const EventsSection = ({ events, onShowEventDetails }) => {
         </div>
 
         {/* Events Grid - Show first 3 */}
-        {displayedEvents && displayedEvents.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-[400px] border border-slate-200/50" />
+            ))}
+          </div>
+        ) : displayedEvents && displayedEvents.length > 0 ? (
           <div className="space-y-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {displayedEvents.map((event, index) => (

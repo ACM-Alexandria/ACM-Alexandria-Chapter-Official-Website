@@ -1,10 +1,18 @@
 package com.acm.acmwebsite.service;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
+import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.entity.Event;
+import com.acm.acmwebsite.feature.entity.EventFormQuestion;
+import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.EventMapper;
 import com.acm.acmwebsite.feature.repository.EventRepository;
+import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.EventService;
+import com.acm.acmwebsite.feature.service.GoogleSheetsService;
+import com.acm.acmwebsite.feature.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,28 +40,37 @@ public class EventServiceTest {
     @Mock
     private EventMapper eventMapper;
 
+    @Mock
+    private EventRegistrationRepository eventRegistrationRepository;
+
+    @Mock
+    private EventFormQuestionRepository eventFormQuestionRepository;
+
+    @Mock
+    private GoogleSheetsService googleSheetsService;
+
+    @Mock
+    private SubscriptionService subscriptionService;
+
     @InjectMocks
     private EventService eventService;
 
     // ---------- helper ----------
+    private static final LocalDateTime EVENT_TIME = LocalDateTime.of(2026, 5, 25, 10, 0);
+
     private Event sampleEvent() {
         Event e = new Event();
         e.setId(1L);
         e.setName("Hackathon");
         e.setDescription("Coding event");
         e.setImageUrl("img");
-        e.setGoogleFormUrl("form");
         e.setLocation("Hall A");
-        e.setEventTime(LocalDateTime.now());
+        e.setEventTime(EVENT_TIME);
         return e;
     }
 
     private EventCardDto sampleEventCardDto() {
-        EventCardDto dto = new EventCardDto();
-        dto.setId(1L);
-        dto.setName("Hackathon");
-        dto.setImageUrl("img");
-        return dto;
+        return new EventCardDto(1L, "Hackathon", "img", "Coding event", EVENT_TIME, "Hall A");
     }
 
     @Test
@@ -102,6 +120,37 @@ public class EventServiceTest {
 
         assertEquals("Hackathon", saved.getName());
         verify(eventRepository).save(e);
+        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+    }
+
+    @Test
+    void createQuestion_shouldSaveEventQuestion() {
+        Event event = sampleEvent();
+        FormQuestionRequestDto request = FormQuestionRequestDto.builder()
+                .questionText("Why do you want to attend?")
+                .questionType("text")
+                .isRequired(true)
+                .options(List.of("  ", "ignored"))
+                .build();
+
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(eventFormQuestionRepository.save(any(EventFormQuestion.class))).thenAnswer(invocation -> {
+            EventFormQuestion question = invocation.getArgument(0);
+            question.setId(20L);
+            return question;
+        });
+
+        FormQuestionResponseDto result = eventService.createQuestion(1L, request);
+
+        assertEquals(20L, result.getId());
+        assertEquals("Why do you want to attend?", result.getQuestionText());
+        assertEquals(QuestionType.TEXT.name(), result.getQuestionType());
+        assertTrue(result.getIsRequired());
+        verify(eventFormQuestionRepository).save(argThat(question ->
+                question.getEvent() == event
+                        && question.getQuestionType() == QuestionType.TEXT
+                        && question.getOptions().equals(List.of("ignored"))
+        ));
     }
 
     @Test
@@ -112,7 +161,6 @@ public class EventServiceTest {
         updated.setName("New Name");
         updated.setDescription("New Desc");
         updated.setImageUrl("newImg");
-        updated.setGoogleFormUrl("newForm");
         updated.setLocation("New Hall");
         updated.setEventTime(LocalDateTime.now().plusDays(1));
 
@@ -146,6 +194,8 @@ public class EventServiceTest {
     @Test
     void deleteEvent_shouldCallRepository() {
         eventService.deleteEvent(1L);
+        verify(eventRegistrationRepository).deleteByEventId(1L);
+        verify(eventFormQuestionRepository).deleteByEventId(1L);
         verify(eventRepository).deleteById(1L);
     }
 
