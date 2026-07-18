@@ -1,7 +1,7 @@
 import React from "react";
 
 const FooterResources = ({ onResourceClick }) => {
-  const resourceItems = ['Join Community', 'Our Sponsors', 'Partners', 'Contact'];
+  const resourceItems = ['Join Community', 'Our Sponsors', 'Partners'];
 
   return (
     <div className="space-y-8 text-center md:text-left">
