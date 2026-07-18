@@ -118,18 +118,26 @@ public class FeedbackService {
     }
 
     @Transactional
-    public void markFeatureSuggestionAsDone(Long id) {
+    public void toggleFeatureSuggestionStatus(Long id) {
         FeatureSuggestion fs = featureSuggestionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Feature suggestion not found with id: " + id));
-        fs.setStatus(FeedbackStatus.DONE);
+        if (fs.getStatus() == FeedbackStatus.NEW) {
+            fs.setStatus(FeedbackStatus.DONE);
+        } else {
+            fs.setStatus(FeedbackStatus.NEW);
+        }
         featureSuggestionRepository.save(fs);
     }
 
     @Transactional
-    public void markBugReportAsDone(Long id) {
+    public void toggleBugReportStatus(Long id) {
         BugReport br = bugReportRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bug report not found with id: " + id));
-        br.setStatus(FeedbackStatus.DONE);
+        if (br.getStatus() == FeedbackStatus.NEW) {
+            br.setStatus(FeedbackStatus.DONE);
+        } else {
+            br.setStatus(FeedbackStatus.NEW);
+        }
         bugReportRepository.save(br);
     }
 }

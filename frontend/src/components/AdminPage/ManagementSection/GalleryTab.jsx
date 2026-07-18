@@ -350,7 +350,7 @@ const GalleryTab = () => {
                   <>
                     <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
                     <p className="text-[11px] font-bold text-slate-600">Click or drag & drop to upload</p>
-                    <p className="text-[9px] text-slate-400 mt-1">PNG, JPG, JPEG — up to 10 MB each</p>
+                    <p className="text-[9px] text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
                   </>
                 )}
               </div>

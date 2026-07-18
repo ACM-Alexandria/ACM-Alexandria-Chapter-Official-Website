@@ -1,18 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchSocialLinks } from "../../services/homePageService";
+import { useAuth } from "../../contexts/AuthContext";
 
 import FooterBrand from "./footer/FooterBrand";
 import FooterNavigation from "./footer/FooterNavigation";
 import FooterResources from "./footer/FooterResources";
 import FooterNewsletter from "./footer/FooterNewsletter";
 import FooterBottom from "./footer/FooterBottom";
+import HelpUsGrowModal from "./footer/HelpUsGrowModal";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const navigate = useNavigate();
   const location = useLocation();
   const [socialLinks, setSocialLinks] = useState([]);
+  const [showGrowModal, setShowGrowModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const loadSocialLinks = async () => {
@@ -48,6 +52,12 @@ const Footer = () => {
       navigate("/register");
     } else if (item === "Contact") {
       scrollToSection("footer");
+    } else if (item === "Help Us Grow") {
+      if (!isAuthenticated) {
+        navigate("/login");
+      } else {
+        setShowGrowModal(true);
+      }
     } else {
       // Do nothing for Sponsors and Partners (no proper navigation targets)
     }
@@ -69,7 +79,7 @@ const Footer = () => {
           <FooterBrand socialLinks={socialLinks} onNavigate={handleSectionNavigation} />
           <FooterNavigation onNavigate={handleSectionNavigation} />
           <FooterResources onResourceClick={handleResourceClick} />
-          <FooterNewsletter />
+          <FooterNewsletter onHelpUsGrowClick={() => handleResourceClick("Help Us Grow")} />
         </div>
 
         {/* Divider */}
@@ -77,6 +87,8 @@ const Footer = () => {
 
         <FooterBottom currentYear={currentYear} onNavigate={handleSectionNavigation} />
       </div>
+
+      <HelpUsGrowModal open={showGrowModal} onClose={() => setShowGrowModal(false)} />
     </footer>
   );
 };

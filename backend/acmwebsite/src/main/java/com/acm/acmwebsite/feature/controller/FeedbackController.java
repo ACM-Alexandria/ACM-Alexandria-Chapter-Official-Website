@@ -74,23 +74,23 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getAllBugReports());
     }
 
-    @PutMapping("/features/{id}/done")
+    @PutMapping("/features/{id}/toggle-status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> markFeatureAsDone(@PathVariable Long id) {
+    public ResponseEntity<?> toggleFeatureStatus(@PathVariable Long id) {
         try {
-            feedbackService.markFeatureSuggestionAsDone(id);
-            return ResponseEntity.ok(Map.of("message", "Feature suggestion marked as DONE successfully"));
+            feedbackService.toggleFeatureSuggestionStatus(id);
+            return ResponseEntity.ok(Map.of("message", "Feature suggestion status toggled successfully"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 
-    @PutMapping("/bugs/{id}/done")
+    @PutMapping("/bugs/{id}/toggle-status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> markBugAsDone(@PathVariable Long id) {
+    public ResponseEntity<?> toggleBugStatus(@PathVariable Long id) {
         try {
-            feedbackService.markBugReportAsDone(id);
-            return ResponseEntity.ok(Map.of("message", "Bug report marked as DONE successfully"));
+            feedbackService.toggleBugReportStatus(id);
+            return ResponseEntity.ok(Map.of("message", "Bug report status toggled successfully"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
