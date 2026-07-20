@@ -1,15 +1,16 @@
 import React from "react";
+import { getEnv } from "../../../utils/env";
 
 const FooterNavigation = ({ onNavigate }) => {
   const isEnabled = (envVal) => envVal !== "false";
 
   const navItems = [
-    isEnabled(import.meta.env.VITE_ENABLE_ABOUT) && { id: "about", label: "About Us" },
-    isEnabled(import.meta.env.VITE_ENABLE_CLUBS) && { id: "clubs", label: "Our Clubs" },
-    isEnabled(import.meta.env.VITE_ENABLE_EVENTS) && { id: "events", label: "Events" },
-    isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && { id: "programs", label: "Programs" },
-    isEnabled(import.meta.env.VITE_ENABLE_RADIO) && { id: "radio", label: "Radio" },
-    isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && { id: "services", label: "Services" },
+    isEnabled(getEnv("VITE_ENABLE_ABOUT")) && { id: "about", label: "About Us" },
+    isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Our Clubs" },
+    isEnabled(getEnv("VITE_ENABLE_EVENTS")) && { id: "events", label: "Events" },
+    isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && { id: "programs", label: "Programs" },
+    isEnabled(getEnv("VITE_ENABLE_RADIO")) && { id: "radio", label: "Radio" },
+    isEnabled(getEnv("VITE_ENABLE_SERVICES")) && { id: "services", label: "Services" },
   ].filter(Boolean);
 
   return (

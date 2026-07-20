@@ -1,6 +1,7 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
 import GallerySection from "./GallerySection";
+import { getEnv } from "../../../utils/env";
 
 const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, isRegistrationModalOpen }) => {
   const isEnabled = (envVal) => envVal !== "false";
@@ -59,7 +60,7 @@ const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, 
         </div>
 
         {/* High Board Section */}
-        {isEnabled(import.meta.env.VITE_ENABLE_HIGHBOARD) && (
+        {isEnabled(getEnv("VITE_ENABLE_HIGHBOARD")) && (
           <div className="mt-24">
             <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
               <div className="text-center md:text-left">
@@ -99,7 +100,7 @@ const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, 
         )}
 
         {/* Committees Section */}
-        {isEnabled(import.meta.env.VITE_ENABLE_COMMITTEES) && (
+        {isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && (
           <div className="mt-24">
             <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
               <div className="text-center md:text-left">
@@ -154,7 +155,7 @@ const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, 
         )}
 
         {/* Gallery Section */}
-        {isEnabled(import.meta.env.VITE_ENABLE_GALLERY) && (
+        {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (
           <GallerySection />
         )}
       </div>

@@ -1,8 +1,9 @@
 import axios from "axios";
 import tokenService from "./tokenService";
+import { getEnv } from "../utils/env";
 
 const rawBaseUrl =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  getEnv("VITE_API_BASE_URL") || "http://localhost:8080";
 const API_BASE_URL = rawBaseUrl.endsWith("/") ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
 
 const api = axios.create({

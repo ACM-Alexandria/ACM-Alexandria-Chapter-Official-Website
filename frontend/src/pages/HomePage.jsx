@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getEnv } from "../utils/env";
 import Navbar from "../components/HomePage/Navbar";
 import GreetingSection from "../components/HomePage/sections/GreetingSection";
 import AboutSection from "../components/HomePage/sections/AboutSection";
@@ -171,7 +172,7 @@ const HomePage = () => {
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
-        {isEnabled(import.meta.env.VITE_ENABLE_ABOUT) && (
+        {isEnabled(getEnv("VITE_ENABLE_ABOUT")) && (
           <AboutSection 
             loading={loading} 
             highBoard={highBoard} 
@@ -180,23 +181,23 @@ const HomePage = () => {
             isRegistrationModalOpen={isCommitteeRegOpen}
           />
         )}
-        {isEnabled(import.meta.env.VITE_ENABLE_CLUBS) && (
+        {isEnabled(getEnv("VITE_ENABLE_CLUBS")) && (
           <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
         )}
-        {isEnabled(import.meta.env.VITE_ENABLE_EVENTS) && (
+        {isEnabled(getEnv("VITE_ENABLE_EVENTS")) && (
           <EventsSection
             loading={loading}
             events={events}
             onShowEventDetails={handleShowEventDetails}
           />
         )}
-        {isEnabled(import.meta.env.VITE_ENABLE_PROGRAMS) && (
+        {isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && (
           <ProgramsSection loading={loading} programs={programs} onShowProgramDetails={handleShowProgramDetails} />
         )}
-        {isEnabled(import.meta.env.VITE_ENABLE_RADIO) && (
+        {isEnabled(getEnv("VITE_ENABLE_RADIO")) && (
           <RadioSection loading={loading} seasons={seasons} />
         )}
-        {isEnabled(import.meta.env.VITE_ENABLE_SERVICES) && (
+        {isEnabled(getEnv("VITE_ENABLE_SERVICES")) && (
           <ServicesSection />
         )}
       </main>
