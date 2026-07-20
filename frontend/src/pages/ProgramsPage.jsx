@@ -1,22 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/HomePage/Navbar";
 import Footer from "../components/HomePage/Footer";
 import ProgramCard from "../components/HomePage/cards/ProgramCard";
 import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
 import { fetchPrograms } from "../services/homePageService";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiArrowLeft } from "react-icons/fi";
 
 const ProgramsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [programsPage, setProgramsPage] = useState({ content: [], totalPages: 1, number: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const currentPage = programsPage.number || 0;
+  const urlPage = Number(searchParams.get("page") || 1);
+  const currentPage = Math.max(0, urlPage - 1);
   const totalPages = programsPage.totalPages || 1;
 
   const loadPrograms = useCallback(async (page = 0) => {
@@ -34,8 +35,8 @@ const ProgramsPage = () => {
   }, []);
 
   useEffect(() => {
-    loadPrograms(0);
-  }, [loadPrograms]);
+    loadPrograms(currentPage);
+  }, [loadPrograms, currentPage]);
 
   // Handle openProgramId URL param (from login redirect)
   useEffect(() => {
@@ -58,9 +59,9 @@ const ProgramsPage = () => {
     setIsSidebarOpen(false);
   };
 
-  const handlePageChange = (newPage) => {
-    loadPrograms(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handlePageChange = (pageIndex) => {
+    if (pageIndex === currentPage) return;
+    window.location.href = `/programs?page=${pageIndex + 1}`;
   };
 
   const filteredPrograms = programsPage.content || [];
@@ -72,6 +73,17 @@ const ProgramsPage = () => {
       <main className="flex-1 pt-[74px]">
         {/* Page Header */}
         <div className="relative py-24 px-6 overflow-hidden bg-white">
+          {/* Back to Home Button */}
+          <div className="absolute top-6 left-6 z-20">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 font-bold text-sm group"
+            >
+              <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              Back to Home
+            </Link>
+          </div>
+
           {/* Background Blobs */}
           <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />
@@ -120,11 +132,11 @@ const ProgramsPage = () => {
 
           {/* Loading Skeleton */}
           {loading && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse flex flex-col md:flex-row bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden h-72">
-                  <div className="w-full md:w-2/5 bg-slate-200" />
-                  <div className="flex-1 p-10 space-y-4">
+                <div key={i} className="animate-pulse flex flex-col lg:flex-row bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden" style={{minHeight: '280px'}}>
+                  <div className="w-full h-56 lg:w-2/5 lg:h-auto bg-slate-200 shrink-0" />
+                  <div className="flex-1 p-6 md:p-7 space-y-4">
                     <div className="h-7 bg-slate-200 rounded-full w-3/4" />
                     <div className="h-4 bg-slate-100 rounded-full w-full" />
                     <div className="h-4 bg-slate-100 rounded-full w-5/6" />
@@ -149,7 +161,7 @@ const ProgramsPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
                   {filteredPrograms.map((program, index) => (
                     <ProgramCard
                       key={program.id}

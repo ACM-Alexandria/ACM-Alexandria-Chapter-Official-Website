@@ -38,13 +38,13 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
 
   return (
     <div
-      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col md:flex-row h-full"
+      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col lg:flex-row h-full"
       data-aos="fade-up"
       data-aos-delay={index * 100}
       onClick={handleOpenDetails}
     >
       {/* Program Image Container */}
-      <div className="relative w-full md:w-2/5 h-64 md:h-auto overflow-hidden bg-slate-100 shrink-0">
+      <div className="relative w-full h-56 lg:w-2/5 lg:h-auto overflow-hidden bg-slate-100 shrink-0">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
         
         {program.imageUrl && !imageError ? (
@@ -70,24 +70,24 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
       </div>
 
       {/* Program Info */}
-      <div className="p-8 md:p-10 flex flex-col flex-1">
-        <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-4 group-hover:text-[#4B98C8] transition-colors leading-tight">
+      <div className="p-5 md:p-6 lg:p-7 flex flex-col flex-1">
+        <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2 group-hover:text-[#4B98C8] transition-colors leading-tight">
           {program.name}
         </h3>
-        <p className="text-slate-500 text-base leading-relaxed mb-8 line-clamp-4 font-medium">
+        <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-3 line-clamp-2 lg:line-clamp-3 font-medium">
           {program.description || "Advancing computing knowledge through specialized academic and professional programs."}
         </p>
 
         {/* Program Meta Info */}
         {(program.startDate || program.time) && (
-          <div className="mt-auto grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Starts</p>
-              <p className="text-sm font-extrabold text-slate-700 tracking-tight">
+          <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-slate-50">
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Starts</p>
+              <p className="text-base font-extrabold text-slate-700 tracking-tight">
                 {program.startDate && program.endDate ? (
                   <>
                     {formatDate(program.startDate)}
-                    <span className="block text-slate-400 text-xs font-semibold my-0.5">Till</span>
+                    <span className="block text-slate-400 text-sm font-semibold my-0.5">Till</span>
                     {formatDate(program.endDate)}
                   </>
                 ) : program.startDate ? (
@@ -97,15 +97,15 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
                 )}
               </p>
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Schedule</p>
-              <p className="text-sm font-extrabold text-slate-700 tracking-tight line-clamp-2">{program.time || "TBD"}</p>
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Schedule</p>
+              <p className="text-base font-extrabold text-slate-700 tracking-tight line-clamp-2">{program.time || "TBD"}</p>
             </div>
           </div>
         )}
 
         {/* View Details CTA */}
-        <div className="mt-auto pt-6 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
+        <div className="mt-3 pt-3 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
           <div className="h-px flex-1 bg-slate-100" />
           <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

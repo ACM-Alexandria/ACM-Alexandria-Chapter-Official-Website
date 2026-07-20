@@ -217,7 +217,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 ${isVisible ? "pointer-events-auto" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-50 overflow-hidden ${isVisible ? "pointer-events-auto" : "pointer-events-none"}`}
       aria-hidden={!isVisible}
     >
       {/* Backdrop */}

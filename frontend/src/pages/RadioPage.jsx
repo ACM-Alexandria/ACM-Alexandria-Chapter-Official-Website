@@ -1,16 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/HomePage/Navbar";
 import Footer from "../components/HomePage/Footer";
 import SeasonCard from "../components/HomePage/cards/SeasonCard";
 import { fetchSeasons } from "../services/homePageService";
-import { FiChevronLeft, FiChevronRight, FiMic } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiMic, FiArrowLeft } from "react-icons/fi";
+import { useState, useEffect, useCallback } from "react";
 
 const RadioPage = () => {
+  const [searchParams] = useSearchParams();
   const [seasonsPage, setSeasonsPage] = useState({ content: [], totalPages: 1, number: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const currentPage = seasonsPage.number || 0;
+  const urlPage = Number(searchParams.get("page") || 1);
+  const currentPage = Math.max(0, urlPage - 1);
   const totalPages = seasonsPage.totalPages || 1;
 
   const loadSeasons = useCallback(async (page = 0) => {
@@ -28,12 +31,12 @@ const RadioPage = () => {
   }, []);
 
   useEffect(() => {
-    loadSeasons(0);
-  }, [loadSeasons]);
+    loadSeasons(currentPage);
+  }, [loadSeasons, currentPage]);
 
-  const handlePageChange = (newPage) => {
-    loadSeasons(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handlePageChange = (pageIndex) => {
+    if (pageIndex === currentPage) return;
+    window.location.href = `/radio?page=${pageIndex + 1}`;
   };
 
   const seasonsList = seasonsPage.content || [];
@@ -45,6 +48,17 @@ const RadioPage = () => {
       <main className="flex-1 pt-[74px]">
         {/* Page Header */}
         <div className="relative py-24 px-6 overflow-hidden bg-white">
+          {/* Back to Home Button */}
+          <div className="absolute top-6 left-6 z-20">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 font-bold text-sm group"
+            >
+              <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              Back to Home
+            </Link>
+          </div>
+
           {/* Background Blobs */}
           <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />

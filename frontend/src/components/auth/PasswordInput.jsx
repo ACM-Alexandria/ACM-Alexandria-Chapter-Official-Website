@@ -13,6 +13,7 @@ const PasswordInput = ({
   autoComplete = "current-password",
   icon: Icon,
   forgotPasswordLink,
+  maxLength,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -51,6 +52,7 @@ const PasswordInput = ({
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          maxLength={maxLength}
           className={`
             w-full py-2.5 pr-12 ${Icon ? "pl-10" : "pl-4"}
             bg-gray-50 border rounded-xl text-gray-800 text-sm placeholder-gray-300

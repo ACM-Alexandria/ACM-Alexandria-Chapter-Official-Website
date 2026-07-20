@@ -68,10 +68,9 @@ const LoginForm = () => {
       setSuccessMessage("Logged in successfully!");
       setFormData({ email: "", password: "" });
       const destination = location.state?.from || "/";
-      setTimeout(() => navigate(destination), 1500);
+      setTimeout(() => navigate(destination), 500);
     } catch (error) {
       const errorMessage = error.message || "Incorrect email or password";
-      setFormData((prev) => ({ ...prev, password: "" }));
 
       if (errorMessage.toLowerCase().includes("email")) {
         setErrors((prev) => ({ ...prev, email: errorMessage, general: "" }));
@@ -115,6 +114,7 @@ const LoginForm = () => {
         required={true}
         autoComplete="email"
         icon={EnvelopeIcon}
+        maxLength={100}
       />
 
       <PasswordInput
@@ -129,6 +129,7 @@ const LoginForm = () => {
         autoComplete="current-password"
         icon={LockIcon}
         forgotPasswordLink={<Link to="/forgot-password">Forgot Password?</Link>}
+        maxLength={128}
       />
 
       {/* Submit */}

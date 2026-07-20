@@ -45,10 +45,6 @@ export const PASSWORD_RULES = [
   { label: "Uppercase", test: (p) => /[A-Z]/.test(p) },
   { label: "Lowercase", test: (p) => /[a-z]/.test(p) },
   { label: "Number", test: (p) => /\d/.test(p) },
-  {
-    label: "Special character",
-    test: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p),
-  },
 ];
 
 /**

@@ -133,14 +133,11 @@ const RegisterForm = () => {
         setFormData((prev) => ({ ...prev, password: "", password_confirmation: "" }));
 
         // Redirect to login after a short delay
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/login"), 500);
       }
     } catch (error) {
       // Handle backend errors
       const errorMessage = error.message || "An error occurred during registration";
-
-      // Clear password fields on error
-      setFormData((prev) => ({ ...prev, password: "", password_confirmation: "" }));
 
       // Set field-specific error or general error based on error message
       if (errorMessage.toLowerCase().includes("email")) {
@@ -191,6 +188,7 @@ const RegisterForm = () => {
         required={false}
         autoComplete="email"
         icon={EnvelopeIcon}
+        maxLength={100}
       />
 
       {/* Password field */}
@@ -205,6 +203,7 @@ const RegisterForm = () => {
         required={false}
         autoComplete="new-password"
         icon={LockIcon}
+        maxLength={128}
       />
 
       {/* Confirm Password field */}
@@ -219,6 +218,7 @@ const RegisterForm = () => {
         required={false}
         autoComplete="new-password"
         icon={LockIcon}
+        maxLength={128}
       />
 
       {/* Submit button */}

@@ -34,6 +34,10 @@ build/
 !**/src/test/**/build/
 
 # Environment
+application.properties
+application-dev.properties
+application-prod.properties
+!backend/acmwebsite/src/test/resources/application.properties
 
 *.example
 

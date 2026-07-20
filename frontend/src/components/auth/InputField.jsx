@@ -13,6 +13,7 @@ const InputField = ({
   required = false,
   autoComplete = "off",
   icon: Icon,
+  maxLength,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -43,6 +44,7 @@ const InputField = ({
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          maxLength={maxLength}
           className={`
             w-full py-2.5 pr-4 ${Icon ? "pl-10" : "pl-4"}
             bg-gray-50 border rounded-xl text-gray-800 text-sm placeholder-gray-300

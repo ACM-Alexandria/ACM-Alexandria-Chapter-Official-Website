@@ -9,12 +9,12 @@ const ProgramsSection = ({ loading, programs, onShowProgramDetails }) => {
   return (
     <section
       id="programs"
-      className="w-full py-24 px-6 bg-white relative overflow-hidden"
+      className="w-full py-16 md:py-24 px-6 bg-white relative overflow-hidden"
     >
       
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-12 md:mb-20">
           <h2 
             className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
             data-aos="fade-up"
@@ -33,7 +33,7 @@ const ProgramsSection = ({ loading, programs, onShowProgramDetails }) => {
 
         {/* Programs Grid - Show only first 2 */}
         {loading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto gap-6 md:gap-10 lg:gap-12">
             {[...Array(2)].map((_, i) => (
               <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-60 border border-slate-200/50" />
             ))}
@@ -41,7 +41,7 @@ const ProgramsSection = ({ loading, programs, onShowProgramDetails }) => {
         ) : displayedPrograms && displayedPrograms.length > 0 ? (
           <div className="space-y-16">
             <div
-              className={`grid gap-12 ${
+              className={`grid gap-6 md:gap-10 lg:gap-12 ${
                 displayedPrograms.length === 1
                   ? "grid-cols-1 max-w-4xl mx-auto"
                   : "grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto"
