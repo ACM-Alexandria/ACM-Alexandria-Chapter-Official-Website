@@ -17,9 +17,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** JwtFilter */
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {
+  private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
   private final JwtUtil jwtUtil;
   private final HandlerExceptionResolver exceptionResolver;
 
@@ -51,11 +55,11 @@ public class JwtFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
 
-      filterChain.doFilter(request, response);
-
     } catch (JwtException e) {
-      exceptionResolver.resolveException(request, response, null, e);
+      logger.warn("JWT validation failed: {}", e.getMessage());
     }
+
+    filterChain.doFilter(request, response);
   }
 
   private String parseJwt(HttpServletRequest request) {
