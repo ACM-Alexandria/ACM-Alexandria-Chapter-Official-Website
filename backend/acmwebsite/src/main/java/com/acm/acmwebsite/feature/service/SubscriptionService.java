@@ -53,7 +53,7 @@ public class SubscriptionService {
                 : "To be announced";
         for (Subscription sub : activeSubscriptions) {
             if (sub.getUser() != null) {
-                emailService.sendNewEventAnnouncementEmail(sub.getUser().getEmail(), event.getName(), eventTime, location);
+                emailService.sendNewEventAnnouncementEmail(sub.getUser().getEmail(), event.getName(), eventTime, location, sub.getUser().getName());
             }
         }
     }
@@ -66,7 +66,7 @@ public class SubscriptionService {
                 : "No description available";
         for (Subscription sub : activeSubscriptions) {
             if (sub.getUser() != null) {
-                emailService.sendNewClubAnnouncementEmail(sub.getUser().getEmail(), club.getName(), description);
+                emailService.sendNewClubAnnouncementEmail(sub.getUser().getEmail(), club.getName(), description, sub.getUser().getName());
             }
         }
     }
@@ -80,7 +80,7 @@ public class SubscriptionService {
         String startDate = program.getStartDate() != null ? program.getStartDate().toString() : "To be announced";
         for (Subscription sub : activeSubscriptions) {
             if (sub.getUser() != null) {
-                emailService.sendNewProgramAnnouncementEmail(sub.getUser().getEmail(), program.getName(), description, startDate);
+                emailService.sendNewProgramAnnouncementEmail(sub.getUser().getEmail(), program.getName(), description, startDate, sub.getUser().getName());
             }
         }
     }
@@ -113,7 +113,7 @@ public class SubscriptionService {
             return;
         }
 
-        emailService.sendSubscriptionConfirmationEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody());
+        emailService.sendSubscriptionConfirmationEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody(), subscription.getUser().getName());
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setConfirmedAt(LocalDateTime.now());
         subscriptionRepository.save(subscription);
@@ -142,7 +142,7 @@ public class SubscriptionService {
         sendConfirmationEmail(
                 subscription,
                 new Message(
-                        "Hello",
+                        "ACM Website - Confirm Subscription",
                         "Your subscription to " + committee.getName() + " committee mailing list has been confirmed"
                 )
         );
@@ -184,7 +184,7 @@ public class SubscriptionService {
         sendConfirmationEmail(
                 subscription,
                 new Message(
-                        "Hello",
+                        "ACM Website - Confirm Subscription",
                         "Your subscription to our mailing list has been confirmed"
                 )
         );

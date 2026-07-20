@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     // 6. Send Email (Send the RAW token, NOT the hash)
-    emailService.sendPasswordResetEmail(user.getEmail(), rawToken);
+    emailService.sendPasswordResetEmail(user.getEmail(), rawToken, user.getName());
     logger.info("Password reset initiated for email: {}. Token sent to email. And Token : {}", email, rawToken);
   }
 

@@ -82,7 +82,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE, targetId, testMessage);
 
-        verify(emailService, times(1)).sendCommitteeCallEmail(user.getEmail(), testMessage.getSubject(), testMessage.getBody());
+        verify(emailService, times(1)).sendCommitteeCallEmail(user.getEmail(), testMessage.getSubject(), testMessage.getBody(),user.getName());
 
     }
 
@@ -100,7 +100,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.NEWS,targetId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any(),any(String.class));
     }
 
     @Test
@@ -118,7 +118,7 @@ class CommitteeServiceTest {
 
         committeService.sendCallMessage(SubscripeTo.COMMITTEE,wrongId,new Message("message !","mock"));
 
-        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any(),any(String.class));
 
     }
     private Committee createDummyCommittee(){
@@ -148,7 +148,7 @@ class CommitteeServiceTest {
 
         // Assert
         // If your 'if' check is working, this email should never be sent
-        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(String.class), any(), any(),any(String.class));
     }
 
     @Test

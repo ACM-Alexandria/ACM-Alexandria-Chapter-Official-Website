@@ -31,7 +31,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async // Optimization: Send email in background so the user doesn't wait
-    public void sendPasswordResetEmail(String to, String rawToken) {
+    public void sendPasswordResetEmail(String to, String rawToken, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -46,6 +46,7 @@ public class GmailEmailService implements EmailService {
             context.setVariable("emailTitle", "Password Reset Request — ACM Alexandria");
             context.setVariable("preheaderText", "Reset your password for your ACM Alexandria Chapter account.");
             context.setVariable("buttonUrl", link);
+            context.setVariable("userName", userName);
 
             String htmlContent = templateEngine.process("mail/password-reset", context);
             helper.setText(htmlContent, true);
@@ -118,7 +119,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
-    public void sendSubscriptionConfirmationEmail(String to, String subject, String body) {
+    public void sendSubscriptionConfirmationEmail(String to, String subject, String body, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -128,6 +129,7 @@ public class GmailEmailService implements EmailService {
             helper.setSubject(subject != null ? subject : "Subscription Confirmation — ACM Alexandria");
 
             Context context = new Context();
+            context.setVariable("userName", userName);
             context.setVariable("emailTitle", subject != null ? subject : "Subscription Confirmation — ACM Alexandria");
             context.setVariable("preheaderText", "Your subscription to our mailing list has been confirmed.");
             context.setVariable("messageText", body);
@@ -145,7 +147,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
-    public void sendNewEventAnnouncementEmail(String to, String eventName, String eventTime, String eventLocation) {
+    public void sendNewEventAnnouncementEmail(String to, String eventName, String eventTime, String eventLocation, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -155,6 +157,7 @@ public class GmailEmailService implements EmailService {
             helper.setSubject("New ACM Alexandria Event: " + eventName);
 
             Context context = new Context();
+            context.setVariable("userName", userName);
             context.setVariable("emailTitle", "New ACM Alexandria Event: " + eventName);
             context.setVariable("preheaderText", "A new event has been scheduled. Check out the details!");
             context.setVariable("eventName", eventName);
@@ -175,7 +178,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
-    public void sendNewClubAnnouncementEmail(String to, String clubName, String description) {
+    public void sendNewClubAnnouncementEmail(String to, String clubName, String description, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -185,6 +188,7 @@ public class GmailEmailService implements EmailService {
             helper.setSubject("New ACM Alexandria Club: " + clubName);
 
             Context context = new Context();
+            context.setVariable("userName", userName);
             context.setVariable("emailTitle", "New ACM Alexandria Club: " + clubName);
             context.setVariable("preheaderText", "We are thrilled to announce the launch of a new ACM Alexandria student club!");
             context.setVariable("clubName", clubName);
@@ -204,7 +208,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
-    public void sendNewProgramAnnouncementEmail(String to, String programName, String description, String startDate) {
+    public void sendNewProgramAnnouncementEmail(String to, String programName, String description, String startDate, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -214,6 +218,7 @@ public class GmailEmailService implements EmailService {
             helper.setSubject("New ACM Alexandria Program: " + programName);
 
             Context context = new Context();
+            context.setVariable("userName", userName);
             context.setVariable("emailTitle", "New ACM Alexandria Program: " + programName);
             context.setVariable("preheaderText", "We are excited to launch a new ACM Alexandria program!");
             context.setVariable("programName", programName);
@@ -234,7 +239,7 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
-    public void sendCommitteeCallEmail(String to, String subject, String body) {
+    public void sendCommitteeCallEmail(String to, String subject, String body, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -244,6 +249,7 @@ public class GmailEmailService implements EmailService {
             helper.setSubject(subject != null ? subject : "Committee Announcement");
 
             Context context = new Context();
+            context.setVariable("userName", userName);
             context.setVariable("emailTitle", subject != null ? subject : "Committee Announcement");
             context.setVariable("preheaderText", "We have a new committee call for you!");
             context.setVariable("title", subject != null ? subject : "Committee Call Active");

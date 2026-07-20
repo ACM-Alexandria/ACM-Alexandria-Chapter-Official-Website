@@ -48,7 +48,7 @@ public class CommitteeService {
         var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
             if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {
-                emailService.sendCommitteeCallEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody());
+                emailService.sendCommitteeCallEmail(subscription.getUser().getEmail(), message.getSubject(), message.getBody(),subscription.getUser().getName());
             }
         }
     }

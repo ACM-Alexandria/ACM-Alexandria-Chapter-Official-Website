@@ -42,7 +42,7 @@ class EmailServiceTest {
         when(templateEngine.process(eq("mail/password-reset"), any(Context.class)))
                 .thenReturn("<html>reset</html>");
 
-        emailService.sendPasswordResetEmail("user@example.com", "dummy-token");
+        emailService.sendPasswordResetEmail("user@example.com", "dummy-token", "John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
@@ -81,7 +81,7 @@ class EmailServiceTest {
         when(templateEngine.process(eq("mail/subscription-confirmation"), any(Context.class)))
                 .thenReturn("<html>subscribed</html>");
 
-        emailService.sendSubscriptionConfirmationEmail("user@example.com", "Subscribed", "Body info");
+        emailService.sendSubscriptionConfirmationEmail("user@example.com", "Subscribed", "Body info","John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
@@ -94,7 +94,7 @@ class EmailServiceTest {
         when(templateEngine.process(eq("mail/new-event"), any(Context.class)))
                 .thenReturn("<html>event</html>");
 
-        emailService.sendNewEventAnnouncementEmail("user@example.com", "Hackathon", "10:00 AM", "Hall A");
+        emailService.sendNewEventAnnouncementEmail("user@example.com", "Hackathon", "10:00 AM", "Hall A","John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
@@ -107,7 +107,7 @@ class EmailServiceTest {
         when(templateEngine.process(eq("mail/new-club"), any(Context.class)))
                 .thenReturn("<html>club</html>");
 
-        emailService.sendNewClubAnnouncementEmail("user@example.com", "CP Club", "Competitive Programming");
+        emailService.sendNewClubAnnouncementEmail("user@example.com", "CP Club", "Competitive Programming","John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }
@@ -120,7 +120,7 @@ class EmailServiceTest {
         when(templateEngine.process(eq("mail/committee-call"), any(Context.class)))
                 .thenReturn("<html>committee</html>");
 
-        emailService.sendCommitteeCallEmail("user@example.com", "Call for PR", "Apply now!");
+        emailService.sendCommitteeCallEmail("user@example.com", "Call for PR", "Apply now!","John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,12 +53,13 @@ class SubscriptionServiceTest {
     @DisplayName("Send confirmation email to Inactive subscription")
     void shouldSendConfirmationEmail(){
         User user = User.builder().email("dev@example.com").build();
+        user.setName("John Doe");
         Subscription subscription = new Subscription(user, SubscripeTo.COMMITTEE,1234L);
         subscription.setStatus(SubscriptionStatus.PENDING);
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
 
-        verify(emailService,times(1)).sendSubscriptionConfirmationEmail(eq("dev@example.com"), eq("hello!"), eq("mock"));
+        verify(emailService,times(1)).sendSubscriptionConfirmationEmail(eq("dev@example.com"), eq("hello!"), eq("mock"), eq("John Doe"));
         verify(subscriptionRepository,times(1)).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should be updated to ACTIVE");
         assertNotNull(subscription.getConfirmedAt(), "ConfirmedAt timestamp should be set");
@@ -71,7 +74,7 @@ class SubscriptionServiceTest {
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
         subscriptionService.sendConfirmationEmail(subscription,new Message("hello!","mock"));
-        verify(emailService,never()).sendSubscriptionConfirmationEmail(any(String.class), any(String.class), any(String.class));
+        verify(emailService,never()).sendSubscriptionConfirmationEmail(any(String.class), any(String.class), any(String.class), any(String.class));
         verify(subscriptionRepository,never()).save(any());
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus(), "Status should not be changed ");
     }
