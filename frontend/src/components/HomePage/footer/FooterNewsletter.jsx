@@ -66,9 +66,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
       </h4>
       <div className="space-y-5">
         <p className="text-blue-100/80 text-sm font-medium leading-relaxed">
-          {isAuthenticated
-            ? "Stay updated with our latest news and upcoming technical events."
-            : "Login to stay updated with our latest news and upcoming technical events."}
+          Stay updated with our latest news and upcoming technical events.
         </p>
         <div className="space-y-3">
           {isAuthenticated ? (
@@ -92,7 +90,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
               onClick={handleToggleSubscribe}
               className="w-full bg-[#4B98C8] hover:bg-[#4B98C8]/80 text-white font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all"
             >
-              Login to Subscribe
+              Subscribe to News
             </button>
           )}
           <button
