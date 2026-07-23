@@ -542,7 +542,7 @@ export const deleteEpisode = async (id) => {
 
 export const fetchEpisodesBySeason = async (seasonId, page = 0) => {
   try {
-    const response = await api.get(`/api/radio/seasons/${seasonId}/episodes?page=${page}`);
+    const response = await api.get(`/api/radio/seasons/${seasonId}/episodes/page/${page}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching paginated episodes:", error);

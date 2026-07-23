@@ -12,6 +12,7 @@ import {
   register as apiRegister,
   refreshAccessToken,
   getMe as apiGetMe,
+  loginWithGoogle as apiLoginWithGoogle,
 } from "../services/authService";
 
 const AuthContext = createContext({
@@ -19,6 +20,7 @@ const AuthContext = createContext({
   isLoading: true,
   user: null,
   login: async () => {},
+  loginWithGoogle: async () => {},
   logout: async () => {},
   register: async () => {},
   updateUser: () => {},
@@ -134,6 +136,17 @@ export const AuthProvider = ({ children }) => {
     return data;
   }, []);
 
+  const loginWithGoogle = useCallback(async (credential) => {
+    const data = await apiLoginWithGoogle(credential);
+    setIsAuthenticated(true);
+
+    if (data.id && data.email) {
+      setUser({ id: data.id, email: data.email, role: data.role || null });
+    }
+
+    return data;
+  }, []);
+
   const register = useCallback(async (userData) => {
     return await apiRegister(userData);
   }, []);
@@ -153,6 +166,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     user,
     login,
+    loginWithGoogle,
     logout,
     register,
     updateUser,

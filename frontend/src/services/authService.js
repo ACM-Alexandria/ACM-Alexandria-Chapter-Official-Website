@@ -30,6 +30,27 @@ export const login = async (email, password) => {
 };
 
 /**
+ * Login user with Google OAuth ID Token credential.
+ * Stores tokens via tokenService on success.
+ */
+export const loginWithGoogle = async (credential) => {
+  try {
+    const response = await api.post("/api/v1/auth/google", { credential });
+    const { accessToken, refreshToken } = response.data;
+
+    // Store tokens securely
+    await tokenService.setTokens(accessToken, refreshToken);
+
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error("Google Sign-In failed. Please try again.");
+  }
+};
+
+/**
  * Register a new user.
  * Backend expects: { email, password, password_confirmation }
  * Backend returns: { id, email }

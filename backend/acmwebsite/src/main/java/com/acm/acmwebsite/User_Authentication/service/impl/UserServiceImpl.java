@@ -14,7 +14,15 @@ import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
 
+import com.acm.acmwebsite.User_Authentication.enums.Role;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +50,11 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final EmailService emailService;
   private final TokenService tokenService;
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+  @Value("${google.sheets.client-id}")
+  private String googleClientId;
+
+  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   @Override
   public Map<String, Object> getUserAuthDetails(String email) {
@@ -271,5 +283,47 @@ public class UserServiceImpl implements UserService {
 
     User saved = userRepository.save(user);
     return userMapper.toProfileDto(saved);
+  }
+
+  @Override
+  @Transactional
+  public LoginResponse loginWithGoogle(String credential) throws Exception {
+    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+            new NetHttpTransport(),
+            new GsonFactory())
+            .setAudience(Collections.singletonList(googleClientId))
+            .build();
+
+    GoogleIdToken idToken = verifier.verify(credential);
+    if (idToken == null) {
+        throw new IllegalArgumentException("Invalid Google credential ID token");
+    }
+
+    GoogleIdToken.Payload payload = idToken.getPayload();
+    String email = payload.getEmail().trim().toLowerCase();
+    String name = (String) payload.get("name");
+
+    User user = userRepository.findByEmail(email).orElse(null);
+    if (user == null) {
+        // Register new user automatically
+        user = User.builder()
+                .email(email)
+                .name(name)
+                .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString())) // Secure random hash for constraint
+                .role(Role.USER)
+                .build();
+        user = userRepository.save(user);
+    }
+
+    String refreshToken = tokenService.createRefreshToken(user);
+    String accessToken = tokenService.createAccessToken(user);
+
+    return LoginResponse.builder()
+            .email(user.getEmail())
+            .id(user.getId())
+            .role(user.getRole().name())
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
   }
 }

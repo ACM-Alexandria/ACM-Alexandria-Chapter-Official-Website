@@ -50,6 +50,7 @@ public class User {
   @Column(name = "reset_password_token_created_at")
   private LocalDateTime resetPasswordTokenCreatedAt;
 
+  @Builder.Default
   @Column(name = "forgot_password_count" , nullable = false)
   private Integer forgotPasswordCount = 0;
 

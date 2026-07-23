@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
@@ -15,12 +15,47 @@ import {
 const LoginForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "", general: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  const handleGoogleCallback = async (response) => {
+    setSuccessMessage("");
+    setErrors((prev) => ({ ...prev, general: "" }));
+    setIsLoading(true);
+
+    try {
+      await loginWithGoogle(response.credential);
+      setSuccessMessage("Logged in successfully!");
+      const destination = location.state?.from || "/";
+      setTimeout(() => navigate(destination), 500);
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, general: error.message || "Google Sign-In failed" }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    /* global google */
+    if (typeof google !== "undefined") {
+      try {
+        google.accounts.id.initialize({
+          client_id: "286108572806-agfr1j9sshfsg5us3irpdll4omsns06o.apps.googleusercontent.com",
+          callback: handleGoogleCallback,
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("google-signin-btn"),
+          { theme: "outline", size: "large", width: "100%", text: "signin_with" }
+        );
+      } catch (err) {
+        console.error("Google Auth initialization failed:", err);
+      }
+    }
+  }, [navigate, location, loginWithGoogle]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,6 +205,16 @@ const LoginForm = () => {
           "Sign In"
         )}
       </button>
+
+      {/* OR Divider */}
+      <div className="my-4 flex items-center justify-center gap-3">
+        <span className="w-full h-px bg-gray-200" />
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">or</span>
+        <span className="w-full h-px bg-gray-200" />
+      </div>
+
+      {/* Google Sign In Button Container */}
+      <div id="google-signin-btn" className="w-full flex justify-center mt-2" />
 
       {/* Footer links */}
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">

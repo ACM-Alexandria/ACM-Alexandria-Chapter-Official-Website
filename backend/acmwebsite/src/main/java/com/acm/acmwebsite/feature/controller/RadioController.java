@@ -9,12 +9,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/radio")
 public class RadioController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RadioController.class);
     private final RadioService radioService;
 
     public RadioController(RadioService radioService) {
@@ -25,11 +28,13 @@ public class RadioController {
 
     @GetMapping("/seasons")
     public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(@RequestParam(value = "page", defaultValue = "0") int page) {
+        logger.info("Request received: GET /api/radio/seasons with page={}", page);
         return ResponseEntity.ok(radioService.getSeasonsByPage(page));
     }
 
     @GetMapping("/seasons/{id}")
     public ResponseEntity<RadioSeasonDto> getSeasonById(@PathVariable Long id) {
+        logger.info("Request received: GET /api/radio/seasons/{}", id);
         return radioService.getSeasonById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -39,6 +44,15 @@ public class RadioController {
     public ResponseEntity<Page<RadioEpisodeDto>> getEpisodesBySeason(
             @PathVariable Long id,
             @RequestParam(value = "page", defaultValue = "0") int page) {
+        logger.info("Request received: GET /api/radio/seasons/{}/episodes with page={}", id, page);
+        return ResponseEntity.ok(radioService.getEpisodesBySeason(id, page));
+    }
+
+    @GetMapping("/seasons/{id}/episodes/page/{page}")
+    public ResponseEntity<Page<RadioEpisodeDto>> getEpisodesBySeasonPage(
+            @PathVariable Long id,
+            @PathVariable int page) {
+        logger.info("Request received: GET /api/radio/seasons/{}/episodes/page/{}", id, page);
         return ResponseEntity.ok(radioService.getEpisodesBySeason(id, page));
     }
 

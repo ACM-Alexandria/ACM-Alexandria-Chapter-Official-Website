@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
@@ -18,7 +18,7 @@ import {
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, login, loginWithGoogle } = useAuth();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -38,6 +38,40 @@ const RegisterForm = () => {
   // Loading and success state
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  const handleGoogleCallback = async (response) => {
+    setSuccessMessage("");
+    setErrors((prev) => ({ ...prev, general: "" }));
+    setIsLoading(true);
+
+    try {
+      await loginWithGoogle(response.credential);
+      setSuccessMessage("Registered & Logged in successfully!");
+      setTimeout(() => navigate("/"), 500);
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, general: error.message || "Google Sign-Up failed" }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    /* global google */
+    if (typeof google !== "undefined") {
+      try {
+        google.accounts.id.initialize({
+          client_id: "286108572806-agfr1j9sshfsg5us3irpdll4omsns06o.apps.googleusercontent.com",
+          callback: handleGoogleCallback,
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("google-signup-btn"),
+          { theme: "outline", size: "large", width: "100%", text: "signup_with" }
+        );
+      } catch (err) {
+        console.error("Google Auth initialization failed:", err);
+      }
+    }
+  }, [navigate, loginWithGoogle]);
 
   /**
    * Handle input change
@@ -127,13 +161,16 @@ const RegisterForm = () => {
 
       // Handle successful registration
       if (response.id && response.email) {
-        setSuccessMessage("Account created successfully! Redirecting to login...");
+        setSuccessMessage("Account created successfully! Logging you in...");
 
-        // Clear password fields only (keep email for convenience)
-        setFormData((prev) => ({ ...prev, password: "", password_confirmation: "" }));
+        // Log the user in automatically using destructured login
+        await login(formData.email, formData.password);
+        
+        setSuccessMessage("Account created & logged in successfully!");
+        setFormData({ email: "", password: "", password_confirmation: "" });
 
-        // Redirect to login after a short delay
-        setTimeout(() => navigate("/login"), 500);
+        // Redirect to main page after a short delay
+        setTimeout(() => navigate("/"), 500);
       }
     } catch (error) {
       // Handle backend errors
@@ -258,6 +295,16 @@ const RegisterForm = () => {
           "Create Account"
         )}
       </button>
+
+      {/* OR Divider */}
+      <div className="my-4 flex items-center justify-center gap-3">
+        <span className="w-full h-px bg-gray-200" />
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">or</span>
+        <span className="w-full h-px bg-gray-200" />
+      </div>
+
+      {/* Google Sign In Button Container */}
+      <div id="google-signup-btn" className="w-full flex justify-center mt-2" />
 
       {/* Footer Links */}
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">

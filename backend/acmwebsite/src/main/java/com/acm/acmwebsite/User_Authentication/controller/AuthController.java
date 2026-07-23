@@ -138,4 +138,15 @@ public class AuthController {
 
   }
 
+  @PostMapping("/google")
+  public ResponseEntity<?> loginWithGoogle(@RequestBody @Valid GoogleLoginRequest request) {
+    try {
+      LoginResponse response = userService.loginWithGoogle(request.getCredential());
+      return ResponseEntity.ok(response);
+    } catch (Exception ex) {
+      return ResponseEntity.status(401)
+          .body(new ErrorMessageResponse(ex.getMessage() != null ? ex.getMessage() : "Google authentication failed"));
+    }
+  }
+
 }

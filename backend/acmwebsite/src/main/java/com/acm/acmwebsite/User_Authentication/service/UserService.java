@@ -31,6 +31,8 @@ public interface UserService {
 
   LoginResponse login(LoginRequest loginRequest);
 
+  LoginResponse loginWithGoogle(String credential) throws Exception;
+
   void initiatePasswordReset(String email);
 
   void resetPassword(ResetPasswordDTO dto);
