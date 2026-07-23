@@ -108,7 +108,7 @@ public class CommitteeController {
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
@@ -121,7 +121,7 @@ public class CommitteeController {
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
@@ -144,11 +144,17 @@ public class CommitteeController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/{id}/is-registered")
+    @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForCommittee(
             @PathVariable("id") Long committeeId,
-            @RequestParam("userId") java.util.UUID userId) {
-        boolean registered = committeeRegistrationService.isUserRegistered(userId, committeeId);
+            @PathVariable("userId") String userId) {
+        java.util.UUID userUuid;
+        try {
+            userUuid = java.util.UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        boolean registered = committeeRegistrationService.isUserRegistered(userUuid, committeeId);
         return ResponseEntity.ok(Map.of("registered", registered));
     }
 

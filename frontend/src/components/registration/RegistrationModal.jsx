@@ -191,7 +191,13 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
       setNeedsProfileUpdate(false);
     } catch (err) {
       console.error("[Profile Gateway] Update failed:", err);
-      setProfileError(err.message || "Save failed. Recheck inputs.");
+      let errorMessage = "Save failed. Recheck inputs.";
+      if (typeof err === "string") {
+        errorMessage = err;
+      } else if (err && typeof err === "object") {
+        errorMessage = err.message || err.error || err.errorMessage || errorMessage;
+      }
+      setProfileError(errorMessage);
     } finally {
       setProfileSubmitting(false);
     }
@@ -237,8 +243,12 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
       setSuccess(true);
     } catch (err) {
       console.error("[Registration Submission] API failure:", err);
-      // Dynamically extract explicit backend messages (User Request)
-      const errorMessage = err.message || err.error || "An unexpected server error occurred.";
+      let errorMessage = "An unexpected server error occurred. Please try again.";
+      if (typeof err === "string") {
+        errorMessage = err;
+      } else if (err && typeof err === "object") {
+        errorMessage = err.message || err.error || err.errorMessage || errorMessage;
+      }
       setError(errorMessage);
     } finally {
       setSubmitting(false);

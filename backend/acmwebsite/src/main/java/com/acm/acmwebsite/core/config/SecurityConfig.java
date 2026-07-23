@@ -50,10 +50,17 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/committee/*/register").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/program/*/register").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/events/*/is-registered/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/clubs/*/is-registered/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/committee/*/is-registered/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/program/*/is-registered/*").authenticated()
                         // Secure feedback submission and screenshot uploads for authenticated users only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
                         // Allow these specific endpoints without login
                         .requestMatchers(
+                                "/error",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/forgot-password",

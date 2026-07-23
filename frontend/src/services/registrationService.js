@@ -51,9 +51,7 @@ export const registerForClub = async (clubId, userId, answers = {}) => {
 // Checks if user is registered for event (User Request)
 export const checkEventRegistrationStatus = async (eventId, userId) => {
   try {
-    const response = await api.get(`/api/events/${eventId}/is-registered`, {
-      params: { userId }
-    });
+    const response = await api.get(`/api/events/${eventId}/is-registered/${userId}`);
     return response.data.registered;
   } catch (error) {
     console.error(`Error checking event registration status:`, error);
@@ -64,9 +62,7 @@ export const checkEventRegistrationStatus = async (eventId, userId) => {
 // Checks if user is registered for club (User Request)
 export const checkClubRegistrationStatus = async (clubId, userId) => {
   try {
-    const response = await api.get(`/api/clubs/${clubId}/is-registered`, {
-      params: { userId }
-    });
+    const response = await api.get(`/api/clubs/${clubId}/is-registered/${userId}`);
     return response.data.registered;
   } catch (error) {
     console.error(`Error checking club registration status:`, error);
@@ -100,9 +96,7 @@ export const registerForCommittee = async (committeeId, userId, answers = {}) =>
 // Checks if user has already applied for the currently open call of a committee.
 export const checkCommitteeRegistrationStatus = async (committeeId, userId) => {
   try {
-    const response = await api.get(`/api/committee/${committeeId}/is-registered`, {
-      params: { userId }
-    });
+    const response = await api.get(`/api/committee/${committeeId}/is-registered/${userId}`);
     return response.data.registered;
   } catch (error) {
     console.error(`Error checking committee registration status:`, error);
@@ -136,9 +130,7 @@ export const registerForProgram = async (programId, userId, answers = {}) => {
 // Checks if user is registered for a program.
 export const checkProgramRegistrationStatus = async (programId, userId) => {
   try {
-    const response = await api.get(`/api/program/${programId}/is-registered`, {
-      params: { userId }
-    });
+    const response = await api.get(`/api/program/${programId}/is-registered/${userId}`);
     return response.data.registered;
   } catch (error) {
     console.error(`Error checking program registration status:`, error);

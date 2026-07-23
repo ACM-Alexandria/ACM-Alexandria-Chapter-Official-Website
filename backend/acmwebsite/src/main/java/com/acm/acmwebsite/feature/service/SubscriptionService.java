@@ -45,6 +45,9 @@ public class SubscriptionService {
     }
 
     public void sendNewEventNotificationToNewsSubscribers(Event event) {
+        if (event.getEventTime() != null && event.getEventTime().isBefore(LocalDateTime.now())) {
+            return;
+        }
         List<Subscription> activeSubscriptions = subscriptionRepository.getSubscriptionsBySubscribeToAndSubscribeToIdAndStatus(
                 SubscripeTo.NEWS, 0L, SubscriptionStatus.ACTIVE);
         String eventTime = event.getEventTime() != null ? event.getEventTime().toString() : "To be announced";

@@ -45,6 +45,9 @@ public class CommitteeService {
     }
 
     public void sendCallMessage(SubscripeTo subscripeTo, Long id, Message message) {
+        if (message == null || message.getSubject() == null || message.getBody() == null) {
+            throw new IllegalArgumentException("Call announcement message is empty. Please set the call subject and body first.");
+        }
         var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
             if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {

@@ -24,7 +24,7 @@ public class RadioController {
     // ── Public Endpoints ──
 
     @GetMapping("/seasons")
-    public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(@RequestParam(defaultValue = "0") int page) {
+    public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(@RequestParam(value = "page", defaultValue = "0") int page) {
         return ResponseEntity.ok(radioService.getSeasonsByPage(page));
     }
 
@@ -38,7 +38,7 @@ public class RadioController {
     @GetMapping("/seasons/{id}/episodes")
     public ResponseEntity<Page<RadioEpisodeDto>> getEpisodesBySeason(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(value = "page", defaultValue = "0") int page) {
         return ResponseEntity.ok(radioService.getEpisodesBySeason(id, page));
     }
 

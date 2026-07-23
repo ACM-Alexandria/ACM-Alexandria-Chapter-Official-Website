@@ -39,11 +39,17 @@ public class ProgramRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/program/{id}/is-registered")
+    @GetMapping("/program/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForProgram(
             @PathVariable("id") Long programId,
-            @RequestParam("userId") UUID userId) {
-        boolean registered = programRegistrationService.isUserRegistered(userId, programId);
+            @PathVariable("userId") String userId) {
+        java.util.UUID userUuid;
+        try {
+            userUuid = java.util.UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        boolean registered = programRegistrationService.isUserRegistered(userUuid, programId);
         return ResponseEntity.ok(Map.of("registered", registered));
     }
 }

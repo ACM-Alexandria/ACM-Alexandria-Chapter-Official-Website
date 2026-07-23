@@ -434,7 +434,13 @@ const AdminPage = () => {
       await loadMgmtTabData(mgmtTab);
     } catch (err) {
       console.error(err);
-      setMgmtError(err.message || `Failed to update ${mgmtTab === "programs" ? "program registration" : "committee call"} status.`);
+      let errMsg = `Failed to update ${mgmtTab === "programs" ? "program registration" : "committee call"} status.`;
+      if (typeof err === "string") {
+        errMsg = err;
+      } else if (err && typeof err === "object") {
+        errMsg = err.error || err.message || errMsg;
+      }
+      setMgmtError(errMsg);
     } finally {
       setMgmtLoading(false);
     }
