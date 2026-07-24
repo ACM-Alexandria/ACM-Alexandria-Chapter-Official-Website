@@ -313,6 +313,12 @@ public class UserServiceImpl implements UserService {
                 .role(Role.USER)
                 .build();
         user = userRepository.save(user);
+        String welcomeName = (name != null && !name.trim().isEmpty()) ? name : "ACM Member";
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), welcomeName);
+        } catch (Exception ex) {
+            logger.warn("Failed to send welcome email to newly registered Google user: {}", user.getEmail(), ex);
+        }
     }
 
     String refreshToken = tokenService.createRefreshToken(user);
