@@ -294,5 +294,33 @@ public class GmailEmailService implements EmailService {
             log.error("Failed to send committee registration confirmation email to {}", to, e);
         }
     }
+
+    @Override
+    @Async
+    public void sendGenericFormSubmissionConfirmationEmail(String to, String formName, String userName) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject("ACM Website - Form Submission Received: " + formName);
+
+            Context context = new Context();
+            context.setVariable("emailTitle", "Form Submission Received — ACM Alexandria");
+            context.setVariable("preheaderText", "We have received your submission for the form: " + formName);
+            context.setVariable("userName", userName);
+            context.setVariable("formName", formName);
+
+            String htmlContent = templateEngine.process("mail/generic-form-submission", context);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("Generic form submission confirmation email sent successfully to {} for form {}", to, formName);
+
+        } catch (Exception e) {
+            log.error("Failed to send generic form submission confirmation email to {}", to, e);
+        }
+    }
 }
 
