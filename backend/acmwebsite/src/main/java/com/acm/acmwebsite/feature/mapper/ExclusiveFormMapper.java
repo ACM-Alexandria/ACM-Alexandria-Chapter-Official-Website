@@ -16,6 +16,7 @@ public class ExclusiveFormMapper {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
+                .imageUrl(entity.getImageUrl())
                 .sheetId(entity.getSheetId())
                 .isActive(entity.getIsActive())
                 .createdAt(entity.getCreatedAt())
@@ -32,6 +33,7 @@ public class ExclusiveFormMapper {
                 .id(dto.getId())
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .imageUrl(dto.getImageUrl())
                 .sheetId(dto.getSheetId())
                 .isActive(dto.getIsActive() != null ? dto.getIsActive() : false)
                 .build();

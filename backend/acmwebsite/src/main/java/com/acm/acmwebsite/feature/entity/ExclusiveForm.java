@@ -27,6 +27,9 @@ public class ExclusiveForm {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "sheet_id")
     private String sheetId;
 

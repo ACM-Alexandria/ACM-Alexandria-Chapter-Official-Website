@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchExclusiveFormById } from "../../services/homePageService";
 import { HiOutlineX } from "react-icons/hi";
+import { FiFileText } from "react-icons/fi";
 import RegistrationModal from "../registration/RegistrationModal";
 import { checkExclusiveFormRegistrationStatus } from "../../services/registrationService";
 
@@ -119,9 +120,17 @@ const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
             </button>
 
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8] to-[#205E85]">
-              <span className="text-white text-9xl font-black opacity-10 select-none">
-                {form?.title?.charAt(0) || "F"}
-              </span>
+              {form?.imageUrl ? (
+                <img 
+                  src={form.imageUrl} 
+                  alt={form.title} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center opacity-20">
+                  <FiFileText className="w-32 h-32 text-white" />
+                </div>
+              )}
             </div>
 
             {/* Gradient Overlay */}

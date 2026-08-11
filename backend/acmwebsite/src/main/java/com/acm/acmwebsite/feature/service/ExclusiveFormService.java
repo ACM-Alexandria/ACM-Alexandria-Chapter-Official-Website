@@ -33,6 +33,12 @@ public class ExclusiveFormService {
                 
         form.setTitle(formDto.getTitle());
         form.setDescription(formDto.getDescription());
+        if (formDto.getImageUrl() != null) {
+            form.setImageUrl(formDto.getImageUrl());
+        }
+        if (formDto.getSheetId() != null) {
+            form.setSheetId(formDto.getSheetId());
+        }
         if (formDto.getIsActive() != null) {
             form.setIsActive(formDto.getIsActive());
         }
@@ -53,10 +59,10 @@ public class ExclusiveFormService {
     }
 
     public List<ExclusiveForm> getAllForms() {
-        return formRepository.findAll();
+        return formRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public List<ExclusiveForm> getActiveForms() {
-        return formRepository.findByIsActiveTrue();
+        return formRepository.findByIsActiveTrueOrderByCreatedAtDesc();
     }
 }

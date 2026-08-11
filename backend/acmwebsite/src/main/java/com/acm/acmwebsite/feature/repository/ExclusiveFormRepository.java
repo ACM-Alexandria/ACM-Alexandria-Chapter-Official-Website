@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ExclusiveFormRepository extends JpaRepository<ExclusiveForm, Long> {
-    List<ExclusiveForm> findByIsActiveTrue();
+    List<ExclusiveForm> findByIsActiveTrueOrderByCreatedAtDesc();
+    List<ExclusiveForm> findAllByOrderByCreatedAtDesc();
 }

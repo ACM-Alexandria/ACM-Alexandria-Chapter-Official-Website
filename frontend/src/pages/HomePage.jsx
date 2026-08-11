@@ -285,7 +285,7 @@ const HomePage = () => {
       {/* Floating Button for Exclusive Opportunities */}
       {isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS")) && activeForms.length > 0 && (
         <div
-          className={`fixed bottom-8 right-8 z-50 transition-all duration-500 transform ${
+          className={`fixed bottom-8 right-8 z-40 transition-all duration-500 transform ${
             showFloatingButton ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
           }`}
         >

@@ -203,9 +203,8 @@ const ResourceFormModal = ({
               )}
 
               {/* Common Fields: Image/Logo Upload */}
-              {activeTab !== "exclusiveForms" && (
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                     {isCommittee ? "Logo" : "Image"}
                   </label>
 
@@ -284,7 +283,6 @@ const ResourceFormModal = ({
                   </p>
                 )}
               </div>
-              )}
 
             </>
           )}

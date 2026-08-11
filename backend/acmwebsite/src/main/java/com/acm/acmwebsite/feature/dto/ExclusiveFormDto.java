@@ -15,6 +15,7 @@ public class ExclusiveFormDto {
     private Long id;
     private String title;
     private String description;
+    private String imageUrl;
     private String sheetId;
     private Boolean isActive;
     private LocalDateTime createdAt;

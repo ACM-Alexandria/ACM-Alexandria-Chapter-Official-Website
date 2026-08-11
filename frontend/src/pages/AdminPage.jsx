@@ -288,7 +288,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "radio") {
       setFormData({ seasonNumber: "", imageUrl: "" });
     } else if (mgmtTab === "exclusiveForms") {
-      setFormData({ title: "", description: "", isActive: true });
+      setFormData({ title: "", description: "", imageUrl: "", isActive: true });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
     }
