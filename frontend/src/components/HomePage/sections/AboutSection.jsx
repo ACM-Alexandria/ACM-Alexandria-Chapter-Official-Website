@@ -1,9 +1,19 @@
 import CommitteeCard from "../cards/CommitteeCard";
 import HighBoardCard from "../cards/HighBoardCard";
 import GallerySection from "./GallerySection";
+import ActiveFormsSection from "./ActiveFormsSection";
 import { getEnv } from "../../../utils/env";
 
-const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, isRegistrationModalOpen }) => {
+const AboutSection = ({ 
+  loading, 
+  highBoard = [], 
+  committees = [], 
+  onApplyClick, 
+  isRegistrationModalOpen,
+  activeFormsLoading,
+  activeForms,
+  onShowExclusiveFormDetails
+}) => {
   const isEnabled = (envVal) => envVal !== "false";
 
   const orderedHighBoard = [...highBoard].sort((a, b) => {
@@ -58,6 +68,15 @@ const AboutSection = ({ loading, highBoard = [], committees = [], onApplyClick, 
             </div>
           </div>
         </div>
+
+        {/* Exclusive Opportunities Section */}
+        {isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS")) && (
+          <ActiveFormsSection 
+            loading={activeFormsLoading} 
+            activeForms={activeForms} 
+            onShowDetails={onShowExclusiveFormDetails}
+          />
+        )}
 
         {/* High Board Section */}
         {isEnabled(getEnv("VITE_ENABLE_HIGHBOARD")) && (

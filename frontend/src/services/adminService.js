@@ -270,6 +270,49 @@ export const toggleProgramRegistration = async (programId, open) => {
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   6.5. EXCLUSIVE FORMS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchExclusiveForms = async () => {
+  try {
+    const response = await api.get("/api/exclusive-forms");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching exclusive forms:", error);
+    throw error.response?.data || new Error("Failed to fetch exclusive forms.");
+  }
+};
+
+export const createExclusiveForm = async (formData) => {
+  try {
+    const response = await api.post("/api/exclusive-forms", formData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating exclusive form:", error);
+    throw error.response?.data || new Error("Failed to create exclusive form.");
+  }
+};
+
+export const updateExclusiveForm = async (id, formData) => {
+  try {
+    const response = await api.put(`/api/exclusive-forms/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating exclusive form:", error);
+    throw error.response?.data || new Error("Failed to update exclusive form.");
+  }
+};
+
+export const deleteExclusiveForm = async (id) => {
+  try {
+    const response = await api.delete(`/api/exclusive-forms/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting exclusive form:", error);
+    throw error.response?.data || new Error("Failed to delete exclusive form.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    7. REGISTRATION ANALYSIS & GOOGLE SHEETS SYNC
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchRegistrationAnalysis = async (resourceType, id) => {
@@ -278,6 +321,7 @@ export const fetchRegistrationAnalysis = async (resourceType, id) => {
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee/calls";
     const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
     return response.data;
@@ -293,6 +337,7 @@ export const syncRegistrationSheet = async (resourceType, id) => {
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee/calls";
     const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
     return response.data;
@@ -311,6 +356,7 @@ export const fetchQuestions = async (resourceType, resourceId) => {
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee";
     const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
     return response.data;
@@ -326,6 +372,7 @@ export const createQuestion = async (resourceType, resourceId, questionData) => 
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee";
     const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
     return response.data;
@@ -341,6 +388,7 @@ export const updateQuestion = async (resourceType, resourceId, questionId, quest
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee";
     const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
     return response.data;
@@ -356,6 +404,7 @@ export const deleteQuestion = async (resourceType, resourceId, questionId) => {
       resourceType === "event" ? "events" :
       resourceType === "club" ? "clubs" :
       resourceType === "program" ? "program" :
+      resourceType === "exclusive-form" ? "exclusive-forms" :
       "committee";
     const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
     return response.data;
@@ -576,6 +625,10 @@ export default {
   updateProgram,
   deleteProgram,
   toggleProgramRegistration,
+  fetchExclusiveForms,
+  createExclusiveForm,
+  updateExclusiveForm,
+  deleteExclusiveForm,
   fetchRegistrationAnalysis,
   syncRegistrationSheet,
   fetchQuestions,

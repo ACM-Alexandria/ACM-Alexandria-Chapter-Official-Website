@@ -15,6 +15,7 @@ import {
   FiImage,
   FiRadio,
   FiVolume2,
+  FiFileText,
 } from "react-icons/fi";
 
 const ResourceTable = ({
@@ -63,6 +64,9 @@ const ResourceTable = ({
       } else if (activeTab === "radio") {
         IconComponent = FiRadio;
         bgColor = "bg-purple-50 text-purple-500 border border-purple-100";
+      } else if (activeTab === "exclusiveForms") {
+        IconComponent = FiFileText;
+        bgColor = "bg-emerald-50 text-emerald-500 border border-emerald-100";
       }
 
       return (
@@ -109,8 +113,8 @@ const ResourceTable = ({
             {(activeTab === "events" || activeTab === "programs") && (
               <th className="pb-3">{activeTab === "events" ? "Time & Location" : "Duration & Schedule"}</th>
             )}
-            {(activeTab === "committees" || activeTab === "programs") && (
-              <th className="pb-3">{activeTab === "committees" ? "Call Status" : "Registration Status"}</th>
+            {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms") && (
+              <th className="pb-3">{activeTab === "committees" ? "Call Status" : activeTab === "exclusiveForms" ? "Status" : "Registration Status"}</th>
             )}
             {activeTab === "socialLinks" && (
               <th className="pb-3">URL</th>
@@ -128,7 +132,7 @@ const ResourceTable = ({
                   {renderMedia(item)}
                   <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
                     <p className="font-extrabold text-slate-800 truncate">
-                      {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : item.name}
+                      {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : activeTab === "exclusiveForms" ? item.title : item.name}
                     </p>
                     {item.description && (
                       <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>
@@ -169,28 +173,28 @@ const ResourceTable = ({
                 </td>
               )}
 
-              {/* Committee Call Status or Program Registration Status column */}
-              {(activeTab === "committees" || activeTab === "programs") && (
+              {/* Committee Call Status, Program Registration Status, or Exclusive Form Status column */}
+              {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms") && (
                 <td className="py-3.5">
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen)
+                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive)
                           ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                           : "bg-slate-50 text-slate-500 border-slate-200"
                       }`}
                     >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen) ? "Open" : "Closed"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive) ? "Open" : "Closed"}
                     </span>
                     <button
                       onClick={() => onToggleCall(item)}
                       className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen)
+                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive)
                           ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                           : "bg-sky-50 text-[#4B98C8] border-sky-200 hover:bg-sky-100"
                       }`}
                     >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : item.registrationOpen) ? "Close Call" : "Open Call"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive) ? "Close Form" : "Open Form"}
                     </button>
                   </div>
                 </td>
@@ -242,7 +246,7 @@ const ResourceTable = ({
                       </button>
                     </>
                   )}
-                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && (
+                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs" || activeTab === "exclusiveForms") && (
                     <button
                       onClick={() => onRegistrationClick(item)}
                       title="View Registration Panel"
@@ -251,7 +255,7 @@ const ResourceTable = ({
                       <FiUsers className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && (
+                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs" || activeTab === "exclusiveForms") && (
                     <button
                       onClick={() => onQuestionsClick(item)}
                       title="Manage Registration Questions"

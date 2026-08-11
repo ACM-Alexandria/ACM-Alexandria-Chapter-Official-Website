@@ -196,3 +196,25 @@ export const fetchSeasonById = async (id) => {
     throw error;
   }
 };
+
+// Fetch active exclusive forms
+export const fetchActiveExclusiveForms = async () => {
+  try {
+    const response = await api.get('/api/exclusive-forms/active');
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching active exclusive forms:", error);
+    throw error;
+  }
+};
+
+// Fetch exclusive form by id
+export const fetchExclusiveFormById = async (id) => {
+  try {
+    const response = await api.get(`/api/exclusive-forms/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching exclusive form details:", error);
+    throw error;
+  }
+};

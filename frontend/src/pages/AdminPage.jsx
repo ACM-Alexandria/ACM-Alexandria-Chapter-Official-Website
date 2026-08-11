@@ -75,6 +75,7 @@ const AdminPage = () => {
   const [clubs, setClubs] = useState({ content: [], number: 0, totalPages: 1 });
   const [programs, setPrograms] = useState({ content: [], number: 0, totalPages: 1 });
   const [seasons, setSeasons] = useState({ content: [], number: 0, totalPages: 1 });
+  const [exclusiveForms, setExclusiveForms] = useState([]);
   const [socialLinks, setSocialLinks] = useState([]);
 
   // Episodes management modal states
@@ -130,6 +131,7 @@ const AdminPage = () => {
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
     { id: "radio", label: "Radio", icon: FiRadio },
+    { id: "exclusiveForms", label: "Exclusive Forms", icon: FiFileText },
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
@@ -181,6 +183,9 @@ const AdminPage = () => {
           content: (data.content || []).sort((a, b) => b.seasonNumber - a.seasonNumber),
         };
         setSeasons(sorted);
+      } else if (tab === "exclusiveForms") {
+        const data = await adminService.fetchExclusiveForms();
+        setExclusiveForms(data || []);
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
@@ -246,6 +251,12 @@ const AdminPage = () => {
         (s) =>
           s.seasonNumber.toString().includes(q)
       );
+    } else if (mgmtTab === "exclusiveForms") {
+      return exclusiveForms.filter(
+        (f) =>
+          (f.title && f.title.toLowerCase().includes(q)) ||
+          (f.description && f.description.toLowerCase().includes(q))
+      );
     } else if (mgmtTab === "socialLinks") {
       return socialLinks.filter(
         (sl) =>
@@ -276,6 +287,8 @@ const AdminPage = () => {
       setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
     } else if (mgmtTab === "radio") {
       setFormData({ seasonNumber: "", imageUrl: "" });
+    } else if (mgmtTab === "exclusiveForms") {
+      setFormData({ title: "", description: "", isActive: true });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
     }
@@ -351,6 +364,12 @@ const AdminPage = () => {
         } else {
           await adminService.updateSeason(editingItem.id, formData);
         }
+      } else if (mgmtTab === "exclusiveForms") {
+        if (formMode === "add") {
+          await adminService.createExclusiveForm(formData);
+        } else {
+          await adminService.updateExclusiveForm(editingItem.id, formData);
+        }
       } else if (mgmtTab === "socialLinks") {
         if (formMode === "add") {
           await adminService.createSocialLink(formData);
@@ -395,6 +414,8 @@ const AdminPage = () => {
         await adminService.deleteProgram(deletingItem.id);
       } else if (mgmtTab === "radio") {
         await adminService.deleteSeason(deletingItem.id);
+      } else if (mgmtTab === "exclusiveForms") {
+        await adminService.deleteExclusiveForm(deletingItem.id);
       } else if (mgmtTab === "socialLinks") {
         await adminService.deleteSocialLink(deletingItem.id);
       }
@@ -423,6 +444,12 @@ const AdminPage = () => {
       if (mgmtTab === "programs") {
         const isCurrentlyOpen = item.registrationOpen;
         await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
+      } else if (mgmtTab === "exclusiveForms") {
+        const isCurrentlyActive = item.isActive;
+        await adminService.updateExclusiveForm(item.id, {
+          ...item,
+          isActive: !isCurrentlyActive
+        });
       } else {
         const isCurrentlyOpen = item.open || item.isOpen;
         if (isCurrentlyOpen) {
@@ -434,7 +461,7 @@ const AdminPage = () => {
       await loadMgmtTabData(mgmtTab);
     } catch (err) {
       console.error(err);
-      let errMsg = `Failed to update ${mgmtTab === "programs" ? "program registration" : "committee call"} status.`;
+      let errMsg = `Failed to update ${mgmtTab === "programs" ? "program registration" : mgmtTab === "exclusiveForms" ? "exclusive form status" : "committee call"} status.`;
       if (typeof err === "string") {
         errMsg = err;
       } else if (err && typeof err === "object") {
@@ -477,10 +504,10 @@ const AdminPage = () => {
   };
 
   const handleRegistrationClick = async (item) => {
-    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : mgmtTab === "programs" ? "program" : "committee";
+    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : mgmtTab === "programs" ? "program" : mgmtTab === "exclusiveForms" ? "exclusive-form" : "committee";
     setSelectedResourceForAnalysis({
       id: item.id,
-      name: item.name,
+      name: item.name || item.title,
       type: resourceType,
     });
     setRegModalOpen(true);
@@ -509,6 +536,7 @@ const AdminPage = () => {
       mgmtTab === "events" ? "event" :
       mgmtTab === "clubs" ? "club" :
       mgmtTab === "programs" ? "program" :
+      mgmtTab === "exclusiveForms" ? "exclusive-form" :
       "committee"
     );
     setQuestionsModalOpen(true);

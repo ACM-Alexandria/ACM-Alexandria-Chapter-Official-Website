@@ -14,9 +14,12 @@ import ServicesSection from "../components/HomePage/sections/ServicesSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
 import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
+import ExclusiveFormDetailsSidebar from "../components/HomePage/ExclusiveFormDetailsSidebar";
 import RegistrationModal from "../components/registration/RegistrationModal";
+import ActiveFormsSection from "../components/HomePage/sections/ActiveFormsSection";
 import Footer from "../components/HomePage/Footer";
-import { fetchHomePageData } from "../services/homePageService";
+import { fetchHomePageData, fetchActiveExclusiveForms } from "../services/homePageService";
+import { FiClock } from "react-icons/fi";
 
 const HomePage = () => {
   const [clubs, setClubs] = useState([]);
@@ -25,8 +28,11 @@ const HomePage = () => {
   const [events, setEvents] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [seasons, setSeasons] = useState([]);
+  const [activeForms, setActiveForms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFormsLoading, setActiveFormsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
+  const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(null);
@@ -35,10 +41,21 @@ const HomePage = () => {
   const [isProgramSidebarOpen, setIsProgramSidebarOpen] = useState(false);
   const [selectedCommitteeIdForReg, setSelectedCommitteeIdForReg] = useState(null);
   const [isCommitteeRegOpen, setIsCommitteeRegOpen] = useState(false);
+  const [selectedExclusiveFormId, setSelectedExclusiveFormId] = useState(null);
+  const [isExclusiveFormSidebarOpen, setIsExclusiveFormSidebarOpen] = useState(false);
 
   const handleApplyClick = (committeeId) => {
     setSelectedCommitteeIdForReg(committeeId);
     setIsCommitteeRegOpen(true);
+  };
+
+  const handleShowExclusiveFormDetails = (formId) => {
+    setSelectedExclusiveFormId(formId);
+    setIsExclusiveFormSidebarOpen(true);
+  };
+
+  const handleCloseExclusiveFormSidebar = () => {
+    setIsExclusiveFormSidebarOpen(false);
   };
 
   const handleShowEventDetails = (eventId) => {
@@ -76,6 +93,7 @@ const HomePage = () => {
     const openClubId = searchParams.get("openClubId");
     const openCommitteeId = searchParams.get("openCommitteeId");
     const openProgramId = searchParams.get("openProgramId");
+    const openExclusiveFormId = searchParams.get("openExclusiveFormId");
 
     if (openEventId) {
       handleShowEventDetails(Number(openEventId));
@@ -97,6 +115,11 @@ const HomePage = () => {
       setIsCommitteeRegOpen(true);
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("openCommitteeId");
+      setSearchParams(newParams, { replace: true });
+    } else if (openExclusiveFormId) {
+      handleShowExclusiveFormDetails(Number(openExclusiveFormId));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("openExclusiveFormId");
       setSearchParams(newParams, { replace: true });
     }
   }, [searchParams]);
@@ -123,6 +146,25 @@ const HomePage = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const loadActiveForms = async () => {
+        if (!isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS"))) {
+            setActiveFormsLoading(false);
+            return;
+        }
+        try {
+            setActiveFormsLoading(true);
+            const forms = await fetchActiveExclusiveForms();
+            setActiveForms(forms || []);
+        } catch (err) {
+            console.error("Error loading active forms:", err);
+        } finally {
+            setActiveFormsLoading(false);
+        }
+    };
+    loadActiveForms();
+  }, []);
+
   // Initialize AOS animations
   useEffect(() => {
     AOS.init({
@@ -137,6 +179,8 @@ const HomePage = () => {
     const handleScroll = () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
+        setShowFloatingButton(window.scrollY < 300);
+
         const sections = document.querySelectorAll("section[id]");
         const navHeight = 70; // navbar height
 
@@ -179,6 +223,9 @@ const HomePage = () => {
             committees={committee} 
             onApplyClick={handleApplyClick} 
             isRegistrationModalOpen={isCommitteeRegOpen}
+            activeFormsLoading={activeFormsLoading}
+            activeForms={activeForms}
+            onShowExclusiveFormDetails={handleShowExclusiveFormDetails}
           />
         )}
         {isEnabled(getEnv("VITE_ENABLE_CLUBS")) && (
@@ -228,6 +275,40 @@ const HomePage = () => {
         type="committee"
         entityName={committee.find(c => c.id === selectedCommitteeIdForReg)?.name || ""}
       />
+
+      <ExclusiveFormDetailsSidebar
+        formId={selectedExclusiveFormId}
+        isOpen={isExclusiveFormSidebarOpen}
+        onClose={handleCloseExclusiveFormSidebar}
+      />
+
+      {/* Floating Button for Exclusive Opportunities */}
+      {isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS")) && activeForms.length > 0 && (
+        <div
+          className={`fixed bottom-8 right-8 z-50 transition-all duration-500 transform ${
+            showFloatingButton ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
+          }`}
+        >
+          <button
+            onClick={() => {
+              const element = document.getElementById("exclusive-forms");
+              if (element) {
+                const navHeight = 73;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - navHeight-10;
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth"
+                });
+              }
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-[#205E85] hover:bg-[#4B98C8] text-white font-bold rounded-full shadow-lg shadow-[#205E85]/30 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            <FiClock className="w-5 h-5 animate-pulse" />
+            Exclusive Opportunities
+          </button>
+        </div>
+      )}
     </div>
   );
 };

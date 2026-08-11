@@ -191,8 +191,11 @@ const ResourceFormModal = ({
                   <input
                     type="text"
                     required
-                    value={formData.name || ""}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={activeTab === "exclusiveForms" ? (formData.title || "") : (formData.name || "")}
+                    onChange={(e) => {
+                      if (activeTab === "exclusiveForms") setFormData({ ...formData, title: e.target.value });
+                      else setFormData({ ...formData, name: e.target.value });
+                    }}
                     placeholder="e.g. John Doe"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
@@ -200,10 +203,11 @@ const ResourceFormModal = ({
               )}
 
               {/* Common Fields: Image/Logo Upload */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  {isCommittee ? "Logo" : "Image"}
-                </label>
+              {activeTab !== "exclusiveForms" && (
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    {isCommittee ? "Logo" : "Image"}
+                  </label>
 
                 {currentValue ? (
                   // Preview state
@@ -280,6 +284,7 @@ const ResourceFormModal = ({
                   </p>
                 )}
               </div>
+              )}
 
             </>
           )}
@@ -425,11 +430,12 @@ const ResourceFormModal = ({
           )}
 
 
-          {/* Description box (Clubs, Events, Committees, Programs) */}
+          {/* Description box (Clubs, Events, Committees, Programs, Exclusive Forms) */}
           {(activeTab === "clubs" ||
             activeTab === "events" ||
             activeTab === "committees" ||
-            activeTab === "programs") && (
+            activeTab === "programs" ||
+            activeTab === "exclusiveForms") && (
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                 Description
@@ -441,6 +447,31 @@ const ResourceFormModal = ({
                 rows="3"
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
               />
+            </div>
+          )}
+
+          {/* Exclusive Forms specific fields */}
+          {activeTab === "exclusiveForms" && (
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 mt-4">
+              <div>
+                <p className="text-xs font-extrabold text-slate-700">Form Active Status</p>
+                <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                  Allow users to see and apply to this form
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                  formData.isActive ? "bg-[#4B98C8]" : "bg-slate-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                    formData.isActive ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
             </div>
           )}
 

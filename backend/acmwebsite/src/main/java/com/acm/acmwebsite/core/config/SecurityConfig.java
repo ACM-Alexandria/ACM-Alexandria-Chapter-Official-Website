@@ -52,10 +52,12 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/committee/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/program/*/register").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/exclusive-forms/*/register").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/events/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/clubs/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/committee/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/program/*/is-registered/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/*/is-registered/*").authenticated()
                         // Secure feedback submission and screenshot uploads for authenticated users only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
                         // Allow these specific endpoints without login
@@ -77,6 +79,7 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                                 "/api/socialLinks/**",
                                 "/api/gallery",
                                 "/api/gallery/**",
+                                "/api/exclusive-forms/**",
                                 "/api/radio/**")
                         .permitAll()
                         // All other requests require a valid JWT

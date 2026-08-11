@@ -9,6 +9,8 @@ import {
   registerForClub,
   registerForCommittee,
   registerForProgram,
+  fetchExclusiveFormQuestions,
+  registerForExclusiveForm,
 } from "../../services/registrationService";
 import { 
   fetchUserProfile, 
@@ -123,7 +125,9 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
             ? await fetchClubQuestions(entityId)
             : type === "program"
               ? await fetchProgramQuestions(entityId)
-              : await fetchCommitteeQuestions(entityId);
+              : type === "exclusive-form"
+                ? await fetchExclusiveFormQuestions(entityId)
+                : await fetchCommitteeQuestions(entityId);
         
         setQuestions(data || []);
         
@@ -237,6 +241,8 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         await registerForClub(entityId, user.id, answers);
       } else if (type === "program") {
         await registerForProgram(entityId, user.id, answers);
+      } else if (type === "exclusive-form") {
+        await registerForExclusiveForm(entityId, user.id, answers);
       } else {
         await registerForCommittee(entityId, user.id, answers);
       }

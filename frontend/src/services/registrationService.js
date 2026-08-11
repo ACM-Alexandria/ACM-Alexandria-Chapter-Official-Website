@@ -138,17 +138,54 @@ export const checkProgramRegistrationStatus = async (programId, userId) => {
   }
 };
 
+// Fetches dynamic form questions configured for a specific exclusive form.
+export const fetchExclusiveFormQuestions = async (formId) => {
+  try {
+    const response = await api.get(`/api/exclusive-forms/${formId}/questions`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching questions for exclusive form ${formId}:`, error);
+    throw error.response?.data || new Error("Failed to fetch exclusive form questions.");
+  }
+};
+
+// Submits registration payload (answers map) for an exclusive form.
+export const registerForExclusiveForm = async (formId, userId, answers = {}) => {
+  try {
+    const payload = { userId, answers };
+    const response = await api.post(`/api/exclusive-forms/${formId}/register`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(`Error registering for exclusive form ${formId}:`, error);
+    throw error.response?.data || new Error("Exclusive form submission failed.");
+  }
+};
+
+// Checks if user is registered for an exclusive form.
+export const checkExclusiveFormRegistrationStatus = async (formId, userId) => {
+  try {
+    const response = await api.get(`/api/exclusive-forms/${formId}/is-registered/${userId}`);
+    return response.data.registered;
+  } catch (error) {
+    console.error(`Error checking exclusive form registration status:`, error);
+    return false;
+  }
+};
+
 export default {
   fetchEventQuestions,
   fetchClubQuestions,
   fetchCommitteeQuestions,
   fetchProgramQuestions,
+  fetchExclusiveFormQuestions,
   registerForEvent,
   registerForClub,
   registerForCommittee,
   registerForProgram,
+  registerForExclusiveForm,
   checkEventRegistrationStatus,
   checkClubRegistrationStatus,
   checkCommitteeRegistrationStatus,
   checkProgramRegistrationStatus,
+  checkExclusiveFormRegistrationStatus,
 };
