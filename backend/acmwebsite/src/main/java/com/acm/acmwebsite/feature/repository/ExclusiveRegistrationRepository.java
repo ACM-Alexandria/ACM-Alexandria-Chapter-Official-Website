@@ -10,6 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface ExclusiveRegistrationRepository extends JpaRepository<ExclusiveRegistration, Long> {
-    List<ExclusiveRegistration> findByExclusiveFormIdOrderByRegisteredAtDesc(Long formId);
+    List<ExclusiveRegistration> findByExclusiveFormIdOrderByRegisteredAtAsc(Long formId);
     Optional<ExclusiveRegistration> findByUserIdAndExclusiveFormId(UUID userId, Long formId);
 }

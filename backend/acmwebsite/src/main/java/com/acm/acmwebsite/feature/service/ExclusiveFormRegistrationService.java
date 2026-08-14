@@ -138,7 +138,7 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
         ExclusiveForm form = exclusiveFormRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exclusive form not found with id " + formId));
 
-        List<ExclusiveRegistration> registrations = exclusiveRegistrationRepository.findByExclusiveFormIdOrderByRegisteredAtDesc(formId);
+        List<ExclusiveRegistration> registrations = exclusiveRegistrationRepository.findByExclusiveFormIdOrderByRegisteredAtAsc(formId);
 
         long alexCount = registrations.stream()
                 .filter(r -> r.getUser() != null && Boolean.TRUE.equals(r.getUser().getIsAlexEngStudent()))
@@ -174,7 +174,7 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
         ExclusiveForm form = exclusiveFormRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exclusive form not found with id " + formId));
 
-        List<ExclusiveRegistration> registrations = exclusiveRegistrationRepository.findByExclusiveFormIdOrderByRegisteredAtDesc(formId);
+        List<ExclusiveRegistration> registrations = exclusiveRegistrationRepository.findByExclusiveFormIdOrderByRegisteredAtAsc(formId);
         List<ExclusiveFormQuestion> questions = exclusiveFormQuestionRepository.findByExclusiveFormId(formId);
 
         List<String> prefixHeaders = Arrays.asList(
@@ -195,7 +195,8 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
                 ExclusiveRegistration::getId,
                 ExclusiveRegistration::getAnswers,
                 ExclusiveFormQuestion::getId,
-                ExclusiveFormQuestion::getQuestionText
+                ExclusiveFormQuestion::getQuestionText,
+                ExclusiveRegistration::getRegisteredAt
         );
 
         String newSheetId = googleSheetsService.extractSpreadsheetId(newUrl);

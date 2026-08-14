@@ -229,7 +229,8 @@ public class ClubService {
                 ClubRegistration::getId,
                 ClubRegistration::getAnswers,
                 ClubFormQuestion::getId,
-                ClubFormQuestion::getQuestionText
+                ClubFormQuestion::getQuestionText,
+                ClubRegistration::getRegisteredAt
         );
 
         club.setGoogleSheetUrl(url);

@@ -222,7 +222,8 @@ public class CommitteeRegistrationService implements RegistrationService {
                 CommitteeRegistration::getId,
                 CommitteeRegistration::getAnswers,
                 CommitteeFormQuestion::getId,
-                CommitteeFormQuestion::getQuestionText
+                CommitteeFormQuestion::getQuestionText,
+                CommitteeRegistration::getRegisteredAt
         );
 
         call.setGoogleSheetUrl(url);

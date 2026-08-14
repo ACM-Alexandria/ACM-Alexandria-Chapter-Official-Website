@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.acm.acmwebsite.User_Authentication.entity.User;
 
 import java.io.IOException;
 import java.util.List;
@@ -199,9 +200,11 @@ public class GoogleSheetsService {
             java.util.function.Function<T, Long> idExtractor,
             java.util.function.Function<T, java.util.Map<Long, String>> answersExtractor,
             java.util.function.Function<Q, Long> questionIdExtractor,
-            java.util.function.Function<Q, String> questionTextExtractor
+            java.util.function.Function<Q, String> questionTextExtractor,
+            java.util.function.Function<T, java.time.LocalDateTime> registeredAtExtractor
     ) {
         List<List<Object>> rows = new java.util.ArrayList<>();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         // Add prefix headers (metadata)
         if (prefixHeaders != null) {
@@ -217,7 +220,7 @@ public class GoogleSheetsService {
 
         // Add Column Headers
         List<Object> headers = new java.util.ArrayList<>(java.util.Arrays.asList(
-                "#", "Registration ID", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
+                "#", "Registration ID", "Registration Date", "Name", "Email", "Phone Number", "Is Alex Eng Student", "Batch", "Department"
         ));
         for (Q question : questions) {
             headers.add(questionTextExtractor.apply(question));
@@ -227,12 +230,13 @@ public class GoogleSheetsService {
         // Add Registrants Data
         int seqNum = 1;
         for (T reg : registrations) {
-            com.acm.acmwebsite.User_Authentication.entity.User user = userExtractor.apply(reg);
+            User user = userExtractor.apply(reg);
             if (user == null) continue;
 
             List<Object> row = new java.util.ArrayList<>(java.util.Arrays.asList(
                     seqNum++,
                     idExtractor.apply(reg),
+                    registeredAtExtractor.apply(reg) != null ? registeredAtExtractor.apply(reg).format(formatter) : "",
                     user.getName() != null ? user.getName() : "",
                     user.getEmail() != null ? user.getEmail() : "",
                     user.getPhoneNumber() != null ? user.getPhoneNumber() : "",

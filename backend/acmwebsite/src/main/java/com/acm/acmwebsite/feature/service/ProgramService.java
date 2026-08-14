@@ -223,7 +223,8 @@ public class ProgramService {
                 ProgramRegistration::getId,
                 ProgramRegistration::getAnswers,
                 ProgramFormQuestion::getId,
-                ProgramFormQuestion::getQuestionText
+                ProgramFormQuestion::getQuestionText,
+                ProgramRegistration::getRegisteredAt
         );
 
         program.setGoogleSheetUrl(url);

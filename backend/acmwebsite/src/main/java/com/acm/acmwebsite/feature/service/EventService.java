@@ -229,7 +229,8 @@ public class EventService {
                 EventRegistration::getId,
                 EventRegistration::getAnswers,
                 EventFormQuestion::getId,
-                EventFormQuestion::getQuestionText
+                EventFormQuestion::getQuestionText,
+                EventRegistration::getRegisteredAt
         );
 
         event.setGoogleSheetUrl(url);
