@@ -80,7 +80,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                                 "/api/gallery",
                                 "/api/gallery/**",
                                 "/api/exclusive-forms/**",
-                                "/api/radio/**")
+                                "/api/radio/**",
+                                "/api/partners/**")
                         .permitAll()
                         // All other requests require a valid JWT
                         .anyRequest().authenticated())
