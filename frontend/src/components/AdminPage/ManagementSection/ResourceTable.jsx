@@ -16,6 +16,7 @@ import {
   FiRadio,
   FiVolume2,
   FiFileText,
+  FiGlobe,
 } from "react-icons/fi";
 
 const ResourceTable = ({
@@ -67,6 +68,9 @@ const ResourceTable = ({
       } else if (activeTab === "exclusiveForms") {
         IconComponent = FiFileText;
         bgColor = "bg-emerald-50 text-emerald-500 border border-emerald-100";
+      } else if (activeTab === "partners") {
+        IconComponent = FiGlobe;
+        bgColor = "bg-sky-50 text-sky-500 border border-sky-100";
       }
 
       return (
@@ -118,6 +122,9 @@ const ResourceTable = ({
             )}
             {activeTab === "socialLinks" && (
               <th className="pb-3">URL</th>
+            )}
+            {activeTab === "partners" && (
+              <th className="pb-3">Website</th>
             )}
             {(activeTab === "highboard" || activeTab === "committeeBoard") && <th className="pb-3 text-center">Order</th>}
             <th className="pb-3 pr-2 text-right">Actions</th>
@@ -215,6 +222,23 @@ const ResourceTable = ({
                   >
                     {item.url} <FiExternalLink className="w-3 h-3" />
                   </a>
+                </td>
+              )}
+
+              {activeTab === "partners" && (
+                <td className="py-3.5 text-slate-500 max-w-[200px] sm:max-w-[300px] truncate">
+                  {item.website ? (
+                    <a
+                      href={item.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline flex items-center gap-1 text-[#4B98C8]"
+                    >
+                      {item.website} <FiExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <span className="text-slate-300 italic text-[10px]">No website</span>
+                  )}
                 </td>
               )}
 

@@ -11,6 +11,7 @@ import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import RadioSection from "../components/HomePage/sections/RadioSection";
 import ServicesSection from "../components/HomePage/sections/ServicesSection";
+import PartnersSection from "../components/HomePage/sections/PartnersSection";
 import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
 import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
@@ -18,7 +19,7 @@ import ExclusiveFormDetailsSidebar from "../components/HomePage/ExclusiveFormDet
 import RegistrationModal from "../components/registration/RegistrationModal";
 import ActiveFormsSection from "../components/HomePage/sections/ActiveFormsSection";
 import Footer from "../components/HomePage/Footer";
-import { fetchHomePageData, fetchActiveExclusiveForms } from "../services/homePageService";
+import { fetchHomePageData, fetchActiveExclusiveForms, fetchPartners } from "../services/homePageService";
 import { FiClock } from "react-icons/fi";
 
 const HomePage = () => {
@@ -29,6 +30,8 @@ const HomePage = () => {
   const [programs, setPrograms] = useState([]);
   const [seasons, setSeasons] = useState([]);
   const [activeForms, setActiveForms] = useState([]);
+  const [partners, setPartners] = useState([]);
+  const [partnersLoading, setPartnersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [activeFormsLoading, setActiveFormsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("greeting");
@@ -165,6 +168,25 @@ const HomePage = () => {
     loadActiveForms();
   }, []);
 
+  useEffect(() => {
+    const loadPartners = async () => {
+      if (!isEnabled(getEnv("VITE_ENABLE_PARTNERS"))) {
+        setPartnersLoading(false);
+        return;
+      }
+      try {
+        setPartnersLoading(true);
+        const data = await fetchPartners();
+        setPartners(data || []);
+      } catch (err) {
+        console.error("Error loading partners:", err);
+      } finally {
+        setPartnersLoading(false);
+      }
+    };
+    loadPartners();
+  }, []);
+
   // Initialize AOS animations
   useEffect(() => {
     AOS.init({
@@ -246,6 +268,9 @@ const HomePage = () => {
         )}
         {isEnabled(getEnv("VITE_ENABLE_SERVICES")) && (
           <ServicesSection />
+        )}
+        {isEnabled(getEnv("VITE_ENABLE_PARTNERS")) && (partnersLoading || partners.length > 0) && (
+          <PartnersSection loading={partnersLoading} partners={partners} />
         )}
       </main>
       <Footer />

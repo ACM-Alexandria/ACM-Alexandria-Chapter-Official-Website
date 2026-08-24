@@ -11,6 +11,7 @@ const FooterNavigation = ({ onNavigate }) => {
     isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && { id: "programs", label: "Programs" },
     isEnabled(getEnv("VITE_ENABLE_RADIO")) && { id: "radio", label: "Radio" },
     isEnabled(getEnv("VITE_ENABLE_SERVICES")) && { id: "services", label: "Services" },
+    isEnabled(getEnv("VITE_ENABLE_PARTNERS")) && { id: "partners", label: "Partners" },
   ].filter(Boolean);
 
   return (

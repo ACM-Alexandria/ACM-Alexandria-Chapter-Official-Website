@@ -58,8 +58,10 @@ const Footer = () => {
       } else {
         setShowGrowModal(true);
       }
+    } else if (item === "Partners") {
+      handleSectionNavigation("partners");
     } else {
-      // Do nothing for Sponsors and Partners (no proper navigation targets)
+      // Do nothing for Sponsors (no proper navigation target)
     }
   };
 

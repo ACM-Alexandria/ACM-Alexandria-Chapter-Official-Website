@@ -599,6 +599,48 @@ export const fetchEpisodesBySeason = async (seasonId, page = 0) => {
   }
 };
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   11. PARTNERS CRUD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const fetchPartners = async () => {
+  try {
+    const response = await api.get("/api/partners");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching partners:", error);
+    throw error.response?.data || new Error("Failed to fetch partners.");
+  }
+};
+
+export const createPartner = async (partnerData) => {
+  try {
+    const response = await api.post("/api/partners", partnerData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating partner:", error);
+    throw error.response?.data || new Error("Failed to create partner.");
+  }
+};
+
+export const updatePartner = async (id, partnerData) => {
+  try {
+    const response = await api.put(`/api/partners/${id}`, partnerData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating partner:", error);
+    throw error.response?.data || new Error("Failed to update partner.");
+  }
+};
+
+export const deletePartner = async (id) => {
+  try {
+    await api.delete(`/api/partners/${id}`);
+  } catch (error) {
+    console.error("Error deleting partner:", error);
+    throw error.response?.data || new Error("Failed to delete partner.");
+  }
+};
+
 export default {
   fetchInsights,
   addHighBoardMember,
@@ -652,4 +694,8 @@ export default {
   updateEpisode,
   deleteEpisode,
   fetchEpisodesBySeason,
+  fetchPartners,
+  createPartner,
+  updatePartner,
+  deletePartner,
 };

@@ -218,3 +218,14 @@ export const fetchExclusiveFormById = async (id) => {
     throw error;
   }
 };
+
+// Fetch all partners
+export const fetchPartners = async () => {
+  try {
+    const response = await api.get("/api/partners");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching partners:", error);
+    throw error;
+  }
+};

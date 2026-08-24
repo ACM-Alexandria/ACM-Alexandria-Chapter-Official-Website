@@ -108,6 +108,7 @@ const ResourceFormModal = ({
     if (activeTab === "highboard") catStr = "High Board Member";
     else if (activeTab === "committeeBoard") catStr = "Committee Board Member";
     else if (activeTab === "radio") catStr = "Radio Season";
+    else if (activeTab === "partners") catStr = "Partner";
     else catStr = activeTab.charAt(0).toUpperCase() + activeTab.slice(1, -1);
     return `${modeStr} ${catStr}`;
   };
@@ -470,6 +471,22 @@ const ResourceFormModal = ({
                   }`}
                 />
               </button>
+            </div>
+          )}
+
+          {/* Partners specific fields — website URL */}
+          {activeTab === "partners" && (
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Website URL
+              </label>
+              <input
+                type="url"
+                value={formData.website || ""}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                placeholder="https://partner-website.com (Optional)"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+              />
             </div>
           )}
 

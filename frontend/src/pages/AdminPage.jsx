@@ -47,6 +47,7 @@ import {
   FiGrid,
   FiRadio,
   FiMessageSquare,
+  FiGlobe,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -77,6 +78,7 @@ const AdminPage = () => {
   const [seasons, setSeasons] = useState({ content: [], number: 0, totalPages: 1 });
   const [exclusiveForms, setExclusiveForms] = useState([]);
   const [socialLinks, setSocialLinks] = useState([]);
+  const [partners, setPartners] = useState([]);
 
   // Episodes management modal states
   const [episodesModalOpen, setEpisodesModalOpen] = useState(false);
@@ -134,6 +136,7 @@ const AdminPage = () => {
     { id: "exclusiveForms", label: "Exclusive Forms", icon: FiFileText },
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
+    { id: "partners", label: "Partners", icon: FiGlobe },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
   ];
 
@@ -189,6 +192,9 @@ const AdminPage = () => {
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
+      } else if (tab === "partners") {
+        const data = await adminService.fetchPartners();
+        setPartners(data || []);
       } else if (tab === "feedback") {
         // Handled internally in FeedbackTab
       }
@@ -263,6 +269,12 @@ const AdminPage = () => {
           sl.platform.toLowerCase().includes(q) ||
           sl.url.toLowerCase().includes(q)
       );
+    } else if (mgmtTab === "partners") {
+      return partners.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.description && p.description.toLowerCase().includes(q))
+      );
     }
     return [];
   };
@@ -291,6 +303,8 @@ const AdminPage = () => {
       setFormData({ title: "", description: "", imageUrl: "", isActive: true });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
+    } else if (mgmtTab === "partners") {
+      setFormData({ name: "", website: "", imageUrl: "" });
     }
     setFormOpen(true);
   };
@@ -376,6 +390,12 @@ const AdminPage = () => {
         } else {
           await adminService.updateSocialLink(editingItem.id, formData);
         }
+      } else if (mgmtTab === "partners") {
+        if (formMode === "add") {
+          await adminService.createPartner(formData);
+        } else {
+          await adminService.updatePartner(editingItem.id, formData);
+        }
       }
  
       setFormOpen(false);
@@ -418,6 +438,8 @@ const AdminPage = () => {
         await adminService.deleteExclusiveForm(deletingItem.id);
       } else if (mgmtTab === "socialLinks") {
         await adminService.deleteSocialLink(deletingItem.id);
+      } else if (mgmtTab === "partners") {
+        await adminService.deletePartner(deletingItem.id);
       }
  
       setDeleteOpen(false);
@@ -692,7 +714,7 @@ const AdminPage = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
                         <h2 className="text-lg font-extrabold text-slate-800 tracking-tight capitalize">
-                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab}
+                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab === "partners" ? "Partners" : mgmtTab}
                         </h2>
                         <p className="text-xs text-slate-400 font-medium">
                           Add, edit, or delete items within this database category.
