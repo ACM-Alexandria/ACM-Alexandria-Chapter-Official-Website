@@ -323,6 +323,10 @@ const AdminPage = () => {
       const formattedStartDate = item.startDate ? new Date(item.startDate).toISOString().slice(0, 16) : "";
       const formattedEndDate = item.endDate ? new Date(item.endDate).toISOString().slice(0, 16) : "";
       setFormData({ ...item, startDate: formattedStartDate, endDate: formattedEndDate });
+    } else if (mgmtTab === "committees") {
+      // Only send fields relevant to the committee itself — boardRoles are managed separately
+      const { boardRoles, callMessage, topicToken, open, ...committeeFields } = item;
+      setFormData(committeeFields);
     } else {
       setFormData({ ...item });
     }

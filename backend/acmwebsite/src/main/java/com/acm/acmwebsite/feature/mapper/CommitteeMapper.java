@@ -25,6 +25,7 @@ public interface CommitteeMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "boardRoles", ignore = true)
     void updateCommitteeFromDto(CommitteeDto dto, @MappingTarget Committee committee);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
