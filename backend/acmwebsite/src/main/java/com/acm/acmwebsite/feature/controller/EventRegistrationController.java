@@ -50,13 +50,23 @@ public class EventRegistrationController {
     @GetMapping("/events/{id}/is-registered/{userId}")
     public ResponseEntity<java.util.Map<String, Boolean>> isRegisteredForEvent(
             @PathVariable("id") Long eventId,
-            @PathVariable("userId") String userId) {
+            @PathVariable("userId") String userId,
+            Authentication authentication) {
         UUID requestedUserId;
         try {
             requestedUserId = UUID.fromString(userId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
+
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!authorizationService.isSelf(requestedUserId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         boolean registered = eventRegistrationService.isUserRegistered(requestedUserId, eventId);
         return ResponseEntity.ok(java.util.Map.of("registered", registered));
     }

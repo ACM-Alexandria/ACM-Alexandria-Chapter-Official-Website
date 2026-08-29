@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import com.acm.acmwebsite.User_Authentication.service.AuthorizationService;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
 
 import java.util.List;
@@ -32,14 +33,17 @@ public class CommitteeController {
     private final SubscriptionService subscriptionService;
     private final CommitteeMapper committeeMapper;
     private final CommitteeRegistrationService committeeRegistrationService;
+    private final AuthorizationService authorizationService;
 
     @Autowired
     public CommitteeController(CommitteeService committeeService, SubscriptionService subscriptionService,
-            CommitteeMapper committeeMapper, CommitteeRegistrationService committeeRegistrationService) {
+            CommitteeMapper committeeMapper, CommitteeRegistrationService committeeRegistrationService,
+            AuthorizationService authorizationService) {
         this.committeeService = committeeService;
         this.subscriptionService = subscriptionService;
         this.committeeMapper = committeeMapper;
         this.committeeRegistrationService = committeeRegistrationService;
+        this.authorizationService = authorizationService;
     }
 
     @GetMapping
@@ -136,9 +140,16 @@ public class CommitteeController {
     @PostMapping("/{id}/register")
     public ResponseEntity<Void> registerUserForCommittee(
             @PathVariable("id") Long committeeId,
-            @RequestBody RegistrationRequestDto request) {
+            @RequestBody RegistrationRequestDto request,
+            Authentication authentication) {
         if (request.getUserId() == null) {
             return ResponseEntity.badRequest().build();
+        }
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(request.getUserId(), authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         committeeRegistrationService.registerUser(request.getUserId(), committeeId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -147,12 +158,19 @@ public class CommitteeController {
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForCommittee(
             @PathVariable("id") Long committeeId,
-            @PathVariable("userId") String userId) {
+            @PathVariable("userId") String userId,
+            Authentication authentication) {
         java.util.UUID userUuid;
         try {
             userUuid = java.util.UUID.fromString(userId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        }
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(userUuid, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         boolean registered = committeeRegistrationService.isUserRegistered(userUuid, committeeId);
         return ResponseEntity.ok(Map.of("registered", registered));

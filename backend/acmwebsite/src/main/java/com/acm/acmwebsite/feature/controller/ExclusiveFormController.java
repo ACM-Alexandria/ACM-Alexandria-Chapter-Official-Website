@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.controller;
 
+import com.acm.acmwebsite.User_Authentication.service.AuthorizationService;
 import com.acm.acmwebsite.feature.dto.ExclusiveFormDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,14 +27,17 @@ public class ExclusiveFormController {
     private final ExclusiveFormService exclusiveFormService;
     private final ExclusiveFormRegistrationService registrationService;
     private final ExclusiveFormMapper mapper;
+    private final AuthorizationService authorizationService;
 
     public ExclusiveFormController(
             ExclusiveFormService exclusiveFormService,
             ExclusiveFormRegistrationService registrationService,
-            ExclusiveFormMapper mapper) {
+            ExclusiveFormMapper mapper,
+            AuthorizationService authorizationService) {
         this.exclusiveFormService = exclusiveFormService;
         this.registrationService = registrationService;
         this.mapper = mapper;
+        this.authorizationService = authorizationService;
     }
 
     @GetMapping
@@ -130,9 +135,16 @@ public class ExclusiveFormController {
     @PostMapping("/{id}/register")
     public ResponseEntity<Void> registerUserForForm(
             @PathVariable("id") Long formId,
-            @RequestBody RegistrationRequestDto request) {
+            @RequestBody RegistrationRequestDto request,
+            Authentication authentication) {
         if (request.getUserId() == null) {
             return ResponseEntity.badRequest().build();
+        }
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(request.getUserId(), authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         registrationService.registerUser(request.getUserId(), formId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -141,12 +153,19 @@ public class ExclusiveFormController {
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForForm(
             @PathVariable("id") Long formId,
-            @PathVariable("userId") String userId) {
+            @PathVariable("userId") String userId,
+            Authentication authentication) {
         java.util.UUID userUuid;
         try {
             userUuid = java.util.UUID.fromString(userId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        }
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(userUuid, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         boolean registered = registrationService.isUserRegistered(userUuid, formId);
         return ResponseEntity.ok(Map.of("registered", registered));
