@@ -1,8 +1,10 @@
 package com.acm.acmwebsite.User_Authentication.controller;
 
+import com.acm.acmwebsite.User_Authentication.dto.ErrorMessageResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.dto.UserProfileDto;
 import com.acm.acmwebsite.User_Authentication.exception.UserNotFoundException;
+import com.acm.acmwebsite.User_Authentication.service.AuthorizationService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -12,6 +14,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,19 +23,42 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+  private final AuthorizationService authorizationService;
 
   @GetMapping("/{id}/profile")
-  public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable UUID id) {
+  public ResponseEntity<?> getUserProfile(@PathVariable UUID id, Authentication authentication) {
+    ResponseEntity<?> denied = checkAccess(id, authentication);
+    if (denied != null) {
+      return denied;
+    }
     UserProfileDto profile = userService.getUserProfileById(id);
     return ResponseEntity.ok(profile);
   }
 
   @PutMapping("/{id}/profile")
-  public ResponseEntity<UserProfileDto> updateUserProfile(
+  public ResponseEntity<?> updateUserProfile(
       @PathVariable UUID id, 
-      @Valid @RequestBody UserProfileDto request) {
+      @Valid @RequestBody UserProfileDto request,
+      Authentication authentication) {
+
+    ResponseEntity<?> denied = checkAccess(id, authentication);
+    if (denied != null) {
+      return denied;
+    }
     UserProfileDto updated = userService.updateUserProfile(id, request);
     return ResponseEntity.ok(updated);
+  }
+
+  private ResponseEntity<?> checkAccess(UUID id, Authentication authentication) {
+    if (!authorizationService.isAuthenticated(authentication)) {
+      return ResponseEntity.status(401).body(new ErrorMessageResponse("Unauthorized request"));
+    }
+    boolean allowed = authorizationService.isAdmin(authentication)
+            || authorizationService.isSelf(id, authentication);
+    if (!allowed) {
+      return ResponseEntity.status(403).body(new ErrorMessageResponse("Forbidden"));
+    }
+    return null;
   }
 
   @GetMapping("/{id}")
