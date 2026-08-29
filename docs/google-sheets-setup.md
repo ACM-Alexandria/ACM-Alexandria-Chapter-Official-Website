@@ -6,7 +6,7 @@ This guide explains how to configure Google Cloud Platform (GCP) and obtain the 
 
 1. **Access the Console:**
    Go to the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create new project (e.g. `acm-website`)
+2. Create a new project (e.g. `acm-website`)
 3. **Select Your Project:**
    Ensure you select your target project (e.g., `acm-website`) from the project dropdown at the top header of the console.
 4. **Enable APIs:**
@@ -55,8 +55,8 @@ Since your backend needs to run headless (without showing a login pop-up to admi
    > **Note:** If Google shows a warning saying *"Google hasn't verified this app"*, click **Advanced** at the bottom and click **Go to ACM Website (unsafe)** to proceed.
    >
 8. Once redirected back to the Playground, click the blue **Exchange authorization code for tokens** button in Step 2.
-9. mark on auto refresh before expire
-10. regenrate token
+9. Mark "Auto-refresh the token before it expires" if option exists.
+10. Click **Regenerate Access Token**.
 11. Copy the **Refresh Token** shown in the JSON response payload.
 
 ---
