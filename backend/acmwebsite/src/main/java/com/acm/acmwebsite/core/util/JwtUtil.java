@@ -1,9 +1,9 @@
 package com.acm.acmwebsite.core.util;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,39 +22,42 @@ public class JwtUtil {
 
   @PostConstruct
   public void generateSecretKey() {
-    this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
   }
 
   public String generateToken(String email, String role) {
 
     return Jwts.builder()
-        .setSubject(email)
+        .subject(email)
         .claim("role", role)
-        .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + expiration))
-        .signWith(key, SignatureAlgorithm.HS256)
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + expiration))
+        .signWith(key)
         .compact();
   }
 
   public String getRole(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(key)
+    return Jwts.parser()
+        .verifyWith(key)
         .build()
-        .parseClaimsJws(token)
-        .getBody()
+        .parseSignedClaims(token)
+        .getPayload()
         .get("role", String.class);
   }
 
   public String getEmail(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(key)
+    return Jwts.parser()
+        .verifyWith(key)
         .build()
-        .parseClaimsJws(token)
-        .getBody()
+        .parseSignedClaims(token)
+        .getPayload()
         .getSubject();
   }
 
   public void validateAccessToken(String token) {
-    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+    Jwts.parser()
+        .verifyWith(key)
+        .build()
+        .parseSignedClaims(token);
   }
 }
