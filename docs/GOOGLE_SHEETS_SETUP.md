@@ -22,7 +22,7 @@ This guide explains how to configure Google Cloud Platform (GCP) and obtain the 
    * **Scopes:** Add the following scopes:
      * `https://www.googleapis.com/auth/spreadsheets`
      * `https://www.googleapis.com/auth/drive`
-   * **Test Users:** Add your Google email address (e.g., `omarzydan610@gmail.com`). *This is critical; otherwise, Google will block your login attempts with a 403 error.*
+   * **Test Users:** Add your Google email address (e.g., `user@example.com`). *This is critical; otherwise, Google will block your login attempts with a 403 error.*
    * **Publishing Status (Highly Recommended):** Under **OAuth consent screen**, click the **Publish App** button. This will move your app out of the "Testing" state.
      > **Note:** You do not need to submit the app for Google verification. Keeping it "Unverified" is perfectly fine for personal/chapter use, but publishing it removes Google's default **7-day expiration limit** on your refresh token.
      >

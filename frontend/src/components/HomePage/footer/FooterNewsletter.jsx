@@ -103,7 +103,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
           <button
             type="button"
             onClick={() => {
-              const email = getEnv("VITE_CONTACT_EMAIL") || "omarzydan610@gmail.com";
+              const email = getEnv("VITE_CONTACT_EMAIL");
               window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}`, "_blank");
             }}
             className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl border border-white/10 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"

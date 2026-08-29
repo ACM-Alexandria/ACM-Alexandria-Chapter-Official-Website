@@ -27,7 +27,7 @@ public class Committee {
     private Message messageForCalls;
 
     // used to map the topic to the email in subscription like
-    // (moatef123@gmail.com,id_Committeename =>2_oc)
+    // (user@example.com,id_Committeename =>2_oc)
     // this pair is unique for each description
     // private String topicToken;
 
