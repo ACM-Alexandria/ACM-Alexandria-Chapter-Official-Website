@@ -5,6 +5,7 @@ import com.acm.acmwebsite.feature.service.SocialLinkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -25,10 +26,12 @@ public class SocialLinkController {
                 .orElse(ResponseEntity.notFound().build());
     }
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public SocialLink createSocialLink(@RequestBody SocialLink socialLink) {
         return socialLinkService.createSocialLink(socialLink);
     }
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateSocialLink(
             @PathVariable Long id,
             @RequestBody SocialLink socialLink) {
@@ -45,6 +48,7 @@ public class SocialLinkController {
     }
 
     @DeleteMapping ("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
         socialLinkService.deleteSocialLink(id);
         return ResponseEntity.noContent().build();
