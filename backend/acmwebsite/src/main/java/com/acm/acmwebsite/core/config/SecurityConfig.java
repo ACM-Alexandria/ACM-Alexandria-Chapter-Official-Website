@@ -60,6 +60,12 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/*/is-registered/*").authenticated()
                         // Secure feedback submission and screenshot uploads for authenticated users only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
+                        // Allow only GET requests to social links for unauthenticated users
+                        .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
+                        // Restrict write operations on social links to ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/socialLinks/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/socialLinks/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**").hasRole("ADMIN")
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",
