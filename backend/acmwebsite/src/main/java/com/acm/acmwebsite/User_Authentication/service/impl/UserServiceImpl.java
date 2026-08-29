@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService {
 
     // 6. Send Email (Send the RAW token, NOT the hash)
     emailService.sendPasswordResetEmail(user.getEmail(), rawToken, user.getName());
-    logger.info("Password reset initiated for email: {}. Token sent to email. And Token : {}", email, rawToken);
+    logger.info("Password reset initiated for email: {}", user.getEmail());
   }
 
   // Generates a random 64-character URL-safe string
