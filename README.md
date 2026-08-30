@@ -85,6 +85,7 @@ To run this project locally, you need to set up both the backend and frontend se
    * Copy `src/main/resources/application.properties.example` into a new file named `application.properties` in the same directory.
    * Fill in your database username, password, and the required API credentials.
 3. Follow the detailed configuration setup guides:
+   * [MySQL Configuration](docs/mysql-setup.md)
    * [Gmail SMTP Setup](docs/gmail-smtp.md)
    * [Cloudinary Credentials Setup](docs/cloudinary.md)
    * [Google Sheets Integration Guide](docs/google-sheets-setup.md)
