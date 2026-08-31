@@ -2,6 +2,15 @@
 
 This guide explains how to configure Google Cloud Platform (GCP) and obtain the OAuth 2.0 credentials required for the ACM Alexandria Website backend to export event and club registrations to Google Sheets.
 
+## What is this integration used for?
+
+This integration allows the ACM Alexandria Website backend to automatically export **event and club registration data to Google Sheets** and save the generated spreadsheets in **Google Drive**.
+
+You only need to complete this setup if your issue requires working on or testing the **Google Sheets / Google Drive integration**.
+
+> **Important:** If your issue does not involve Google Sheets, Google Drive, event/club registration exports, or any related functionality, you **do not need to follow the steps in this guide**. You can skip this entire setup and continue working on your issue normally.
+
+
 ## Step 1: Google Cloud Console Configuration
 
 1. **Access the Console:**
@@ -17,15 +26,19 @@ This guide explains how to configure Google Cloud Platform (GCP) and obtain the 
 5. **Configure OAuth Consent Screen:**
    Go to **APIs & Services > OAuth consent screen**:
 
-   * **User Type:** Select **External**.
+   * Click **Get started**
    * **App Information:** Fill in the basic app registration details (e.g., App Name: `ACM Alexandria Website`, User support email).
-   * **Scopes:** Add the following scopes:
-     * `https://www.googleapis.com/auth/spreadsheets`
-     * `https://www.googleapis.com/auth/drive`
-   * **Test Users:** Add your Google email address (e.g., `user@example.com`). *This is critical; otherwise, Google will block your login attempts with a 403 error.*
-   * **Publishing Status (Highly Recommended):** Under **OAuth consent screen**, click the **Publish App** button. This will move your app out of the "Testing" state.
-     > **Note:** You do not need to submit the app for Google verification. Keeping it "Unverified" is perfectly fine for personal/chapter use, but publishing it removes Google's default **7-day expiration limit** on your refresh token.
-     >
+   * **Audience:** Select **External**.
+   * **Contact Information:** Use your email.
+   * Agree to the user data policy then click **Create**
+   
+   * **Test Users:** In **Audience tab** go to **Test users** section, click **Add users** and add your Google email address (e.g., `user@example.com`). *This is critical; otherwise, Google will block your login attempts with a 403 error.*
+     
+   * **Publishing Status:** You can keep the app in the **"Testing"** state if you are unable to publish it. However, be aware that Google applies a **7-day expiration limit** to refresh tokens for OAuth apps that remain in testing.
+
+      > ****Important Note:**** If the app remains in **"Testing"**, the Google OAuth **refresh token will expire after 7 days**, and users may need to authorize the application again. Make sure to repeat the OAuth authorization process when the token expires.
+      >
+
 6. **Create OAuth Credentials:**
 
    * Go to **APIs & Services > Credentials**.
@@ -44,7 +57,7 @@ This guide explains how to configure Google Cloud Platform (GCP) and obtain the 
 Since your backend needs to run headless (without showing a login pop-up to administrators every time), we use a persistent **Refresh Token** to fetch fresh access tokens automatically.
 
 1. Go to the [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground/).
-2. Click the **Gear Icon (OAuth 2.0 Configuration)** in the top right corner.
+2. Click the **Gear Icon (OAuth 2.0 Configuration)** in the **top right corner**.
 3. Check the box **"Use your own OAuth credentials"**.
 4. Paste your **OAuth Client ID** and **OAuth Client Secret** (from Step 1).
 5. In Step 1 (on the left column under "Select & authorize APIs"), enter these two scopes in the input box:
@@ -55,9 +68,7 @@ Since your backend needs to run headless (without showing a login pop-up to admi
    > **Note:** If Google shows a warning saying *"Google hasn't verified this app"*, click **Advanced** at the bottom and click **Go to ACM Website (unsafe)** to proceed.
    >
 8. Once redirected back to the Playground, click the blue **Exchange authorization code for tokens** button in Step 2.
-9. Mark "Auto-refresh the token before it expires" if option exists.
-10. Click **Regenerate Access Token**.
-11. Copy the **Refresh Token** shown in the JSON response payload.
+9. Copy the **Refresh Token** shown under the **Exchange authorization code for tokens** button.
 
 ---
 
