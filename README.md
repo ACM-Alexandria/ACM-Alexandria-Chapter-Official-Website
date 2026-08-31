@@ -74,7 +74,7 @@ To run this project locally, you need to set up both the backend and frontend se
 ### Prerequisites
 * **Java Development Kit (JDK)**: Version 21
 * **Node.js**: Version 20.x or higher
-* **MySQL Server**: Local instance running
+* **MySQL Server**: Version 8.0 or higher, with a local instance running
 
 ### 1. Backend Setup
 1. Navigate to the backend directory:
