@@ -335,6 +335,24 @@ const AdminPage = () => {
 
   const handleMgmtFormSubmit = async (e) => {
     e.preventDefault();
+
+    // Inline Questions Validation
+    if (mgmtTab === "events" && formMode === "add" && formData.questions) {
+      for (const q of formData.questions) {
+        if (!q.questionText || !q.questionText.trim()) {
+          setModalError("Question text cannot be empty.");
+          return;
+        }
+        if (q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") {
+          const validOptions = (q.options || []).filter(opt => opt && opt.trim() !== "");
+          if (validOptions.length === 0) {
+            setModalError(`Question "${q.questionText}" must have at least one valid option.`);
+            return;
+          }
+        }
+      }
+    }
+
     setMgmtLoading(true);
     setMgmtError(null);
     setModalError(null);
@@ -360,9 +378,40 @@ const AdminPage = () => {
         }
       } else if (mgmtTab === "events") {
         if (formMode === "add") {
-          await adminService.createEvent(formData);
+          let newEvent = null;
+          try {
+            const { questions, ...eventPayload } = formData;
+            newEvent = await adminService.createEvent(eventPayload);
+            
+            if (newEvent?.id && formData.questions && formData.questions.length > 0) {
+              for (const q of formData.questions) {
+                const payload = {
+                  question_text: q.questionText,
+                  question_type: q.questionType,
+                  is_required: q.isRequired,
+                  options: (q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") ? q.options : []
+                };
+                await adminService.createQuestion("event", newEvent.id, payload);
+              }
+            }
+          } catch (error) {
+            // Rollback the event if question creation failed
+            if (newEvent?.id) {
+              try {
+                await adminService.deleteEvent(newEvent.id);
+              } catch (rollbackError) {
+                console.error("Failed to rollback event after question creation failure", rollbackError);
+              }
+            }
+            throw error; // Let the outer catch handle the modal error state
+          }
+
+          setFormOpen(false);
+          loadMgmtTabData(mgmtTab);
+          return; // skip the generic setFormOpen(false) / loadMgmtTabData below
         } else {
-          await adminService.updateEvent(editingItem.id, formData);
+          const { questions, ...eventPayload } = formData;
+          await adminService.updateEvent(editingItem.id, eventPayload);
         }
       } else if (mgmtTab === "clubs") {
         if (formMode === "add") {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiX, FiUploadCloud, FiTrash2, FiLoader } from "react-icons/fi";
+import { FiX, FiUploadCloud, FiTrash2, FiLoader, FiPlus, FiMinus, FiType, FiCheckSquare, FiList, FiImage } from "react-icons/fi";
 import { uploadImage } from "../../../services/adminService";
 
 const BRAND = "#4B98C8";
@@ -336,30 +336,33 @@ const ResourceFormModal = ({
 
           {/* Event specific fields */}
           {activeTab === "events" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  Event Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.eventTime || ""}
-                  onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Event Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.eventTime || ""}
+                    onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.location || ""}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
+                    placeholder="e.g. Hall A / Zoom (Optional)"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={formData.location || ""}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
-                  placeholder="e.g. Hall A / Zoom (Optional)"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                />
-              </div>
+              
             </div>
           )}
 
@@ -446,6 +449,147 @@ const ResourceFormModal = ({
                 rows="3"
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
               />
+            </div>
+          )}
+
+          {/* Inline Form Questions (Only on Add Mode for Events) */}
+          {activeTab === "events" && formMode === "add" && (
+            <div className="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50/50">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700">Form Questions (Optional)</h4>
+                  <p className="text-[10px] text-slate-400">Add questions now to prevent an empty registration form.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newQuestions = formData.questions || [];
+                    setFormData({ ...formData, questions: [...newQuestions, { questionText: "", questionType: "TEXT", isRequired: false, options: [] }] });
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#4B98C8] hover:bg-[#4B98C8]/5 transition-all shadow-sm"
+                >
+                  <FiPlus className="w-3.5 h-3.5" />
+                  Add Question
+                </button>
+              </div>
+              
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                {(formData.questions || []).length === 0 ? (
+                  <div className="text-center py-6 text-slate-400 text-xs font-medium border border-dashed border-slate-200 rounded-lg bg-white">
+                    No questions added yet. The form will only collect default fields (Name, Email, etc.).
+                  </div>
+                ) : (
+                  (formData.questions || []).map((q, idx) => (
+                    <div key={idx} className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm relative group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newQ = [...formData.questions];
+                          newQ.splice(idx, 1);
+                          setFormData({ ...formData, questions: newQ });
+                        }}
+                        className="absolute top-2.5 right-2.5 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-md p-1 opacity-0 group-hover:opacity-100"
+                      >
+                        <FiTrash2 className="w-3.5 h-3.5" />
+                      </button>
+                      
+                      <div className="grid grid-cols-12 gap-3 mb-2 pr-6">
+                        <div className="col-span-8">
+                          <input
+                            type="text"
+                            placeholder="Question text..."
+                            required
+                            value={q.questionText}
+                            onChange={(e) => {
+                              const newQ = [...formData.questions];
+                              newQ[idx].questionText = e.target.value;
+                              setFormData({ ...formData, questions: newQ });
+                            }}
+                            className="w-full px-2.5 py-1.5 border border-slate-200 text-xs font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8]"
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <select
+                            value={q.questionType}
+                            onChange={(e) => {
+                              const newQ = [...formData.questions];
+                              newQ[idx].questionType = e.target.value;
+                              if (e.target.value === "MULTIPLE_CHOICE" || e.target.value === "CHECKBOX") {
+                                if (newQ[idx].options.length === 0) newQ[idx].options = [""];
+                              }
+                              setFormData({ ...formData, questions: newQ });
+                            }}
+                            className="w-full px-2.5 py-1.5 border border-slate-200 text-xs font-bold text-slate-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8] bg-slate-50 cursor-pointer"
+                          >
+                            <option value="TEXT">Text</option>
+                            <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                            <option value="CHECKBOX">Checkboxes</option>
+                            <option value="IMAGE">Image</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 cursor-pointer w-max mb-2">
+                        <input
+                          type="checkbox"
+                          checked={q.isRequired}
+                          onChange={(e) => {
+                            const newQ = [...formData.questions];
+                            newQ[idx].isRequired = e.target.checked;
+                            setFormData({ ...formData, questions: newQ });
+                          }}
+                          className="rounded border-slate-300 text-[#4B98C8] focus:ring-[#4B98C8]"
+                        />
+                        Required Field
+                      </label>
+
+                      {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && (
+                        <div className="pl-2 border-l-2 border-[#4B98C8]/30 space-y-2 mt-2">
+                          {q.options.map((opt, optIdx) => (
+                            <div key={optIdx} className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                              <input
+                                type="text"
+                                placeholder={`Option ${optIdx + 1}`}
+                                required
+                                value={opt}
+                                onChange={(e) => {
+                                  const newQ = [...formData.questions];
+                                  newQ[idx].options[optIdx] = e.target.value;
+                                  setFormData({ ...formData, questions: newQ });
+                                }}
+                                className="flex-1 px-2 py-1 text-[11px] border border-slate-200 rounded-md focus:outline-none focus:border-[#4B98C8]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newQ = [...formData.questions];
+                                  newQ[idx].options.splice(optIdx, 1);
+                                  setFormData({ ...formData, questions: newQ });
+                                }}
+                                className="text-slate-400 hover:text-red-500"
+                              >
+                                <FiX className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newQ = [...formData.questions];
+                              newQ[idx].options.push("");
+                              setFormData({ ...formData, questions: newQ });
+                            }}
+                            className="text-[10px] font-bold text-[#4B98C8] hover:underline flex items-center gap-1"
+                          >
+                            <FiPlus className="w-3 h-3" /> Add Option
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           )}
 
