@@ -4,7 +4,8 @@ import {
   HiOutlineExclamationCircle, 
   HiOutlineArrowRight,
   HiOutlineClipboardList,
-  HiOutlineSparkles
+  HiOutlineSparkles,
+  HiOutlinePhotograph
 } from "react-icons/hi";
 
 const DynamicQuestionnaireModal = ({ 
@@ -83,6 +84,7 @@ const DynamicQuestionnaireModal = ({
               {questions.map((question) => {
                 const isText = question.question_type === "TEXT";
                 const isCheckbox = question.question_type === "CHECKBOX";
+                const isImage = question.question_type === "IMAGE";
                 return (
                   <div key={question.id} className="space-y-2.5 group">
                     <label className="text-[13px] font-bold text-slate-800 flex items-center gap-1.5 ml-1 leading-tight">
@@ -143,7 +145,68 @@ const DynamicQuestionnaireModal = ({
                             );
                           })}
                         </div>
-                      ) : (
+                      ) : isImage ? (() => {
+                          const MAX_MB = 2;
+                          const file = answers[question.id] instanceof File ? answers[question.id] : null;
+                          const previewUrl = file ? URL.createObjectURL(file) : null;
+                          const isTooLarge = file && file.size > MAX_MB * 1024 * 1024;
+                          return (
+                            <div className="space-y-3">
+                              {file ? (
+                                <div className={`relative rounded-2xl overflow-hidden border-2 ${isTooLarge ? "border-rose-400" : "border-[#4B98C8]/40"} bg-slate-50`}>
+                                  <img
+                                    src={previewUrl}
+                                    alt="Preview"
+                                    className="w-full max-h-56 object-contain"
+                                  />
+                                  <button
+                                    type="button"
+                                    disabled={submitting}
+                                    onClick={() => onInputChange(question.id, null)}
+                                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-slate-900/60 text-white flex items-center justify-center hover:bg-rose-600/80 transition-all"
+                                    title="Remove image"
+                                  >
+                                    <HiOutlineX className="w-4 h-4" />
+                                  </button>
+                                  <div className="px-4 py-2 border-t border-slate-100 bg-white/80 flex items-center justify-between">
+                                    <span className="text-[12px] font-semibold text-slate-600 truncate max-w-[70%]">{file.name}</span>
+                                    <span className={`text-[11px] font-black ${isTooLarge ? "text-rose-500" : "text-slate-400"}`}>
+                                      {(file.size / (1024 * 1024)).toFixed(2)} MB
+                                    </span>
+                                  </div>
+                                </div>
+                              ) : (
+                                <label
+                                  className={`flex flex-col items-center justify-center gap-3 w-full py-10 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${submitting ? "opacity-60 cursor-not-allowed" : "border-slate-200 bg-slate-50 hover:border-[#4B98C8]/50 hover:bg-blue-50/30"}`}
+                                >
+                                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4B98C8]/10 to-[#205E85]/10 flex items-center justify-center text-[#4B98C8]">
+                                    <HiOutlinePhotograph className="w-7 h-7" />
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-sm font-bold text-slate-700">Click to upload image</p>
+                                    <p className="text-[11px] text-slate-400 font-medium mt-0.5">JPG, PNG, WEBP, GIF · Max 2 MB</p>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="sr-only"
+                                    disabled={submitting}
+                                    onChange={(e) => {
+                                      const picked = e.target.files?.[0] || null;
+                                      onInputChange(question.id, picked);
+                                      e.target.value = "";
+                                    }}
+                                  />
+                                </label>
+                              )}
+                              {isTooLarge && (
+                                <p className="text-[11px] text-rose-500 font-extrabold uppercase tracking-wide ml-1">
+                                  ✕ File exceeds 2 MB limit. Please choose a smaller image.
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })() : (
                         <>
                           <select
                             value={answers[question.id] || ""}

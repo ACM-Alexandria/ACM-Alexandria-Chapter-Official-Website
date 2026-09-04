@@ -21,7 +21,7 @@ public class ImageUploadController {
     }
 
     @PostMapping("/upload")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         log.info("Received request to upload image: {}", file != null ? file.getOriginalFilename() : "null");
         try {

@@ -16,6 +16,7 @@ import {
   fetchUserProfile, 
   updateUserProfile 
 } from "../../services/userService";
+import { uploadImage } from "../../services/adminService";
 
 // Sub-views separated into clean individual files for easy developer editing (User Request)
 import ProfileGatewayModal from "./ProfileGatewayModal";
@@ -225,26 +226,52 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
     if (questions.length > 0) {
       for (const q of questions) {
         if (q.is_required) {
-            const ans = answers[q.id];
-            const isEmpty = Array.isArray(ans) ? ans.length === 0 : !ans?.trim();
-            if (isEmpty) {
-              setError(`Question "${q.question_text}" is required.`);
-              return;
-            }
+          const ans = answers[q.id];
+          let isEmpty;
+          if (ans instanceof File) {
+            isEmpty = false; // a file is present — not empty
+          } else if (Array.isArray(ans)) {
+            isEmpty = ans.length === 0;
+          } else {
+            isEmpty = !ans?.trim();
           }
+          if (isEmpty) {
+            setError(`Question "${q.question_text}" is required.`);
+            return;
+          }
+        }
+        // Block submission if image is selected but too large
+        if (q.question_type === "IMAGE") {
+          const ans = answers[q.id];
+          if (ans instanceof File && ans.size > 2 * 1024 * 1024) {
+            setError(`The image for "${q.question_text}" exceeds the 2 MB limit. Please choose a smaller file.`);
+            return;
+          }
+        }
       }
     }
 
     setSubmitting(true);
     setError(null);
 
-    // Serialize CHECKBOX arrays → comma-joined strings for the backend (Map<Long, String>)
-    const serializedAnswers = Object.fromEntries(
-      Object.entries(answers).map(([id, val]) => [
-        id,
-        Array.isArray(val) ? val.join(", ") : val,
-      ])
-    );
+    // Upload FILE answers (IMAGE questions) via the image service, replace with returned URL
+    // Also serialize CHECKBOX arrays → comma-joined strings for the backend (Map<Long, String>)
+    const serializedAnswers = { ...answers };
+    for (const [id, val] of Object.entries(serializedAnswers)) {
+      if (val instanceof File) {
+        try {
+          const result = await uploadImage(val);
+          // API returns { url: "..." } so response.data is the object
+          serializedAnswers[id] = typeof result === "string" ? result : result?.url || result?.imageUrl || String(result);
+        } catch (uploadErr) {
+          setSubmitting(false);
+          setError("Failed to upload image. Please try again.");
+          return;
+        }
+      } else if (Array.isArray(val)) {
+        serializedAnswers[id] = val.join(", ");
+      }
+    }
 
     try {
       if (type === "event") {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiCheckSquare, FiList, FiType } from "react-icons/fi";
+import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiCheckSquare, FiList, FiType, FiImage } from "react-icons/fi";
 import adminService from "../../../services/adminService";
 
 const BRAND = "#4B98C8";
@@ -210,6 +210,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
   const getTypeIcon = (type) => {
     if (type === "MULTIPLE_CHOICE") return <FiList className="w-3.5 h-3.5" />;
     if (type === "CHECKBOX") return <FiCheckSquare className="w-3.5 h-3.5" />;
+    if (type === "IMAGE") return <FiImage className="w-3.5 h-3.5" />;
     return <FiType className="w-3.5 h-3.5" />;
   };
 
@@ -364,6 +365,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     <option value="TEXT">Short Text Answer</option>
                     <option value="MULTIPLE_CHOICE">Multiple Choice (Dropdown)</option>
                     <option value="CHECKBOX">Checkbox Selection</option>
+                    <option value="IMAGE">Image Upload</option>
                   </select>
                   {fieldErrors.questionType && (
                     <p className="mt-1.5 text-[9px] text-rose-500 font-extrabold uppercase tracking-wide">
@@ -386,6 +388,17 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                   </label>
                 </div>
               </div>
+
+              {/* Info note for IMAGE type */}
+              {questionType === "IMAGE" && (
+                <div className="flex items-start gap-2.5 bg-sky-50 border border-sky-100 rounded-xl px-4 py-3">
+                  <FiImage className="w-4 h-4 text-[#4B98C8] shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-sky-700 font-semibold leading-snug">
+                    Users will be prompted to upload an image file.<br />
+                    <span className="font-black">Maximum size: 2 MB.</span> Accepted formats: JPG, PNG, WEBP, GIF, etc.
+                  </p>
+                </div>
+              )}
 
               {/* Options Editor (Only if MULTIPLE_CHOICE or CHECKBOX) */}
               {(questionType === "MULTIPLE_CHOICE" || questionType === "CHECKBOX") && (
