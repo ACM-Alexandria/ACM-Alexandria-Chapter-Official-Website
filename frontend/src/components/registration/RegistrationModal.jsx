@@ -224,27 +224,39 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
 
     if (questions.length > 0) {
       for (const q of questions) {
-        if (q.is_required && !answers[q.id]?.trim()) {
-          setError(`Question "${q.question_text}" is required.`);
-          return;
-        }
+        if (q.is_required) {
+            const ans = answers[q.id];
+            const isEmpty = Array.isArray(ans) ? ans.length === 0 : !ans?.trim();
+            if (isEmpty) {
+              setError(`Question "${q.question_text}" is required.`);
+              return;
+            }
+          }
       }
     }
 
     setSubmitting(true);
     setError(null);
 
+    // Serialize CHECKBOX arrays → comma-joined strings for the backend (Map<Long, String>)
+    const serializedAnswers = Object.fromEntries(
+      Object.entries(answers).map(([id, val]) => [
+        id,
+        Array.isArray(val) ? val.join(", ") : val,
+      ])
+    );
+
     try {
       if (type === "event") {
-        await registerForEvent(entityId, user.id, answers);
+        await registerForEvent(entityId, user.id, serializedAnswers);
       } else if (type === "club") {
-        await registerForClub(entityId, user.id, answers);
+        await registerForClub(entityId, user.id, serializedAnswers);
       } else if (type === "program") {
-        await registerForProgram(entityId, user.id, answers);
+        await registerForProgram(entityId, user.id, serializedAnswers);
       } else if (type === "exclusive-form") {
-        await registerForExclusiveForm(entityId, user.id, answers);
+        await registerForExclusiveForm(entityId, user.id, serializedAnswers);
       } else {
-        await registerForCommittee(entityId, user.id, answers);
+        await registerForCommittee(entityId, user.id, serializedAnswers);
       }
       setSuccess(true);
     } catch (err) {

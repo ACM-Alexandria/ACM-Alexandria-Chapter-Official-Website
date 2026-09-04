@@ -82,6 +82,7 @@ const DynamicQuestionnaireModal = ({
             <div className="space-y-7">
               {questions.map((question) => {
                 const isText = question.question_type === "TEXT";
+                const isCheckbox = question.question_type === "CHECKBOX";
                 return (
                   <div key={question.id} className="space-y-2.5 group">
                     <label className="text-[13px] font-bold text-slate-800 flex items-center gap-1.5 ml-1 leading-tight">
@@ -101,6 +102,47 @@ const DynamicQuestionnaireModal = ({
                           placeholder="Type your answer here..."
                           className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-slate-800 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white focus:ring-4 focus:ring-blue-50 resize-none disabled:opacity-60"
                         />
+                      ) : isCheckbox ? (
+                        <div className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 disabled:opacity-60">
+                          {question.options && question.options.map((opt, idx) => {
+                            const selectedValues = Array.isArray(answers[question.id]) ? answers[question.id] : [];
+                            const isChecked = selectedValues.includes(opt);
+                            const handleCheckboxChange = () => {
+                              const updated = isChecked
+                                ? selectedValues.filter((v) => v !== opt)
+                                : [...selectedValues, opt];
+                              onInputChange(question.id, updated);
+                            };
+                            return (
+                              <label
+                                key={idx}
+                                className={`flex items-center gap-3 cursor-pointer group/opt select-none ${submitting ? "opacity-60 cursor-not-allowed" : ""}`}
+                              >
+                                <div
+                                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                                    isChecked
+                                      ? "bg-[#4B98C8] border-[#4B98C8]"
+                                      : "bg-white border-slate-300 group-hover/opt:border-[#4B98C8]/60"
+                                  }`}
+                                >
+                                  {isChecked && (
+                                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                  )}
+                                </div>
+                                <input
+                                  type="checkbox"
+                                  className="sr-only"
+                                  checked={isChecked}
+                                  onChange={handleCheckboxChange}
+                                  disabled={submitting}
+                                />
+                                <span className="text-slate-700 font-semibold text-[15px]">{opt}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
                       ) : (
                         <>
                           <select
