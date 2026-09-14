@@ -216,11 +216,11 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl dark:shadow-slate-950/60 max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
           <div>
-            <h3 className="text-base font-extrabold text-slate-800 tracking-tight">
+            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
               {mode === "list" ? "Registration Form Questions" : mode === "add" ? "Add Question" : "Edit Question"}
             </h3>
             <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider">
@@ -229,7 +229,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             <FiX className="w-4.5 h-4.5" />
           </button>
@@ -263,34 +263,34 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
               {/* Questions List */}
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loading questions...</p>
                 </div>
               ) : questions.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-slate-200 rounded-xl">
+                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
                   <p className="text-slate-400 text-xs font-medium">No custom questions defined yet. Only standard registration fields (Name, Email, Phone, Batch, Dept) are requested.</p>
                 </div>
               ) : (
                 <div className="space-y-3.5 max-h-[50vh] overflow-y-auto pr-1">
                   {questions.map((q, index) => (
-                    <div key={q.id || index} className="bg-slate-50/50 hover:bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex justify-between gap-4 transition-all duration-300">
+                    <div key={q.id || index} className="bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-2xl p-4 flex justify-between gap-4 transition-all duration-300">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border flex items-center gap-1 bg-white text-slate-600 border-slate-200`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border flex items-center gap-1 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-200 border-slate-200 dark:border-slate-600`}>
                             {getTypeIcon(q.questionType)}
                             {q.questionType?.replace("_", " ")}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${q.isRequired ? 'bg-rose-50/50 text-rose-600 border-rose-100' : 'bg-slate-50 text-slate-500 border-slate-200/50'}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${q.isRequired ? 'bg-rose-50/50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 border-rose-100 dark:border-rose-800' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200/50 dark:border-slate-700'}`}>
                             {q.isRequired ? "Required" : "Optional"}
                           </span>
                         </div>
-                        <h4 className="text-xs font-extrabold text-slate-800 break-words leading-snug">
+                        <h4 className="text-xs font-extrabold text-slate-800 dark:text-slate-100 break-words leading-snug">
                           {q.questionText}
                         </h4>
                         {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && q.options && q.options.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
-                              <span key={oIdx} className="bg-white border border-slate-200 text-slate-600 text-[9px] font-bold px-2 py-0.5 rounded-lg">
+                              <span key={oIdx} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-[9px] font-bold px-2 py-0.5 rounded-lg">
                                 {opt}
                               </span>
                             ))}
@@ -301,7 +301,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         <button
                           type="button"
                           onClick={() => handleEditClick(q)}
-                          className="p-2 bg-white hover:bg-sky-50 text-slate-400 hover:text-[#4B98C8] border border-slate-200 rounded-xl transition-all active:scale-95"
+                          className="p-2 bg-white dark:bg-slate-900 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-400 dark:text-slate-300 hover:text-[#4B98C8] border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95"
                           title="Edit Question"
                         >
                           <FiEdit2 className="w-3.5 h-3.5" />
@@ -309,7 +309,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         <button
                           type="button"
                           onClick={() => handleDeleteClick(q.id)}
-                          className="p-2 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 rounded-xl transition-all active:scale-95"
+                          className="p-2 bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 dark:text-slate-300 hover:text-rose-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95"
                           title="Delete Question"
                         >
                           <FiTrash2 className="w-3.5 h-3.5" />
@@ -338,7 +338,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     }
                   }}
                   placeholder="e.g. What is your GitHub profile link?"
-                  className={`w-full px-3.5 py-2.5 bg-slate-50 border ${fieldErrors.questionText ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
+                          className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border ${fieldErrors.questionText ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
                 />
                 {fieldErrors.questionText && (
                   <p className="mt-1.5 text-[9px] text-rose-500 font-extrabold uppercase tracking-wide">
@@ -360,7 +360,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         setFieldErrors((prev) => ({ ...prev, questionType: null, options: null, emptyOptionIndices: null }));
                       }
                     }}
-                    className={`w-full px-3.5 py-2.5 bg-slate-50 border ${fieldErrors.questionType ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all cursor-pointer`}
+                    className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border ${fieldErrors.questionType ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all cursor-pointer`}
                   >
                     <option value="TEXT">Short Text Answer</option>
                     <option value="MULTIPLE_CHOICE">Multiple Choice (Dropdown)</option>
@@ -380,9 +380,9 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                       type="checkbox"
                       checked={isRequired}
                       onChange={(e) => setIsRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#4B98C8] focus:ring-[#4B98C8]/30 border-slate-300"
+                      className="w-4 h-4 rounded text-[#4B98C8] focus:ring-[#4B98C8]/30 border-slate-300 dark:border-slate-600"
                     />
-                    <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">
+                    <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
                       Mark as Required
                     </span>
                   </label>
@@ -431,11 +431,11 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                               value={opt}
                               onChange={(e) => handleOptionChange(optIdx, e.target.value)}
                               placeholder={`Option ${optIdx + 1}`}
-                              className={`flex-1 px-3 py-2 bg-slate-50 border ${
+                              className={`flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border ${
                                 isOptionEmpty || fieldErrors.options 
                                   ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' 
-                                  : 'border-slate-200 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'
-                              } text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
+                                  : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'
+                              } text-slate-800 dark:text-slate-300 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
                             />
                             <button
                               type="button"
@@ -463,7 +463,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                 <button
                   type="button"
                   onClick={() => setMode("list")}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all flex items-center gap-1.5"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all flex items-center gap-1.5"
                 >
                   <FiArrowLeft className="w-4.5 h-4.5" /> Back to list
                 </button>
@@ -486,7 +486,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+              className="px-5 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
             >
               Close
             </button>

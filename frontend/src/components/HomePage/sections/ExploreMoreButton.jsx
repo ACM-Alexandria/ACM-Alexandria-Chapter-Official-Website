@@ -21,7 +21,7 @@ const ExploreMoreButton = ({ text = "Explore All", onClick, to }) => {
   );
 
   const cls =
-    "bg-gradient-to-r from-[#4B98C8] to-[#205E85] hover:opacity-90 text-white font-semibold py-3 px-8 rounded-md transition-all duration-300 flex items-center justify-center gap-2 mx-auto";
+    "bg-gradient-to-r from-[#4B98C8] to-[#205E85] dark:from-[#5FAEDD] dark:to-[#164769] hover:opacity-90 dark:hover:opacity-100 dark:shadow-lg dark:shadow-slate-950/40 text-white font-semibold py-3 px-8 rounded-md transition-all duration-300 flex items-center justify-center gap-2 mx-auto";
 
   if (to) {
     return (

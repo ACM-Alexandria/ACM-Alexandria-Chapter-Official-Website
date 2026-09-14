@@ -198,7 +198,7 @@ const RegisterForm = () => {
     <form onSubmit={handleSubmit} noValidate>
       {/* General error */}
       {errors.general && (
-        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700" role="alert">
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-200" role="alert">
           <ErrorCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
           <p>{errors.general}</p>
         </div>
@@ -206,7 +206,7 @@ const RegisterForm = () => {
 
       {/* Success */}
       {successMessage && (
-        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700" role="status">
+        <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl text-sm text-green-700 dark:text-green-200" role="status">
           <SuccessCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-green-500" />
           <p>{successMessage}</p>
         </div>
@@ -298,9 +298,9 @@ const RegisterForm = () => {
 
       {/* OR Divider */}
       <div className="my-4 flex items-center justify-center gap-3">
-        <span className="w-full h-px bg-gray-200" />
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">or</span>
-        <span className="w-full h-px bg-gray-200" />
+        <span className="w-full h-px bg-gray-200 dark:bg-slate-700" />
+        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 uppercase tracking-widest">or</span>
+        <span className="w-full h-px bg-gray-200 dark:bg-slate-700" />
       </div>
 
       {/* Google Sign In Button Container */}
@@ -308,15 +308,15 @@ const RegisterForm = () => {
 
       {/* Footer Links */}
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-300">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-[#205E85] hover:text-[#4B98C8] transition-colors">
+          <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
             Sign In
           </Link>
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6" />

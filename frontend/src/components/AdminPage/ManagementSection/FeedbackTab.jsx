@@ -165,7 +165,7 @@ const FeedbackTab = () => {
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">
+            <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
               Grow & Feedback Logs
             </h2>
             <p className="text-xs text-slate-400 font-medium">
@@ -174,7 +174,7 @@ const FeedbackTab = () => {
           </div>
           <button
             onClick={fetchFeedback}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 dark:border-slate-600 shadow-sm transition-all active:scale-95 cursor-pointer"
           >
             Refresh Logs
           </button>
@@ -192,18 +192,18 @@ const FeedbackTab = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, description, or reporter..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
             />
           </div>
 
           <div className="flex flex-wrap gap-3">
             {/* Type Filter */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-              <FiFilter className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5">
+              {/* <FiFilter className="w-3.5 h-3.5 text-slate-400" /> */}
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="bg-transparent text-slate-700 text-xs font-bold focus:outline-none cursor-pointer"
+                  className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none"
               >
                 <option value="all">All Types</option>
                 <option value="feature">Feature Requests</option>
@@ -212,12 +212,12 @@ const FeedbackTab = () => {
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5">
               <FiCheckCircle className="w-3.5 h-3.5 text-slate-400" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-transparent text-slate-700 text-xs font-bold focus:outline-none cursor-pointer"
+                  className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none"
               >
                 <option value="all">All Statuses</option>
                 <option value="new">New (Unresolved)</option>
@@ -244,7 +244,7 @@ const FeedbackTab = () => {
             </p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="text-center py-20 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
+          <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-3xl bg-slate-50/50 dark:bg-slate-800/50">
             <p className="text-sm font-bold text-slate-500">No feedback items match your criteria.</p>
             <p className="text-xs text-slate-400 mt-1">Try relaxing filters or search terms.</p>
           </div>
@@ -258,9 +258,9 @@ const FeedbackTab = () => {
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className={`border rounded-2xl p-6 transition-all bg-white relative overflow-hidden ${
+                  className={`border rounded-2xl p-6 transition-all bg-white dark:bg-slate-900 relative overflow-hidden ${
                     isDone
-                      ? "border-slate-150 bg-slate-50/30 opacity-75"
+                      ? "border-slate-150 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/30 opacity-75"
                       : isFeature
                       ? "border-emerald-100 hover:shadow-md hover:border-emerald-200"
                       : "border-rose-100 hover:shadow-md hover:border-rose-200"
@@ -300,7 +300,7 @@ const FeedbackTab = () => {
 
                   {/* Title & Description */}
                   <div className="space-y-2 mb-4">
-                    <h3 className="text-sm font-black text-slate-800 tracking-tight leading-snug">
+                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
                       {item.name}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">

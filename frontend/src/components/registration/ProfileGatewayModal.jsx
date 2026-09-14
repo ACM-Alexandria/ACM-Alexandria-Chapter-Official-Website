@@ -24,12 +24,12 @@ const ProfileGatewayModal = ({
 
   // Subcomponent view mapping directly into Orchestrator stable backdrop
   return (
-    <div className={`relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[90vh] ${
+    <div className={`relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl dark:shadow-slate-950/60 border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[90vh] ${
       isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-16 scale-95 opacity-0"
     }`}>
       
       {/* Sub Header */}
-      <div className="bg-slate-50/50 px-8 py-6 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div className="bg-slate-50/50 dark:bg-slate-800/60 px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-md flex items-center justify-center text-white shrink-0">
             <HiOutlineIdentification className="w-6 h-6" />
@@ -38,14 +38,14 @@ const ProfileGatewayModal = ({
             <span className="text-[10px] font-black text-[#4B98C8] uppercase tracking-[0.15em] block">
               Step 1: Verify Profile
             </span>
-            <h3 className="text-lg font-black text-slate-900 truncate leading-tight mt-0.5">
+            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 truncate leading-tight mt-0.5">
               {entityName}
             </h3>
           </div>
         </div>
 
         {!submitting && (
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 flex items-center justify-center transition-all hover:bg-slate-50 hover:text-slate-900 active:scale-95">
+          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 active:scale-95">
             <HiOutlineX className="w-5 h-5" />
           </button>
         )}
@@ -55,18 +55,18 @@ const ProfileGatewayModal = ({
       <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide">
         <form id="embedded-profile-gateway-form" onSubmit={onSubmit} className="space-y-6">
           
-          <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5 flex items-start gap-4">
+          <div className="bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-800 rounded-2xl p-5 flex items-start gap-4">
             <HiOutlineIdentification className="w-6 h-6 text-[#4B98C8] shrink-0 mt-0.5" />
             <div>
-              <h5 className="font-bold text-slate-800 text-sm leading-tight">Account Completion Required</h5>
-              <p className="text-slate-500 font-medium text-[12px] mt-1 leading-relaxed">
+              <h5 className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight">Account Completion Required</h5>
+              <p className="text-slate-500 dark:text-slate-300 font-medium text-[12px] mt-1 leading-relaxed">
                 Please finalize your profile parameters. Your official name and valid phone number are required to validate and process your registration.
               </p>
             </div>
           </div>
 
           {error && (
-            <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl px-5 py-4 animate-[fadeIn_0.3s_ease]">
+            <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.3s_ease]">
               <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
               <p className="font-bold text-sm leading-snug">{error}</p>
             </div>
@@ -74,7 +74,7 @@ const ProfileGatewayModal = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 group">
-              <label className="text-[13px] font-bold text-slate-800 flex items-center gap-2 ml-1">
+              <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
                 <HiOutlineIdentification className="w-4 h-4 text-slate-400" />
                 Full Name <span className="text-rose-500">*</span>
               </label>
@@ -86,12 +86,12 @@ const ProfileGatewayModal = ({
                 required
                 placeholder="Enter your full name"
                 disabled={submitting}
-                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-slate-800 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
               />
             </div>
 
             <div className="space-y-2 group">
-              <label className="text-[13px] font-bold text-slate-800 flex items-center gap-2 ml-1">
+              <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
                 <HiOutlineDeviceMobile className="w-4 h-4 text-slate-400" />
                 Phone Number <span className="text-rose-500">*</span>
               </label>
@@ -104,20 +104,20 @@ const ProfileGatewayModal = ({
                 placeholder="e.g. 01XXXXXXXXX"
                 maxLength={11}
                 disabled={submitting}
-                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-slate-800 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
               />
             </div>
           </div>
 
-          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-4">
+          <div className="bg-slate-50/50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-[#4B98C8]">
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-[#4B98C8]">
                   <HiOutlineLibrary className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-xs font-bold text-slate-400 block mb-0.5">University Status</span>
-                  <h5 className="font-extrabold text-slate-800 text-sm">Student in Faculty of Engineering? <span className="text-rose-500">*</span></h5>
+                  <h5 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm">Student in Faculty of Engineering? <span className="text-rose-500">*</span></h5>
                 </div>
               </div>
 
@@ -129,7 +129,7 @@ const ProfileGatewayModal = ({
                   className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                     profileForm.isAlexEngStudent === true
                       ? "bg-[#4B98C8] text-white shadow-md" 
-                      : "bg-white border border-slate-200 text-slate-500"
+                      : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300"
                   }`}
                 >
                   {profileForm.isAlexEngStudent === true && <HiOutlineCheck className="w-3.5 h-3.5" />}
@@ -142,7 +142,7 @@ const ProfileGatewayModal = ({
                   className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                     profileForm.isAlexEngStudent === false
                       ? "bg-slate-800 text-white shadow-md" 
-                      : "bg-white border border-slate-200 text-slate-500"
+                      : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300"
                   }`}
                 >
                   {profileForm.isAlexEngStudent === false && <HiOutlineCheck className="w-3.5 h-3.5" />}
@@ -152,9 +152,9 @@ const ProfileGatewayModal = ({
             </div>
 
             {profileForm.isAlexEngStudent === true && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 animate-[fadeIn_0.3s_ease]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-700 animate-[fadeIn_0.3s_ease]">
                 <div className="space-y-2 group">
-                  <label className="text-[13px] font-bold text-slate-800 flex items-center gap-2 ml-1">
+                  <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
                     <HiOutlineAcademicCap className="w-4 h-4 text-slate-400" />
                     Batch <span className="text-rose-500">*</span>
                   </label>
@@ -165,7 +165,7 @@ const ProfileGatewayModal = ({
                       onChange={onInputChange}
                       required={profileForm.isAlexEngStudent === true}
                       disabled={submitting}
-                      className="w-full h-12 px-4 bg-white border border-slate-100 rounded-xl outline-none text-slate-800 font-semibold text-sm appearance-none cursor-pointer transition-all focus:border-[#4B98C8]/30 focus:ring-4 focus:ring-blue-50"
+                      className="w-full h-12 px-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-sm appearance-none cursor-pointer transition-all focus:border-[#4B98C8]/30 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
                     >
                       <option value="">-- Select Batch --</option>
                       <option value="2026">2026</option>
@@ -184,7 +184,7 @@ const ProfileGatewayModal = ({
                 </div>
 
                 <div className="space-y-2 group">
-                  <label className="text-[13px] font-bold text-slate-800 flex items-center gap-2 ml-1">
+                  <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
                     <HiOutlineBriefcase className="w-4 h-4 text-slate-400" />
                     Department <span className="text-rose-500">*</span>
                   </label>
@@ -195,7 +195,7 @@ const ProfileGatewayModal = ({
                       onChange={onInputChange}
                       required={profileForm.isAlexEngStudent === true}
                       disabled={submitting}
-                      className="w-full h-12 px-4 bg-white border border-slate-100 rounded-xl outline-none text-slate-800 font-semibold text-sm appearance-none cursor-pointer transition-all focus:border-[#4B98C8]/30 focus:ring-4 focus:ring-blue-50"
+                      className="w-full h-12 px-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-sm appearance-none cursor-pointer transition-all focus:border-[#4B98C8]/30 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
                     >
                       <option value="">-- Select Department --</option>
                       <option value="CSED">Computer & Systems (CSED)</option>
@@ -216,8 +216,8 @@ const ProfileGatewayModal = ({
       </div>
 
       {/* Sticky Action Footer */}
-      <div className="bg-slate-50/30 px-8 py-6 border-t border-slate-100 flex justify-end gap-3 shrink-0">
-        <button type="button" onClick={onClose} disabled={submitting} className="px-7 py-3.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold transition-all hover:bg-white hover:text-slate-800 hover:shadow-sm disabled:opacity-50">
+      <div className="bg-slate-50/30 dark:bg-slate-800/40 px-8 py-6 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 shrink-0">
+        <button type="button" onClick={onClose} disabled={submitting} className="px-7 py-3.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-sm font-bold transition-all hover:bg-white dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-sm disabled:opacity-50">
           Cancel
         </button>
         <button

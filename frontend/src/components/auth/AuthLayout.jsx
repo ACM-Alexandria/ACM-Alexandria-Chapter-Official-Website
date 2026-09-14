@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import acmLogo from "../../assets/logo/acm-logo-no-bg.png";
+import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
 
 /**
  * Shared layout for all auth pages.
@@ -21,8 +23,24 @@ const AuthLayout = ({
   isReversed = false,
   children,
 }) => {
+  const [isDark, setIsDark] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) return savedTheme === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
   return (
-    <div key={isReversed ? "register" : "login"} className="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-gray-50 relative overflow-hidden">
+    <div key={isReversed ? "register" : "login"} className="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-gray-50 dark:bg-slate-950 relative overflow-hidden">
+      <div className="fixed right-5 top-5 z-20">
+        <ThemeToggleButton
+          isDark={isDark}
+          onToggle={() => setIsDark((currentIsDark) => !currentIsDark)}
+        />
+      </div>
 
       {/* Subtle background blobs — site palette colours */}
       <div
@@ -38,7 +56,7 @@ const AuthLayout = ({
       <div
         className={`
           relative z-10 w-full max-w-[860px] flex ${isReversed ? "flex-row-reverse" : "flex-row"} rounded-2xl overflow-hidden
-          shadow-2xl border border-gray-200
+          shadow-2xl shadow-slate-900/10 dark:shadow-black/50 border border-gray-200 dark:border-slate-700
           animate-[${isReversed ? "cardSlideLeft" : "cardSlideRight"}_0.7s_cubic-bezier(0.22,1,0.36,1)_both]
         `}
       >
@@ -49,7 +67,7 @@ const AuthLayout = ({
           className="
             hidden md:flex flex-col justify-between
             w-[42%] shrink-0
-            bg-gradient-to-br from-[#4B98C8] to-[#205E85]
+            bg-gradient-to-br from-[#4B98C8] to-[#205E85] dark:from-[#2D759E] dark:to-[#123B55]
             px-10 py-10 relative overflow-hidden
           "
         >
@@ -126,21 +144,21 @@ const AuthLayout = ({
         </aside>
 
         {/* ── Right form panel ── */}
-        <main className="flex-1 bg-white px-8 py-10 sm:px-12 sm:py-14 flex flex-col justify-center">
+        <main className="flex-1 bg-white dark:bg-slate-900 px-8 py-10 sm:px-12 sm:py-14 flex flex-col justify-center">
 
           {/* Mobile logo */}
           <div className="md:hidden flex items-center gap-2.5 mb-8 animate-[floatIn_0.5s_cubic-bezier(0.22,1,0.36,1)_0.05s_both]">
             <img src={acmLogo} alt="ACM Logo" className="h-9 w-auto" />
             <div className="leading-tight">
-              <p className="text-slate-900 font-extrabold text-sm tracking-tight">ACM ALEXANDRIA</p>
-              <p className="text-slate-500 text-[9px] font-bold tracking-widest uppercase">Student Chapter</p>
+              <p className="text-slate-900 dark:text-slate-100 font-extrabold text-sm tracking-tight">ACM ALEXANDRIA</p>
+              <p className="text-slate-500 dark:text-slate-300 text-[9px] font-bold tracking-widest uppercase">Student Chapter</p>
             </div>
           </div>
 
           {/* Heading */}
           <div className="mb-9 animate-[floatIn_0.6s_cubic-bezier(0.22,1,0.36,1)_0.15s_both]">
-            <h1 className="text-[32px] font-extrabold text-slate-900 tracking-[-0.03em] mb-2 leading-tight">{title}</h1>
-            <p className="text-base text-slate-500 leading-relaxed font-medium">{subtitle}</p>
+            <h1 className="text-[32px] font-extrabold text-slate-900 dark:text-slate-100 tracking-[-0.03em] mb-2 leading-tight">{title}</h1>
+            <p className="text-base text-slate-500 dark:text-slate-300 leading-relaxed font-medium">{subtitle}</p>
           </div>
 
           {/* Form */}

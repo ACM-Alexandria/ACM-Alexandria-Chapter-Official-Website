@@ -115,15 +115,15 @@ const ResourceFormModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease]">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-          <h3 className="text-base font-extrabold text-slate-800 tracking-tight capitalize">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6">
+          <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
             {getTitle()}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             <FiX className="w-4.5 h-4.5" />
           </button>
@@ -144,7 +144,7 @@ const ResourceFormModal = ({
                   value={formData.platform || ""}
                   onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                   placeholder="e.g. Facebook, Instagram, LinkedIn, etc."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                 />
               </div>
               <div>
@@ -157,7 +157,7 @@ const ResourceFormModal = ({
                   value={formData.url || ""}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://example.com/acm-alexandria"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                 />
               </div>
             </>
@@ -176,7 +176,7 @@ const ResourceFormModal = ({
                 value={formData.seasonNumber ?? ""}
                 onChange={(e) => setFormData({ ...formData, seasonNumber: e.target.value ? parseInt(e.target.value) : "" })}
                 placeholder="e.g. 1"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
               />
             </div>
           )}
@@ -198,7 +198,7 @@ const ResourceFormModal = ({
                       else setFormData({ ...formData, name: e.target.value });
                     }}
                     placeholder="e.g. John Doe"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               )}
@@ -211,14 +211,14 @@ const ResourceFormModal = ({
 
                 {currentValue ? (
                   // Preview state
-                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl">
                     <img
                       src={currentValue}
                       alt="Preview"
-                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 shadow-sm"
+                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-600 shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-slate-700 truncate">
+                      <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">
                         {currentValue.split("/").pop()}
                       </p>
                       <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">
@@ -242,7 +242,7 @@ const ResourceFormModal = ({
                     className={`relative border-2 border-dashed rounded-xl p-6 transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
                       uploading
                         ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
-                        : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
+                        : "border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
                     <input
@@ -256,7 +256,7 @@ const ResourceFormModal = ({
                     {uploading ? (
                       <>
                         <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">
+                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">
                           Uploading image to Cloudinary...
                         </p>
                         <p className="text-[9px] text-slate-400 mt-1">
@@ -266,7 +266,7 @@ const ResourceFormModal = ({
                     ) : (
                       <>
                         <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">
+                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">
                           Click to upload or drag & drop
                         </p>
                         <p className="text-[9px] text-slate-400 mt-1">
@@ -302,7 +302,7 @@ const ResourceFormModal = ({
                     value={formData.role || ""}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     placeholder="e.g. Coordinator"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
                 <div>
@@ -315,7 +315,7 @@ const ResourceFormModal = ({
                     value={formData.order ?? ""}
                     onChange={(e) => setFormData({ ...formData, order: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="e.g. 1 (Optional)"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
@@ -328,7 +328,7 @@ const ResourceFormModal = ({
                   value={formData.linkedinUrl || ""}
                   onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                 />
               </div>
             </>
@@ -346,7 +346,7 @@ const ResourceFormModal = ({
                     type="datetime-local"
                     value={formData.eventTime || ""}
                     onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
                 <div>
@@ -358,7 +358,7 @@ const ResourceFormModal = ({
                     value={formData.location || ""}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
                     placeholder="e.g. Hall A / Zoom (Optional)"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
@@ -378,7 +378,7 @@ const ResourceFormModal = ({
                     type="datetime-local"
                     value={formData.startDate || ""}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
                 <div>
@@ -389,7 +389,7 @@ const ResourceFormModal = ({
                     type="datetime-local"
                     value={formData.endDate || ""}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
@@ -402,15 +402,15 @@ const ResourceFormModal = ({
                   value={formData.time || ""}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value || "" })}
                   placeholder="e.g. Every Sunday 6:00 PM"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                 />
               </div>
 
               {/* Registration Open Toggle */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
                 <div>
-                  <p className="text-xs font-extrabold text-slate-700">Registration Open</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
                     Allow users to register for this program
                   </p>
                 </div>
@@ -447,17 +447,17 @@ const ResourceFormModal = ({
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Provide a detailed description..."
                 rows="3"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
               />
             </div>
           )}
 
           {/* Inline Form Questions (Only on Add Mode for Events) */}
           {activeTab === "events" && formMode === "add" && (
-            <div className="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50/50">
+            <div className="mt-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-700">Form Questions (Optional)</h4>
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200">Form Questions (Optional)</h4>
                   <p className="text-[10px] text-slate-400">Add questions now to prevent an empty registration form.</p>
                 </div>
                 <button
@@ -466,7 +466,7 @@ const ResourceFormModal = ({
                     const newQuestions = formData.questions || [];
                     setFormData({ ...formData, questions: [...newQuestions, { questionText: "", questionType: "TEXT", isRequired: false, options: [] }] });
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#4B98C8] hover:bg-[#4B98C8]/5 transition-all shadow-sm"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-xs font-bold text-[#4B98C8] hover:bg-[#4B98C8]/5 transition-all shadow-sm"
                 >
                   <FiPlus className="w-3.5 h-3.5" />
                   Add Question
@@ -475,12 +475,12 @@ const ResourceFormModal = ({
               
               <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                 {(formData.questions || []).length === 0 ? (
-                  <div className="text-center py-6 text-slate-400 text-xs font-medium border border-dashed border-slate-200 rounded-lg bg-white">
+                  <div className="text-center py-6 text-slate-400 dark:text-slate-300 text-xs font-medium border border-dashed border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900">
                     No questions added yet. The form will only collect default fields (Name, Email, etc.).
                   </div>
                 ) : (
                   (formData.questions || []).map((q, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm relative group">
+                    <div key={idx} className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg shadow-sm relative group">
                       <button
                         type="button"
                         onClick={() => {
@@ -488,7 +488,7 @@ const ResourceFormModal = ({
                           newQ.splice(idx, 1);
                           setFormData({ ...formData, questions: newQ });
                         }}
-                        className="absolute top-2.5 right-2.5 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-md p-1 opacity-0 group-hover:opacity-100"
+                        className="absolute top-2.5 right-2.5 text-slate-400 hover:text-red-500 transition-colors bg-white dark:bg-slate-900 rounded-md p-1 opacity-0 group-hover:opacity-100"
                       >
                         <FiTrash2 className="w-3.5 h-3.5" />
                       </button>
@@ -505,7 +505,7 @@ const ResourceFormModal = ({
                               newQ[idx].questionText = e.target.value;
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full px-2.5 py-1.5 border border-slate-200 text-xs font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8]"
+                            className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8]"
                           />
                         </div>
                         <div className="col-span-4">
@@ -519,7 +519,7 @@ const ResourceFormModal = ({
                               }
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full px-2.5 py-1.5 border border-slate-200 text-xs font-bold text-slate-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8] bg-slate-50 cursor-pointer"
+                            className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-600 dark:text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8] bg-slate-50 dark:bg-slate-800 cursor-pointer"
                           >
                             <option value="TEXT">Text</option>
                             <option value="MULTIPLE_CHOICE">Multiple Choice</option>
@@ -558,7 +558,7 @@ const ResourceFormModal = ({
                                   newQ[idx].options[optIdx] = e.target.value;
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="flex-1 px-2 py-1 text-[11px] border border-slate-200 rounded-md focus:outline-none focus:border-[#4B98C8]"
+                                className="flex-1 px-2 py-1 text-[11px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 rounded-md focus:outline-none focus:border-[#4B98C8]"
                               />
                               <button
                                 type="button"
@@ -595,10 +595,10 @@ const ResourceFormModal = ({
 
           {/* Exclusive Forms specific fields */}
           {activeTab === "exclusiveForms" && (
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 mt-4">
+            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 mt-4">
               <div>
-                <p className="text-xs font-extrabold text-slate-700">Form Active Status</p>
-                <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Form Active Status</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
                   Allow users to see and apply to this form
                 </p>
               </div>
@@ -629,25 +629,25 @@ const ResourceFormModal = ({
                 value={formData.website || ""}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 placeholder="https://partner-website.com (Optional)"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
               />
             </div>
           )}
 
           {/* Error display */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 flex items-center gap-2 mb-4">
+            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-3 flex items-center gap-2 mb-4">
               <span className="text-xs font-semibold">{error}</span>
             </div>
           )}
 
           {/* Actions row */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
             <button
               type="button"
               onClick={onClose}
               disabled={loading || uploading}
-              className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
+              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
             >
               Cancel
             </button>

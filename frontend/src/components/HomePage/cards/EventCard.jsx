@@ -9,13 +9,13 @@ const EventCard = ({ event, index, onShowDetails }) => {
   };
   return (
     <div
-      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col h-full"
+      className="group bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/40 overflow-hidden border border-slate-100 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col h-full"
       data-aos="fade-up"
       data-aos-delay={index * 100}
       onClick={handleOpenDetails}
     >
       {/* Event Image */}
-      <div className="relative h-64 overflow-hidden bg-slate-100">
+      <div className="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700">
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex items-end justify-center p-8">
           <span className="text-white font-bold uppercase tracking-[0.2em] text-xs translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
             View Details
@@ -31,7 +31,7 @@ const EventCard = ({ event, index, onShowDetails }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
-            <span className="text-slate-300 text-7xl font-black opacity-40">
+            <span className="text-slate-300 dark:text-slate-500 text-7xl font-black opacity-40">
               {event.name?.charAt(0) || "E"}
             </span>
           </div>
@@ -40,19 +40,19 @@ const EventCard = ({ event, index, onShowDetails }) => {
 
       <div className="p-8 flex flex-col flex-1 items-center text-center">
         <h3
-          className={`text-2xl font-extrabold tracking-tight mb-4 group-hover:text-[#4B98C8] transition-colors leading-tight`}
+          className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-4 group-hover:text-[#4B98C8] transition-colors leading-tight"
         >
           {event.name}
         </h3>
 
-        <p className="text-slate-500 text-base leading-relaxed mb-6 line-clamp-3 font-medium flex-1">
+        <p className="text-slate-500 dark:text-slate-300 text-base leading-relaxed mb-6 line-clamp-3 font-medium flex-1">
           {event.description || "Join us for our upcoming events and be part of our community."}
         </p>
 
         <div className="mt-auto pt-6 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
-          <div className="h-px flex-1 bg-slate-100" />
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
           <div
-            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300"
+            className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ const EventCard = ({ event, index, onShowDetails }) => {
               />
             </svg>
           </div>
-          <div className="h-px flex-1 bg-slate-100" />
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
         </div>
       </div>
     </div>

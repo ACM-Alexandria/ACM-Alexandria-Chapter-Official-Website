@@ -6,7 +6,7 @@ const GreetingSection = () => {
   return (
     <section
       id="greeting"
-      className="w-full py-24 md:py-36 px-4 bg-white relative overflow-hidden flex items-center justify-center min-h-[80vh]"
+      className="w-full py-24 md:py-36 px-4 bg-white dark:bg-slate-900 relative overflow-hidden flex items-center justify-center min-h-[80vh]"
     >
       {/* Background Blobs */}
       <div
@@ -38,13 +38,13 @@ const GreetingSection = () => {
             Welcome to
           </h2>
           <h1 
-            className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-[1.1]"
+            className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]"
             style={{ animation: "slideLeft 0.5s cubic-bezier(0.25,1,0.5,1) 0.2s both" }}
           >
-            ACM <span className="text-[#205E85]">Alexandria</span>
+            ACM <span className="text-[#205E85] dark:text-blue-300">Alexandria</span>
           </h1>
           
-          <div className="text-xl md:text-2xl text-slate-500 font-medium leading-relaxed mb-10">
+          <div className="text-xl md:text-2xl text-slate-500 dark:text-slate-300 font-medium leading-relaxed mb-10">
             {tagline.split(' ').map((word, i) => (
               <span
                 key={i}
@@ -61,7 +61,7 @@ const GreetingSection = () => {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4" style={{ animation: "fadeIn 0.5s ease 0.9s both" }}>
             <button
               onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold rounded-xl shadow-lg shadow-blue-200/50 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 active:scale-95"
+              className="px-8 py-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold rounded-xl shadow-lg shadow-blue-200/50 dark:shadow-slate-950/50 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 active:scale-95"
             >
               Explore Our Chapter
             </button>

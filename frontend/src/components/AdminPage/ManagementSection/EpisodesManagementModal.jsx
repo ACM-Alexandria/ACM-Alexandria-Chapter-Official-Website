@@ -168,27 +168,27 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col justify-between">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6 shrink-0">
           <div className="flex items-center gap-3">
             {mode !== "list" && (
               <button
                 onClick={() => setMode("list")}
-                className="p-1.5 hover:bg-slate-100 text-slate-500 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-slate-100 rounded-lg transition-colors"
                 title="Back to list"
               >
                 <FiArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <h3 className="text-base font-extrabold text-slate-800 tracking-tight">
+            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
               {mode === "list" ? `Manage Season ${seasonNumber} Episodes` : mode === "add" ? "Add Episode" : "Edit Episode"}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             <FiX className="w-4.5 h-4.5" />
           </button>
@@ -223,14 +223,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                   <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin" />
                 </div>
               ) : episodesPage.content.length === 0 ? (
-                <div className="text-center py-16 border border-dashed border-slate-200 rounded-xl">
+                <div className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
                   <p className="text-slate-400 text-xs font-bold">No episodes found in this season.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                      <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                         <th className="pb-2.5 pl-2 w-16">Number</th>
                         <th className="pb-2.5">Title</th>
                         <th className="pb-2.5">Host & Guest</th>
@@ -238,18 +238,18 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                         <th className="pb-2.5 pr-2 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 text-xs font-semibold text-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {episodesPage.content.map((ep) => (
-                        <tr key={ep.id} className="hover:bg-slate-50/50 transition-colors">
+                        <tr key={ep.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors">
                           <td className="py-2.5 pl-2 text-slate-500 font-bold">Ep. {ep.episodeNumber}</td>
                           <td className="py-2.5">
                             <div className="flex items-center gap-2">
-                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 shrink-0" />
-                              <span className="font-extrabold text-slate-800 truncate max-w-[150px]">{ep.title}</span>
+                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-slate-600 shrink-0" />
+                              <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate max-w-[150px]">{ep.title}</span>
                             </div>
                           </td>
                           <td className="py-2.5 text-slate-500">
-                            <div>Host: <span className="text-slate-700 font-bold">{ep.host || "N/A"}</span></div>
+                            <div>Host: <span className="text-slate-700 dark:text-slate-200 font-bold">{ep.host || "N/A"}</span></div>
                             <div className="text-[10px] text-slate-400 mt-0.5">Guest: <span className="font-bold">{ep.guest || "N/A"}</span></div>
                           </td>
                           <td className="py-2.5">
@@ -261,13 +261,13 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                             <div className="flex justify-end gap-2">
                               <button
                                 onClick={() => handleEditClick(ep)}
-                                className="p-1.5 bg-slate-50 hover:bg-sky-50 text-slate-500 hover:text-sky-600 rounded-lg transition-colors"
+                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-500 dark:text-slate-300 hover:text-sky-600 rounded-lg transition-colors"
                               >
                                 <FiEdit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(ep.id)}
-                                className="p-1.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-500 rounded-lg transition-colors"
+                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors"
                               >
                                 <FiTrash2 className="w-3.5 h-3.5" />
                               </button>
@@ -282,7 +282,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
 
               {/* Pagination */}
               {episodesPage.totalPages > 1 && !loading && (
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-4">
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-4 mt-4">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                     Page {episodesPage.number + 1} of {episodesPage.totalPages}
                   </span>
@@ -290,14 +290,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     <button
                       disabled={episodesPage.number === 0}
                       onClick={() => handlePageChange(episodesPage.number - 1)}
-                      className="p-1.5 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className="p-1.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
                       <FiChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       disabled={episodesPage.number >= episodesPage.totalPages - 1}
                       onClick={() => handlePageChange(episodesPage.number + 1)}
-                      className="p-1.5 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className="p-1.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
                       <FiChevronRight className="w-4 h-4" />
                     </button>
@@ -319,7 +319,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={episodeNumber}
                     onChange={(e) => setEpisodeNumber(e.target.value)}
                     placeholder="e.g. 1"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
 
@@ -333,7 +333,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Intro to Web Development"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
@@ -348,7 +348,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={host}
                     onChange={(e) => setHost(e.target.value)}
                     placeholder="e.g. John"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
 
@@ -361,7 +361,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={guest}
                     onChange={(e) => setGuest(e.target.value)}
                     placeholder="e.g. Dr. Ahmed"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
@@ -376,7 +376,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                 />
               </div>
 
@@ -386,23 +386,23 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 </label>
 
                 {imageUrl ? (
-                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200" />
+                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl">
+                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200 dark:border-slate-600" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-slate-700 truncate">{imageUrl.split("/").pop()}</p>
+                      <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">{imageUrl.split("/").pop()}</p>
                       <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">Cloudinary Asset</p>
                     </div>
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="p-2 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-lg transition-colors active:scale-95"
+                      className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors"
                       title="Remove image"
                     >
                       <FiTrash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="relative border-2 border-dashed border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50 rounded-xl p-5 text-center flex flex-col items-center justify-center cursor-pointer">
+                  <div className="relative border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl p-5 text-center flex flex-col items-center justify-center cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
@@ -413,12 +413,12 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     {uploading ? (
                       <>
                         <FiLoader className="w-6 h-6 text-[#4B98C8] animate-spin mb-1" />
-                        <p className="text-[10px] font-bold text-slate-600">Uploading to Cloudinary...</p>
+                        <p className="text-[10px] font-bold text-slate-600 dark:text-slate-200">Uploading to Cloudinary...</p>
                       </>
                     ) : (
                       <>
                         <FiUploadCloud className="w-6 h-6 text-slate-400 mb-1" />
-                        <p className="text-[10px] font-bold text-slate-600">Click to upload cover image</p>
+                        <p className="text-[10px] font-bold text-slate-600 dark:text-slate-200">Click to upload cover image</p>
                       </>
                     )}
                   </div>
@@ -428,11 +428,11 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 )}
               </div>
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-slate-100">
+              <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={() => setMode("list")}
-                  className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+                  className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
                 >
                   Cancel
                 </button>

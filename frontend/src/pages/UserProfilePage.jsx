@@ -161,7 +161,7 @@ const UserProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 selection:bg-blue-100">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40">
       <Navbar />
 
       <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
@@ -174,8 +174,8 @@ const UserProfilePage = () => {
                 {user?.email?.[0].toUpperCase() || "U"}
               </div>
               <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Account Profile</h1>
-                <p className="text-slate-500 font-medium text-sm mt-1">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Account Profile</h1>
+                <p className="text-slate-500 dark:text-slate-300 font-medium text-sm mt-1">
                   Manage your official registration details and contact preferences.
                 </p>
               </div>
@@ -184,7 +184,7 @@ const UserProfilePage = () => {
             {!loading && !isEditing && (
               <button
                 onClick={handleStartEdit}
-                className="px-6 py-3 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white shadow-sm text-slate-700 font-bold text-sm transition-all hover:bg-slate-50 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+                className="px-6 py-3 flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm text-slate-700 dark:text-slate-100 font-bold text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
               >
                 <HiOutlinePencilAlt className="w-5 h-5 text-[#4B98C8]" />
                 Edit Information
@@ -195,14 +195,14 @@ const UserProfilePage = () => {
 
         {/* Notification Alerts */}
         {success && (
-          <div className="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
+          <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
             <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
             <p className="font-bold text-sm">Profile saved successfully! Your information is now fully updated.</p>
           </div>
         )}
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
+          <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
             <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
             <p className="font-bold text-sm">{error}</p>
           </div>
@@ -210,7 +210,7 @@ const UserProfilePage = () => {
 
         {/* Master Profile Display Card */}
         <div 
-          className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden transition-all duration-500"
+          className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500"
           style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
         >
           {loading ? (
@@ -219,12 +219,12 @@ const UserProfilePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="space-y-2">
-                    <div className="h-4 bg-slate-100 rounded w-24" />
-                    <div className="h-14 bg-slate-50 rounded-2xl" />
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
+                    <div className="h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
                   </div>
                 ))}
               </div>
-              <div className="h-14 bg-slate-100 rounded-2xl w-full md:w-40 ml-auto mt-8" />
+              <div className="h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full md:w-40 ml-auto mt-8" />
             </div>
           ) : !isEditing ? (
             <ProfileViewCard user={user} profile={profile} />

@@ -67,17 +67,17 @@ const ProgramsPage = () => {
   const filteredPrograms = programsPage.content || [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
       <Navbar activeSection="" />
 
       <main className="flex-1 pt-[74px]">
         {/* Page Header */}
-        <div className="relative py-24 px-6 overflow-hidden bg-white">
+        <div className="relative py-24 px-6 overflow-hidden bg-white dark:bg-slate-900">
           {/* Back to Home Button */}
           <div className="absolute top-6 left-6 z-20">
             <Link 
               to="/" 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 font-bold text-sm group"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 dark:hover:shadow-slate-950/40 transition-all duration-300 font-bold text-sm group"
             >
               <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               Back to Home
@@ -96,13 +96,13 @@ const ProgramsPage = () => {
               Our Programs
             </h2>
             <h1
-              className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-8 leading-[1.1]"
+              className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]"
               style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
             >
               Advance Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Skills & Knowledge</span>
             </h1>
             <p
-              className="text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed"
+              className="text-xl text-slate-500 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed"
               style={{ animation: "fadeIn 1s ease 0.6s both" }}
             >
               Specialized academic and professional programs designed to take your computing knowledge to the next level.
@@ -116,11 +116,11 @@ const ProgramsPage = () => {
           {/* Error State */}
           {error && !loading && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-6">
+              <div className="w-20 h-20 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center text-red-500 dark:text-red-300 mb-6">
                 <span className="text-3xl">!</span>
               </div>
-              <p className="text-xl font-extrabold text-slate-900 mb-2">Something went wrong</p>
-              <p className="text-slate-400 text-sm mb-6">{error}</p>
+              <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">Something went wrong</p>
+              <p className="text-slate-400 dark:text-slate-300 text-sm mb-6">{error}</p>
               <button
                 onClick={() => loadPrograms(currentPage)}
                 className="px-6 py-3 bg-[#4B98C8] text-white font-bold rounded-2xl hover:bg-[#205E85] transition-colors"
@@ -134,13 +134,13 @@ const ProgramsPage = () => {
           {loading && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse flex flex-col lg:flex-row bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden" style={{minHeight: '280px'}}>
-                  <div className="w-full h-56 lg:w-2/5 lg:h-auto bg-slate-200 shrink-0" />
+                <div key={i} className="animate-pulse flex flex-col lg:flex-row bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 overflow-hidden" style={{minHeight: '280px'}}>
+                  <div className="w-full h-56 lg:w-2/5 lg:h-auto bg-slate-200 dark:bg-slate-800 shrink-0" />
                   <div className="flex-1 p-6 md:p-7 space-y-4">
-                    <div className="h-7 bg-slate-200 rounded-full w-3/4" />
-                    <div className="h-4 bg-slate-100 rounded-full w-full" />
-                    <div className="h-4 bg-slate-100 rounded-full w-5/6" />
-                    <div className="h-4 bg-slate-100 rounded-full w-4/6" />
+                    <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-3/4" />
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-full" />
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-5/6" />
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-4/6" />
                   </div>
                 </div>
               ))}
@@ -152,11 +152,11 @@ const ProgramsPage = () => {
             <>
               {filteredPrograms.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6 text-4xl font-black">
+                  <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-500 mb-6 text-4xl font-black">
                     P
                   </div>
-                  <p className="text-xl font-extrabold text-slate-900 mb-2">No programs found</p>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">No programs found</p>
+                  <p className="text-slate-400 dark:text-slate-300 text-sm">
                     Check back later for upcoming programs.
                   </p>
                 </div>
@@ -179,7 +179,7 @@ const ProgramsPage = () => {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 0}
-                    className="p-3 bg-white border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm active:scale-95"
+                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
                   >
                     <FiChevronLeft className="w-5 h-5" />
                   </button>
@@ -191,8 +191,8 @@ const ProgramsPage = () => {
                         onClick={() => handlePageChange(i)}
                         className={`w-10 h-10 rounded-xl text-sm font-extrabold transition-all ${
                           i === currentPage
-                            ? "bg-[#4B98C8] text-white shadow-lg shadow-blue-200"
-                            : "bg-white text-slate-500 hover:text-[#4B98C8] border border-slate-200"
+                            ? "bg-[#4B98C8] text-white shadow-lg shadow-blue-200 dark:shadow-slate-950/50"
+                            : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-[#4B98C8] border border-slate-200 dark:border-slate-600"
                         }`}
                       >
                         {i + 1}
@@ -203,7 +203,7 @@ const ProgramsPage = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages - 1}
-                    className="p-3 bg-white border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm active:scale-95"
+                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
                   >
                     <FiChevronRight className="w-5 h-5" />
                   </button>

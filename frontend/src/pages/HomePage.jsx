@@ -234,7 +234,7 @@ const HomePage = () => {
   const isEnabled = (envVal) => envVal !== "false";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
       <Navbar activeSection={activeSection} />
       <main className="flex-1 pt-[74px]">
         <GreetingSection />
@@ -327,7 +327,7 @@ const HomePage = () => {
                 });
               }
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-[#205E85] hover:bg-[#4B98C8] text-white font-bold rounded-full shadow-lg shadow-[#205E85]/30 hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 bg-[#205E85] hover:bg-[#4B98C8] text-white font-bold rounded-full shadow-lg shadow-[#205E85]/30 dark:shadow-slate-950/50 hover:shadow-xl hover:scale-105 transition-all duration-300"
           >
             <FiClock className="w-5 h-5 animate-pulse" />
             Exclusive Opportunities

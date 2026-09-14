@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser, HiOutlineShieldCheck } from "react-icons/hi2";
 import { getEnv } from "../../utils/env";
-
+import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
 
 
 const Navbar = ({ activeSection }) => {
@@ -18,11 +18,12 @@ const Navbar = ({ activeSection }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
-
-
-
   const isEnabled = (envVal) => envVal !== "false";
-
+  const [isDark, setIsDark] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) return savedTheme === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
   const navItems = [
     isEnabled(getEnv("VITE_ENABLE_ABOUT")) && { id: "about", label: "About Us" },
     isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Clubs" },
@@ -104,9 +105,15 @@ const Navbar = ({ activeSection }) => {
     };
   }, [isMobileMenuOpen]);
 
+  // Toggle dark mode and save preference to localStorage
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
   return (
     <>
-    <nav className="w-full h-[74px] bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 md:px-12 fixed top-0 z-50 gap-8">
+    <nav className="w-full h-[74px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-700 flex items-center justify-between px-6 md:px-12 fixed top-0 z-50 gap-8">
       <Link 
         to="/" 
         onClick={(e) => {
@@ -118,7 +125,7 @@ const Navbar = ({ activeSection }) => {
       >
         <img src={logo} className="h-14 w-auto" alt="ACM Logo" />
         <div className="ml-3 hidden sm:block">
-          <p className="text-slate-900 font-extrabold text-sm tracking-tight leading-tight uppercase">ACM Alexandria</p>
+          <p className="text-slate-900 dark:text-slate-100 font-extrabold text-sm tracking-tight leading-tight uppercase">ACM Alexandria</p>
           <p className="text-[#4B98C8] text-[9px] font-bold tracking-[0.15em] uppercase">Student Chapter</p>
         </div>
       </Link>
@@ -146,7 +153,7 @@ const Navbar = ({ activeSection }) => {
                 onClick={() => handleSectionNavigation(item.id)}
                 className={`
                   no-underline text-sm font-bold tracking-wide transition-all duration-300 px-5 flex items-center h-full relative z-10
-                  ${isActive ? "text-[#205E85]" : "text-slate-500 hover:text-[#4B98C8]"}
+                  ${isActive ? "text-[#205E85] dark:text-blue-300" : "text-slate-500 dark:text-slate-400 hover:text-[#4B98C8]"}
                 `}
               >
                 {item.label}
@@ -155,15 +162,19 @@ const Navbar = ({ activeSection }) => {
           );
         })}
       </ul>
-
+        
       <div className="flex items-center gap-4">
+        <ThemeToggleButton
+          isDark={isDark}
+          onToggle={() => setIsDark((currentIsDark) => !currentIsDark)}
+        />
         {isLoading ? (
-          <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-[#4B98C8] animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] animate-spin" />
         ) : isAuthenticated ? (
           <div className="relative" ref={profileMenuRef}>
             <button
               type="button"
-              className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-50 transition-colors group"
+              className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
               onClick={() => setShowProfileMenu((prev) => !prev)}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-sm font-bold shadow-sm">
@@ -174,19 +185,19 @@ const Navbar = ({ activeSection }) => {
 
             {showProfileMenu && (
               <div 
-                className="absolute right-0 mt-3 w-64 rounded-2xl bg-white text-slate-900 shadow-2xl ring-1 ring-black/5 overflow-hidden z-50 origin-top-right transition-all duration-200"
+                className="absolute right-0 mt-3 w-64 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden z-50 origin-top-right transition-all duration-200"
                 style={{ animation: "floatIn 0.3s cubic-bezier(0.22,1,0.36,1) both" }}
               >
-                <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Signed in as</p>
-                  <p className="mt-0.5 text-sm font-bold text-slate-700 truncate">
+                  <p className="mt-0.5 text-sm font-bold text-slate-700 dark:text-slate-200 truncate">
                     {user?.email}
                   </p>
                 </div>
                 <div className="p-2">
                   <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                     onClick={() => {
                       setShowProfileMenu(false);
                       navigate("/profile");
@@ -198,7 +209,7 @@ const Navbar = ({ activeSection }) => {
                   {user?.role === 'ADMIN' && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                       onClick={() => {
                         setShowProfileMenu(false);
                         navigate("/admin");
@@ -210,7 +221,7 @@ const Navbar = ({ activeSection }) => {
                   )}
                   <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                     onClick={() => {
                       setShowProfileMenu(false);
                       setShowLogoutModal(true);
@@ -235,7 +246,7 @@ const Navbar = ({ activeSection }) => {
         {/* Mobile Hamburger Button */}
         <button
           type="button"
-          className="flex lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
+          className="flex lg:hidden p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
           onClick={() => setIsMobileMenuOpen(true)}
           aria-label="Open navigation menu"
         >
@@ -261,22 +272,22 @@ const Navbar = ({ activeSection }) => {
 
       {/* Mobile Drawer Content */}
       <div
-        className={`absolute top-0 right-0 bottom-0 w-full max-w-[320px] bg-white shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] transform flex flex-col ${
+        className={`absolute top-0 right-0 bottom-0 w-full max-w-[320px] bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] transform flex flex-col ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center">
             <img src={logo} className="h-10 w-auto" alt="ACM Logo" />
             <div className="ml-2.5">
-              <p className="text-slate-900 font-extrabold text-xs tracking-tight uppercase">ACM Alexandria</p>
+              <p className="text-slate-900 dark:text-slate-100 font-extrabold text-xs tracking-tight uppercase">ACM Alexandria</p>
               <p className="text-[#4B98C8] text-[8px] font-bold tracking-widest uppercase">Student Chapter</p>
             </div>
           </div>
           <button
             type="button"
-            className="p-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close navigation menu"
           >
@@ -300,8 +311,8 @@ const Navbar = ({ activeSection }) => {
                   }}
                   className={`w-full text-left py-3 px-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? "bg-slate-50 text-[#205E85]"
-                      : "text-slate-500 hover:bg-slate-50/50 hover:text-[#4B98C8]"
+                      ? "bg-slate-50 dark:bg-slate-800 text-[#205E85] dark:text-blue-300"
+                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 hover:text-[#4B98C8]"
                   }`}
                 >
                   {item.label}
@@ -313,7 +324,7 @@ const Navbar = ({ activeSection }) => {
 
         {/* Drawer Footer — Sign In only for guests */}
         {!isLoading && !isAuthenticated && (
-          <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+          <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
             <Link
               to="/login"
               onClick={() => setIsMobileMenuOpen(false)}

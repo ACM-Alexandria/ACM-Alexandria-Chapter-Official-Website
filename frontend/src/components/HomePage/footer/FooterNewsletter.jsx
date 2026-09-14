@@ -61,11 +61,11 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
 
   return (
     <div className="space-y-8 text-center md:text-left">
-      <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white">
+      <h4 className="text-sm font-black uppercase tracking-[0.15em] text-white dark:text-slate-100">
         Newsletter
       </h4>
       <div className="space-y-5">
-        <p className="text-blue-100/80 text-sm font-medium leading-relaxed">
+        <p className="text-blue-100/80 dark:text-blue-100/90 text-sm font-medium leading-relaxed">
           Stay updated with our latest news and upcoming technical events.
         </p>
         <div className="space-y-3">
@@ -75,8 +75,8 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
               disabled={loading || statusLoading}
               className={`w-full font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] transition-all cursor-pointer ${
                 subscribed
-                  ? "bg-[#ef4444]/80 hover:bg-[#ef4444] text-white"
-                  : "bg-[#4B98C8] hover:bg-[#4B98C8]/80 text-white"
+                  ? "bg-[#ef4444]/80 hover:bg-[#ef4444] dark:bg-red-500/90 dark:hover:bg-red-500 text-white"
+                  : "bg-[#4B98C8] hover:bg-[#4B98C8]/80 dark:bg-[#5FAEDD] dark:hover:bg-[#74BCE5] text-white"
               }`}
             >
               {loading || statusLoading
@@ -88,7 +88,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
           ) : (
             <button
               onClick={handleToggleSubscribe}
-              className="w-full bg-[#4B98C8] hover:bg-[#4B98C8]/80 text-white font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all"
+              className="w-full bg-[#4B98C8] hover:bg-[#4B98C8]/80 dark:bg-[#5FAEDD] dark:hover:bg-[#74BCE5] text-white font-bold py-3 rounded-xl shadow-lg shadow-black/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all"
             >
               Subscribe to News
             </button>
@@ -96,7 +96,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
           <button
             type="button"
             onClick={onHelpUsGrowClick}
-            className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl border border-white/10 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"
+            className="w-full bg-white/10 hover:bg-white/20 dark:bg-white/15 dark:hover:bg-white/25 text-white font-bold py-3 rounded-xl border border-white/10 dark:border-white/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"
           >
             Help Us Grow
           </button>
@@ -106,7 +106,7 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
               const email = getEnv("VITE_CONTACT_EMAIL");
               window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}`, "_blank");
             }}
-            className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl border border-white/10 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"
+            className="w-full bg-white/10 hover:bg-white/20 dark:bg-white/15 dark:hover:bg-white/25 text-white font-bold py-3 rounded-xl border border-white/10 dark:border-white/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"
           >
             Contact Us
           </button>

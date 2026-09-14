@@ -9,7 +9,7 @@ const RadioSection = ({ loading, seasons }) => {
   return (
     <section
       id="radio"
-      className="w-full py-24 px-6 bg-slate-50 relative overflow-hidden"
+      className="w-full py-24 px-6 bg-slate-50 dark:bg-slate-900 relative overflow-hidden"
     >
       {/* Decorative gradient blur background to distinguish the section */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-[#4B98C8]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -19,7 +19,7 @@ const RadioSection = ({ loading, seasons }) => {
         {/* Header Section */}
         <div className="text-center mb-20">
           <h2
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-6"
             data-aos="fade-up"
           >
             Tune In to <span className="text-[#205E85]">ACM Radio</span>
@@ -39,7 +39,7 @@ const RadioSection = ({ loading, seasons }) => {
             {[...Array(2)].map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse bg-white/70 backdrop-blur rounded-[2.5rem] h-96 border border-slate-200/50"
+                className="animate-pulse bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-[2.5rem] h-96 border border-slate-200/50 dark:border-slate-700"
               />
             ))}
           </div>
@@ -65,7 +65,7 @@ const RadioSection = ({ loading, seasons }) => {
             )}
           </div>
         ) : (
-          <div className="py-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200 max-w-xl mx-auto">
+          <div className="py-20 text-center bg-white dark:bg-slate-800 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-600 max-w-xl mx-auto">
             <p className="text-slate-400 font-medium text-lg">No seasons available yet.</p>
           </div>
         )}
