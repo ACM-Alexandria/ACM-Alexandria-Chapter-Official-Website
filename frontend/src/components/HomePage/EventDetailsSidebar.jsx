@@ -227,11 +227,11 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
       />
 
       <aside
-        className={`absolute top-0 right-0 h-full w-full md:w-[600px] lg:w-[700px] overflow-hidden bg-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute top-0 right-0 h-full w-full md:w-[600px] lg:w-[700px] overflow-hidden bg-white dark:bg-slate-900 shadow-2xl dark:shadow-slate-950/60 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="h-full flex flex-col">
           {/* Header Image Section */}
-          <div className="relative h-80 shrink-0 overflow-hidden bg-slate-100">
+          <div className="relative h-80 shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-800">
             {/* Close Button */}
             <button
               type="button"
@@ -284,42 +284,42 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
             {loading ? (
               <div className="space-y-8 animate-pulse">
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="h-24 bg-slate-50 rounded-3xl" />
-                  <div className="h-24 bg-slate-50 rounded-3xl" />
+                    <div className="h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl" />
+                    <div className="h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl" />
                 </div>
-                <div className="h-64 bg-slate-50 rounded-[2.5rem]" />
+                <div className="h-64 bg-slate-50 dark:bg-slate-800 rounded-[2.5rem]" />
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-2">
                    <HiOutlineX className="w-10 h-10" />
                 </div>
-                <p className="text-xl font-extrabold text-slate-900">{error}</p>
+                <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100">{error}</p>
                 <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold">Close</button>
               </div>
             ) : event && (
               <div className="space-y-10" style={{ animation: "fadeIn 1s ease 0.3s both" }}>
                 {/* Meta Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex items-center gap-4 group transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-slate-100">
-                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#4B98C8] shadow-sm">
+                  <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-700 flex items-center gap-4 group transition-all duration-300 hover:bg-white dark:hover:bg-slate-700 hover:shadow-xl hover:shadow-slate-100 dark:hover:shadow-slate-950/50">
+                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center text-[#4B98C8] shadow-sm">
                       <HiOutlineCalendar className="w-6 h-6" />
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
-                      <p className="text-sm font-extrabold text-slate-900 leading-tight">
+                      <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
                         {formatDateTime(event.eventTime)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex items-center gap-4 group transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-slate-100">
-                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#4B98C8] shadow-sm">
+                  <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-700 flex items-center gap-4 group transition-all duration-300 hover:bg-white dark:hover:bg-slate-700 hover:shadow-xl hover:shadow-slate-100 dark:hover:shadow-slate-950/50">
+                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center text-[#4B98C8] shadow-sm">
                       <HiOutlineLocationMarker className="w-6 h-6" />
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Location</p>
-                      <p className="text-sm font-extrabold text-slate-900 leading-tight">
+                      <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
                         {event.location || "To Be Announced"}
                       </p>
                     </div>
@@ -328,11 +328,11 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
 
                 {/* About Section */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                  <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-[0.15em] flex items-center gap-3">
                     About this event
-                    <div className="h-px flex-1 bg-slate-100" />
+                    <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
                   </h4>
-                  <p className="text-slate-600 text-lg leading-relaxed font-medium whitespace-pre-line">
+                  <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed font-medium whitespace-pre-line">
                     {event.description || "Join us for an inspiring session dedicated to computer science and technological innovation. Stay tuned for more updates."}
                   </p>
                 </div>
@@ -340,7 +340,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                 {/* Gallery Section */}
                 {event.attachedImages && event.attachedImages.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                    <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-[0.15em] flex items-center gap-3">
                       Event Gallery
                       <div className="h-px flex-1 bg-slate-100" />
                     </h4>
@@ -349,7 +349,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                         <div
                           key={index}
                           onClick={() => setActiveLightboxIndex(index)}
-                          className="relative rounded-2xl overflow-hidden aspect-video border border-slate-100 bg-slate-50 cursor-pointer shadow-sm group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                          className="relative rounded-2xl overflow-hidden aspect-video border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer shadow-sm group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
                         >
                           <img
                             src={imgUrl}
@@ -373,16 +373,16 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                       {isPast ? (
                         <button
                           disabled
-                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 px-10 py-6 text-lg font-black text-slate-400 cursor-not-allowed border border-slate-200"
+                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 dark:bg-slate-800 px-10 py-6 text-lg font-black text-slate-400 dark:text-slate-300 cursor-not-allowed border border-slate-200 dark:border-slate-700"
                         >
                           <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
                         </button>
                       ) : checkingStatus ? (
                         <button
                           disabled
-                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
+                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 dark:bg-slate-800 px-10 py-6 text-slate-400 dark:text-slate-300 border border-slate-100 dark:border-slate-700 cursor-not-allowed"
                         >
-                          <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-3 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
                           <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
                         </button>
                       ) : isRegistered ? (

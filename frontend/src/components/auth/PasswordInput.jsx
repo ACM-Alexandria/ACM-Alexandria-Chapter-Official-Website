@@ -21,7 +21,7 @@ const PasswordInput = ({
   return (
     <div className="mb-5">
       <div className="flex justify-between items-center mb-1.5 ml-1">
-        <label htmlFor={name} className="block text-[13px] font-medium text-gray-600 uppercase tracking-wider">
+        <label htmlFor={name} className="block text-[13px] font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">
           {label}
           {required && <span className="text-red-500 ml-1 font-bold">*</span>}
         </label>
@@ -55,13 +55,13 @@ const PasswordInput = ({
           maxLength={maxLength}
           className={`
             w-full py-2.5 pr-12 ${Icon ? "pl-10" : "pl-4"}
-            bg-gray-50 border rounded-xl text-gray-800 text-sm placeholder-gray-300
+            bg-gray-50 dark:bg-slate-800 border rounded-xl text-gray-800 dark:text-gray-100 text-sm placeholder-gray-300 dark:placeholder-gray-500
             outline-none transition-all duration-200
             ${error
-              ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200"
+              ? "border-red-400 bg-red-50 dark:bg-red-950/40 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/40"
               : isFocused
-                ? "border-[#4B98C8] bg-white ring-2 ring-[#4B98C8]/20"
-                : "border-gray-200 hover:border-gray-300 focus:border-[#4B98C8] focus:bg-white focus:ring-2 focus:ring-[#4B98C8]/20"
+                ? "border-[#4B98C8] bg-white dark:bg-slate-700 ring-2 ring-[#4B98C8]/20"
+                : "border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 focus:border-[#4B98C8] focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-[#4B98C8]/20"
             }
           `}
           aria-invalid={error ? "true" : "false"}
@@ -71,7 +71,7 @@ const PasswordInput = ({
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#4B98C8] transition-colors duration-200 focus:outline-none p-0.5 rounded"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:text-[#4B98C8] transition-colors duration-200 focus:outline-none p-0.5 rounded"
           tabIndex={0}
           aria-label={showPassword ? "Hide password" : "Show password"}
         >

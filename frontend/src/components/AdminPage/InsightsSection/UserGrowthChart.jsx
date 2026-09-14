@@ -15,9 +15,9 @@ const UserGrowthChart = ({ data = [] }) => {
   const iw = W - pad.l - pad.r;
   const ih = H - pad.t - pad.b;
 
-  if (!data.length) {
+  if (data.length<2) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-sm font-medium shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-12 text-center text-slate-400 dark:text-slate-300 text-sm font-medium shadow-sm">
         No growth data available
       </div>
     );
@@ -64,7 +64,7 @@ const UserGrowthChart = ({ data = [] }) => {
   );
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-sm dark:shadow-slate-950/40 hover:shadow-md transition-shadow duration-300">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
@@ -74,7 +74,7 @@ const UserGrowthChart = ({ data = [] }) => {
             <FiTrendingUp className="w-[18px] h-[18px]" style={{ color: BRAND }} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">User Growth</h3>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">User Growth</h3>
             <p className="text-[11px] text-slate-400">Cumulative registrations over time</p>
           </div>
         </div>

@@ -237,7 +237,7 @@ const GallerySection = () => {
       <div className="mt-28">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
           <div>
-            <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-2">
               Captured Moments
             </h3>
             <p className="text-slate-500 font-medium">
@@ -250,7 +250,7 @@ const GallerySection = () => {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="animate-pulse bg-slate-100 rounded-3xl h-full border border-slate-200/50 flex items-center justify-center"
+              className="animate-pulse bg-slate-100 dark:bg-slate-800 rounded-3xl h-full border border-slate-200/50 dark:border-slate-700 flex items-center justify-center"
             >
               <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin" />
             </div>
@@ -273,7 +273,7 @@ const GallerySection = () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
         <div className="text-center md:text-left">
           <h3
-            className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+            className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-2"
             data-aos="fade-right"
           >
             Captured Moments
@@ -308,7 +308,7 @@ const GallerySection = () => {
           {/* Manual Left Arrow Button */}
           <button
             onClick={nextCarousel}
-            className="absolute -left-5 top-1/2 -translate-y-1/2 z-40 bg-white/95 hover:bg-white text-slate-800 p-3 rounded-2xl shadow-xl border border-slate-100 hover:scale-105 active:scale-95 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            className="absolute -left-5 top-1/2 -translate-y-1/2 z-40 bg-white/95 dark:bg-slate-800/95 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 hover:scale-105 active:scale-95 transition-all cursor-pointer hidden md:flex items-center justify-center"
             aria-label="Next images"
           >
             <FiChevronLeft className="w-5 h-5" />
@@ -364,7 +364,7 @@ const GallerySection = () => {
           {/* Manual Right Arrow Button */}
           <button
             onClick={prevCarousel}
-            className="absolute -right-5 top-1/2 -translate-y-1/2 z-40 bg-white/95 hover:bg-white text-slate-800 p-3 rounded-2xl shadow-xl border border-slate-100 hover:scale-105 active:scale-95 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            className="absolute -right-5 top-1/2 -translate-y-1/2 z-40 bg-white/95 dark:bg-slate-800/95 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 hover:scale-105 active:scale-95 transition-all cursor-pointer hidden md:flex items-center justify-center"
             aria-label="Previous images"
           >
             <FiChevronRight className="w-5 h-5" />
@@ -382,7 +382,7 @@ const GallerySection = () => {
             <div
               key={image.id || index}
               onClick={() => setLightboxIndex(index)}
-              className="group relative overflow-hidden rounded-3xl cursor-pointer border border-slate-100/50 shadow-md hover:shadow-xl transition-all duration-500 h-[220px] sm:h-[300px] md:h-[380px]"
+              className="group relative overflow-hidden rounded-3xl cursor-pointer border border-slate-100/50 dark:border-slate-700 shadow-md hover:shadow-xl transition-all duration-500 h-[220px] sm:h-[300px] md:h-[380px]"
             >
               <img
                 src={image.imageUrl}

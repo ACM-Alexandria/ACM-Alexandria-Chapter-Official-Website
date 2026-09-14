@@ -687,7 +687,7 @@ const AdminPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
       <Navbar activeSection="" />
 
       <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
@@ -703,7 +703,7 @@ const AdminPage = () => {
                 Administration
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
               Dashboard
             </h1>
           </div>
@@ -712,7 +712,7 @@ const AdminPage = () => {
             <button
               onClick={loadInsights}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 rounded-xl shadow-sm text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
             >
               <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} style={{ color: B }} />
               Refresh
@@ -721,7 +721,7 @@ const AdminPage = () => {
         </div>
 
         {/* ── Tab Bar ── */}
-        <div className="flex gap-1 bg-white border border-slate-200/80 p-1 rounded-xl w-fit shadow-sm mb-8">
+        <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-1 rounded-xl w-fit shadow-sm dark:shadow-slate-950/40 mb-8">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -729,7 +729,7 @@ const AdminPage = () => {
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                 activeTab === tab.id
                   ? "text-white shadow-md"
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                  : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
               style={activeTab === tab.id ? { background: `linear-gradient(135deg, ${B}, ${BD})` } : {}}
             >
@@ -759,17 +759,17 @@ const AdminPage = () => {
               setSearchQuery={setMgmtSearchQuery}
             />
 
-            <div className="flex-1 w-full bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm min-h-[500px] flex flex-col justify-between">
+            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
               <div>
                 {/* Header Controls — hidden for gallery/feedback which render their own headers */}
                 {mgmtTab !== "gallery" && mgmtTab !== "feedback" && (
                   <>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
-                        <h2 className="text-lg font-extrabold text-slate-800 tracking-tight capitalize">
+                        <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
                           Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab === "partners" ? "Partners" : mgmtTab}
                         </h2>
-                        <p className="text-xs text-slate-400 font-medium">
+                        <p className="text-xs text-slate-400 dark:text-slate-300 font-medium">
                           Add, edit, or delete items within this database category.
                         </p>
                       </div>
@@ -795,7 +795,7 @@ const AdminPage = () => {
                           value={mgmtSearchQuery}
                           onChange={(e) => setMgmtSearchQuery(e.target.value)}
                           placeholder="Search by name or description..."
-                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                         />
                       </div>
 
@@ -804,7 +804,7 @@ const AdminPage = () => {
                         <select
                           value={selectedCommitteeId}
                           onChange={(e) => setSelectedCommitteeId(e.target.value)}
-                          className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                          className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                         >
                           {committees.map((c) => (
                             <option key={c.id} value={c.id}>
@@ -819,7 +819,7 @@ const AdminPage = () => {
 
                 {/* Error Alert */}
                 {mgmtError && (
-                  <div className="mb-6 bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 flex items-center gap-3">
+                  <div className="mb-6 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-4 flex items-center gap-3">
                     <FiAlertTriangle className="w-5 h-5 shrink-0" />
                     <p className="text-xs font-bold">{mgmtError}</p>
                   </div>
@@ -850,8 +850,8 @@ const AdminPage = () => {
 
               {/* Pagination controls for paginated resources */}
               {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs" || mgmtTab === "radio") && (
-                <div className="flex items-center justify-between border-t border-slate-100 pt-5 mt-6">
-                  <span className="text-xs text-slate-400 font-bold">
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-5 mt-6">
+                  <span className="text-xs text-slate-400 dark:text-slate-300 font-bold">
                     Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1} of{" "}
                     {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : mgmtTab === "radio" ? seasons.totalPages : programs.totalPages}
                   </span>
@@ -861,7 +861,7 @@ const AdminPage = () => {
                       onClick={() =>
                         loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) - 1)
                       }
-                      className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
                       <FiChevronLeft className="w-4 h-4" />
                     </button>
@@ -878,7 +878,7 @@ const AdminPage = () => {
                       onClick={() =>
                         loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1)
                       }
-                      className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
                     >
                       <FiChevronRight className="w-4 h-4" />
                     </button>

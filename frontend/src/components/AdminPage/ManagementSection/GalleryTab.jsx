@@ -218,7 +218,7 @@ const GalleryTab = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">ACM Gallery</h2>
+            <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">ACM Gallery</h2>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
               {images.length} image{images.length !== 1 ? "s" : ""} · Changes are saved immediately
             </p>
@@ -250,7 +250,7 @@ const GalleryTab = () => {
           <>
             {/* Image grid */}
             {images.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 border border-slate-100 rounded-2xl text-center">
+              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-center">
                 <FiImage className="w-10 h-10 text-slate-300 mb-3" />
                 <p className="text-sm font-semibold text-slate-500">No images yet</p>
                 <p className="text-[11px] text-slate-400 mt-1">Upload images below to build the ACM gallery.</p>
@@ -260,7 +260,7 @@ const GalleryTab = () => {
                 {images.map((img, idx) => (
                   <div
                     key={img.id}
-                    className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 cursor-pointer"
+                    className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm bg-slate-50 dark:bg-slate-800 cursor-pointer"
                     onClick={() => setLightboxIndex(idx)}
                   >
                     <img
@@ -293,7 +293,7 @@ const GalleryTab = () => {
 
             {/* Upload progress bar */}
             {batchProgress !== null && (
-              <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3">
                 <div className="flex items-center justify-between mb-2 gap-2">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     {isUploading

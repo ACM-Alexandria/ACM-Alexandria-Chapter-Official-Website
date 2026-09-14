@@ -224,12 +224,12 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
 
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6 shrink-0">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6 shrink-0">
             <div>
-              <h3 className="text-base font-extrabold text-slate-800 tracking-tight">Manage Event Gallery</h3>
+              <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Manage Event Gallery</h3>
               <p className="text-xs text-slate-400 font-semibold mt-0.5">Event: {event.name}</p>
             </div>
             <button
@@ -257,7 +257,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
                   </label>
 
                   {attachedImages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-center">
                       <FiImage className="w-8 h-8 text-slate-300 mb-2" />
                       <p className="text-xs font-semibold text-slate-500">No images yet.</p>
                       <p className="text-[10px] text-slate-400 mt-1">Upload images below to attach them to this event.</p>
@@ -267,7 +267,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
                       {attachedImages.map((url, idx) => (
                         <div
                           key={idx}
-                          className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 cursor-pointer"
+                          className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm bg-slate-50 dark:bg-slate-800 cursor-pointer"
                           onClick={() => setLightboxIndex(idx)}
                         >
                           <img
@@ -297,7 +297,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
 
                 {/* Single batch progress bar */}
                 {batchProgress !== null && (
-                  <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3">
                     <div className="flex items-center justify-between mb-2 gap-2">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                         {isUploading
@@ -312,7 +312,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
                         {batchProgress.percent}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
                           isUploading ? "bg-[#4B98C8]" : batchProgress.failed > 0 ? "bg-red-400" : "bg-emerald-500"
@@ -376,7 +376,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
               type="button"
               onClick={onClose}
               disabled={isUploading || saving || loadingEvent}
-              className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
+              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
             >
               Cancel
             </button>

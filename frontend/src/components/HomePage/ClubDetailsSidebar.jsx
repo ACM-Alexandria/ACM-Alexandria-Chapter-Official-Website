@@ -117,11 +117,11 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
       />
 
       <aside
-        className={`absolute top-0 right-0 h-full w-full md:w-[600px] lg:w-[700px] overflow-hidden bg-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute top-0 right-0 h-full w-full md:w-[600px] lg:w-[700px] overflow-hidden bg-white dark:bg-slate-900 shadow-2xl dark:shadow-slate-950/60 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="h-full flex flex-col">
           {/* Header Image Section */}
-          <div className="relative h-80 shrink-0 overflow-hidden bg-slate-100">
+          <div className="relative h-80 shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-800">
             {/* Close Button */}
             <button
               type="button"
@@ -171,17 +171,17 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
             {loading ? (
               <div className="space-y-8 animate-pulse">
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="h-24 bg-slate-50 rounded-3xl" />
-                  <div className="h-24 bg-slate-50 rounded-3xl" />
+                  <div className="h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl" />
+                  <div className="h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl" />
                 </div>
-                <div className="h-64 bg-slate-50 rounded-[2.5rem]" />
+                <div className="h-64 bg-slate-50 dark:bg-slate-800 rounded-[2.5rem]" />
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-2">
                    <HiOutlineX className="w-10 h-10" />
                 </div>
-                <p className="text-xl font-extrabold text-slate-900">{error}</p>
+                <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100">{error}</p>
                 <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold">Close</button>
               </div>
             ) : club && (
@@ -189,11 +189,11 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
 
                 {/* About Section */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                  <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-[0.15em] flex items-center gap-3">
                     About this club
-                    <div className="h-px flex-1 bg-slate-100" />
+                    <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
                   </h4>
-                  <p className="text-slate-600 text-lg leading-relaxed font-medium whitespace-pre-line">
+                  <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed font-medium whitespace-pre-line">
                     {club.description || "Join our community and explore new horizons together. This club is dedicated to fostering innovation and collaboration among students."}
                   </p>
                 </div>
@@ -203,9 +203,9 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                   {checkingStatus ? (
                     <button
                       disabled
-                      className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 px-10 py-6 text-slate-400 border border-slate-100 cursor-not-allowed"
+                      className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 dark:bg-slate-800 px-10 py-6 text-slate-400 dark:text-slate-300 border border-slate-100 dark:border-slate-700 cursor-not-allowed"
                     >
-                      <div className="w-5 h-5 border-3 border-slate-200 border-t-[#4B98C8] rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-3 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
                       <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Membership...</span>
                     </button>
                   ) : isRegistered ? (
@@ -246,7 +246,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                 {/* Social Media Links Section */}
                 {club.socialMediaLinks && club.socialMediaLinks.length > 0 && (
                   <div className="pt-8 space-y-4">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-3">
+                    <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-[0.15em] flex items-center gap-3">
                       Connect with us
                       <div className="h-px flex-1 bg-slate-100" />
                     </h4>
@@ -257,7 +257,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-[#4B98C8] hover:text-white transition-all duration-300 shadow-sm border border-slate-100 hover:-translate-y-1"
+                          className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-200 hover:bg-[#4B98C8] hover:text-white transition-all duration-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1"
                         >
                           {getSocialIcon(link)}
                         </a>

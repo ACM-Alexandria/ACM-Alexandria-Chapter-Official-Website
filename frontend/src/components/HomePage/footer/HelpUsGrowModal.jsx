@@ -154,15 +154,15 @@ const HelpUsGrowModal = ({ open, onClose }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[90vh] overflow-y-auto ${
+        className={`w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 p-8 transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[90vh] overflow-y-auto ${
           animate ? "scale-100 translate-y-0" : "scale-90 translate-y-8"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6 shrink-0">
           <div>
-            <h3 className="text-lg font-black text-slate-800 tracking-tight">Help Us Grow</h3>
-            <p className="text-xs text-slate-400 font-semibold mt-0.5">
+            <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight">Help Us Grow</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-300 font-semibold mt-0.5">
               {step === 1 && "Select feedback type"}
               {step === 2 && "Suggest a new feature"}
               {step === 3 && "Report a bug or website issue"}
@@ -173,7 +173,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
             <button
               onClick={onClose}
               disabled={isUploading || submitting}
-              className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors disabled:opacity-40"
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors disabled:opacity-40"
             >
               <FiX className="w-5 h-5" />
             </button>
@@ -182,7 +182,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl p-4 flex items-center gap-3 shrink-0">
+          <div className="mb-6 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 rounded-2xl p-4 flex items-center gap-3 shrink-0">
             <FiAlertCircle className="w-5 h-5 shrink-0" />
             <p className="text-xs font-bold">{error}</p>
           </div>
@@ -194,10 +194,10 @@ const HelpUsGrowModal = ({ open, onClose }) => {
             <button
               type="button"
               onClick={() => handleChoiceSelect("feature")}
-              className="w-full flex flex-col items-start justify-center p-6 bg-emerald-50/20 border-2 border-emerald-100 hover:border-emerald-400/70 hover:bg-emerald-50/50 rounded-2xl cursor-pointer text-left group transition-all duration-300 shadow-sm animate-[fadeIn_0.35s_ease]"
+              className="w-full flex flex-col items-start justify-center p-6 bg-emerald-50/20 dark:bg-emerald-950/20 border-2 border-emerald-100 dark:border-emerald-800 hover:border-emerald-400/70 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 rounded-2xl cursor-pointer text-left group transition-all duration-300 shadow-sm animate-[fadeIn_0.35s_ease]"
             >
-              <h4 className="text-sm font-bold text-slate-800 tracking-wide uppercase">Suggest a Feature</h4>
-              <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed">
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide uppercase">Suggest a Feature</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-300 mt-2 font-medium leading-relaxed">
                 Tell us about new tools, sections, or improvements you would love to see.
               </p>
             </button>
@@ -205,10 +205,10 @@ const HelpUsGrowModal = ({ open, onClose }) => {
             <button
               type="button"
               onClick={() => handleChoiceSelect("bug")}
-              className="w-full flex flex-col items-start justify-center p-6 bg-rose-50/20 border-2 border-rose-100 hover:border-rose-400/70 hover:bg-rose-50/50 rounded-2xl cursor-pointer text-left group transition-all duration-300 shadow-sm animate-[fadeIn_0.35s_ease]"
+              className="w-full flex flex-col items-start justify-center p-6 bg-rose-50/20 dark:bg-rose-950/20 border-2 border-rose-100 dark:border-rose-800 hover:border-rose-400/70 hover:bg-rose-50/50 dark:hover:bg-rose-950/40 rounded-2xl cursor-pointer text-left group transition-all duration-300 shadow-sm animate-[fadeIn_0.35s_ease]"
             >
-              <h4 className="text-sm font-bold text-slate-800 tracking-wide uppercase">Report a Bug</h4>
-              <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed">
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide uppercase">Report a Bug</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-300 mt-2 font-medium leading-relaxed">
                 Found something broken? Share details and screenshots so we can patch it up.
               </p>
             </button>
@@ -233,7 +233,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     : "e.g., Sidebar overlapping on mobile viewports"
                 }
                 disabled={isUploading || submitting}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50"
               />
             </div>
 
@@ -252,7 +252,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     : "Describe the issue, what actions lead to it, and what the expected behavior was."
                 }
                 disabled={isUploading || submitting}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50 resize-none"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50 resize-none"
               />
             </div>
 
@@ -269,7 +269,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                       {attachedImages.map((url, idx) => (
                         <div
                           key={idx}
-                          className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50"
+                          className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm bg-slate-50 dark:bg-slate-800"
                         >
                           <img
                             src={url}
@@ -293,9 +293,9 @@ const HelpUsGrowModal = ({ open, onClose }) => {
 
                 {/* Batch Progress Bar */}
                 {batchProgress !== null && (
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-4 py-3">
                     <div className="flex items-center justify-between mb-2 gap-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                         {isUploading
                           ? `Uploading… ${batchProgress.done}/${batchProgress.total}`
                           : batchProgress.failed > 0
@@ -314,7 +314,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                         {batchProgress.percent}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
                           isUploading
@@ -340,7 +340,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     className={`relative border-2 border-dashed rounded-2xl p-6 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
                       isUploading
                         ? "border-[#4B98C8]/40 bg-[#4B98C8]/5 cursor-not-allowed"
-                        : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
+                        : "border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
                     <input
@@ -354,14 +354,14 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     {isUploading ? (
                       <>
                         <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">Uploading to Cloudinary…</p>
-                        <p className="text-[9px] text-slate-400 mt-1">Please wait.</p>
+                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">Uploading to Cloudinary…</p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-300 mt-1">Please wait.</p>
                       </>
                     ) : (
                       <>
                         <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">Click or drag & drop to upload</p>
-                        <p className="text-[9px] text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
+                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">Click or drag & drop to upload</p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-300 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
                       </>
                     )}
                   </div>
@@ -370,12 +370,12 @@ const HelpUsGrowModal = ({ open, onClose }) => {
             )}
 
             {/* Footer Buttons */}
-            <div className="flex justify-between items-center pt-4 border-t border-slate-100 shrink-0">
+            <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-700 shrink-0">
               <button
                 type="button"
                 onClick={() => setStep(1)}
                 disabled={isUploading || submitting}
-                className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
+                className="px-5 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
               >
                 Back
               </button>
@@ -396,13 +396,13 @@ const HelpUsGrowModal = ({ open, onClose }) => {
         {/* Step 4: Success View */}
         {step === 4 && (
           <div className="text-center py-8 space-y-6 flex-grow flex flex-col justify-center items-center animate-[fadeIn_0.3s_ease]">
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center animate-[successPop_0.6s_ease_both]">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-500 dark:text-emerald-300 flex items-center justify-center animate-[successPop_0.6s_ease_both]">
               <FiCheckCircle className="w-10 h-10" />
             </div>
 
             <div className="space-y-2">
-              <h4 className="text-lg font-black text-slate-900 tracking-tight">Thank You!</h4>
-              <p className="text-xs text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">
+              <h4 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">Thank You!</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-300 font-medium max-w-sm mx-auto leading-relaxed">
                 Your feedback has been successfully submitted and stored. Our dev team will look into it
                 to make our chapter platform even better!
               </p>

@@ -81,17 +81,17 @@ const ClubsPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
             <Navbar />
 
             <main className="flex-1 pt-[74px]">
                 {/* Page Header */}
-                <div className="relative py-24 px-6 overflow-hidden bg-white">
+                <div className="relative py-24 px-6 overflow-hidden bg-white dark:bg-slate-900">
                     {/* Back to Home Button */}
                     <div className="absolute top-6 left-6 z-20">
                         <Link 
                             to="/" 
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 font-bold text-sm group"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 dark:hover:shadow-slate-950/40 transition-all duration-300 font-bold text-sm group"
                         >
                             <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                             Back to Home
@@ -110,13 +110,13 @@ const ClubsPage = () => {
                             Our Clubs
                         </h2>
                         <h1
-                            className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-8 leading-[1.1]"
+                            className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]"
                             style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
                         >
                             Connect with <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Passionate</span> Communities
                         </h1>
                         <p
-                            className="text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed"
+                            className="text-xl text-slate-500 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed"
                             style={{ animation: "fadeIn 1s ease 0.6s both" }}
                         >
                             Join our vibrant student communities where technology meets creativity. 
@@ -132,12 +132,12 @@ const ClubsPage = () => {
                             {Array.from({ length: 6 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 animate-pulse"
+                                    className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 overflow-hidden border border-slate-100 dark:border-slate-700 animate-pulse"
                                 >
-                                    <div className="bg-slate-100 h-64" />
+                                    <div className="bg-slate-100 dark:bg-slate-800 h-64" />
                                     <div className="p-8 space-y-4">
-                                        <div className="h-6 bg-slate-100 rounded-full w-3/4 mx-auto" />
-                                        <div className="h-10 bg-slate-100 rounded-full w-12 mx-auto" />
+                                        <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4 mx-auto" />
+                                        <div className="h-10 bg-slate-100 dark:bg-slate-800 rounded-full w-12 mx-auto" />
                                     </div>
                                 </div>
                             ))}
@@ -147,12 +147,12 @@ const ClubsPage = () => {
                             className={`transition-all duration-700 ease-out ${showPageContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
                         >
                             {error ? (
-                                <div className="text-center py-24 bg-red-50 rounded-[3rem] border border-red-100">
-                                    <p className="text-red-500 font-bold text-lg">{error}</p>
+                                <div className="text-center py-24 bg-red-50 dark:bg-red-950/40 rounded-[3rem] border border-red-100 dark:border-red-800">
+                                    <p className="text-red-500 dark:text-red-300 font-bold text-lg">{error}</p>
                                 </div>
                             ) : clubs.length === 0 ? (
-                                <div className="text-center py-24 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
-                                    <p className="text-slate-400 font-medium text-lg">No clubs available yet.</p>
+                                <div className="text-center py-24 bg-slate-50 dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-700">
+                                    <p className="text-slate-400 dark:text-slate-300 font-medium text-lg">No clubs available yet.</p>
                                 </div>
                             ) : (
                                 <>

@@ -1,0 +1,21 @@
+.icon-swap {
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.6s ease, opacity 0.3s ease;
+}
+
+.icon-swap--active {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+}
+
+.icon-swap--light-hidden {
+  transform: rotate(-100deg) translateY(100%);
+  opacity: 0;
+}
+
+.icon-swap--dark-hidden {
+  transform: rotate(100deg) translateY(100%);
+  opacity: 0;
+}

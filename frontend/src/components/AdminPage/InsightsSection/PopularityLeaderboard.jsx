@@ -17,13 +17,13 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
 
   const rankBadge = (i) => {
     if (i === 0) return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
-    if (i === 1) return { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200" };
+    if (i === 1) return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-200", border: "border-slate-200 dark:border-slate-600" };
     if (i === 2) return { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" };
-    return { bg: "bg-slate-50", text: "text-slate-400", border: "border-slate-100" };
+    return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-400 dark:text-slate-300", border: "border-slate-100 dark:border-slate-700" };
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-sm dark:shadow-slate-950/40 hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
       <div className="flex items-center gap-3 mb-4">
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -32,7 +32,7 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
           <Icon className="w-[18px] h-[18px]" style={{ color: accentColor }} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-800">{title}</h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</h3>
           <p className="text-[11px] text-slate-400">Ranked by registrations</p>
         </div>
       </div>
@@ -52,7 +52,7 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
                   >
                     {i + 1}
                   </span>
-                  <span className="text-[13px] font-semibold text-slate-700 truncate flex-1">
+                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate flex-1">
                     {item.name}
                   </span>
                   <span className="text-[11px] font-bold text-slate-500 shrink-0">{item.count}</span>

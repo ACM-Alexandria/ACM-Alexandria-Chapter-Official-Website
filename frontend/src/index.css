@@ -1,4 +1,26 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --committee-tree-line: #e2e8f0;
+}
+
+html.dark {
+  --committee-tree-line: #475569;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0f172a; 
+  color: #f1f5f9;            
+}
 
 html {
   scroll-behavior: smooth;
@@ -15,6 +37,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
+
+  /* Smooth transition for background and text colors */
+  transition-property: background-color, color, border-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 h1, h2, h3, h4, h5, h6 {

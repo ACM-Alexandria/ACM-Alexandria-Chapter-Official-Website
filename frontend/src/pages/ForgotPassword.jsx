@@ -133,15 +133,15 @@ const ForgotPassword = () => {
           </button>
 
           <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-300">
               Remember your password?{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
                 Sign In
               </Link>
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />
@@ -164,23 +164,23 @@ const ForgotPassword = () => {
           >
             ✓
           </div>
-          <h2 className="text-xl font-extrabold text-gray-800 mb-2 tracking-tight">Email sent!</h2>
-          <p className="text-gray-500 text-sm leading-relaxed mb-6">
+          <h2 className="text-xl font-extrabold text-gray-800 dark:text-gray-100 mb-2 tracking-tight">Email sent!</h2>
+          <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-6">
             If an account with this email exists, a password reset link has been sent.
             <br />
             Please check your inbox and spam folder.
           </p>
 
           <div className="flex flex-col items-center gap-2.5 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-300">
               Return to{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
                 Sign In
               </Link>
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />

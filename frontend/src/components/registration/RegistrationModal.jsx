@@ -311,17 +311,17 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
       
       {/* Singular, Continuous Global Backdrop: Stays stable across state changes (NO MORE LAG/BLINK!) */}
       <div 
-        className="absolute inset-0 bg-slate-900/60 transition-opacity" 
+        className="absolute inset-0 bg-slate-900/60 dark:bg-black/75 transition-opacity" 
         onClick={submitting || profileSubmitting || success ? undefined : onClose}
       />
 
       {loading ? (
         /* Standard loading skeleton card (inherits parent visibility transitions) */
-        <div className={`relative w-full max-w-md bg-white rounded-[2.5rem] p-10 flex flex-col items-center space-y-4 shadow-2xl border border-slate-100 transform transition-all duration-500 ${
+        <div className={`relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 flex flex-col items-center space-y-4 shadow-2xl dark:shadow-black/60 border border-slate-100 dark:border-slate-700 transform transition-all duration-500 ${
           isVisible ? "translate-y-0 scale-100" : "translate-y-12 scale-95 opacity-0"
         }`}>
-          <div className="w-12 h-12 border-4 border-blue-100 border-t-[#4B98C8] rounded-full animate-spin" />
-          <span className="text-sm font-bold text-slate-600 tracking-wide animate-pulse">Initializing Session...</span>
+          <div className="w-12 h-12 border-4 border-blue-100 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
+          <span className="text-sm font-bold text-slate-600 dark:text-slate-200 tracking-wide animate-pulse">Initializing Session...</span>
         </div>
       ) : needsProfileUpdate ? (
         <ProfileGatewayModal
