@@ -1,16 +1,31 @@
 package com.acm.acmwebsite.feature.dto;
 
+import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto;
+import java.util.List;
+
 public class ClubCardDto {
     private long id;
     private String name;
     private String imageUrl;
     private String description;
+    private List<CommitteeBoardMemberDto> boardRoles;
+
+    public ClubCardDto() {
+    }
 
     public ClubCardDto(long id, String name, String imageUrl, String description) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.description = description;
+    }
+
+    public ClubCardDto(long id, String name, String imageUrl, String description, List<CommitteeBoardMemberDto> boardRoles) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.boardRoles = boardRoles;
     }
 
     public long getId() {
@@ -43,5 +58,13 @@ public class ClubCardDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<CommitteeBoardMemberDto> getBoardRoles() {
+        return boardRoles;
+    }
+
+    public void setBoardRoles(List<CommitteeBoardMemberDto> boardRoles) {
+        this.boardRoles = boardRoles;
     }
 }

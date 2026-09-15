@@ -18,6 +18,36 @@ import {
   FiFileText,
   FiGlobe,
 } from "react-icons/fi";
+import { useUserProfile } from "../../../hooks/useUserProfile";
+
+const UserMediaCell = ({ item, activeTab }) => {
+  const { profile, loading } = useUserProfile(item.userId);
+  const [imgError, setImgError] = useState(false);
+  
+  const name = profile?.name || (loading ? "Loading..." : "Unknown User");
+  const url = profile?.profile_image_url;
+  
+  return (
+    <div className="flex items-center gap-3.5">
+      {url && !imgError ? (
+        <img
+          src={url}
+          alt={name}
+          onError={() => setImgError(true)}
+          className="w-10 h-10 bg-slate-200 rounded-xl object-cover border border-slate-200 dark:border-slate-600 shrink-0"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
+          <FiUser className="w-5 h-5" />
+        </div>
+      )}
+      <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
+        <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">{name}</p>
+        <p className="text-[10px] text-slate-400 truncate mt-0.5">{profile?.email || ""}</p>
+      </div>
+    </div>
+  );
+};
 
 const ResourceTable = ({
   activeTab,
@@ -135,17 +165,21 @@ const ResourceTable = ({
             <tr key={item.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
               {/* Details Column (Image + Title) */}
               <td className="py-3.5 pl-2">
-                <div className="flex items-center gap-3.5">
-                  {renderMedia(item)}
-                  <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
-                    <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">
-                      {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : activeTab === "exclusiveForms" ? item.title : item.name}
-                    </p>
-                    {item.description && (
-                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>
-                    )}
+                {(activeTab === "highboard" || activeTab === "committeeBoard") ? (
+                  <UserMediaCell item={item} activeTab={activeTab} />
+                ) : (
+                  <div className="flex items-center gap-3.5">
+                    {renderMedia(item)}
+                    <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
+                      <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">
+                        {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : activeTab === "exclusiveForms" ? item.title : item.name}
+                      </p>
+                      {item.description && (
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </td>
 
               {/* Role Column */}

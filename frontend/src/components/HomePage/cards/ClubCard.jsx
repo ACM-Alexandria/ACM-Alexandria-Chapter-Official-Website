@@ -1,84 +1,80 @@
 import { useState } from "react";
+import { Tree, TreeNode } from "react-organizational-chart";
+import CommitteeMemberCard from "./CommitteeMemberCard";
 
-const ClubCard = ({ club, index, onShowDetails }) => {
+const ClubCard = ({ club }) => {
   const [imageError, setImageError] = useState(false);
 
-  const handleOpenDetails = () => {
-    if (!club?.id) return;
-    onShowDetails?.(club.id);
-  };
+  const orderedBoardRoles = [...(club?.boardRoles || [])].sort((a, b) => {
+    const firstOrder = Number.isFinite(Number(a?.order))
+      ? Number(a.order)
+      : Number.MAX_SAFE_INTEGER;
+    const secondOrder = Number.isFinite(Number(b?.order))
+      ? Number(b.order)
+      : Number.MAX_SAFE_INTEGER;
+    return firstOrder - secondOrder;
+  });
 
-  return (
+  const imageUrl = club.imageUrl || club.logoUrl;
+
+  const rootLabel = (
     <div
-      className="group bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/40 overflow-hidden border border-slate-100 dark:border-slate-700 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full cursor-pointer"
-      data-aos="fade-up"
-      data-aos-delay={index * 100}
-      onClick={handleOpenDetails}
+      className="relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600 transition-all duration-300"
     >
-      {/* Club Image Container */}
-      <div className="relative h-72 overflow-hidden bg-slate-100 dark:bg-slate-700">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex items-end justify-center p-8">
-           <span className="text-white font-bold uppercase tracking-[0.2em] text-xs translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-             View Details
-           </span>
-        </div>
-        
-        {club.imageUrl && !imageError ? (
+      <div className="bg-slate-100 dark:bg-slate-700 h-32 min-[375px]:h-36 min-[425px]:h-40 sm:h-48 md:h-56 lg:h-64 flex items-center justify-center overflow-hidden relative rounded-t-3xl sm:rounded-t-[2.5rem]">
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+        {imageUrl && !imageError ? (
           <img
-            src={club.imageUrl}
+            src={imageUrl}
             alt={club.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             onError={() => setImageError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
-            <span className="text-slate-300 dark:text-slate-500 text-7xl font-black select-none">
+            <span className="text-slate-300 dark:text-slate-500 text-7xl font-black opacity-40">
               {club.name?.charAt(0) || "C"}
             </span>
           </div>
         )}
-
-        <div className="absolute top-4 right-4 z-20">
-          <div className="px-3 py-1 bg-slate-950/60 backdrop-blur-md rounded-full border border-slate-700/30 text-white text-[10px] font-bold uppercase tracking-wider">
-            Club
-          </div>
-        </div>
       </div>
 
-      {/* Club Info */}
-      <div className="p-8 flex flex-col flex-1">
-        <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-3 group-hover:text-[#4B98C8] transition-colors">
-          {club.name}
-        </h3>
-        <p className="text-slate-500 dark:text-slate-300 text-base leading-relaxed mb-6 line-clamp-3 font-medium flex-1">
-          {club.description || "Join our community and explore new horizons together."}
+      <div className="p-4.5 min-[375px]:p-5 min-[425px]:p-6 sm:p-8 md:p-9 lg:p-10">
+        <div className="flex items-center justify-between mb-2 min-[375px]:mb-3 sm:mb-4">
+          <h3 className="text-lg min-[375px]:text-xl sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight group-hover:text-[#4B98C8] transition-colors leading-tight">
+            {club.name}
+          </h3>
+        </div>
+        <p className="text-slate-500 dark:text-slate-300 text-xs min-[375px]:text-sm sm:text-sm md:text-base leading-relaxed mb-4 min-[375px]:mb-5 sm:mb-6 line-clamp-3 font-medium">
+          {club.description || "Fostering technological learning and practical skills through specialized club activities."}
         </p>
-
-        <div className="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-slate-700">
-          {club.members ? (
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-800 bg-slate-200 dark:bg-slate-600" />
-                ))}
-              </div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                {club.members} Members
-              </span>
-            </div>
-          ) : (
-            <span className="text-xs font-bold text-[#4B98C8] uppercase tracking-widest">
-              Join Now
-            </span>
-          )}
-          
-          <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </div>
-        </div>
       </div>
+    </div>
+  );
+
+  if (orderedBoardRoles.length === 0) {
+    return (
+      <div className="pb-8">
+        {rootLabel}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto pb-12 pt-4 px-4 scrollbar-hide w-full">
+      <Tree
+        lineWidth="2px"
+        lineColor="var(--committee-tree-line)"
+        lineBorderRadius="24px"
+        label={rootLabel}
+      >
+        {orderedBoardRoles.map((member, index) => (
+          <TreeNode
+            key={member.id || `${member.name}-${index}`}
+            label={<CommitteeMemberCard member={member} />}
+          />
+        ))}
+      </Tree>
     </div>
   );
 };

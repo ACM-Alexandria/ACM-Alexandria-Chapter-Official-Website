@@ -14,10 +14,16 @@ import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-  @Query("SELECT u FROM User u WHERE " +
+  @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.committee com WHERE " +
          "(:query IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-         "AND (:role IS NULL OR u.role = :role)")
-  Page<User> searchUsers(@Param("query") String query, @Param("role") com.acm.acmwebsite.User_Authentication.enums.Role role, Pageable pageable);
+         "AND (:role IS NULL OR u.role = :role) " +
+         "AND (:committeeId IS NULL OR com.id = :committeeId) " +
+         "AND (:clubId IS NULL OR u.id IN (SELECT cb.user.id FROM ClubBoard cb WHERE cb.club.id = :clubId))")
+  Page<User> searchUsers(@Param("query") String query, 
+                         @Param("role") com.acm.acmwebsite.User_Authentication.enums.Role role, 
+                         @Param("committeeId") Long committeeId, 
+                         @Param("clubId") Long clubId, 
+                         Pageable pageable);
 
   Optional<User> findByEmail(String email);
 

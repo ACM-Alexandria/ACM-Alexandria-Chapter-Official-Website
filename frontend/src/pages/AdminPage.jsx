@@ -20,8 +20,8 @@ import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSoci
 import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
-import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
+import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import {
   FiUsers,
   FiCalendar,
@@ -64,7 +64,7 @@ const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("insights");
 
   // ── Resource Management States ──
-  const [mgmtTab, setMgmtTab] = useState("highboard");
+  const [mgmtTab, setMgmtTab] = useState("users");
   const [mgmtSearchQuery, setMgmtSearchQuery] = useState("");
   const [mgmtLoading, setMgmtLoading] = useState(false);
   const [mgmtError, setMgmtError] = useState(null);
@@ -126,9 +126,8 @@ const AdminPage = () => {
   const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
 
   const mgmtTabs = [
-    { id: "highboard", label: "High Board", icon: FiUsers },
+    { id: "users", label: "Users", icon: FiUserCheck },
     { id: "committees", label: "Committees", icon: FiLayers },
-    { id: "committeeBoard", label: "Committee Board", icon: FiUsers },
     { id: "events", label: "Events", icon: FiCalendar },
     { id: "clubs", label: "Clubs", icon: FiAward },
     { id: "programs", label: "Programs", icon: FiBookOpen },
@@ -144,7 +143,9 @@ const AdminPage = () => {
     setMgmtLoading(true);
     setMgmtError(null);
     try {
-      if (tab === "highboard") {
+      if (tab === "users") {
+        // Users are fetched inside UserManagementTab
+      } else if (tab === "highboard") {
         const data = await fetchHighBoard();
         setHighBoard(data.sort((a, b) => (a.order || 99) - (b.order || 99)));
 
@@ -217,8 +218,8 @@ const AdminPage = () => {
     if (mgmtTab === "highboard") {
       return highBoard.filter(
         (m) =>
-          m.name.toLowerCase().includes(q) ||
-          m.role.toLowerCase().includes(q)
+          (m.name && m.name.toLowerCase().includes(q)) ||
+          (m.role && m.role.toLowerCase().includes(q))
       );
     } else if (mgmtTab === "committees") {
       return committees.filter(
@@ -231,8 +232,8 @@ const AdminPage = () => {
       if (!comm || !comm.boardRoles) return [];
       return comm.boardRoles.filter(
         (m) =>
-          m.name.toLowerCase().includes(q) ||
-          m.role.toLowerCase().includes(q)
+          (m.name && m.name.toLowerCase().includes(q)) ||
+          (m.role && m.role.toLowerCase().includes(q))
       );
     } else if (mgmtTab === "events") {
       return events.content.filter(
@@ -761,8 +762,8 @@ const AdminPage = () => {
 
             <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls — hidden for gallery/feedback which render their own headers */}
-                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && (
+                {/* Header Controls — hidden for gallery/feedback/users which render their own headers */}
+                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && mgmtTab !== "users" && (
                   <>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
@@ -825,8 +826,10 @@ const AdminPage = () => {
                   </div>
                 )}
 
-                {/* Table Data — skipped for gallery/feedback tabs which render their own UI */}
-                {mgmtTab === "gallery" ? (
+                {/* Table Data — skipped for gallery/feedback/users tabs which render their own UI */}
+                {mgmtTab === "users" ? (
+                  <UserManagementTab />
+                ) : mgmtTab === "gallery" ? (
                   <GalleryTab />
                 ) : mgmtTab === "feedback" ? (
                   <FeedbackTab />

@@ -56,6 +56,9 @@ public class UserServiceImpl implements UserService {
   private final ImageUploadService imageUploadService;
   private final CommitteeRepository committeeRepository;
   private final ClubRepository clubRepository;
+  private final com.acm.acmwebsite.feature.repository.HighBoardRepository highBoardRepository;
+  private final com.acm.acmwebsite.feature.repository.CommitteeBoardRepository committeeBoardRepository;
+  private final com.acm.acmwebsite.feature.repository.ClubBoardRepository clubBoardRepository;
 
   @Value("${google.sheets.client-id}")
   private String googleClientId;
@@ -353,9 +356,9 @@ public class UserServiceImpl implements UserService {
             .refreshToken(refreshToken)
             .build();
   }
-  public org.springframework.data.domain.Page<UserDTO> searchUsers(String query, Role role, int page, int size) {
+  public org.springframework.data.domain.Page<UserDTO> searchUsers(String query, Role role, Long committeeId, Long clubId, int page, int size) {
     org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-    return userRepository.searchUsers(query, role, pageable).map(userMapper::toDTO);
+    return userRepository.searchUsers(query, role, committeeId, clubId, pageable).map(userMapper::toDTO);
   }
 
   @Override
@@ -370,7 +373,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, java.util.List<Long> clubIds) {
+  public UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, Long clubId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
@@ -382,11 +385,102 @@ public class UserServiceImpl implements UserService {
       user.setCommittee(null);
     }
 
-    if (clubIds != null && !clubIds.isEmpty()) {
-      java.util.List<com.acm.acmwebsite.feature.entity.Club> clubs = clubRepository.findAllById(clubIds);
-      user.setClubs(clubs);
+    User saved = userRepository.save(user);
+    return userMapper.toDTO(saved);
+  }
+
+  @Override
+  @Transactional
+  public UserDTO assignUser(UUID userId, com.acm.acmwebsite.User_Authentication.dto.UserAssignmentDto dto) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+    // Validate actor authority based on role hierarchy
+    org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null) {
+      boolean isSuperAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+      boolean isHighBoard = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ACM_HIGH_BOARD"));
+      boolean isCommitteeOrClubBoard = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ACM_COMMITTEE_BOARD") || a.getAuthority().equals("ROLE_ACM_CLUB_BOARD"));
+
+      Role currentTargetRole = user.getRole();
+      Role newTargetRole = dto.getTargetRole();
+
+      if (!isSuperAdmin) {
+        // High Board cannot edit SUPER_ADMIN or promote anyone to SUPER_ADMIN
+        if (isHighBoard) {
+          if (currentTargetRole == Role.SUPER_ADMIN || newTargetRole == Role.SUPER_ADMIN) {
+            throw new IllegalArgumentException("High Board members cannot modify or assign Super Admin role.");
+          }
+        } else if (isCommitteeOrClubBoard) {
+          // Committee / Club Board cannot edit SUPER_ADMIN or HIGH_BOARD, nor promote to them
+          if (currentTargetRole == Role.SUPER_ADMIN || currentTargetRole == Role.ACM_HIGH_BOARD ||
+              newTargetRole == Role.SUPER_ADMIN || newTargetRole == Role.ACM_HIGH_BOARD) {
+            throw new IllegalArgumentException("You do not have permission to modify High Board or Super Admin roles.");
+          }
+        }
+      }
+    }
+
+    // 1. Update user role
+    Role targetRole = dto.getTargetRole();
+    if (targetRole != null) {
+      user.setRole(targetRole);
+    }
+
+    // 2. Handle Associations for ACM_MEMBER
+    if (targetRole == Role.ACM_MEMBER || targetRole == Role.ACM_COMMITTEE_BOARD || targetRole == Role.ACM_CLUB_BOARD) {
+      if (dto.getCommitteeId() != null) {
+        com.acm.acmwebsite.feature.entity.Committee committee = committeeRepository.findById(dto.getCommitteeId())
+            .orElseThrow(() -> new IllegalArgumentException("Committee not found"));
+        user.setCommittee(committee);
+      } else {
+        user.setCommittee(null);
+      }
     } else {
-      user.setClubs(null);
+        user.setCommittee(null);
+    }
+
+    // 3. Handle Board Entities Sync
+    // High Board Sync
+    if (targetRole == Role.ACM_HIGH_BOARD) {
+        com.acm.acmwebsite.feature.entity.HighBoard highBoard = highBoardRepository.findByUserId(userId)
+            .orElse(new com.acm.acmwebsite.feature.entity.HighBoard());
+        highBoard.setUser(user);
+        highBoard.setRole(dto.getBoardRole());
+        highBoard.setOrder(dto.getBoardOrder());
+        highBoardRepository.save(highBoard);
+    } else {
+        highBoardRepository.findByUserId(userId).ifPresent(highBoardRepository::delete);
+    }
+
+    // Committee Board Sync
+    if (targetRole == Role.ACM_COMMITTEE_BOARD && dto.getCommitteeId() != null) {
+        com.acm.acmwebsite.feature.entity.CommitteeBoard committeeBoard = committeeBoardRepository.findByUserId(userId)
+            .orElse(new com.acm.acmwebsite.feature.entity.CommitteeBoard());
+        committeeBoard.setUser(user);
+        com.acm.acmwebsite.feature.entity.Committee committee = committeeRepository.findById(dto.getCommitteeId())
+            .orElseThrow(() -> new IllegalArgumentException("Committee not found"));
+        committeeBoard.setCommittee(committee);
+        committeeBoard.setRole(dto.getBoardRole());
+        committeeBoard.setOrder(dto.getBoardOrder());
+        committeeBoardRepository.save(committeeBoard);
+    } else {
+        committeeBoardRepository.findByUserId(userId).ifPresent(committeeBoardRepository::delete);
+    }
+
+    // Club Board Sync
+    if (targetRole == Role.ACM_CLUB_BOARD && dto.getClubId() != null) {
+        com.acm.acmwebsite.feature.entity.ClubBoard clubBoard = clubBoardRepository.findByUserId(userId)
+            .orElse(new com.acm.acmwebsite.feature.entity.ClubBoard());
+        clubBoard.setUser(user);
+        com.acm.acmwebsite.feature.entity.Club club = clubRepository.findById(dto.getClubId())
+            .orElseThrow(() -> new IllegalArgumentException("Club not found"));
+        clubBoard.setClub(club);
+        clubBoard.setRole(dto.getBoardRole());
+        clubBoard.setOrder(dto.getBoardOrder());
+        clubBoardRepository.save(clubBoard);
+    } else {
+        clubBoardRepository.findByUserId(userId).ifPresent(clubBoardRepository::delete);
     }
 
     User saved = userRepository.save(user);

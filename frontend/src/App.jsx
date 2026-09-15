@@ -4,7 +4,6 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import EventsPage from "./pages/EventsPage";
-import ClubsPage from "./pages/ClubsPage";
 import ProgramsPage from "./pages/ProgramsPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -26,7 +25,6 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/events" element={<EventsPage />} />
-      <Route path="/clubs" element={<ClubsPage />} />
       <Route path="/programs" element={<ProgramsPage />} />
       <Route path="/radio" element={<RadioPage />} />
       <Route path="/radio/seasons/:id" element={<SeasonDetailPage />} />

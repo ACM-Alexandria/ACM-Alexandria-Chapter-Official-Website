@@ -5,6 +5,7 @@ import { fetchUserProfile, updateUserProfile } from "../services/userService";
 import Navbar from "../components/HomePage/Navbar";
 import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
+import { uploadProfileImage } from "../services/userService";
 import { 
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
@@ -20,7 +21,10 @@ const UserProfilePage = () => {
     phoneNumber: "",
     isAlexEngStudent: null,
     department: "",
-    batch: ""
+    batch: "",
+    linkedinUrl: "",
+    profileImageUrl: "",
+    role: "USER"
   });
 
   const [backupProfile, setBackupProfile] = useState(null);
@@ -46,7 +50,10 @@ const UserProfilePage = () => {
           phoneNumber: data.phone_number || "",
           isAlexEngStudent: data.is_alex_eng_student ?? null,
           department: data.department || "",
-          batch: data.batch || ""
+          batch: data.batch || "",
+          linkedinUrl: data.linkedin_url || "",
+          profileImageUrl: data.profile_image_url || "",
+          role: data.role || user?.role || "USER"
         };
         setProfile(profileData);
         setBackupProfile(profileData);
@@ -143,7 +150,8 @@ const UserProfilePage = () => {
       phone_number: profile.phoneNumber,
       is_alex_eng_student: profile.isAlexEngStudent,
       department: profile.isAlexEngStudent ? (profile.department || null) : null,
-      batch: profile.isAlexEngStudent ? (profile.batch || null) : null
+      batch: profile.isAlexEngStudent ? (profile.batch || null) : null,
+      linkedin_url: profile.linkedinUrl || null
     };
 
     try {
@@ -236,7 +244,14 @@ const UserProfilePage = () => {
               handleToggleAlexEng={handleToggleAlexEng} 
               handleCancelEdit={handleCancelEdit} 
               handleSubmit={handleSubmit} 
-              submitting={submitting} 
+              submitting={submitting}
+              onImageUpload={async (file) => {
+                const res = await uploadProfileImage(user.id, file);
+                const imageUrl = res.profile_image_url || res;
+                setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                return imageUrl;
+              }}
             />
           )}
         </div>

@@ -5,8 +5,11 @@ import {
   HiOutlineAcademicCap, 
   HiOutlineBriefcase, 
   HiOutlineX,
-  HiOutlineCheck
+  HiOutlineCheck,
+  HiOutlineLink,
+  HiOutlinePhotograph
 } from "react-icons/hi";
+import { useState } from "react";
 
 const ProfileEditForm = ({ 
   user, 
@@ -15,23 +18,61 @@ const ProfileEditForm = ({
   handleToggleAlexEng, 
   handleCancelEdit, 
   handleSubmit, 
-  submitting 
+  submitting,
+  onImageUpload
 }) => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      setUploadError("");
+      await onImageUpload(file);
+    } catch (err) {
+      setUploadError("Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="p-8 md:p-12 flex flex-col gap-10 animate-[fadeIn_0.5s_ease]">
+    <form onSubmit={handleSubmit} className="p-6 md:p-12 flex flex-col gap-6 md:gap-8 bg-white dark:bg-slate-900">
       
-      <div className="bg-slate-50/70 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4">
-        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider block">Registered Email</span>
-        <span className="font-bold text-slate-700 dark:text-slate-100 break-all text-sm md:text-base">{user?.email}</span>
+      {/* Header and Image Upload */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 md:pb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 w-full md:w-auto">
+          {profile.profileImageUrl && profile.role !== "USER" && profile.role !== "ACM_MEMBER" ? (
+            <img src={profile.profileImageUrl} alt="Profile" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+          ) : (
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#4B98C8] text-3xl font-semibold border border-slate-200 dark:border-slate-700">
+              {user?.email?.[0].toUpperCase() || "U"}
+            </div>
+          )}
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <span className="text-sm text-slate-500 dark:text-slate-400 break-all">{user?.email}</span>
+            {profile.role !== "USER" && profile.role !== "ACM_MEMBER" && (
+              <>
+                <label className="cursor-pointer bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors w-fit text-center">
+                  {uploading ? "Uploading..." : "Change Image"}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={uploading || submitting} />
+                </label>
+                {uploadError && <span className="text-xs text-red-500">{uploadError}</span>}
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Core Basic Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
         
         {/* Full Name Field */}
-        <div className="space-y-2 group">
-          <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
-            <HiOutlineUser className="w-4 h-4 text-slate-400 group-focus-within:text-[#4B98C8] transition-colors" />
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
             Full Name
           </label>
           <input
@@ -40,15 +81,14 @@ const ProfileEditForm = ({
             value={profile.name}
             onChange={handleInputChange}
             placeholder="e.g. John Doe"
-            className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all placeholder:text-slate-400 focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
+            className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8]"
             required
           />
         </div>
 
         {/* Phone Number Field */}
-        <div className="space-y-2 group">
-          <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
-            <HiOutlinePhone className="w-4 h-4 text-slate-400 group-focus-within:text-[#4B98C8] transition-colors" />
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
             Phone Number
           </label>
           <input
@@ -60,45 +100,62 @@ const ProfileEditForm = ({
             pattern="01[0-9]{9}"
             maxLength="11"
             title="Phone number must be exactly 11 digits starting with 01"
-            className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all placeholder:text-slate-400 focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
+            className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8]"
             required
+          />
+        </div>
+
+        {/* LinkedIn URL Field */}
+        <div className="space-y-1.5 col-span-1 md:col-span-2">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            LinkedIn URL <span className="text-slate-400 font-normal">(Optional)</span>
+          </label>
+          <input
+            type="url"
+            name="linkedinUrl"
+            value={profile.linkedinUrl}
+            onChange={handleInputChange}
+            placeholder="https://linkedin.com/in/username"
+            className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8]"
           />
         </div>
 
       </div>
 
+      <hr className="border-slate-200 dark:border-slate-800 my-2" />
+
       {/* Alexandria Engineering Student Checker Card */}
-      <div className="bg-slate-50/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
         <div>
-          <h4 className="font-black text-slate-800 dark:text-slate-100 text-[15px]">Alexandria Engineering Student?</h4>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-300 mt-0.5">
-            Check this box to unlock academic department and graduation batch fields.
+          <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">Alexandria Engineering Student?</h4>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Check this to provide your academic department and graduation batch.
           </p>
         </div>
         
-        <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-2xl p-1 shadow-sm">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => handleToggleAlexEng(true)}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 border
               ${profile.isAlexEngStudent === true || profile.isAlexEngStudent === null
-                ? "bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white shadow-md" 
-                : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+                ? "bg-[#4B98C8] text-white border-[#4B98C8]" 
+                : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
               }`}
           >
-            {(profile.isAlexEngStudent === true || profile.isAlexEngStudent === null) && <HiOutlineCheck className="w-3.5 h-3.5" />}
+            {(profile.isAlexEngStudent === true || profile.isAlexEngStudent === null) && <HiOutlineCheck className="w-4 h-4" />}
             Yes
           </button>
           <button
             type="button"
             onClick={() => handleToggleAlexEng(false)}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 border
               ${profile.isAlexEngStudent === false
-                ? "bg-slate-800 text-white shadow-md" 
-                : "text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+                ? "bg-slate-800 text-white border-slate-800" 
+                : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
               }`}
           >
-            {profile.isAlexEngStudent === false && <HiOutlineCheck className="w-3.5 h-3.5" />}
+            {profile.isAlexEngStudent === false && <HiOutlineCheck className="w-4 h-4" />}
             No
           </button>
         </div>
@@ -106,101 +163,83 @@ const ProfileEditForm = ({
 
       {/* Conditional Fields: Displayed Only If Checkbox is TRUE */}
       {profile.isAlexEngStudent === true && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 border-t border-slate-100 dark:border-slate-700 pt-8 animate-[fadeIn_0.4s_ease]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           
           {/* Academic Batch Field */}
-          <div className="space-y-2 group col-span-1">
-            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
-              <HiOutlineAcademicCap className="w-4 h-4 text-slate-400 group-focus-within:text-[#4B98C8] transition-colors" />
+          <div className="space-y-1.5 col-span-1">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               Batch
             </label>
-            <div className="relative">
-              <select
-                name="batch"
-                value={profile.batch}
-                onChange={handleInputChange}
-                required={profile.isAlexEngStudent === true}
-                className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 appearance-none cursor-pointer"
-              >
-                <option value="">-- Select Batch --</option>
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-                <option value="2028">2028</option>
-                <option value="2028++">2028++</option>
-                <option value="2029">2029</option>
-                <option value="2030">2030</option>
-              </select>
-              <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
+            <select
+              name="batch"
+              value={profile.batch}
+              onChange={handleInputChange}
+              required={profile.isAlexEngStudent === true}
+              className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8] bg-none"
+            >
+              <option value="">-- Select Batch --</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2028++">2028++</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
           </div>
 
           {/* Department Select Field */}
-          <div className="space-y-2 group col-span-1">
-            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 ml-1">
-              <HiOutlineBriefcase className="w-4 h-4 text-slate-400 group-focus-within:text-[#4B98C8] transition-colors" />
+          <div className="space-y-1.5 col-span-1">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               Department
             </label>
-            <div className="relative">
-              <select
-                name="department"
-                value={profile.department}
-                onChange={handleInputChange}
-                required={profile.isAlexEngStudent === true}
-                className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 appearance-none cursor-pointer"
-              >
-                <option value="">-- Select Department --</option>
-                <option value="CSED">Computer & Systems (CSED)</option>
-                <option value="CCE">Computer & Communications (CCE)</option>
-                <option value="OTHER">Other</option>
-              </select>
-              <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
+            <select
+              name="department"
+              value={profile.department}
+              onChange={handleInputChange}
+              required={profile.isAlexEngStudent === true}
+              className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8] bg-none"
+            >
+              <option value="">-- Select Department --</option>
+              <option value="CSED">Computer & Systems (CSED)</option>
+              <option value="CCE">Computer & Communications (CCE)</option>
+              <option value="OTHER">Other</option>
+            </select>
           </div>
 
         </div>
       )}
 
-      <div className="h-px bg-slate-100/80 dark:bg-slate-700 w-full" />
+      <hr className="border-slate-200 dark:border-slate-800 mt-2 mb-2" />
 
-      <div className="flex justify-end items-center gap-4 pt-2">
+      {/* Form Actions */}
+      <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3">
         <button
           type="button"
           onClick={handleCancelEdit}
           disabled={submitting}
-          className="h-14 px-8 flex items-center gap-2 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 active:scale-95"
+          className="h-10 px-5 rounded-md font-medium text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 w-full sm:w-auto"
         >
-          <HiOutlineX className="w-5 h-5 text-slate-400" />
-          Discard Changes
+          Cancel
         </button>
 
         <button
           type="submit"
           disabled={submitting}
           className={`
-            h-14 px-12 rounded-2xl font-extrabold text-sm uppercase tracking-widest text-white transition-all duration-300 flex items-center justify-center gap-3 shadow-xl
+            h-10 px-6 rounded-md font-medium text-sm text-white transition-colors flex items-center justify-center gap-2 w-full sm:w-auto
             ${submitting 
-              ? "bg-slate-300 dark:bg-slate-700 cursor-not-allowed shadow-none" 
-              : "bg-gradient-to-r from-[#4B98C8] to-[#205E85] hover:-translate-y-1 hover:shadow-[#4B98C8]/25 hover:shadow-2xl active:scale-95"
+              ? "bg-[#4B98C8]/70 cursor-not-allowed" 
+              : "bg-[#4B98C8] hover:bg-[#3d7da6]"
             }
           `}
         >
           {submitting ? (
             <>
-              <span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
               Saving...
             </>
           ) : (
-            <>
-              Save Changes
-            </>
+            "Save Changes"
           )}
         </button>
       </div>

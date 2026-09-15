@@ -6,6 +6,7 @@ import { getEnv } from "../utils/env";
 import Navbar from "../components/HomePage/Navbar";
 import GreetingSection from "../components/HomePage/sections/GreetingSection";
 import AboutSection from "../components/HomePage/sections/AboutSection";
+import CommitteesSection from "../components/HomePage/sections/CommitteesSection";
 import ClubsSection from "../components/HomePage/sections/ClubsSection";
 import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
@@ -203,15 +204,15 @@ const HomePage = () => {
       debounceTimer = setTimeout(() => {
         setShowFloatingButton(window.scrollY < 300);
 
-        const sections = document.querySelectorAll("section[id]");
-        const navHeight = 70; // navbar height
+        const sections = document.querySelectorAll("section[id], div[id]");
+        const navHeight = 100; // navbar height offset
 
         let closestSection = "greeting";
         let closestDistance = Infinity;
 
         sections.forEach((section) => {
           const rect = section.getBoundingClientRect();
-          // Calculate distance from top of viewport minus navbar
+          // Check if top of section is near or above viewport center
           const distance = Math.abs(rect.top - navHeight);
 
           if (distance < closestDistance) {
@@ -242,16 +243,24 @@ const HomePage = () => {
           <AboutSection 
             loading={loading} 
             highBoard={highBoard} 
-            committees={committee} 
-            onApplyClick={handleApplyClick} 
-            isRegistrationModalOpen={isCommitteeRegOpen}
             activeFormsLoading={activeFormsLoading}
             activeForms={activeForms}
             onShowExclusiveFormDetails={handleShowExclusiveFormDetails}
           />
         )}
+        {isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && (
+          <CommitteesSection 
+            loading={loading}
+            committees={committee}
+            onApplyClick={handleApplyClick}
+            isRegistrationModalOpen={isCommitteeRegOpen}
+          />
+        )}
         {isEnabled(getEnv("VITE_ENABLE_CLUBS")) && (
-          <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
+          <ClubsSection 
+            loading={loading}
+            clubs={clubs}
+          />
         )}
         {isEnabled(getEnv("VITE_ENABLE_EVENTS")) && (
           <EventsSection

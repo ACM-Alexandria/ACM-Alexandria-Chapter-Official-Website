@@ -6,7 +6,8 @@ const FooterNavigation = ({ onNavigate }) => {
 
   const navItems = [
     isEnabled(getEnv("VITE_ENABLE_ABOUT")) && { id: "about", label: "About Us" },
-    isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Our Clubs" },
+    isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && { id: "committees", label: "Committees" },
+    isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Clubs" },
     isEnabled(getEnv("VITE_ENABLE_EVENTS")) && { id: "events", label: "Events" },
     isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && { id: "programs", label: "Programs" },
     isEnabled(getEnv("VITE_ENABLE_RADIO")) && { id: "radio", label: "Radio" },

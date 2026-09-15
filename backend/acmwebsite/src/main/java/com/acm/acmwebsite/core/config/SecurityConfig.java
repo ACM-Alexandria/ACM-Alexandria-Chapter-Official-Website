@@ -46,7 +46,7 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Secure admin endpoints
-                        .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()

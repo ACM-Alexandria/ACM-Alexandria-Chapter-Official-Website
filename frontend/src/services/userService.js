@@ -23,7 +23,25 @@ export const updateUserProfile = async (userId, profileData) => {
   }
 };
 
+export const uploadProfileImage = async (userId, file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    const response = await api.post(`/api/v1/users/${userId}/profile/image`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error uploading profile image:`, error);
+    throw error.response?.data || new Error("Failed to upload profile image.");
+  }
+};
+
 export default {
   fetchUserProfile,
   updateUserProfile,
+  uploadProfileImage,
 };

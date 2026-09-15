@@ -19,6 +19,8 @@ public class UserProfileDto {
 
     private String email;
 
+    private String role;
+
     @NotBlank(message = "Name is required")
     private String name;
 
@@ -42,6 +44,5 @@ public class UserProfileDto {
     @JsonProperty("committee_id")
     private Long committeeId;
 
-    @JsonProperty("club_ids")
-    private java.util.List<Long> clubIds;
+
 }

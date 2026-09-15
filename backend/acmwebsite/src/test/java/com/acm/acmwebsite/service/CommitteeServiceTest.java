@@ -58,6 +58,9 @@ class CommitteeServiceTest {
     @Mock
     MessageRepository messageRepository;
 
+    @Mock
+    com.acm.acmwebsite.User_Authentication.repository.UserRepository userRepository;
+
 
 
 
@@ -204,11 +207,16 @@ class CommitteeServiceTest {
     @DisplayName("addCommitteeBoardMember works successfully")
     void addCommitteeBoardMemberSuccessfully() {
         Committee committee = createDummyCommittee();
-        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(null, "John", "img", "President", 1, "link");
-        CommitteeBoard boardEntity = new CommitteeBoard(null, "John", "img", "President", 1, "link");
-        CommitteeBoard savedEntity = new CommitteeBoard(1L, "John", "img", "President", 1, "link");
-        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "John", "img", "President", 1, "link");
+        com.acm.acmwebsite.User_Authentication.entity.User dummyUser = new com.acm.acmwebsite.User_Authentication.entity.User();
+        dummyUser.setId(java.util.UUID.randomUUID());
+        java.util.UUID userId = dummyUser.getId();
 
+        CommitteeBoard boardEntity = new CommitteeBoard(1L, "President", 1, new Committee(), dummyUser);
+        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(1L, "President", 1, userId);
+        CommitteeBoard savedEntity = new CommitteeBoard(1L, "President", 1, new Committee(), dummyUser);
+        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "President", 1, userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(dummyUser));
         when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
         when(committeeMapper.toBoardEntity(dto)).thenReturn(boardEntity);
         when(committeeBoardRepository.save(boardEntity)).thenReturn(savedEntity);
@@ -218,17 +226,21 @@ class CommitteeServiceTest {
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("John", result.getName());
     }
 
     @Test
     @DisplayName("updateCommitteeBoardMember updates existing entity fields")
     void updateCommitteeBoardMemberSuccessfully() {
-        CommitteeBoard boardEntity = new CommitteeBoard(1L, "Old Name", "img", "President", 1, "link");
-        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(1L, "New Name", "new_img", "Vice", 2, "new_link");
-        CommitteeBoard savedEntity = new CommitteeBoard(1L, "New Name", "new_img", "Vice", 2, "new_link");
-        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "New Name", "new_img", "Vice", 2, "new_link");
+        com.acm.acmwebsite.User_Authentication.entity.User dummyUser = new com.acm.acmwebsite.User_Authentication.entity.User();
+        dummyUser.setId(java.util.UUID.randomUUID());
+        java.util.UUID userId = dummyUser.getId();
+        
+        CommitteeBoard boardEntity = new CommitteeBoard(1L, "President", 1, new Committee(), dummyUser);
+        CommitteeBoardMemberDto dto = new CommitteeBoardMemberDto(1L, "Vice", 2, userId);
+        CommitteeBoard savedEntity = new CommitteeBoard(1L, "Vice", 2, new Committee(), dummyUser);
+        CommitteeBoardMemberDto savedDto = new CommitteeBoardMemberDto(1L, "Vice", 2, userId);
 
+        when(userRepository.findById(userId)).thenReturn(Optional.of(dummyUser));
         when(committeeBoardRepository.findById(1L)).thenReturn(Optional.of(boardEntity));
         when(committeeBoardRepository.save(boardEntity)).thenReturn(savedEntity);
         when(committeeMapper.toBoardDto(savedEntity)).thenReturn(savedDto);
@@ -236,7 +248,7 @@ class CommitteeServiceTest {
         CommitteeBoardMemberDto result = committeService.updateCommitteeBoardMember(1L, dto);
 
         assertNotNull(result);
-        assertEquals("New Name", result.getName());
+        assertEquals(userId, result.getUserId());
         assertEquals("Vice", result.getRole());
     }
 

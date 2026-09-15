@@ -19,7 +19,9 @@ const AdminProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.role !== 'ADMIN') {
+  const allowedAdminRoles = ['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'];
+
+  if (!allowedAdminRoles.includes(user?.role)) {
     return <Navigate to="/" replace />;
   }
 
