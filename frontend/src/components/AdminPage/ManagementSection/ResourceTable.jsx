@@ -147,7 +147,7 @@ const ResourceTable = ({
             {(activeTab === "events" || activeTab === "programs") && (
               <th className="pb-3">{activeTab === "events" ? "Time & Location" : "Duration & Schedule"}</th>
             )}
-            {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms") && (
+            {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms" || activeTab === "clubs" || activeTab === "events") && (
               <th className="pb-3">{activeTab === "committees" ? "Call Status" : activeTab === "exclusiveForms" ? "Status" : "Registration Status"}</th>
             )}
             {activeTab === "socialLinks" && (
@@ -214,28 +214,28 @@ const ResourceTable = ({
                 </td>
               )}
 
-              {/* Committee Call Status, Program Registration Status, or Exclusive Form Status column */}
-              {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms") && (
+              {/* Committee Call Status, Program/Club/Event Registration Status, or Exclusive Form Status column */}
+              {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms" || activeTab === "clubs" || activeTab === "events") && (
                 <td className="py-3.5">
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive)
+                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen))
                           ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                           : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-600"
                       }`}
                     >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive) ? "Open" : "Closed"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Open" : "Closed"}
                     </span>
                     <button
                       onClick={() => onToggleCall(item)}
                       className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive)
+                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen))
                           ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                           : "bg-sky-50 text-[#4B98C8] border-sky-200 hover:bg-sky-100"
                       }`}
                     >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "programs" ? item.registrationOpen : item.isActive) ? "Close Form" : "Open Form"}
+                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Close Form" : "Open Form"}
                     </button>
                   </div>
                 </td>

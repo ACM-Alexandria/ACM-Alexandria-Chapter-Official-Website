@@ -49,6 +49,18 @@ public class ClubController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/open-call")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Club> openClubCall(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.openRegistration(id));
+    }
+
+    @PostMapping("/{id}/close-call")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Club> closeClubCall(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.closeRegistration(id));
+    }
+
     @GetMapping("/{id}/registrations/analysis")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> getClubRegistrationAnalysis(@PathVariable Long id) {

@@ -134,8 +134,23 @@ public class EventService {
             
             event.setEventTime(updatedEvent.getEventTime());
             event.setLocation(updatedEvent.getLocation());
+            event.setRegistrationOpen(updatedEvent.getRegistrationOpen());
             return eventRepository.save(event);
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
+    }
+
+    public Event openRegistration(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
+        event.setRegistrationOpen(true);
+        return eventRepository.save(event);
+    }
+
+    public Event closeRegistration(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
+        event.setRegistrationOpen(false);
+        return eventRepository.save(event);
     }
 
     @Transactional

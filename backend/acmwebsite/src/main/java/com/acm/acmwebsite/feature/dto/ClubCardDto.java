@@ -9,6 +9,7 @@ public class ClubCardDto {
     private String imageUrl;
     private String description;
     private boolean isExternal;
+    private boolean registrationOpen;
     private List<CommitteeBoardMemberDto> boardRoles;
 
     public ClubCardDto() {
@@ -88,6 +89,18 @@ public class ClubCardDto {
 
     public void setIsExternal(boolean isExternal) {
         this.isExternal = isExternal;
+    }
+
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public boolean getRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
     }
 
     public List<CommitteeBoardMemberDto> getBoardRoles() {

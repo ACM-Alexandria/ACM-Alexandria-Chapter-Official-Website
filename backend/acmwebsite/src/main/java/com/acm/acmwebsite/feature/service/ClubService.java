@@ -147,9 +147,24 @@ public class ClubService {
             club.setImageUrl(updatedClub.getImageUrl());
             club.setSocialMediaLinks(updatedClub.getSocialMediaLinks());
             club.setIsExternal(updatedClub.getIsExternal());
+            club.setRegistrationOpen(updatedClub.getRegistrationOpen());
             return clubRepository.save(club);
                 }
         ).orElseThrow(()->new RuntimeException("Club not found"));
+    }
+
+    public Club openRegistration(Long id) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        club.setRegistrationOpen(true);
+        return clubRepository.save(club);
+    }
+
+    public Club closeRegistration(Long id) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        club.setRegistrationOpen(false);
+        return clubRepository.save(club);
     }
 
     @Transactional(readOnly = true)

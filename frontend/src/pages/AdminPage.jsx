@@ -293,9 +293,9 @@ const AdminPage = () => {
     } else if (mgmtTab === "committeeBoard") {
       setFormData({ name: "", role: "", imageUrl: "", order: null, linkedinUrl: "" });
     } else if (mgmtTab === "events") {
-      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [] });
+      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [], registrationOpen: false });
     } else if (mgmtTab === "clubs") {
-      setFormData({ name: "", description: "", imageUrl: "", isExternal: false });
+      setFormData({ name: "", description: "", imageUrl: "", isExternal: false, registrationOpen: false });
     } else if (mgmtTab === "programs") {
       setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
     } else if (mgmtTab === "radio") {
@@ -520,6 +520,20 @@ const AdminPage = () => {
       if (mgmtTab === "programs") {
         const isCurrentlyOpen = item.registrationOpen;
         await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
+      } else if (mgmtTab === "clubs") {
+        const isCurrentlyOpen = item.registrationOpen || item.open || item.isOpen;
+        if (isCurrentlyOpen) {
+          await adminService.closeClubCall(item.id);
+        } else {
+          await adminService.openClubCall(item.id);
+        }
+      } else if (mgmtTab === "events") {
+        const isCurrentlyOpen = item.registrationOpen || item.open || item.isOpen;
+        if (isCurrentlyOpen) {
+          await adminService.closeEventCall(item.id);
+        } else {
+          await adminService.openEventCall(item.id);
+        }
       } else if (mgmtTab === "exclusiveForms") {
         const isCurrentlyActive = item.isActive;
         await adminService.updateExclusiveForm(item.id, {

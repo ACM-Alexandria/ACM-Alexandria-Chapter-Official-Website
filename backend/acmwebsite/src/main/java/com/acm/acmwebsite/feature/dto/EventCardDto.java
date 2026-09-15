@@ -9,14 +9,20 @@ public class EventCardDto {
   private String description;
   private LocalDateTime eventTime;
   private String location;
+  private boolean registrationOpen;
 
-  public EventCardDto(long id, String name, String imageUrl, String description, LocalDateTime eventTime, String location) {
+  public EventCardDto(long id, String name, String imageUrl, String description, LocalDateTime eventTime, String location, boolean registrationOpen) {
     this.id = id;
     this.name = name;
     this.imageUrl = imageUrl;
     this.description = description;
     this.eventTime = eventTime;
     this.location = location;
+    this.registrationOpen = registrationOpen;
+  }
+
+  public EventCardDto(long id, String name, String imageUrl, String description, LocalDateTime eventTime, String location) {
+    this(id, name, imageUrl, description, eventTime, location, false);
   }
 
   public EventCardDto() {}
@@ -67,5 +73,17 @@ public class EventCardDto {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public boolean isRegistrationOpen() {
+    return registrationOpen;
+  }
+
+  public boolean getRegistrationOpen() {
+    return registrationOpen;
+  }
+
+  public void setRegistrationOpen(boolean registrationOpen) {
+    this.registrationOpen = registrationOpen;
   }
 }

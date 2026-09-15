@@ -60,6 +60,11 @@ public class EventRegistrationService implements RegistrationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
+        // 1b. Check if registration is open
+        if (!event.getRegistrationOpen()) {
+            throw new IllegalArgumentException("Registration is closed for this event.");
+        }
+
         // 2. Check profile integrity
         RegistrationValidationUtil.validateUserProfile(user);
 

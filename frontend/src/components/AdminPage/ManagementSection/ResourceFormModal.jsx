@@ -432,25 +432,73 @@ const ResourceFormModal = ({
           )}
 
 
-          {/* External Club Toggle */}
+          {/* External Club & Registration Open Toggles */}
           {activeTab === "clubs" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
+                <div>
+                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">External Club</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
+                    Allow user registrations (Internal clubs are restricted)
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, isExternal: !formData.isExternal })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                    formData.isExternal ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      formData.isExternal ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
+                <div>
+                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
+                    Allow users to register for this club
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                    formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      formData.registrationOpen ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "events" && (
             <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
               <div>
-                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">External Club</p>
+                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
                 <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                  Allow user registrations (Internal clubs are restricted)
+                  Allow users to register for this event
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, isExternal: !formData.isExternal })}
+                onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                  formData.isExternal ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
+                  formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    formData.isExternal ? "translate-x-6" : "translate-x-1"
+                    formData.registrationOpen ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>

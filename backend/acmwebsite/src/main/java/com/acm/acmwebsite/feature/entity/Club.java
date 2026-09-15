@@ -24,6 +24,8 @@ public class Club {
     private java.time.LocalDateTime sheetLastUpdatedAt;
     @Column(name = "is_external", nullable = false)
     private boolean isExternal = false;
+    @Column(name = "registration_open", nullable = false)
+    private boolean registrationOpen = false;
 
     public Club() {
     }
@@ -111,5 +113,17 @@ public class Club {
 
     public void setIsExternal(boolean isExternal) {
         this.isExternal = isExternal;
+    }
+
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public boolean getRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
     }
 }

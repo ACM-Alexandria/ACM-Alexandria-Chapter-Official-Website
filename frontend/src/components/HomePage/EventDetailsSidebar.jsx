@@ -377,6 +377,13 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                         >
                           <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
                         </button>
+                      ) : !event?.registrationOpen ? (
+                        <button
+                          disabled
+                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-100 dark:bg-slate-800/80 px-10 py-6 text-slate-400 dark:text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-80"
+                        >
+                          <span className="uppercase tracking-widest text-sm font-extrabold">Registration Closed</span>
+                        </button>
                       ) : checkingStatus ? (
                         <button
                           disabled

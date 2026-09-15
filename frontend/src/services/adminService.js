@@ -254,6 +254,46 @@ export const deleteClub = async (id) => {
   }
 };
 
+export const openClubCall = async (id) => {
+  try {
+    const response = await api.post(`/api/clubs/${id}/open-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error opening club call:", error);
+    throw error.response?.data || new Error("Failed to open club call.");
+  }
+};
+
+export const closeClubCall = async (id) => {
+  try {
+    const response = await api.post(`/api/clubs/${id}/close-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error closing club call:", error);
+    throw error.response?.data || new Error("Failed to close club call.");
+  }
+};
+
+export const openEventCall = async (id) => {
+  try {
+    const response = await api.post(`/api/events/${id}/open-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error opening event call:", error);
+    throw error.response?.data || new Error("Failed to open event call.");
+  }
+};
+
+export const closeEventCall = async (id) => {
+  try {
+    const response = await api.post(`/api/events/${id}/close-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error closing event call:", error);
+    throw error.response?.data || new Error("Failed to close event call.");
+  }
+};
+
 export const fetchClubSocialLinks = async (clubId) => {
   try {
     const response = await api.get(`/api/clubs/${clubId}/social-links`);
@@ -710,9 +750,13 @@ export default {
   createEvent,
   updateEvent,
   deleteEvent,
+  openEventCall,
+  closeEventCall,
   createClub,
   updateClub,
   deleteClub,
+  openClubCall,
+  closeClubCall,
   fetchClubSocialLinks,
   updateClubSocialLinks,
   createProgram,

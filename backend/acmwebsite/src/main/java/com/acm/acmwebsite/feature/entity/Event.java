@@ -23,6 +23,9 @@ public class Event {
     @Column(name = "sheet_last_updated_at")
     private LocalDateTime sheetLastUpdatedAt;
 
+    @Column(name = "registration_open", nullable = false)
+    private boolean registrationOpen = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "event_attached_images", joinColumns = @JoinColumn(name = "event_id"))
     @Column(name = "image_url")
@@ -110,5 +113,17 @@ public class Event {
 
     public void setAttachedImages(List<String> attachedImages) {
         this.attachedImages = attachedImages;
+    }
+
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public boolean getRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
     }
 }
