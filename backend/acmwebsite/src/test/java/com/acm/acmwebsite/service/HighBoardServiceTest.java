@@ -42,12 +42,12 @@ class HighBoardServiceTest {
     User vpUser = new User();
     vpUser.setId(UUID.randomUUID());
     HighBoard m2 = new HighBoard(2L, "Vice President", 2, vpUser);
-    when(highBoardRepository.findAll()).thenReturn(List.of(m1, m2));
+    when(highBoardRepository.findAllWithUser()).thenReturn(List.of(m1, m2));
 
     List<HighBoard> result = highBoardService.getHighBoard();
 
     assertEquals(2, result.size());
-    verify(highBoardRepository, times(1)).findAll();
+    verify(highBoardRepository, times(1)).findAllWithUser();
   }
 
   @Test

@@ -80,6 +80,8 @@ public class ClubRegistrationServiceTest {
         Club club = new Club();
         club.setId(1L);
         club.setName("ACM AI Club");
+        club.setRegistrationOpen(true);
+        club.setIsExternal(true);
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         request.setUserId(userId);
@@ -112,8 +114,12 @@ public class ClubRegistrationServiceTest {
                 .name("") // empty name
                 .build();
 
+        Club club = new Club();
+        club.setRegistrationOpen(true);
+        club.setIsExternal(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(incompleteUser));
-        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         assertThrows(ProfileIncompleteException.class, () -> clubRegistrationService.registerUser(userId, 1L, request));
@@ -129,8 +135,12 @@ public class ClubRegistrationServiceTest {
                 .isAlexEngStudent(false)
                 .build();
 
+        Club club = new Club();
+        club.setRegistrationOpen(true);
+        club.setIsExternal(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
         when(clubRegistrationRepository.existsByUserIdAndClubId(userId, 1L)).thenReturn(true);
 
         RegistrationRequestDto request = new RegistrationRequestDto();
@@ -153,8 +163,12 @@ public class ClubRegistrationServiceTest {
                 .isRequired(true)
                 .build();
 
+        Club club = new Club();
+        club.setRegistrationOpen(true);
+        club.setIsExternal(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(clubRepository.findById(1L)).thenReturn(Optional.of(new Club()));
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
         when(clubRegistrationRepository.existsByUserIdAndClubId(userId, 1L)).thenReturn(false);
         when(clubFormQuestionRepository.findByClubId(1L)).thenReturn(List.of(requiredQuestion));
 

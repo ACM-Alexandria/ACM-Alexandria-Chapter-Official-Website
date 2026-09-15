@@ -86,6 +86,7 @@ public class EventRegistrationServiceTest {
         Event event = new Event();
         event.setId(1L);
         event.setName("ACM Hackathon");
+        event.setRegistrationOpen(true);
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         request.setUserId(userId);
@@ -118,8 +119,11 @@ public class EventRegistrationServiceTest {
                 .name("") // empty name
                 .build();
 
+        Event event = new Event();
+        event.setRegistrationOpen(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(incompleteUser));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         RegistrationRequestDto request = new RegistrationRequestDto();
         assertThrows(ProfileIncompleteException.class, () -> registrationService.registerUser(userId, 1L, request));
@@ -135,8 +139,11 @@ public class EventRegistrationServiceTest {
                 .isAlexEngStudent(false)
                 .build();
 
+        Event event = new Event();
+        event.setRegistrationOpen(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
         when(eventRegistrationRepository.existsByUserIdAndEventId(userId, 1L)).thenReturn(true);
 
         RegistrationRequestDto request = new RegistrationRequestDto();
@@ -159,8 +166,11 @@ public class EventRegistrationServiceTest {
                 .isRequired(true)
                 .build();
 
+        Event event = new Event();
+        event.setRegistrationOpen(true);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(new Event()));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
         when(eventRegistrationRepository.existsByUserIdAndEventId(userId, 1L)).thenReturn(false);
         when(eventFormQuestionRepository.findByEventId(1L)).thenReturn(List.of(requiredQuestion));
 
