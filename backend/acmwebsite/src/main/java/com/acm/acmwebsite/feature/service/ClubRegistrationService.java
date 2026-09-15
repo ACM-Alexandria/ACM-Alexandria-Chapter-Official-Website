@@ -61,6 +61,13 @@ public class ClubRegistrationService implements RegistrationService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found"));
 
+        // 1b. Check if registration is allowed for internal clubs (restricted to ACM members)
+        if (!club.getIsExternal()) {
+            if (user.getRole() == null || user.getRole() == com.acm.acmwebsite.User_Authentication.enums.Role.USER) {
+                throw new IllegalArgumentException("Registration for internal clubs is restricted to ACM members.");
+            }
+        }
+
         // 2. Check profile integrity
         RegistrationValidationUtil.validateUserProfile(user);
 

@@ -13,25 +13,30 @@ import java.util.List;
 @RequestMapping("/api/socialLinks")
 public class SocialLinkController {
     private final SocialLinkService socialLinkService;
+
     public SocialLinkController(SocialLinkService socialLinkService) {
         this.socialLinkService = socialLinkService;
     }
+
     @GetMapping
     public List<SocialLink> getSocialLinks() {
         return socialLinkService.getAllLinks();
     }
+
     @GetMapping("/{id}")
     public ResponseEntity getSocialLinkById(@PathVariable Long id) {
         return socialLinkService.getLinkById(id).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public SocialLink createSocialLink(@RequestBody SocialLink socialLink) {
         return socialLinkService.createSocialLink(socialLink);
     }
+
     @PutMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> updateSocialLink(
             @PathVariable Long id,
             @RequestBody SocialLink socialLink) {
@@ -47,9 +52,9 @@ public class SocialLinkController {
         }
     }
 
-    @DeleteMapping ("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         socialLinkService.deleteSocialLink(id);
         return ResponseEntity.noContent().build();
     }

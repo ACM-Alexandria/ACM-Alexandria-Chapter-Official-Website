@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tree, TreeNode } from "react-organizational-chart";
 import CommitteeMemberCard from "./CommitteeMemberCard";
 
-const ClubCard = ({ club }) => {
+const ClubCard = ({ club, onShowDetails }) => {
   const [imageError, setImageError] = useState(false);
 
   const orderedBoardRoles = [...(club?.boardRoles || [])].sort((a, b) => {
@@ -17,12 +17,25 @@ const ClubCard = ({ club }) => {
 
   const imageUrl = club.imageUrl || club.logoUrl;
 
+  const handleClick = () => {
+    if (onShowDetails && club?.id) {
+      onShowDetails(club.id);
+    }
+  };
+
   const rootLabel = (
     <div
-      className="relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600 transition-all duration-300"
+      onClick={handleClick}
+      className="relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600 transition-all duration-300 cursor-pointer"
     >
       <div className="bg-slate-100 dark:bg-slate-700 h-32 min-[375px]:h-36 min-[425px]:h-40 sm:h-48 md:h-56 lg:h-64 flex items-center justify-center overflow-hidden relative rounded-t-3xl sm:rounded-t-[2.5rem]">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+        {!club.isExternal && (
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 bg-slate-900/80 backdrop-blur-md text-slate-200 text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 border border-slate-700/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+            <span className="tracking-wide uppercase">Internal</span>
+          </div>
+        )}
         {imageUrl && !imageError ? (
           <img
             src={imageUrl}

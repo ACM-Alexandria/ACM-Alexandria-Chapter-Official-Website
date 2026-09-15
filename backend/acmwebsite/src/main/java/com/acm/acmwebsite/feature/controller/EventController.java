@@ -33,38 +33,38 @@ public class EventController {
   }
 
   @PostMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public Event createEvent(@RequestBody Event event) {
     return eventService.createEvent(event);
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public Event updateEvent(@PathVariable Long id, @RequestBody Event event) {
     return eventService.updateEvent(id, event);
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
     eventService.deleteEvent(id);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/{id}/registrations/analysis")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<RegistrationAnalysisDto> getEventRegistrationAnalysis(@PathVariable Long id) {
     return ResponseEntity.ok(eventService.getRegistrationAnalysis(id));
   }
 
   @PostMapping("/{id}/registrations/sheet")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<RegistrationAnalysisDto> syncEventRegistrationsSheet(@PathVariable Long id) {
     return ResponseEntity.ok(eventService.syncRegistrationsSheet(id));
   }
 
   @PostMapping("/{id}/questions")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<FormQuestionResponseDto> createEventQuestion(
       @PathVariable("id") Long eventId,
       @RequestBody FormQuestionRequestDto request) {
@@ -72,7 +72,7 @@ public class EventController {
   }
 
   @PutMapping("/{id}/questions/{questionId}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<FormQuestionResponseDto> updateEventQuestion(
       @PathVariable("id") Long eventId,
       @PathVariable Long questionId,
@@ -81,7 +81,7 @@ public class EventController {
   }
 
   @DeleteMapping("/{id}/questions/{questionId}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<Void> deleteEventQuestion(
       @PathVariable("id") Long eventId,
       @PathVariable Long questionId) {

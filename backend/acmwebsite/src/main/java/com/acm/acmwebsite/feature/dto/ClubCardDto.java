@@ -8,6 +8,7 @@ public class ClubCardDto {
     private String name;
     private String imageUrl;
     private String description;
+    private boolean isExternal;
     private List<CommitteeBoardMemberDto> boardRoles;
 
     public ClubCardDto() {
@@ -20,11 +21,28 @@ public class ClubCardDto {
         this.description = description;
     }
 
+    public ClubCardDto(long id, String name, String imageUrl, String description, boolean isExternal) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.isExternal = isExternal;
+    }
+
     public ClubCardDto(long id, String name, String imageUrl, String description, List<CommitteeBoardMemberDto> boardRoles) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.description = description;
+        this.boardRoles = boardRoles;
+    }
+
+    public ClubCardDto(long id, String name, String imageUrl, String description, boolean isExternal, List<CommitteeBoardMemberDto> boardRoles) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.isExternal = isExternal;
         this.boardRoles = boardRoles;
     }
 
@@ -58,6 +76,18 @@ public class ClubCardDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean getIsExternal() {
+        return isExternal;
+    }
+
+    public boolean isExternal() {
+        return isExternal;
+    }
+
+    public void setIsExternal(boolean isExternal) {
+        this.isExternal = isExternal;
     }
 
     public List<CommitteeBoardMemberDto> getBoardRoles() {

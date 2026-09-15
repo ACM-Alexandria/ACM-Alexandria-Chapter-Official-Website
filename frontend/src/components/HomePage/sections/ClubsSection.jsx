@@ -1,7 +1,7 @@
 import ClubCard from "../cards/ClubCard";
 import { getEnv } from "../../../utils/env";
 
-const ClubsSection = ({ loading, clubs = [] }) => {
+const ClubsSection = ({ loading, clubs = [], onShowClubDetails }) => {
   const isEnabled = (envVal) => envVal !== "false";
 
   if (!isEnabled(getEnv("VITE_ENABLE_CLUBS"))) return null;
@@ -43,7 +43,7 @@ const ClubsSection = ({ loading, clubs = [] }) => {
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
-                <ClubCard club={club} />
+                <ClubCard club={club} onShowDetails={onShowClubDetails} />
               </div>
             ))}
           </div>

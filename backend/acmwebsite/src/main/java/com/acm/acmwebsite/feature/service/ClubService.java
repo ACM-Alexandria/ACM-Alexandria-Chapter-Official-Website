@@ -146,6 +146,7 @@ public class ClubService {
             club.setDescription(updatedClub.getDescription());
             club.setImageUrl(updatedClub.getImageUrl());
             club.setSocialMediaLinks(updatedClub.getSocialMediaLinks());
+            club.setIsExternal(updatedClub.getIsExternal());
             return clubRepository.save(club);
                 }
         ).orElseThrow(()->new RuntimeException("Club not found"));

@@ -38,7 +38,7 @@ public class UserController {
 
   @PutMapping("/{id}/profile")
   public ResponseEntity<?> updateUserProfile(
-      @PathVariable UUID id, 
+      @PathVariable UUID id,
       @Valid @RequestBody UserProfileDto request,
       Authentication authentication) {
 
@@ -51,7 +51,8 @@ public class UserController {
   }
 
   @PostMapping("/{id}/profile/image")
-  public ResponseEntity<?> uploadProfileImage(@PathVariable UUID id, @RequestParam("file") org.springframework.web.multipart.MultipartFile file, Authentication authentication) {
+  public ResponseEntity<?> uploadProfileImage(@PathVariable UUID id,
+      @RequestParam("file") org.springframework.web.multipart.MultipartFile file, Authentication authentication) {
     ResponseEntity<?> denied = checkAccess(id, authentication);
     if (denied != null) {
       return denied;
@@ -69,7 +70,7 @@ public class UserController {
       return ResponseEntity.status(401).body(new ErrorMessageResponse("Unauthorized request"));
     }
     boolean allowed = authorizationService.isAdmin(authentication)
-            || authorizationService.isSelf(id, authentication);
+        || authorizationService.isSelf(id, authentication);
     if (!allowed) {
       return ResponseEntity.status(403).body(new ErrorMessageResponse("Forbidden"));
     }
@@ -77,7 +78,7 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
     return userService
         .getUserById(id)
@@ -86,7 +87,7 @@ public class UserController {
   }
 
   @GetMapping("/email/{email}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
     return userService
         .getUserByEmail(email)
@@ -95,7 +96,7 @@ public class UserController {
   }
 
   @PutMapping("/{id}/email")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<UserDTO> updateEmail(
       @PathVariable UUID id, @Valid @RequestBody UpdateEmailRequest request) {
     try {
@@ -107,12 +108,11 @@ public class UserController {
   }
 
   @PutMapping("/{id}/password")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<UserDTO> updatePassword(
       @PathVariable UUID id, @Valid @RequestBody UpdatePasswordRequest request) {
     try {
-      UserDTO updated =
-          userService.updateUserPassword(id, request.getOldPassword(), request.getNewPassword());
+      UserDTO updated = userService.updateUserPassword(id, request.getOldPassword(), request.getNewPassword());
       return ResponseEntity.ok(updated);
     } catch (UserNotFoundException e) {
       return ResponseEntity.notFound().build();
@@ -122,7 +122,7 @@ public class UserController {
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
     try {
       userService.deleteUser(id);

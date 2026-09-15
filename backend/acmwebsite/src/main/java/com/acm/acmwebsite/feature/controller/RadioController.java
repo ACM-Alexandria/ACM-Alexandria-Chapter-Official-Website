@@ -27,7 +27,8 @@ public class RadioController {
     // ── Public Endpoints ──
 
     @GetMapping("/seasons")
-    public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(@RequestParam(value = "page", defaultValue = "0") int page) {
+    public ResponseEntity<Page<RadioSeasonDto>> getAllSeasons(
+            @RequestParam(value = "page", defaultValue = "0") int page) {
         logger.info("Request received: GET /api/radio/seasons with page={}", page);
         return ResponseEntity.ok(radioService.getSeasonsByPage(page));
     }
@@ -59,19 +60,19 @@ public class RadioController {
     // ── Admin-only Season Operations ──
 
     @PostMapping("/seasons")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RadioSeasonDto> createSeason(@RequestBody RadioSeasonDto seasonDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(radioService.createSeason(seasonDto));
     }
 
     @PutMapping("/seasons/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RadioSeasonDto> updateSeason(@PathVariable Long id, @RequestBody RadioSeasonDto seasonDto) {
         return ResponseEntity.ok(radioService.updateSeason(id, seasonDto));
     }
 
     @DeleteMapping("/seasons/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteSeason(@PathVariable Long id) {
         radioService.deleteSeason(id);
         return ResponseEntity.noContent().build();
@@ -80,19 +81,20 @@ public class RadioController {
     // ── Admin-only Episode Operations ──
 
     @PostMapping("/episodes")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RadioEpisodeDto> createEpisode(@RequestBody RadioEpisodeDto episodeDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(radioService.createEpisode(episodeDto));
     }
 
     @PutMapping("/episodes/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RadioEpisodeDto> updateEpisode(@PathVariable Long id, @RequestBody RadioEpisodeDto episodeDto) {
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<RadioEpisodeDto> updateEpisode(@PathVariable Long id,
+            @RequestBody RadioEpisodeDto episodeDto) {
         return ResponseEntity.ok(radioService.updateEpisode(id, episodeDto));
     }
 
     @DeleteMapping("/episodes/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteEpisode(@PathVariable Long id) {
         radioService.deleteEpisode(id);
         return ResponseEntity.noContent().build();

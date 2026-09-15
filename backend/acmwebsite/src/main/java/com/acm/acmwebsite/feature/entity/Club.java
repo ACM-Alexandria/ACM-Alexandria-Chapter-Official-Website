@@ -22,6 +22,8 @@ public class Club {
     private String googleSheetUrl;
     @Column(name = "sheet_last_updated_at")
     private java.time.LocalDateTime sheetLastUpdatedAt;
+    @Column(name = "is_external", nullable = false)
+    private boolean isExternal = false;
 
     public Club() {
     }
@@ -32,6 +34,15 @@ public class Club {
         this.description = description;
         this.imageUrl = imageUrl;
         this.socialMediaLinks = socialMediaLinks;
+    }
+
+    public Club(Long id, String name, String description, String imageUrl, List<String> socialMediaLinks, boolean isExternal) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.socialMediaLinks = socialMediaLinks;
+        this.isExternal = isExternal;
     }
 
     public Long getId() {
@@ -88,5 +99,17 @@ public class Club {
 
     public void setSheetLastUpdatedAt(java.time.LocalDateTime sheetLastUpdatedAt) {
         this.sheetLastUpdatedAt = sheetLastUpdatedAt;
+    }
+
+    public boolean getIsExternal() {
+        return isExternal;
+    }
+
+    public boolean isExternal() {
+        return isExternal;
+    }
+
+    public void setIsExternal(boolean isExternal) {
+        this.isExternal = isExternal;
     }
 }

@@ -261,6 +261,7 @@ const HomePage = () => {
           <ClubsSection 
             loading={loading}
             clubs={clubs}
+            onShowClubDetails={handleShowClubDetails}
           />
         )}
         {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (

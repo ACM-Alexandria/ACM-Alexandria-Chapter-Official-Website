@@ -62,7 +62,7 @@ public class CommitteeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> updateCommittee(@PathVariable Long id,
             @RequestBody CommitteeDto committeeDto) {
         try {
@@ -77,7 +77,7 @@ public class CommitteeController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> createCommittee(@RequestBody CommitteeDto committeeDto) {
         Committee newCommittee = committeeMapper.toEntity(committeeDto);
 
@@ -93,7 +93,7 @@ public class CommitteeController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteCommittee(@PathVariable Long id) {
         var committee = committeeService.getCommitteeById(id);
         if (committee == null) {
@@ -105,7 +105,7 @@ public class CommitteeController {
     }
 
     @PostMapping("/{id}/open-call")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> openCommitteeCall(@PathVariable Long id) {
         try {
             committeeService.openCommitteeCall(id);
@@ -118,7 +118,7 @@ public class CommitteeController {
     }
 
     @PostMapping("/{id}/close-call")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> closeCall(@PathVariable Long id) {
         try {
             committeeService.closeCommitteeCall(id);
@@ -179,7 +179,7 @@ public class CommitteeController {
     // --- Admin Question Management Endpoints ---
 
     @PostMapping("/{id}/questions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> createCommitteeQuestion(
             @PathVariable("id") Long committeeId,
             @RequestBody FormQuestionRequestDto request) {
@@ -187,7 +187,7 @@ public class CommitteeController {
     }
 
     @PutMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> updateCommitteeQuestion(
             @PathVariable("id") Long committeeId,
             @PathVariable Long questionId,
@@ -196,7 +196,7 @@ public class CommitteeController {
     }
 
     @DeleteMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteCommitteeQuestion(
             @PathVariable("id") Long committeeId,
             @PathVariable Long questionId) {
@@ -207,25 +207,25 @@ public class CommitteeController {
     // --- Admin Call History & Google Sheets Sync Endpoints ---
 
     @GetMapping("/{id}/calls")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<List<CommitteeCallResponseDto>> getCommitteeCalls(@PathVariable("id") Long committeeId) {
         return ResponseEntity.ok(committeeRegistrationService.getCallsForCommittee(committeeId));
     }
 
     @GetMapping("/calls/{callId}/registrations/analysis")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> getCallRegistrationAnalysis(@PathVariable Long callId) {
         return ResponseEntity.ok(committeeRegistrationService.getRegistrationAnalysis(callId));
     }
 
     @PostMapping("/calls/{callId}/registrations/sheet")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> syncCallRegistrationsSheet(@PathVariable Long callId) {
         return ResponseEntity.ok(committeeRegistrationService.syncRegistrationsSheet(callId));
     }
 
     @PostMapping("{id}/change-message")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> changeCallMessage(@PathVariable Long id,
             @RequestBody Message message) {
         try {
@@ -288,7 +288,7 @@ public class CommitteeController {
     }
 
     @PostMapping("/{committeeId}/board-members")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> addCommitteeBoardMember(
             @PathVariable Long committeeId,
             @RequestBody CommitteeBoardMemberDto dto) {
@@ -303,7 +303,7 @@ public class CommitteeController {
     }
 
     @PutMapping("/board-members/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> updateCommitteeBoardMember(
             @PathVariable Long id,
             @RequestBody CommitteeBoardMemberDto dto) {
@@ -318,7 +318,7 @@ public class CommitteeController {
     }
 
     @DeleteMapping("/board-members/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> deleteCommitteeBoardMember(@PathVariable Long id) {
         try {
             committeeService.deleteCommitteeBoardMember(id);

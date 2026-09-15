@@ -25,13 +25,13 @@ public class PartnerController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Partner> createPartner(@RequestBody Partner partner) {
         return ResponseEntity.status(HttpStatus.CREATED).body(partnerService.createPartner(partner));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> updatePartner(@PathVariable Long id, @RequestBody Partner partner) {
         try {
             return ResponseEntity.ok(partnerService.updatePartner(id, partner));
@@ -41,7 +41,7 @@ public class PartnerController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deletePartner(@PathVariable Long id) {
         partnerService.deletePartner(id);
         return ResponseEntity.noContent().build();

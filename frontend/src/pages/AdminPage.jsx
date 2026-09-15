@@ -295,7 +295,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "events") {
       setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [] });
     } else if (mgmtTab === "clubs") {
-      setFormData({ name: "", description: "", imageUrl: "" });
+      setFormData({ name: "", description: "", imageUrl: "", isExternal: false });
     } else if (mgmtTab === "programs") {
       setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
     } else if (mgmtTab === "radio") {
