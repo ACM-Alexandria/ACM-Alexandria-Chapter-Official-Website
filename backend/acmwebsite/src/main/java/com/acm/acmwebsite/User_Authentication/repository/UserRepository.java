@@ -2,29 +2,16 @@ package com.acm.acmwebsite.User_Authentication.repository;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-  @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.committee com WHERE " +
-         "(:query IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-         "AND (:role IS NULL OR u.role = :role) " +
-         "AND (:committeeId IS NULL OR com.id = :committeeId) " +
-         "AND (:clubId IS NULL OR u.id IN (SELECT cb.user.id FROM ClubBoard cb WHERE cb.club.id = :clubId))")
-  Page<User> searchUsers(@Param("query") String query, 
-                         @Param("role") com.acm.acmwebsite.User_Authentication.enums.Role role, 
-                         @Param("committeeId") Long committeeId, 
-                         @Param("clubId") Long clubId, 
-                         Pageable pageable);
-
+public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -356,9 +357,46 @@ public class UserServiceImpl implements UserService {
             .refreshToken(refreshToken)
             .build();
   }
+  @Override
   public org.springframework.data.domain.Page<UserDTO> searchUsers(String query, Role role, Long committeeId, Long clubId, int page, int size) {
     org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-    return userRepository.searchUsers(query, role, committeeId, clubId, pageable).map(userMapper::toDTO);
+
+    org.springframework.data.jpa.domain.Specification<User> spec = (root, q, cb) -> {
+      List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+
+      if (query != null && !query.trim().isEmpty()) {
+        String searchPattern = "%" + query.trim().toLowerCase() + "%";
+        predicates.add(cb.or(
+            cb.like(cb.lower(root.get("name")), searchPattern),
+            cb.like(cb.lower(root.get("email")), searchPattern)
+        ));
+      }
+
+      if (role != null) {
+        predicates.add(cb.equal(root.get("role"), role));
+      }
+
+      if (committeeId != null) {
+        jakarta.persistence.criteria.Join<User, com.acm.acmwebsite.feature.entity.Committee> committeeJoin = root.join("committee", jakarta.persistence.criteria.JoinType.LEFT);
+        predicates.add(cb.equal(committeeJoin.get("id"), committeeId));
+      }
+
+      if (clubId != null) {
+        jakarta.persistence.criteria.Subquery<UUID> subquery = q.subquery(UUID.class);
+        jakarta.persistence.criteria.Root<com.acm.acmwebsite.feature.entity.ClubBoard> cbRoot = subquery.from(com.acm.acmwebsite.feature.entity.ClubBoard.class);
+        subquery.select(cbRoot.get("user").get("id"))
+                .where(cb.equal(cbRoot.get("club").get("id"), clubId));
+        predicates.add(root.get("id").in(subquery));
+      }
+
+      if (q != null) {
+        q.distinct(true);
+      }
+
+      return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+    };
+
+    return userRepository.findAll(spec, pageable).map(userMapper::toDTO);
   }
 
   @Override
