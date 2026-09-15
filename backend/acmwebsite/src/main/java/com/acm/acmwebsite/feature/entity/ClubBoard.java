@@ -4,8 +4,8 @@ import com.acm.acmwebsite.User_Authentication.entity.User;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "committee_board")
-public class CommitteeBoard {
+@Table(name = "club_board")
+public class ClubBoard {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,21 +18,21 @@ public class CommitteeBoard {
   private Integer order;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "committee_id", nullable = false)
-  private Committee committee;
+  @JoinColumn(name = "club_id", nullable = false)
+  private Club club;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  public CommitteeBoard() {
+  public ClubBoard() {
   }
 
-  public CommitteeBoard(Long id, String role, Integer order, Committee committee, User user) {
+  public ClubBoard(Long id, String role, Integer order, Club club, User user) {
     this.id = id;
     this.role = role;
     this.order = order;
-    this.committee = committee;
+    this.club = club;
     this.user = user;
   }
 
@@ -60,12 +60,12 @@ public class CommitteeBoard {
     this.order = order;
   }
 
-  public Committee getCommittee() {
-    return committee;
+  public Club getClub() {
+    return club;
   }
 
-  public void setCommittee(Committee committee) {
-    this.committee = committee;
+  public void setClub(Club club) {
+    this.club = club;
   }
 
   public User getUser() {

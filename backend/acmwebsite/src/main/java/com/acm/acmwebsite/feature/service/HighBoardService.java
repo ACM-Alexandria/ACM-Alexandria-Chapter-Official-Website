@@ -23,8 +23,8 @@ public class HighBoardService {
   }
 
   public HighBoard addHighBoardMember(HighBoard highBoard) {
-    if (highBoard.getName() == null || highBoard.getName().trim().isEmpty()) {
-      throw new IllegalArgumentException("Name is required");
+    if (highBoard.getUser() == null) {
+      throw new IllegalArgumentException("User is required");
     }
     if (highBoard.getRole() == null || highBoard.getRole().trim().isEmpty()) {
       throw new IllegalArgumentException("Role is required");
@@ -34,17 +34,15 @@ public class HighBoardService {
 
   public HighBoard updateHighBoardMember(Long id, HighBoard updated) {
     return highBoardRepository.findById(id).map(member -> {
-      if (updated.getName() == null || updated.getName().trim().isEmpty()) {
-        throw new IllegalArgumentException("Name is required");
+      if (updated.getUser() == null) {
+        throw new IllegalArgumentException("User is required");
       }
       if (updated.getRole() == null || updated.getRole().trim().isEmpty()) {
         throw new IllegalArgumentException("Role is required");
       }
-      member.setName(updated.getName());
+      member.setUser(updated.getUser());
       member.setRole(updated.getRole());
-      member.setImageUrl(updated.getImageUrl());
       member.setOrder(updated.getOrder());
-      member.setLinkedinUrl(updated.getLinkedinUrl());
       return highBoardRepository.save(member);
     }).orElseThrow(() -> new EntityNotFoundException("High Board member not found with id " + id));
   }

@@ -1,23 +1,22 @@
 package com.acm.acmwebsite.feature.dto.commiteedtos;
 
+import java.util.UUID;
+
 public class CommitteeBoardMemberDto {
   private Long id;
-  private String name;
-  private String imageUrl;
   private String role;
   private Integer order;
-  private String linkedinUrl;
+
+  private UUID userId;
 
   public CommitteeBoardMemberDto() {
   }
 
-  public CommitteeBoardMemberDto(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
+  public CommitteeBoardMemberDto(Long id, String role, Integer order, UUID userId) {
     this.id = id;
-    this.name = name;
-    this.imageUrl = imageUrl;
     this.role = role;
     this.order = order;
-    this.linkedinUrl = linkedinUrl;
+    this.userId = userId;
   }
 
   public Long getId() {
@@ -26,22 +25,6 @@ public class CommitteeBoardMemberDto {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getImageUrl() {
-    return imageUrl;
-  }
-
-  public void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
   }
 
   public String getRole() {
@@ -60,11 +43,11 @@ public class CommitteeBoardMemberDto {
     this.order = order;
   }
 
-  public String getLinkedinUrl() {
-    return linkedinUrl;
+  public UUID getUserId() {
+    return userId;
   }
 
-  public void setLinkedinUrl(String linkedinUrl) {
-    this.linkedinUrl = linkedinUrl;
+  public void setUserId(UUID userId) {
+    this.userId = userId;
   }
 }

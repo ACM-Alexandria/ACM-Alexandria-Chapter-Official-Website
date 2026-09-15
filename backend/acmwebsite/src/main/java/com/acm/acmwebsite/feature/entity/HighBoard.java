@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.entity;
 
+import com.acm.acmwebsite.User_Authentication.entity.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,30 +12,23 @@ public class HighBoard {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @Column(nullable = false)
     private String role;
 
     @Column(name = "`order`")
     private Integer order;
 
-    @Column(name = "linkedin_url")
-    private String linkedinUrl;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public HighBoard() {
     }
 
-    public HighBoard(Long id, String name, String imageUrl, String role, Integer order, String linkedinUrl) {
+    public HighBoard(Long id, String role, Integer order, User user) {
         this.id = id;
-        this.name = name;
-        this.imageUrl = imageUrl;
         this.role = role;
         this.order = order;
-        this.linkedinUrl = linkedinUrl;
+        this.user = user;
     }
 
     public Long getId() {
@@ -43,22 +37,6 @@ public class HighBoard {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getRole() {
@@ -77,12 +55,11 @@ public class HighBoard {
         this.order = order;
     }
 
-    public String getLinkedinUrl() {
-        return linkedinUrl;
+    public User getUser() {
+        return user;
     }
 
-    public void setLinkedinUrl(String linkedinUrl) {
-        this.linkedinUrl = linkedinUrl;
+    public void setUser(User user) {
+        this.user = user;
     }
-
 }
