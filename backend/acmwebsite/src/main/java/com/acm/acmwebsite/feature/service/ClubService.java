@@ -69,7 +69,10 @@ public class ClubService {
                     b.getId(),
                     b.getRole(),
                     b.getOrder(),
-                    b.getUser() != null ? b.getUser().getId() : null
+                    b.getUser() != null ? b.getUser().getId() : null,
+                    b.getUser() != null ? b.getUser().getName() : null,
+                    b.getUser() != null ? b.getUser().getProfileImageUrl() : null,
+                    b.getUser() != null ? b.getUser().getLinkedinUrl() : null
                 )).collect(Collectors.toList());
                 dto.setBoardRoles(boardRoles);
             }

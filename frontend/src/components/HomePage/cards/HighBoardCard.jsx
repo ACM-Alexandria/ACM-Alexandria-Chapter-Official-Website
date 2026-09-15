@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { useUserProfile } from "../../../hooks/useUserProfile";
 
 const HighBoardCard = ({ member, index }) => {
   const [imageError, setImageError] = useState(false);
-  const userId = member.user?.id || member.userId || member.user;
-  const { profile, loading } = useUserProfile(userId);
   
-  const name = profile?.name || member.user?.name || (loading ? "Loading..." : "Unknown Member");
-  const imageUrl = profile?.profile_image_url || member.user?.profile_image_url || null;
-  const linkedinUrl = profile?.linkedin_url || member.user?.linkedin_url || null;
+  const name = member.userName || member.user?.name || "Member";
+  const imageUrl = member.profileImageUrl || member.user?.profileImageUrl || member.user?.profile_image_url || null;
+  const linkedinUrl = member.linkedinUrl || member.user?.linkedinUrl || member.user?.linkedin_url || null;
 
   return (
     <div
@@ -29,7 +26,7 @@ const HighBoardCard = ({ member, index }) => {
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
             <span className="text-slate-300 dark:text-slate-500 text-6xl font-black select-none">
-              {loading ? "..." : (name?.charAt(0) || "H")}
+              {name?.charAt(0) || "H"}
             </span>
           </div>
         )}

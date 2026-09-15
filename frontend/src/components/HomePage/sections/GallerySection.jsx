@@ -234,7 +234,7 @@ const GallerySection = () => {
 
   if (loading) {
     return (
-      <div className="mt-28">
+      <div>
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
           <div>
             <h3 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-2">
@@ -268,7 +268,7 @@ const GallerySection = () => {
   const isCarousel = images.length >= 3;
 
   return (
-    <div className="mt-28">
+    <div>
       {/* Header */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
         <div className="text-center md:text-left">

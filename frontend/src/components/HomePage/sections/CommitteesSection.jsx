@@ -12,7 +12,7 @@ const CommitteesSection = ({
   if (!isEnabled(getEnv("VITE_ENABLE_COMMITTEES"))) return null;
 
   return (
-    <section id="committees" className="w-full py-24 px-6 relative overflow-hidden bg-white dark:bg-slate-950">
+    <section id="committees" className="w-full py-24 px-6 relative overflow-hidden bg-white dark:bg-slate-900">
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
           <div className="text-center md:text-left">

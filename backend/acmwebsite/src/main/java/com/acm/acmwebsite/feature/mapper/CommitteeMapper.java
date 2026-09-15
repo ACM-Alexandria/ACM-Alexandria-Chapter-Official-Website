@@ -20,6 +20,9 @@ public interface CommitteeMapper {
     Committee toEntity(CommitteeDto dto);
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userName", source = "user.name")
+    @Mapping(target = "profileImageUrl", source = "user.profileImageUrl")
+    @Mapping(target = "linkedinUrl", source = "user.linkedinUrl")
     CommitteeBoardMemberDto toBoardDto(CommitteeBoard board);
 
     @Mapping(target = "committee", ignore = true)

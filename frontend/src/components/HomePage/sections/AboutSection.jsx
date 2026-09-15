@@ -1,5 +1,4 @@
 import HighBoardCard from "../cards/HighBoardCard";
-import GallerySection from "./GallerySection";
 import ActiveFormsSection from "./ActiveFormsSection";
 import { getEnv } from "../../../utils/env";
 
@@ -113,14 +112,10 @@ const AboutSection = ({
             )}
           </div>
         )}
-
-        {/* Gallery Section */}
-        {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (
-          <GallerySection />
-        )}
       </div>
     </section>
   );
 };
 
 export default AboutSection;
+

@@ -8,6 +8,7 @@ import GreetingSection from "../components/HomePage/sections/GreetingSection";
 import AboutSection from "../components/HomePage/sections/AboutSection";
 import CommitteesSection from "../components/HomePage/sections/CommitteesSection";
 import ClubsSection from "../components/HomePage/sections/ClubsSection";
+import GallerySection from "../components/HomePage/sections/GallerySection";
 import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import RadioSection from "../components/HomePage/sections/RadioSection";
@@ -261,6 +262,13 @@ const HomePage = () => {
             loading={loading}
             clubs={clubs}
           />
+        )}
+        {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (
+          <section id="gallery" className="w-full py-24 px-6 relative overflow-hidden bg-white dark:bg-slate-900">
+            <div className="max-w-7xl mx-auto relative z-10">
+              <GallerySection />
+            </div>
+          </section>
         )}
         {isEnabled(getEnv("VITE_ENABLE_EVENTS")) && (
           <EventsSection

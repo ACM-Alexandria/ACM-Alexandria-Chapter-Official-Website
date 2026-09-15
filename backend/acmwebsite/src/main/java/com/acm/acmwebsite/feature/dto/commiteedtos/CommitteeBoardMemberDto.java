@@ -8,6 +8,9 @@ public class CommitteeBoardMemberDto {
   private Integer order;
 
   private UUID userId;
+  private String userName;
+  private String profileImageUrl;
+  private String linkedinUrl;
 
   public CommitteeBoardMemberDto() {
   }
@@ -17,6 +20,16 @@ public class CommitteeBoardMemberDto {
     this.role = role;
     this.order = order;
     this.userId = userId;
+  }
+
+  public CommitteeBoardMemberDto(Long id, String role, Integer order, UUID userId, String userName, String profileImageUrl, String linkedinUrl) {
+    this.id = id;
+    this.role = role;
+    this.order = order;
+    this.userId = userId;
+    this.userName = userName;
+    this.profileImageUrl = profileImageUrl;
+    this.linkedinUrl = linkedinUrl;
   }
 
   public Long getId() {
@@ -50,4 +63,29 @@ public class CommitteeBoardMemberDto {
   public void setUserId(UUID userId) {
     this.userId = userId;
   }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public String getProfileImageUrl() {
+    return profileImageUrl;
+  }
+
+  public void setProfileImageUrl(String profileImageUrl) {
+    this.profileImageUrl = profileImageUrl;
+  }
+
+  public String getLinkedinUrl() {
+    return linkedinUrl;
+  }
+
+  public void setLinkedinUrl(String linkedinUrl) {
+    this.linkedinUrl = linkedinUrl;
+  }
 }
+

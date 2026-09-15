@@ -19,7 +19,7 @@ public class HighBoardService {
   }
 
   public List<HighBoard> getHighBoard() {
-    return highBoardRepository.findAll();
+    return highBoardRepository.findAllWithUser();
   }
 
   public HighBoard addHighBoardMember(HighBoard highBoard) {

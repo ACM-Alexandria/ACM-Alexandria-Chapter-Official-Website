@@ -89,10 +89,6 @@ public class User {
   @JoinColumn(name = "committee_id")
   private Committee committee;
 
-
-
-
-
   @Column(name = "profile_image_url")
   private String profileImageUrl;
 

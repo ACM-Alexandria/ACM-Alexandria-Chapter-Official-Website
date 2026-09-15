@@ -45,7 +45,7 @@ const ClubCard = ({ club }) => {
             {club.name}
           </h3>
         </div>
-        <p className="text-slate-500 dark:text-slate-300 text-xs min-[375px]:text-sm sm:text-sm md:text-base leading-relaxed mb-4 min-[375px]:mb-5 sm:mb-6 line-clamp-3 font-medium">
+        <p className="text-slate-500 dark:text-slate-300 text-xs min-[375px]:text-sm sm:text-sm md:text-base leading-relaxed mb-4 min-[375px]:mb-5 sm:mb-6 line-clamp-2 font-medium">
           {club.description || "Fostering technological learning and practical skills through specialized club activities."}
         </p>
       </div>

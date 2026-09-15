@@ -1,11 +1,7 @@
-import { useUserProfile } from "../../../hooks/useUserProfile";
-
 const CommitteeMemberCard = ({ member }) => {
-  const { profile, loading } = useUserProfile(member.userId);
-  
-  const name = profile?.name || "Loading...";
-  const imageUrl = profile?.profile_image_url || null;
-  const linkedinUrl = profile?.linkedin_url || null;
+  const name = member.userName || "Member";
+  const imageUrl = member.profileImageUrl || null;
+  const linkedinUrl = member.linkedinUrl || null;
 
   return (
     <div className="bg-white dark:bg-slate-800 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-950/40 transition-all duration-300 border border-slate-100 dark:border-slate-700 text-center group mx-auto w-[105px] min-[375px]:w-[120px] min-[425px]:w-[135px] sm:w-40 md:w-48 lg:w-64 p-2.5 min-[375px]:p-3 min-[425px]:p-3.5 sm:p-4 md:p-5 lg:p-6 rounded-2xl sm:rounded-3xl">
@@ -19,7 +15,7 @@ const CommitteeMemberCard = ({ member }) => {
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/10 to-[#205E85]/10 transition-transform duration-700 group-hover:scale-110">
             <span className="text-slate-400 dark:text-slate-300 font-black text-xs min-[375px]:text-sm min-[425px]:text-base sm:text-lg lg:text-2xl">
-              {loading ? "..." : (name?.charAt(0) || "M")}
+              {name?.charAt(0) || "M"}
             </span>
           </div>
         )}
@@ -68,3 +64,4 @@ const CommitteeMemberCard = ({ member }) => {
 };
 
 export default CommitteeMemberCard;
+
