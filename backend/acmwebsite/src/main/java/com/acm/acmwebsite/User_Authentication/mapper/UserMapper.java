@@ -57,6 +57,10 @@ public class UserMapper {
         .isAlexEngStudent(user.getIsAlexEngStudent())
         .department(user.getDepartment())
         .batch(user.getBatch())
+        .profileImageUrl(user.getProfileImageUrl())
+        .linkedinUrl(user.getLinkedinUrl())
+        .committeeId(user.getCommittee() != null ? user.getCommittee().getId() : null)
+        .clubIds(user.getClubs() != null ? user.getClubs().stream().map(com.acm.acmwebsite.feature.entity.Club::getId).toList() : null)
         .build();
   }
 }

@@ -40,4 +40,6 @@ public interface UserService {
   UserProfileDto getUserProfileById(UUID id);
 
   UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto);
+
+  String uploadProfileImage(UUID id, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException;
 }

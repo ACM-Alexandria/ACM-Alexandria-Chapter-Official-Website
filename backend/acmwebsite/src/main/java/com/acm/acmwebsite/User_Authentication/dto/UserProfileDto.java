@@ -32,4 +32,16 @@ public class UserProfileDto {
     private Department department;
 
     private String batch;
+
+    @JsonProperty("profile_image_url")
+    private String profileImageUrl;
+
+    @JsonProperty("linkedin_url")
+    private String linkedinUrl;
+
+    @JsonProperty("committee_id")
+    private Long committeeId;
+
+    @JsonProperty("club_ids")
+    private java.util.List<Long> clubIds;
 }

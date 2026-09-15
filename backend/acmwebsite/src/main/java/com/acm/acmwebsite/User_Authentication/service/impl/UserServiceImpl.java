@@ -13,6 +13,7 @@ import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
+import com.acm.acmwebsite.feature.service.ImageUploadService;
 
 import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -50,6 +51,7 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final EmailService emailService;
   private final TokenService tokenService;
+  private final ImageUploadService imageUploadService;
 
   @Value("${google.sheets.client-id}")
   private String googleClientId;
@@ -280,9 +282,24 @@ public class UserServiceImpl implements UserService {
       user.setDepartment(null);
       user.setBatch(null);
     }
+    
+    if (profileDto.getLinkedinUrl() != null) {
+      user.setLinkedinUrl(profileDto.getLinkedinUrl());
+    }
 
     User saved = userRepository.save(user);
     return userMapper.toProfileDto(saved);
+  }
+
+  @Override
+  @Transactional
+  public String uploadProfileImage(UUID id, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+    String imageUrl = imageUploadService.uploadImage(file);
+    user.setProfileImageUrl(imageUrl);
+    userRepository.save(user);
+    return imageUrl;
   }
 
   @Override

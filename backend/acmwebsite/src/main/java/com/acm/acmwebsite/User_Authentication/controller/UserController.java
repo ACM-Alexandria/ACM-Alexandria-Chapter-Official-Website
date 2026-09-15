@@ -9,6 +9,7 @@ import com.acm.acmwebsite.User_Authentication.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,20 @@ public class UserController {
     }
     UserProfileDto updated = userService.updateUserProfile(id, request);
     return ResponseEntity.ok(updated);
+  }
+
+  @PostMapping("/{id}/profile/image")
+  public ResponseEntity<?> uploadProfileImage(@PathVariable UUID id, @RequestParam("file") org.springframework.web.multipart.MultipartFile file, Authentication authentication) {
+    ResponseEntity<?> denied = checkAccess(id, authentication);
+    if (denied != null) {
+      return denied;
+    }
+    try {
+      String imageUrl = userService.uploadProfileImage(id, file);
+      return ResponseEntity.ok(Map.of("profile_image_url", imageUrl));
+    } catch (java.io.IOException e) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse("Image upload failed: " + e.getMessage()));
+    }
   }
 
   private ResponseEntity<?> checkAccess(UUID id, Authentication authentication) {
