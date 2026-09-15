@@ -66,7 +66,7 @@ const Footer = () => {
   };
 
   return (
-    <footer id="footer" className="w-full relative overflow-hidden bg-gradient-to-br from-[#205E85] to-[#1a4563] dark:from-[#123B55] dark:to-[#0B263A] text-white dark:text-slate-100">
+    <footer id="footer" className="w-full relative overflow-hidden bg-gradient-to-br from-[#205E85] to-[#1a4563] dark:from-slate-800 dark:to-slate-900 text-white dark:text-slate-100">
       {/* Decorative patterns */}
       <div 
         className="absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none"
