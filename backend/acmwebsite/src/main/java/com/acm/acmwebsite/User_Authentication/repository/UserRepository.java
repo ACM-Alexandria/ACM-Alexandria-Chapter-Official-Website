@@ -8,9 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+  @Query("SELECT u FROM User u WHERE " +
+         "(:query IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+         "AND (:role IS NULL OR u.role = :role)")
+  Page<User> searchUsers(@Param("query") String query, @Param("role") com.acm.acmwebsite.User_Authentication.enums.Role role, Pageable pageable);
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);

@@ -14,6 +14,8 @@ import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.service.ImageUploadService;
+import com.acm.acmwebsite.feature.repository.CommitteeRepository;
+import com.acm.acmwebsite.feature.repository.ClubRepository;
 
 import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -52,6 +54,8 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
   private final TokenService tokenService;
   private final ImageUploadService imageUploadService;
+  private final CommitteeRepository committeeRepository;
+  private final ClubRepository clubRepository;
 
   @Value("${google.sheets.client-id}")
   private String googleClientId;
@@ -348,5 +352,44 @@ public class UserServiceImpl implements UserService {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
+  }
+  public org.springframework.data.domain.Page<UserDTO> searchUsers(String query, Role role, int page, int size) {
+    org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+    return userRepository.searchUsers(query, role, pageable).map(userMapper::toDTO);
+  }
+
+  @Override
+  @Transactional
+  public UserDTO updateUserRole(UUID userId, Role role) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+    user.setRole(role);
+    User saved = userRepository.save(user);
+    return userMapper.toDTO(saved);
+  }
+
+  @Override
+  @Transactional
+  public UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, java.util.List<Long> clubIds) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+    if (committeeId != null) {
+      com.acm.acmwebsite.feature.entity.Committee committee = committeeRepository.findById(committeeId)
+          .orElseThrow(() -> new IllegalArgumentException("Committee not found"));
+      user.setCommittee(committee);
+    } else {
+      user.setCommittee(null);
+    }
+
+    if (clubIds != null && !clubIds.isEmpty()) {
+      java.util.List<com.acm.acmwebsite.feature.entity.Club> clubs = clubRepository.findAllById(clubIds);
+      user.setClubs(clubs);
+    } else {
+      user.setClubs(null);
+    }
+
+    User saved = userRepository.save(user);
+    return userMapper.toDTO(saved);
   }
 }
