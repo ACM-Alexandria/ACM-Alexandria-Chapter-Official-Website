@@ -14,6 +14,7 @@ import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,28 +37,47 @@ public class ClubService {
     private final ClubFormQuestionRepository clubFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
+    private final ClubBoardRepository clubBoardRepository;
 
-    @Value("${google.sheets.clubs-folder-id:}")
+    @Value("${google.drive.clubs-folder-id:}")
     private String clubsFolderId;
 
     public ClubService(ClubRepository clubRepository, ClubMapper clubMapper,
                        ClubRegistrationRepository clubRegistrationRepository,
                        ClubFormQuestionRepository clubFormQuestionRepository,
                        GoogleSheetsService googleSheetsService,
-                       SubscriptionService subscriptionService) {
+                       SubscriptionService subscriptionService,
+                       ClubBoardRepository clubBoardRepository) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
         this.clubRegistrationRepository = clubRegistrationRepository;
         this.clubFormQuestionRepository = clubFormQuestionRepository;
         this.googleSheetsService = googleSheetsService;
         this.subscriptionService = subscriptionService;
+        this.clubBoardRepository = clubBoardRepository;
     }
 
 
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
         pageNumber = Math.max(0, pageNumber);
-        Pageable pageable = PageRequest.of(pageNumber, 4, Sort.by("name").ascending());
-        return clubRepository.findAll(pageable).map(clubMapper::toClubCardDto);
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("name").ascending());
+        return clubRepository.findAll(pageable).map(club -> {
+            ClubCardDto dto = clubMapper.toClubCardDto(club);
+            var boardEntities = clubBoardRepository.findByClubId(club.getId());
+            if (boardEntities != null && !boardEntities.isEmpty()) {
+                var boardRoles = boardEntities.stream().map(b -> new com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto(
+                    b.getId(),
+                    b.getRole(),
+                    b.getOrder(),
+                    b.getUser() != null ? b.getUser().getId() : null,
+                    b.getUser() != null ? b.getUser().getName() : null,
+                    b.getUser() != null ? b.getUser().getProfileImageUrl() : null,
+                    b.getUser() != null ? b.getUser().getLinkedinUrl() : null
+                )).collect(Collectors.toList());
+                dto.setBoardRoles(boardRoles);
+            }
+            return dto;
+        });
     }
     public Optional<Club> getClubById(long id) {
         return clubRepository.findById(id);
@@ -126,9 +146,25 @@ public class ClubService {
             club.setDescription(updatedClub.getDescription());
             club.setImageUrl(updatedClub.getImageUrl());
             club.setSocialMediaLinks(updatedClub.getSocialMediaLinks());
+            club.setIsExternal(updatedClub.getIsExternal());
+            club.setRegistrationOpen(updatedClub.getRegistrationOpen());
             return clubRepository.save(club);
                 }
         ).orElseThrow(()->new RuntimeException("Club not found"));
+    }
+
+    public Club openRegistration(Long id) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        club.setRegistrationOpen(true);
+        return clubRepository.save(club);
+    }
+
+    public Club closeRegistration(Long id) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        club.setRegistrationOpen(false);
+        return clubRepository.save(club);
     }
 
     @Transactional(readOnly = true)

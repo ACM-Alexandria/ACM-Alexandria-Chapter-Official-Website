@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/program")
 public class ProgramController {
@@ -36,20 +35,20 @@ public class ProgramController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<ProgramDto> createProgram(@RequestBody ProgramDto programDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(programService.createProgram(programDto));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<ProgramDto> updateProgram(@PathVariable("id") long id,
-                                                    @RequestBody ProgramDto programDto) {
+            @RequestBody ProgramDto programDto) {
         return ResponseEntity.ok(programService.updateProgram(id, programDto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteProgramById(@PathVariable long id) {
         programService.deleteProgram(id);
         return ResponseEntity.ok().build();
@@ -58,7 +57,7 @@ public class ProgramController {
     // ── Registration Toggle ──
 
     @PostMapping("/{id}/toggle-registration")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<ProgramDto> toggleRegistration(
             @PathVariable("id") Long programId,
             @RequestParam boolean open) {
@@ -68,7 +67,7 @@ public class ProgramController {
     // ── Form Questions ──
 
     @PostMapping("/{id}/questions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> createQuestion(
             @PathVariable("id") Long programId,
             @RequestBody FormQuestionRequestDto request) {
@@ -76,7 +75,7 @@ public class ProgramController {
     }
 
     @PutMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> updateQuestion(
             @PathVariable("id") Long programId,
             @PathVariable Long questionId,
@@ -85,7 +84,7 @@ public class ProgramController {
     }
 
     @DeleteMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteQuestion(
             @PathVariable("id") Long programId,
             @PathVariable Long questionId) {
@@ -96,13 +95,13 @@ public class ProgramController {
     // ── Registration Analytics ──
 
     @GetMapping("/{id}/registrations/analysis")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> getRegistrationAnalysis(@PathVariable Long id) {
         return ResponseEntity.ok(programService.getRegistrationAnalysis(id));
     }
 
     @PostMapping("/{id}/registrations/sheet")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> syncRegistrationsSheet(@PathVariable Long id) {
         return ResponseEntity.ok(programService.syncRegistrationsSheet(id));
     }

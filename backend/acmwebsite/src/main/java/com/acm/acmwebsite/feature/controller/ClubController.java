@@ -33,36 +33,48 @@ public class ClubController {
                 .orElse(ResponseEntity.notFound().build());
     }
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public Club createClub(@RequestBody Club club) {
         return clubService.createClub(club);
     }
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public Club updateClub(@PathVariable Long id,@RequestBody Club club) {
         return clubService.updateClub(id, club);
     }
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteClub(@PathVariable Long id) {
         clubService.deleteClubById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/open-call")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Club> openClubCall(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.openRegistration(id));
+    }
+
+    @PostMapping("/{id}/close-call")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Club> closeClubCall(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.closeRegistration(id));
+    }
+
     @GetMapping("/{id}/registrations/analysis")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> getClubRegistrationAnalysis(@PathVariable Long id) {
         return ResponseEntity.ok(clubService.getRegistrationAnalysis(id));
     }
 
     @PostMapping("/{id}/registrations/sheet")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> syncClubRegistrationsSheet(@PathVariable Long id) {
         return ResponseEntity.ok(clubService.syncRegistrationsSheet(id));
     }
 
     @PostMapping("/{id}/questions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> createClubQuestion(
             @PathVariable("id") Long clubId,
             @RequestBody FormQuestionRequestDto request) {
@@ -70,7 +82,7 @@ public class ClubController {
     }
 
     @PutMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> updateClubQuestion(
             @PathVariable("id") Long clubId,
             @PathVariable Long questionId,
@@ -79,7 +91,7 @@ public class ClubController {
     }
 
     @DeleteMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteClubQuestion(
             @PathVariable("id") Long clubId,
             @PathVariable Long questionId) {
@@ -93,7 +105,7 @@ public class ClubController {
     }
 
     @PutMapping("/{id}/social-links")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<List<String>> updateClubSocialLinks(
             @PathVariable("id") Long clubId,
             @RequestBody List<String> socialLinks) {

@@ -4,91 +4,137 @@ import {
   HiOutlinePhone, 
   HiOutlineAcademicCap, 
   HiOutlineBriefcase, 
-  HiOutlineLibrary 
+  HiOutlineLibrary,
+  HiOutlineLink
 } from "react-icons/hi";
 
+const getRoleDisplay = (role) => {
+  switch (role) {
+    case "SUPER_ADMIN":
+      return { label: "System Administrator" };
+    case "ACM_HIGH_BOARD":
+      return { label: "High Board" };
+    case "ACM_COMMITTEE_BOARD":
+      return { label: "Committee Board" };
+    case "ACM_CLUB_BOARD":
+      return { label: "Club Board" };
+    case "ACM_MEMBER":
+      return { label: "ACM Member" };
+    default:
+      return { label: "User" };
+  }
+};
+
 const ProfileViewCard = ({ user, profile }) => {
+  const roleDisplay = getRoleDisplay(profile.role);
+
   return (
-    <div className="p-8 md:p-12 flex flex-col gap-10">
+    <div className="p-6 md:p-12 flex flex-col gap-8 md:gap-10 bg-white dark:bg-slate-900">
       
-      <div className="bg-slate-50/70 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4">
-        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider block">Registered Email</span>
-        <span className="font-bold text-slate-700 dark:text-slate-100 break-all text-sm md:text-base">{user?.email}</span>
+      {/* Header Banner - Clean and Minimal */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 md:pb-8">
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 w-full md:w-auto">
+          {profile.profileImageUrl && profile.role !== "USER" && profile.role !== "ACM_MEMBER" ? (
+            <img src={profile.profileImageUrl} alt="Profile" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+          ) : (
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#4B98C8] text-3xl font-semibold border border-slate-200 dark:border-slate-700">
+              {user?.email?.[0].toUpperCase() || "U"}
+            </div>
+          )}
+          
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words">
+              {profile.name || "ACM Member"}
+            </h2>
+            <span className="text-sm text-slate-500 dark:text-slate-400 break-all">{user?.email}</span>
+          </div>
+        </div>
+        
+        {/* Role Badge - Simple Pill */}
+        <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 self-start md:self-auto mt-2 md:mt-0">
+          <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+            {roleDisplay.label}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-[fadeIn_0.5s_ease]">
+      {/* Information Grid - Clean Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Name Panel */}
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100/60 dark:border-slate-700 rounded-[1.5rem] p-6 flex items-center gap-5">
-          <div className="w-14 h-14 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-2xl shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
-            <HiOutlineUser className="w-7 h-7" />
-          </div>
-          <div className="overflow-hidden">
-            <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-0.5">Full Name</span>
-            <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate block text-lg leading-tight">
-              {profile.name || <em className="text-slate-300 dark:text-slate-500 font-semibold not-italic">Not provided</em>}
-            </span>
-          </div>
-        </div>
-
         {/* Phone Panel */}
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100/60 dark:border-slate-700 rounded-[1.5rem] p-6 flex items-center gap-5">
-          <div className="w-14 h-14 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-2xl shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
-            <HiOutlinePhone className="w-7 h-7" />
+        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
+          <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+            <HiOutlinePhone className="w-5 h-5 md:w-6 md:h-6" />
           </div>
-          <div className="overflow-hidden">
-            <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-0.5">Phone Number</span>
-            <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate block text-lg leading-tight">
-              {profile.phoneNumber || <em className="text-slate-300 dark:text-slate-500 font-semibold not-italic">Not provided</em>}
+          <div className="overflow-hidden w-full">
+            <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Phone Number</span>
+            <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base break-all">
+              {profile.phoneNumber || <span className="text-slate-400 italic">Not provided</span>}
             </span>
           </div>
         </div>
 
-        {/* Alexandria University Faculty of Engineering Status Panel - Hidden if not filled */}
+        {/* LinkedIn Panel */}
+        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
+          <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+            <HiOutlineLink className="w-5 h-5 md:w-6 md:h-6" />
+          </div>
+          <div className="overflow-hidden w-full">
+            <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Professional Network</span>
+            {profile.linkedinUrl ? (
+              <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="font-medium text-[#4B98C8] hover:underline truncate block text-sm md:text-base">
+                {profile.linkedinUrl}
+              </a>
+            ) : (
+              <span className="font-medium text-slate-900 dark:text-slate-200 text-base block">
+                <span className="text-slate-400 italic">Not connected</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Alexandria University Status */}
         {profile.isAlexEngStudent !== null && (
-          <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100/60 dark:border-slate-700 rounded-[1.5rem] p-6 flex items-center gap-5 col-span-1 md:col-span-2 animate-[fadeIn_0.3s_ease]">
-            <div className={`w-14 h-14 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-2xl shadow-sm flex items-center justify-center shrink-0 
-              ${profile.isAlexEngStudent === true ? "text-[#4B98C8] dark:text-blue-300" : "text-slate-400 dark:text-slate-300"}`}>
-              <HiOutlineLibrary className="w-7 h-7" />
+          <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4 col-span-1 md:col-span-2">
+            <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+              <HiOutlineLibrary className="w-5 h-5 md:w-6 md:h-6" />
             </div>
-            <div className="overflow-hidden">
-              <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-0.5">Student in Faculty of Engineering, Alexandria University?</span>
-              <span className={`font-extrabold truncate block text-base md:text-lg leading-tight
-                ${profile.isAlexEngStudent === true ? "text-emerald-600 dark:text-emerald-300" : "text-slate-500 dark:text-slate-300"}`}>
-                {profile.isAlexEngStudent === true ? "Yes" : "No"}
+            <div className="overflow-hidden w-full">
+              <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Alexandria University, Faculty of Engineering</span>
+              <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block">
+                {profile.isAlexEngStudent ? "Registered Student" : "Not a student"}
               </span>
             </div>
           </div>
         )}
 
-        {/* Dynamically Show University Information only if flag is true */}
+        {/* Dynamic Academic Details */}
         {profile.isAlexEngStudent === true && (
           <>
-            {/* Batch Panel */}
-            <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100/60 dark:border-slate-700 rounded-[1.5rem] p-6 flex items-center gap-5 col-span-1 animate-[fadeIn_0.3s_ease]">
-              <div className="w-14 h-14 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-2xl shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
-                <HiOutlineAcademicCap className="w-7 h-7" />
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
+              <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+                <HiOutlineAcademicCap className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div className="overflow-hidden">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-0.5">Academic Batch</span>
-                <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate block text-lg leading-tight">
-                  {profile.batch || <em className="text-slate-300 dark:text-slate-500 font-semibold not-italic">Not provided</em>}
+              <div className="overflow-hidden w-full">
+                <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Academic Batch</span>
+                <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block break-words">
+                  {profile.batch || <span className="text-slate-400 italic">Not provided</span>}
                 </span>
               </div>
             </div>
 
-            {/* Department Panel */}
-            <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100/60 dark:border-slate-700 rounded-[1.5rem] p-6 flex items-center gap-5 col-span-1 animate-[fadeIn_0.3s_ease]">
-              <div className="w-14 h-14 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-2xl shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
-                <HiOutlineBriefcase className="w-7 h-7" />
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
+              <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+                <HiOutlineBriefcase className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div className="overflow-hidden">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-0.5">Department</span>
-                <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate block text-lg leading-tight">
-                  {profile.department === "CSED" ? "Computer & Systems (CSED)" : 
-                   profile.department === "CCE" ? "Computer & Communications (CCE)" : 
+              <div className="overflow-hidden w-full">
+                <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Department</span>
+                <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block break-words">
+                  {profile.department === "CSED" ? "Computer & Systems" : 
+                   profile.department === "CCE" ? "Computer & Comms" : 
                    profile.department === "OTHER" ? "Other" : 
-                   <em className="text-slate-300 dark:text-slate-500 font-semibold not-italic">Not provided</em>}
+                   <span className="text-slate-400 italic">Not provided</span>}
                 </span>
               </div>
             </div>

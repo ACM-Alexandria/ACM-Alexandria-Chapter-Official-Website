@@ -6,7 +6,9 @@ import { getEnv } from "../utils/env";
 import Navbar from "../components/HomePage/Navbar";
 import GreetingSection from "../components/HomePage/sections/GreetingSection";
 import AboutSection from "../components/HomePage/sections/AboutSection";
+import CommitteesSection from "../components/HomePage/sections/CommitteesSection";
 import ClubsSection from "../components/HomePage/sections/ClubsSection";
+import GallerySection from "../components/HomePage/sections/GallerySection";
 import EventsSection from "../components/HomePage/sections/EventsSection";
 import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
 import RadioSection from "../components/HomePage/sections/RadioSection";
@@ -203,15 +205,15 @@ const HomePage = () => {
       debounceTimer = setTimeout(() => {
         setShowFloatingButton(window.scrollY < 300);
 
-        const sections = document.querySelectorAll("section[id]");
-        const navHeight = 70; // navbar height
+        const sections = document.querySelectorAll("section[id], div[id]");
+        const navHeight = 100; // navbar height offset
 
         let closestSection = "greeting";
         let closestDistance = Infinity;
 
         sections.forEach((section) => {
           const rect = section.getBoundingClientRect();
-          // Calculate distance from top of viewport minus navbar
+          // Check if top of section is near or above viewport center
           const distance = Math.abs(rect.top - navHeight);
 
           if (distance < closestDistance) {
@@ -242,16 +244,32 @@ const HomePage = () => {
           <AboutSection 
             loading={loading} 
             highBoard={highBoard} 
-            committees={committee} 
-            onApplyClick={handleApplyClick} 
-            isRegistrationModalOpen={isCommitteeRegOpen}
             activeFormsLoading={activeFormsLoading}
             activeForms={activeForms}
             onShowExclusiveFormDetails={handleShowExclusiveFormDetails}
           />
         )}
+        {isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && (
+          <CommitteesSection 
+            loading={loading}
+            committees={committee}
+            onApplyClick={handleApplyClick}
+            isRegistrationModalOpen={isCommitteeRegOpen}
+          />
+        )}
         {isEnabled(getEnv("VITE_ENABLE_CLUBS")) && (
-          <ClubsSection loading={loading} clubs={clubs} onShowClubDetails={handleShowClubDetails} />
+          <ClubsSection 
+            loading={loading}
+            clubs={clubs}
+            onShowClubDetails={handleShowClubDetails}
+          />
+        )}
+        {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (
+          <section id="gallery" className="w-full py-24 px-6 relative overflow-hidden bg-white dark:bg-slate-900">
+            <div className="max-w-7xl mx-auto relative z-10">
+              <GallerySection />
+            </div>
+          </section>
         )}
         {isEnabled(getEnv("VITE_ENABLE_EVENTS")) && (
           <EventsSection

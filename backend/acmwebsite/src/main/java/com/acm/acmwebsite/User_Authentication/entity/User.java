@@ -12,7 +12,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.Committee;
+import com.acm.acmwebsite.feature.entity.ClubBoard;
+import com.acm.acmwebsite.feature.entity.HighBoard;
+import com.acm.acmwebsite.feature.entity.CommitteeBoard;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,6 +41,7 @@ public class User {
 
   @NotBlank(message = "Password is required")
   @Column(nullable = false, name = "password_hash")
+  @com.fasterxml.jackson.annotation.JsonIgnore
   private String passwordHash;
 
   @CreationTimestamp
@@ -44,6 +53,7 @@ public class User {
   private LocalDateTime updatedAt;
 
   @Column(name = "reset_password_token", length = 255)
+  @com.fasterxml.jackson.annotation.JsonIgnore
   private String resetPasswordToken;
 
 
@@ -74,4 +84,14 @@ public class User {
   @Column(name = "role", nullable = false)
   @Builder.Default
   private Role role = Role.USER;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "committee_id")
+  private Committee committee;
+
+  @Column(name = "profile_image_url")
+  private String profileImageUrl;
+
+  @Column(name = "linkedin_url")
+  private String linkedinUrl;
 }

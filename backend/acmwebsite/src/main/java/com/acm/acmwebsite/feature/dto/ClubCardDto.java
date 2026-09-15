@@ -1,16 +1,50 @@
 package com.acm.acmwebsite.feature.dto;
 
+import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeBoardMemberDto;
+import java.util.List;
+
 public class ClubCardDto {
     private long id;
     private String name;
     private String imageUrl;
     private String description;
+    private boolean isExternal;
+    private boolean registrationOpen;
+    private List<CommitteeBoardMemberDto> boardRoles;
+
+    public ClubCardDto() {
+    }
 
     public ClubCardDto(long id, String name, String imageUrl, String description) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.description = description;
+    }
+
+    public ClubCardDto(long id, String name, String imageUrl, String description, boolean isExternal) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.isExternal = isExternal;
+    }
+
+    public ClubCardDto(long id, String name, String imageUrl, String description, List<CommitteeBoardMemberDto> boardRoles) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.boardRoles = boardRoles;
+    }
+
+    public ClubCardDto(long id, String name, String imageUrl, String description, boolean isExternal, List<CommitteeBoardMemberDto> boardRoles) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.isExternal = isExternal;
+        this.boardRoles = boardRoles;
     }
 
     public long getId() {
@@ -43,5 +77,37 @@ public class ClubCardDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean getIsExternal() {
+        return isExternal;
+    }
+
+    public boolean isExternal() {
+        return isExternal;
+    }
+
+    public void setIsExternal(boolean isExternal) {
+        this.isExternal = isExternal;
+    }
+
+    public boolean isRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public boolean getRegistrationOpen() {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen) {
+        this.registrationOpen = registrationOpen;
+    }
+
+    public List<CommitteeBoardMemberDto> getBoardRoles() {
+        return boardRoles;
+    }
+
+    public void setBoardRoles(List<CommitteeBoardMemberDto> boardRoles) {
+        this.boardRoles = boardRoles;
     }
 }

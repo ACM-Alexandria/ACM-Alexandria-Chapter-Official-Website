@@ -13,14 +13,20 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface CommitteeMapper {
 
+    @Mapping(target = "topicToken", ignore = true)
     CommitteeDto toDto(Committee committee);
 
     @Mapping(target = "id", ignore = true)
     Committee toEntity(CommitteeDto dto);
 
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userName", source = "user.name")
+    @Mapping(target = "profileImageUrl", source = "user.profileImageUrl")
+    @Mapping(target = "linkedinUrl", source = "user.linkedinUrl")
     CommitteeBoardMemberDto toBoardDto(CommitteeBoard board);
 
     @Mapping(target = "committee", ignore = true)
+    @Mapping(target = "user", ignore = true)
     CommitteeBoard toBoardEntity(CommitteeBoardMemberDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -31,5 +37,6 @@ public interface CommitteeMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "committee", ignore = true)
+    @Mapping(target = "user", ignore = true)
     void updateBoardEntityFromDto(CommitteeBoardMemberDto dto, @MappingTarget CommitteeBoard boardEntity);
 }

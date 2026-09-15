@@ -14,6 +14,8 @@ import com.acm.acmwebsite.feature.entity.CommitteeBoard;
 import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.MessageRepository;
+import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +33,12 @@ public class CommitteeService {
     private final MessageRepository messageRepository;
     private final CommitteeMapper committeeMapper;
     private final CommitteeCallRepository committeeCallRepository;
+    private final UserRepository userRepository;
 
     public CommitteeService(CommitteeRepository committeeRepository, CommitteeBoardRepository committeeBoardRepository,
             CommitteeMapper committeeMapper, SubscriptionService subscriptionService, EmailService emailService,
-            MessageRepository messageRepository, CommitteeCallRepository committeeCallRepository) {
+            MessageRepository messageRepository, CommitteeCallRepository committeeCallRepository,
+            UserRepository userRepository) {
         this.committeeRepository = committeeRepository;
         this.committeeBoardRepository = committeeBoardRepository;
         this.subscriptionService = subscriptionService;
@@ -42,6 +46,7 @@ public class CommitteeService {
         this.messageRepository = messageRepository;
         this.committeeMapper = committeeMapper;
         this.committeeCallRepository = committeeCallRepository;
+        this.userRepository = userRepository;
     }
 
     public void sendCallMessage(SubscripeTo subscripeTo, Long id, Message message) {
@@ -148,8 +153,8 @@ public class CommitteeService {
     }
 
     public CommitteeBoardMemberDto addCommitteeBoardMember(Long committeeId, CommitteeBoardMemberDto dto) {
-        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Board member name is required");
+        if (dto.getUserId() == null) {
+            throw new IllegalArgumentException("User ID is required");
         }
         if (dto.getRole() == null || dto.getRole().trim().isEmpty()) {
             throw new IllegalArgumentException("Board member role is required");
@@ -158,23 +163,30 @@ public class CommitteeService {
         Committee committee = committeeRepository.findById(committeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found with id " + committeeId));
 
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + dto.getUserId()));
+
         CommitteeBoard boardEntity = committeeMapper.toBoardEntity(dto);
         boardEntity.setCommittee(committee);
+        boardEntity.setUser(user);
 
         CommitteeBoard saved = committeeBoardRepository.save(boardEntity);
         return committeeMapper.toBoardDto(saved);
     }
 
     public CommitteeBoardMemberDto updateCommitteeBoardMember(Long id, CommitteeBoardMemberDto dto) {
-        if (dto.getName() != null && dto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Board member name cannot be empty");
-        }
         if (dto.getRole() != null && dto.getRole().trim().isEmpty()) {
             throw new IllegalArgumentException("Board member role cannot be empty");
         }
 
         CommitteeBoard boardEntity = committeeBoardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee Board member not found with id " + id));
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id " + dto.getUserId()));
+            boardEntity.setUser(user);
+        }
 
         committeeMapper.updateBoardEntityFromDto(dto, boardEntity);
 

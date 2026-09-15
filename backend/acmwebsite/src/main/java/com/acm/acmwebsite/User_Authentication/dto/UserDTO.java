@@ -18,6 +18,11 @@ public class UserDTO {
 
   private String email;
 
+  private String name;
+
+  @JsonProperty("profile_image_url")
+  private String profileImageUrl;
+
   @JsonProperty("created_at")
   private LocalDateTime createdAt;
 
@@ -25,5 +30,20 @@ public class UserDTO {
   private LocalDateTime updatedAt;
 
   private String role;
+  
+  @JsonProperty("association_name")
+  private String associationName;
+
+  @JsonProperty("board_role")
+  private String boardRole;
+
+  @JsonProperty("board_order")
+  private Integer boardOrder;
+
+  @JsonProperty("committee_id")
+  private Long committeeId;
+
+  @JsonProperty("club_id")
+  private Long clubId;
   // no reset password fields here for security reasons
 }

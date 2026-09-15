@@ -58,24 +58,25 @@ public class FeedbackController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to upload image: " + e.getMessage()));
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to upload image: " + e.getMessage()));
         }
     }
 
     @GetMapping("/features")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<List<FeatureSuggestionResponse>> getAllFeatures() {
         return ResponseEntity.ok(feedbackService.getAllFeatureSuggestions());
     }
 
     @GetMapping("/bugs")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<List<BugReportResponse>> getAllBugs() {
         return ResponseEntity.ok(feedbackService.getAllBugReports());
     }
 
     @PutMapping("/features/{id}/toggle-status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> toggleFeatureStatus(@PathVariable Long id) {
         try {
             feedbackService.toggleFeatureSuggestionStatus(id);
@@ -86,7 +87,7 @@ public class FeedbackController {
     }
 
     @PutMapping("/bugs/{id}/toggle-status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> toggleBugStatus(@PathVariable Long id) {
         try {
             feedbackService.toggleBugReportStatus(id);

@@ -19,6 +19,8 @@ public class UserProfileDto {
 
     private String email;
 
+    private String role;
+
     @NotBlank(message = "Name is required")
     private String name;
 
@@ -32,4 +34,15 @@ public class UserProfileDto {
     private Department department;
 
     private String batch;
+
+    @JsonProperty("profile_image_url")
+    private String profileImageUrl;
+
+    @JsonProperty("linkedin_url")
+    private String linkedinUrl;
+
+    @JsonProperty("committee_id")
+    private Long committeeId;
+
+
 }

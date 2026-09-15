@@ -26,7 +26,7 @@ public class HighBoardController {
   }
 
   @PostMapping("/members")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<?> addHighBoardMember(@RequestBody HighBoard highBoard) {
     try {
       HighBoard created = highBoardService.addHighBoardMember(highBoard);
@@ -37,7 +37,7 @@ public class HighBoardController {
   }
 
   @PutMapping("/members/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<?> updateHighBoardMember(@PathVariable Long id, @RequestBody HighBoard highBoard) {
     try {
       HighBoard updated = highBoardService.updateHighBoardMember(id, highBoard);
@@ -50,7 +50,7 @@ public class HighBoardController {
   }
 
   @DeleteMapping("/members/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<?> deleteHighBoardMember(@PathVariable Long id) {
     try {
       highBoardService.deleteHighBoardMember(id);

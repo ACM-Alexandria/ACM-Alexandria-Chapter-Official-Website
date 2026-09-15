@@ -46,7 +46,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Secure admin endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**")
+                        .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
@@ -58,14 +59,18 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.GET, "/api/committee/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/program/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/*/is-registered/*").authenticated()
-                        // Secure feedback submission and screenshot uploads for authenticated users only
+                        // Secure feedback submission and screenshot uploads for authenticated users
+                        // only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
                         // Allow only GET requests to social links for unauthenticated users
                         .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
-                        // Restrict write operations on social links to ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/socialLinks/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/socialLinks/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**").hasRole("ADMIN")
+                        // Restrict write operations on social links to SUPER_ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/socialLinks/**")
+                        .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        .requestMatchers(HttpMethod.PUT, "/api/socialLinks/**")
+                        .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**")
+                        .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",

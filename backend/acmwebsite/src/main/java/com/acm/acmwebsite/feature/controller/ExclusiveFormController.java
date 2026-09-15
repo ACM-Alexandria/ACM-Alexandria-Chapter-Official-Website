@@ -61,7 +61,7 @@ public class ExclusiveFormController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> createForm(@RequestBody ExclusiveFormDto formDto) {
         try {
             ExclusiveForm entity = mapper.toEntity(formDto);
@@ -74,7 +74,7 @@ public class ExclusiveFormController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<?> updateForm(@PathVariable Long id, @RequestBody ExclusiveFormDto formDto) {
         try {
             ExclusiveFormDto updated = mapper.toDto(exclusiveFormService.updateForm(id, formDto));
@@ -87,7 +87,7 @@ public class ExclusiveFormController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteForm(@PathVariable Long id) {
         try {
             exclusiveFormService.deleteForm(id);
@@ -105,7 +105,7 @@ public class ExclusiveFormController {
     }
 
     @PostMapping("/{id}/questions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> createFormQuestion(
             @PathVariable("id") Long formId,
             @RequestBody FormQuestionRequestDto request) {
@@ -113,7 +113,7 @@ public class ExclusiveFormController {
     }
 
     @PutMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<FormQuestionResponseDto> updateFormQuestion(
             @PathVariable("id") Long formId,
             @PathVariable Long questionId,
@@ -122,7 +122,7 @@ public class ExclusiveFormController {
     }
 
     @DeleteMapping("/{id}/questions/{questionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteFormQuestion(
             @PathVariable("id") Long formId,
             @PathVariable Long questionId) {
@@ -174,13 +174,13 @@ public class ExclusiveFormController {
     // --- Analytics and Sync ---
 
     @GetMapping("/{id}/registrations/analysis")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> getFormRegistrationAnalysis(@PathVariable("id") Long formId) {
         return ResponseEntity.ok(registrationService.getRegistrationAnalysis(formId));
     }
 
     @PostMapping("/{id}/registrations/sheet")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> syncFormRegistrationsSheet(@PathVariable("id") Long formId) {
         return ResponseEntity.ok(registrationService.syncRegistrationsSheet(formId));
     }

@@ -26,6 +26,7 @@ const Navbar = ({ activeSection }) => {
   });
   const navItems = [
     isEnabled(getEnv("VITE_ENABLE_ABOUT")) && { id: "about", label: "About Us" },
+    isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && { id: "committees", label: "Committees" },
     isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Clubs" },
     isEnabled(getEnv("VITE_ENABLE_EVENTS")) && { id: "events", label: "Events" },
     isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && { id: "programs", label: "Programs" },
@@ -206,7 +207,7 @@ const Navbar = ({ activeSection }) => {
                     <HiOutlineUser className="h-5 w-5 text-slate-500" />
                     My Profile
                   </button>
-                  {user?.role === 'ADMIN' && (
+                  {['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'].includes(user?.role) && (
                     <button
                       type="button"
                       className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"

@@ -12,6 +12,54 @@ export const fetchInsights = async () => {
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   0. USER MANAGEMENT
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+export const searchUsers = async (query = "", role = "", page = 0, size = 10, committeeId = "", clubId = "") => {
+  try {
+    const params = new URLSearchParams({ page, size });
+    if (query) params.append("query", query);
+    if (role) params.append("role", role);
+    if (committeeId) params.append("committeeId", committeeId);
+    if (clubId) params.append("clubId", clubId);
+    const response = await api.get(`/api/v1/admin/users?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error searching users:", error);
+    throw error.response?.data || new Error("Failed to search users.");
+  }
+};
+
+export const updateUserRole = async (userId, role) => {
+  try {
+    const response = await api.put(`/api/v1/admin/users/${userId}/role`, { role });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    throw error.response?.data || new Error("Failed to update user role.");
+  }
+};
+
+export const assignUserAssociations = async (userId, committeeId, clubId) => {
+  try {
+    const response = await api.put(`/api/v1/admin/users/${userId}/associations`, { committeeId, clubId });
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning user associations:", error);
+    throw error.response?.data || new Error("Failed to assign associations.");
+  }
+};
+
+export const assignUser = async (userId, payload) => {
+  try {
+    const response = await api.post(`/api/v1/admin/users/${userId}/assign`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning user role/boards:", error);
+    throw error.response?.data || new Error("Failed to assign user details.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. HIGH BOARD MEMBERS CRUD
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const addHighBoardMember = async (memberData) => {
@@ -203,6 +251,46 @@ export const deleteClub = async (id) => {
   } catch (error) {
     console.error("Error deleting club:", error);
     throw error.response?.data || new Error("Failed to delete club.");
+  }
+};
+
+export const openClubCall = async (id) => {
+  try {
+    const response = await api.post(`/api/clubs/${id}/open-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error opening club call:", error);
+    throw error.response?.data || new Error("Failed to open club call.");
+  }
+};
+
+export const closeClubCall = async (id) => {
+  try {
+    const response = await api.post(`/api/clubs/${id}/close-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error closing club call:", error);
+    throw error.response?.data || new Error("Failed to close club call.");
+  }
+};
+
+export const openEventCall = async (id) => {
+  try {
+    const response = await api.post(`/api/events/${id}/open-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error opening event call:", error);
+    throw error.response?.data || new Error("Failed to open event call.");
+  }
+};
+
+export const closeEventCall = async (id) => {
+  try {
+    const response = await api.post(`/api/events/${id}/close-call`);
+    return response.data;
+  } catch (error) {
+    console.error("Error closing event call:", error);
+    throw error.response?.data || new Error("Failed to close event call.");
   }
 };
 
@@ -643,6 +731,10 @@ export const deletePartner = async (id) => {
 
 export default {
   fetchInsights,
+  searchUsers,
+  updateUserRole,
+  assignUserAssociations,
+  assignUser,
   addHighBoardMember,
   updateHighBoardMember,
   deleteHighBoardMember,
@@ -658,9 +750,13 @@ export default {
   createEvent,
   updateEvent,
   deleteEvent,
+  openEventCall,
+  closeEventCall,
   createClub,
   updateClub,
   deleteClub,
+  openClubCall,
+  closeClubCall,
   fetchClubSocialLinks,
   updateClubSocialLinks,
   createProgram,

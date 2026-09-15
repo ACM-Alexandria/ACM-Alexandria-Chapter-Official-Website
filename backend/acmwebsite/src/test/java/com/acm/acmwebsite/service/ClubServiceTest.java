@@ -9,6 +9,7 @@ import com.acm.acmwebsite.feature.enums.QuestionType;
 import com.acm.acmwebsite.feature.mapper.ClubMapper;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.service.ClubService;
@@ -52,6 +53,9 @@ public class ClubServiceTest {
 
     @Mock
     private SubscriptionService subscriptionService;
+
+    @Mock
+    private ClubBoardRepository clubBoardRepository;
 
     @InjectMocks
     private ClubService clubService;

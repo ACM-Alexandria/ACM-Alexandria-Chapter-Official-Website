@@ -40,4 +40,14 @@ public interface UserService {
   UserProfileDto getUserProfileById(UUID id);
 
   UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto);
+
+  String uploadProfileImage(UUID id, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException;
+
+  org.springframework.data.domain.Page<UserDTO> searchUsers(String query, com.acm.acmwebsite.User_Authentication.enums.Role role, Long committeeId, Long clubId, int page, int size);
+
+  UserDTO updateUserRole(UUID userId, com.acm.acmwebsite.User_Authentication.enums.Role role);
+
+  UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, Long clubId);
+
+  UserDTO assignUser(UUID userId, com.acm.acmwebsite.User_Authentication.dto.UserAssignmentDto dto);
 }
