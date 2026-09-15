@@ -25,7 +25,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public boolean isAdmin(Authentication authentication) {
         return authentication != null
                 && authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
     }
 
     @Override

@@ -12,7 +12,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.Committee;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -74,4 +78,22 @@ public class User {
   @Column(name = "role", nullable = false)
   @Builder.Default
   private Role role = Role.USER;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "committee_id")
+  private Committee committee;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+          name = "user_clubs",
+          joinColumns = @JoinColumn(name = "user_id"),
+          inverseJoinColumns = @JoinColumn(name = "club_id")
+  )
+  private List<Club> clubs;
+
+  @Column(name = "profile_image_url")
+  private String profileImageUrl;
+
+  @Column(name = "linkedin_url")
+  private String linkedinUrl;
 }

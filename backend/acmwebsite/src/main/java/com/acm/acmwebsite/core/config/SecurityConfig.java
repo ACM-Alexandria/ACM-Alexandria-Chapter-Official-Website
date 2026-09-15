@@ -46,7 +46,7 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Secure admin endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
@@ -62,10 +62,10 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
                         // Allow only GET requests to social links for unauthenticated users
                         .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
-                        // Restrict write operations on social links to ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/socialLinks/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/socialLinks/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**").hasRole("ADMIN")
+                        // Restrict write operations on social links to SUPER_ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/socialLinks/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/socialLinks/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**").hasRole("SUPER_ADMIN")
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",
