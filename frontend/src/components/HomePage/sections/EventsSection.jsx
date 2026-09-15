@@ -6,19 +6,19 @@ const EventsSection = ({ loading, events, onShowEventDetails }) => {
   const displayedEvents = events && events.length > 0 ? events.slice(0, 3) : [];
 
   return (
-    <section id="events" className="w-full py-24 px-6 bg-gray-50/50 relative overflow-hidden">
+    <section id="events" className="w-full py-24 px-6 bg-gray-50/50 dark:bg-slate-900 relative overflow-hidden">
       
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
           <h2 
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-6"
             data-aos="fade-up"
           >
-            Experience <span className="text-[#205E85]">Excellence</span>
+            Experience <span className="text-[#205E85] dark:text-blue-300">Excellence</span>
           </h2>
           <p
-            className="text-slate-500 text-lg max-w-2xl mx-auto font-medium"
+            className="text-slate-500 dark:text-slate-300 text-lg max-w-2xl mx-auto font-medium"
             data-aos="fade-up"
             data-aos-delay="100"
           >
@@ -31,7 +31,7 @@ const EventsSection = ({ loading, events, onShowEventDetails }) => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-[400px] border border-slate-200/50" />
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] h-[400px] border border-slate-200/50 dark:border-slate-700" />
             ))}
           </div>
         ) : displayedEvents && displayedEvents.length > 0 ? (
@@ -55,8 +55,8 @@ const EventsSection = ({ loading, events, onShowEventDetails }) => {
             )}
           </div>
         ) : (
-          <div className="py-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
-            <p className="text-slate-400 font-medium text-lg">No events available yet.</p>
+          <div className="py-20 text-center bg-white dark:bg-slate-800 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-600">
+            <p className="text-slate-400 dark:text-slate-400 font-medium text-lg">No events available yet.</p>
           </div>
         )}
       </div>

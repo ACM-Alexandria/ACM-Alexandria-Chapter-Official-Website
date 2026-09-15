@@ -17,7 +17,7 @@ const DepartmentChart = ({ data = {} }) => {
 
   if (!total) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-sm font-medium shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-12 text-center text-slate-400 dark:text-slate-300 text-sm font-medium shadow-sm">
         No department data
       </div>
     );
@@ -39,7 +39,7 @@ const DepartmentChart = ({ data = {} }) => {
   const focus = hovered || { name: "Total", count: total, frac: 1, color: BRAND };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-sm dark:shadow-slate-950/40 hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
       <div className="flex items-center gap-3 mb-4">
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -48,8 +48,8 @@ const DepartmentChart = ({ data = {} }) => {
           <FiPieChart className="w-[18px] h-[18px]" style={{ color: BRAND }} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-800">Departments</h3>
-          <p className="text-[11px] text-slate-400">Member distribution</p>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Departments</h3>
+          <p className="text-[11px] text-slate-400 dark:text-slate-300">Member distribution</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ const DepartmentChart = ({ data = {} }) => {
           </svg>
           {/* Center HUD */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-2xl font-extrabold text-slate-800">{focus.count}</span>
+            <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{focus.count}</span>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 max-w-[80px] text-center truncate">
               {focus.name}
             </span>
@@ -111,9 +111,9 @@ const DepartmentChart = ({ data = {} }) => {
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: a.color }} />
-                <span className="text-xs font-semibold text-slate-600 truncate">{a.name}</span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-200 truncate">{a.name}</span>
               </div>
-              <span className="text-xs font-bold text-slate-500 ml-2 shrink-0">{a.count}</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 ml-2 shrink-0">{a.count}</span>
             </div>
           ))}
         </div>

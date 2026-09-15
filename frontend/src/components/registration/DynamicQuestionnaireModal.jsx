@@ -24,12 +24,12 @@ const DynamicQuestionnaireModal = ({
   
   // Card inner view inheriting orchestration visibility flags
   return (
-    <div className={`relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[85vh] ${
+    <div className={`relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl dark:shadow-slate-950/60 border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[85vh] ${
       isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-16 scale-95 opacity-0"
     }`}>
       
       {/* Header Panel */}
-      <div className="bg-slate-50/50 px-8 py-6 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div className="bg-slate-50/50 dark:bg-slate-800/60 px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-md flex items-center justify-center text-white shrink-0">
             {type === "event" ? <HiOutlineSparkles className="w-6 h-6" /> : <HiOutlineClipboardList className="w-6 h-6" />}
@@ -38,14 +38,14 @@ const DynamicQuestionnaireModal = ({
             <span className="text-[10px] font-black text-[#4B98C8] uppercase tracking-[0.15em] block">
               {type === "event" ? "Event Questionnaire" : "Club Questionnaire"}
             </span>
-            <h3 className="text-lg font-black text-slate-900 truncate leading-tight mt-0.5">
+            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 truncate leading-tight mt-0.5">
               {entityName}
             </h3>
           </div>
         </div>
 
         {!submitting && !success && (
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 flex items-center justify-center transition-all hover:bg-slate-50 hover:text-slate-900 active:scale-95">
+          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 active:scale-95">
             <HiOutlineX className="w-5 h-5" />
           </button>
         )}
@@ -56,13 +56,13 @@ const DynamicQuestionnaireModal = ({
         {success ? (
           /* Completed Success Panel */
           <div className="flex flex-col items-center text-center py-6 space-y-5 animate-[fadeInUp_0.5s_ease]">
-            <div className="w-24 h-24 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 relative shadow-inner animate-[bounce_1s_ease_infinite_alternate]">
+            <div className="w-24 h-24 rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-500 dark:text-emerald-300 relative shadow-inner animate-[bounce_1s_ease_infinite_alternate]">
               <HiOutlineCheckCircle className="w-16 h-16" />
             </div>
             <div className="space-y-2">
-              <h4 className="text-2xl font-black text-slate-900">Successfully Registered!</h4>
-              <p className="text-slate-500 font-medium max-w-md text-sm leading-relaxed">
-                Your answers for <strong className="text-slate-800">{entityName}</strong> have been submitted successfully! 
+              <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">Successfully Registered!</h4>
+              <p className="text-slate-500 dark:text-slate-300 font-medium max-w-md text-sm leading-relaxed">
+                Your answers for <strong className="text-slate-800 dark:text-slate-100">{entityName}</strong> have been submitted successfully! 
                 Please keep an eye on your inbox for a <strong className="text-[#4B98C8]">confirmation email</strong> shortly.
               </p>
             </div>
@@ -74,7 +74,7 @@ const DynamicQuestionnaireModal = ({
           /* Reactive Input Fields Loop */
           <form id="registration-questionnaire-form" onSubmit={onSubmit} className="space-y-7">
             {error && (
-              <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl px-5 py-4 animate-[fadeIn_0.3s_ease]">
+              <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.3s_ease]">
                 <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
                 <p className="font-bold text-sm leading-snug">{error}</p>
               </div>
@@ -87,7 +87,7 @@ const DynamicQuestionnaireModal = ({
                 const isImage = question.question_type === "IMAGE";
                 return (
                   <div key={question.id} className="space-y-2.5 group">
-                    <label className="text-[13px] font-bold text-slate-800 flex items-center gap-1.5 ml-1 leading-tight">
+                    <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 ml-1 leading-tight">
                       {question.question_text}
                       {question.is_required && (
                         <span className="text-rose-500 text-base font-black leading-none">*</span>
@@ -102,10 +102,10 @@ const DynamicQuestionnaireModal = ({
                           required={question.is_required}
                           disabled={submitting}
                           placeholder="Type your answer here..."
-                          className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-slate-800 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white focus:ring-4 focus:ring-blue-50 resize-none disabled:opacity-60"
+                          className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 resize-none disabled:opacity-60"
                         />
                       ) : isCheckbox ? (
-                        <div className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 disabled:opacity-60">
+                        <div className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl space-y-3 disabled:opacity-60">
                           {question.options && question.options.map((opt, idx) => {
                             const selectedValues = Array.isArray(answers[question.id]) ? answers[question.id] : [];
                             const isChecked = selectedValues.includes(opt);
@@ -124,7 +124,7 @@ const DynamicQuestionnaireModal = ({
                                   className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
                                     isChecked
                                       ? "bg-[#4B98C8] border-[#4B98C8]"
-                                      : "bg-white border-slate-300 group-hover/opt:border-[#4B98C8]/60"
+                                      : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 group-hover/opt:border-[#4B98C8]/60"
                                   }`}
                                 >
                                   {isChecked && (
@@ -140,7 +140,7 @@ const DynamicQuestionnaireModal = ({
                                   onChange={handleCheckboxChange}
                                   disabled={submitting}
                                 />
-                                <span className="text-slate-700 font-semibold text-[15px]">{opt}</span>
+                                <span className="text-slate-700 dark:text-slate-200 font-semibold text-[15px]">{opt}</span>
                               </label>
                             );
                           })}
@@ -153,7 +153,7 @@ const DynamicQuestionnaireModal = ({
                           return (
                             <div className="space-y-3">
                               {file ? (
-                                <div className={`relative rounded-2xl overflow-hidden border-2 ${isTooLarge ? "border-rose-400" : "border-[#4B98C8]/40"} bg-slate-50`}>
+                                <div className={`relative rounded-2xl overflow-hidden border-2 ${isTooLarge ? "border-rose-400" : "border-[#4B98C8]/40"} bg-slate-50 dark:bg-slate-800`}>
                                   <img
                                     src={previewUrl}
                                     alt="Preview"
@@ -168,8 +168,8 @@ const DynamicQuestionnaireModal = ({
                                   >
                                     <HiOutlineX className="w-4 h-4" />
                                   </button>
-                                  <div className="px-4 py-2 border-t border-slate-100 bg-white/80 flex items-center justify-between">
-                                    <span className="text-[12px] font-semibold text-slate-600 truncate max-w-[70%]">{file.name}</span>
+                                  <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 flex items-center justify-between">
+                                    <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-200 truncate max-w-[70%]">{file.name}</span>
                                     <span className={`text-[11px] font-black ${isTooLarge ? "text-rose-500" : "text-slate-400"}`}>
                                       {(file.size / (1024 * 1024)).toFixed(2)} MB
                                     </span>
@@ -177,14 +177,14 @@ const DynamicQuestionnaireModal = ({
                                 </div>
                               ) : (
                                 <label
-                                  className={`flex flex-col items-center justify-center gap-3 w-full py-10 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${submitting ? "opacity-60 cursor-not-allowed" : "border-slate-200 bg-slate-50 hover:border-[#4B98C8]/50 hover:bg-blue-50/30"}`}
+                                  className={`flex flex-col items-center justify-center gap-3 w-full py-10 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${submitting ? "opacity-60 cursor-not-allowed" : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:border-[#4B98C8]/50 hover:bg-blue-50/30 dark:hover:bg-slate-700"}`}
                                 >
                                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4B98C8]/10 to-[#205E85]/10 flex items-center justify-center text-[#4B98C8]">
                                     <HiOutlinePhotograph className="w-7 h-7" />
                                   </div>
                                   <div className="text-center">
-                                    <p className="text-sm font-bold text-slate-700">Click to upload image</p>
-                                    <p className="text-[11px] text-slate-400 font-medium mt-0.5">JPG, PNG, WEBP, GIF · Max 2 MB</p>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Click to upload image</p>
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">JPG, PNG, WEBP, GIF · Max 2 MB</p>
                                   </div>
                                   <input
                                     type="file"
@@ -213,7 +213,7 @@ const DynamicQuestionnaireModal = ({
                             onChange={(e) => onInputChange(question.id, e.target.value)}
                             required={question.is_required}
                             disabled={submitting}
-                            className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-slate-800 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white focus:ring-4 focus:ring-blue-50 appearance-none cursor-pointer disabled:opacity-60"
+                            className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 appearance-none cursor-pointer disabled:opacity-60"
                           >
                             <option value="">-- Select an Option --</option>
                             {question.options && question.options.map((opt, idx) => (
@@ -238,8 +238,8 @@ const DynamicQuestionnaireModal = ({
 
       {/* Action Bar */}
       {!success && (
-        <div className="bg-slate-50/30 px-8 py-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-end gap-3 shrink-0">
-          <button type="button" onClick={onClose} disabled={submitting} className="px-7 py-3.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold transition-all hover:bg-white hover:text-slate-800 hover:shadow-sm disabled:opacity-50">
+        <div className="bg-slate-50/30 dark:bg-slate-800/40 px-8 py-6 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-end gap-3 shrink-0">
+          <button type="button" onClick={onClose} disabled={submitting} className="px-7 py-3.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-sm font-bold transition-all hover:bg-white dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-sm disabled:opacity-50">
             Discard
           </button>
           <button

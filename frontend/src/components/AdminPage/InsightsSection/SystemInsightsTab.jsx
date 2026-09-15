@@ -45,11 +45,11 @@ const SystemInsightsTab = ({ insights, loading, error, onRefresh }) => {
       {loading && !insights ? (
         <SkeletonBody />
       ) : error ? (
-        <div className="bg-white rounded-2xl border border-red-200 p-10 text-center max-w-md mx-auto shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-red-200 dark:border-red-800 p-10 text-center max-w-md mx-auto shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-300 flex items-center justify-center mx-auto mb-4">
             <FiAlertCircle className="w-6 h-6" />
           </div>
-          <p className="text-red-700 font-bold text-sm mb-4">{error}</p>
+          <p className="text-red-700 dark:text-red-200 font-bold text-sm mb-4">{error}</p>
           <button
             onClick={onRefresh}
             className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow active:scale-95 transition-all"

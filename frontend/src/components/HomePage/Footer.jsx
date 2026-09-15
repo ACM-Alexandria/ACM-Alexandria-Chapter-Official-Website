@@ -66,10 +66,10 @@ const Footer = () => {
   };
 
   return (
-    <footer id="footer" className="w-full relative overflow-hidden bg-gradient-to-br from-[#205E85] to-[#1a4563] text-white">
+    <footer id="footer" className="w-full relative overflow-hidden bg-gradient-to-br from-[#205E85] to-[#1a4563] dark:from-slate-800 dark:to-slate-900 text-white dark:text-slate-100">
       {/* Decorative patterns */}
       <div 
-        className="absolute inset-0 opacity-5 pointer-events-none"
+        className="absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none"
         style={{
           backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
           backgroundSize: "32px 32px"
@@ -85,7 +85,7 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-white/5 w-full my-16" />
+        <div className="h-px bg-white/5 dark:bg-white/15 w-full my-16" />
 
         <FooterBottom currentYear={currentYear} onNavigate={handleSectionNavigation} />
       </div>

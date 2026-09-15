@@ -13,7 +13,7 @@ const PartnerCard = ({ partner }) => {
   return (
     <div
       onClick={partner.website ? handleClick : undefined}
-      className={`group overflow-hidden bg-white rounded-2xl border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 hover:-translate-y-1 transition-all duration-300 w-[200px] h-[120px] p-4 flex items-center justify-center shrink-0 ${
+      className={`group overflow-hidden bg-white rounded-2xl border border-slate-200/70 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 hover:-translate-y-1 transition-all duration-300 w-[200px] h-[120px] p-4 flex items-center justify-center shrink-0 ${
         partner.website ? "cursor-pointer" : ""
       }`}
     >
@@ -27,7 +27,7 @@ const PartnerCard = ({ partner }) => {
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-slate-50 to-slate-100">
           <FiGlobe className="w-7 h-7 text-slate-300 group-hover:text-[#4B98C8] transition-colors" />
-          <span className="text-[11px] font-bold text-slate-400 group-hover:text-slate-600 transition-colors text-center leading-tight px-2">
+          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-300 group-hover:text-slate-600 dark:group-hover:text-slate-100 transition-colors text-center leading-tight px-2">
             {partner.name}
           </span>
         </div>
@@ -40,13 +40,13 @@ const PartnersSection = ({ loading, partners }) => {
   return (
     <section
       id="partners"
-      className="w-full py-24 px-6 bg-white relative overflow-hidden"
+      className="w-full py-24 px-6 bg-white dark:bg-slate-900 relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
           <h2
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-6"
             data-aos="fade-up"
           >
             Our <span className="text-[#205E85]">Partners</span>
@@ -67,7 +67,7 @@ const PartnersSection = ({ loading, partners }) => {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse bg-slate-100 rounded-2xl h-24 w-44 border border-slate-200/50"
+                className="animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-24 w-44 border border-slate-200/50 dark:border-slate-700"
               />
             ))}
           </div>

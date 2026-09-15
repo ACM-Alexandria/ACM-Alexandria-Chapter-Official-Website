@@ -8,20 +8,20 @@ const ClubsSection = ({ loading, clubs, onShowClubDetails }) => {
   return (
     <section
       id="clubs"
-      className="w-full py-24 px-6 bg-white relative overflow-hidden"
+      className="w-full py-24 px-6 bg-white dark:bg-slate-900 relative overflow-hidden"
     >
       
       <div className="max-w-7xl mx-auto w-full relative z-10">
         {/* Header Section */}
         <div className="text-center mb-20">
           <h2 
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6"
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-6"
             data-aos="fade-up"
           >
             Connect & <span className="text-[#205E85]">Collaborate</span>
           </h2>
           <p
-            className="text-slate-500 text-lg max-w-2xl mx-auto font-medium"
+            className="text-slate-500 dark:text-slate-300 text-lg max-w-2xl mx-auto font-medium"
             data-aos="fade-up"
             data-aos-delay="100"
           >
@@ -34,7 +34,7 @@ const ClubsSection = ({ loading, clubs, onShowClubDetails }) => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-slate-100 rounded-[2.5rem] h-60 border border-slate-200/50" />
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] h-60 border border-slate-200/50 dark:border-slate-700" />
             ))}
           </div>
         ) : displayedClubs && displayedClubs.length > 0 ? (
@@ -61,8 +61,8 @@ const ClubsSection = ({ loading, clubs, onShowClubDetails }) => {
             )}
           </div>
         ) : (
-          <div className="py-20 text-center bg-gray-50 rounded-[3rem] border border-dashed border-slate-200">
-            <p className="text-slate-400 font-medium text-lg">No clubs available yet.</p>
+          <div className="py-20 text-center bg-gray-50 dark:bg-slate-800 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-600">
+            <p className="text-slate-400 dark:text-slate-400 font-medium text-lg">No clubs available yet.</p>
           </div>
         )}
       </div>

@@ -5,11 +5,11 @@ const HighBoardCard = ({ member, index }) => {
 
   return (
     <div
-      className="group bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 hover:-translate-y-2 transition-all duration-500"
+      className="group bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/40 overflow-hidden border border-slate-100 dark:border-slate-700 hover:-translate-y-2 transition-all duration-500"
       data-aos="fade-up"
       data-aos-delay={index * 100}
     >
-      <div className="relative h-64 overflow-hidden bg-slate-100">
+      <div className="relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-700">
         <div className="hidden lg:block absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
         
         {member.imageUrl && !imageError ? (
@@ -21,7 +21,7 @@ const HighBoardCard = ({ member, index }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
-            <span className="text-slate-300 text-6xl font-black select-none">
+            <span className="text-slate-300 dark:text-slate-500 text-6xl font-black select-none">
               {member.name?.charAt(0) || "H"}
             </span>
           </div>
@@ -45,7 +45,7 @@ const HighBoardCard = ({ member, index }) => {
       </div>
 
       <div className="p-6 text-center">
-        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight mb-1 group-hover:text-[#4B98C8] transition-colors">
+        <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-1 group-hover:text-[#4B98C8] transition-colors">
           {member.name}
         </h3>
         <p className="text-sm font-bold text-[#4B98C8] uppercase tracking-widest opacity-80">
@@ -57,7 +57,7 @@ const HighBoardCard = ({ member, index }) => {
               href={member.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-[#0077b5] hover:text-white transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-200 hover:bg-[#0077b5] hover:text-white transition-colors cursor-pointer"
               title="LinkedIn Profile"
             >
               <span className="text-[10px] font-bold">IN</span>

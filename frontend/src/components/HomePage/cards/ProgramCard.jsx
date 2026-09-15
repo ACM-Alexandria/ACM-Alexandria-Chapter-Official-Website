@@ -38,13 +38,13 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
 
   return (
     <div
-      className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col lg:flex-row h-full"
+      className="group bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/40 overflow-hidden border border-slate-100 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col lg:flex-row h-full"
       data-aos="fade-up"
       data-aos-delay={index * 100}
       onClick={handleOpenDetails}
     >
       {/* Program Image Container */}
-      <div className="relative w-full h-56 lg:w-2/5 lg:h-auto overflow-hidden bg-slate-100 shrink-0">
+      <div className="relative w-full h-56 lg:w-2/5 lg:h-auto overflow-hidden bg-slate-100 dark:bg-slate-700 shrink-0">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
         
         {program.imageUrl && !imageError ? (
@@ -56,14 +56,14 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4B98C8]/20 to-[#205E85]/20">
-            <span className="text-slate-300 text-7xl font-black select-none">
+            <span className="text-slate-300 dark:text-slate-500 text-7xl font-black select-none">
               {program.name?.charAt(0) || "P"}
             </span>
           </div>
         )}
 
         <div className="absolute top-6 left-6 z-20">
-          <div className="px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[#4B98C8] text-[10px] font-bold uppercase tracking-widest border border-white">
+          <div className="px-4 py-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full shadow-sm text-[#4B98C8] text-[10px] font-bold uppercase tracking-widest border border-white dark:border-slate-700">
             Program
           </div>
         </div>
@@ -71,23 +71,23 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
 
       {/* Program Info */}
       <div className="p-5 md:p-6 lg:p-7 flex flex-col flex-1">
-        <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2 group-hover:text-[#4B98C8] transition-colors leading-tight">
+        <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-2 group-hover:text-[#4B98C8] transition-colors leading-tight">
           {program.name}
         </h3>
-        <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-3 line-clamp-2 lg:line-clamp-3 font-medium">
+        <p className="text-slate-500 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-3 line-clamp-2 lg:line-clamp-3 font-medium">
           {program.description || "Advancing computing knowledge through specialized academic and professional programs."}
         </p>
 
         {/* Program Meta Info */}
         {(program.startDate || program.time) && (
-          <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-slate-50">
+          <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-slate-50 dark:border-slate-700">
             <div className="space-y-0.5">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Starts</p>
-              <p className="text-base font-extrabold text-slate-700 tracking-tight">
+              <p className="text-base font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">
                 {program.startDate && program.endDate ? (
                   <>
                     {formatDate(program.startDate)}
-                    <span className="block text-slate-400 text-sm font-semibold my-0.5">Till</span>
+                    <span className="block text-slate-400 dark:text-slate-400 text-sm font-semibold my-0.5">Till</span>
                     {formatDate(program.endDate)}
                   </>
                 ) : program.startDate ? (
@@ -99,20 +99,20 @@ const ProgramCard = ({ program, index, onShowDetails }) => {
             </div>
             <div className="space-y-0.5">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Schedule</p>
-              <p className="text-base font-extrabold text-slate-700 tracking-tight line-clamp-2">{program.time || "TBD"}</p>
+              <p className="text-base font-extrabold text-slate-700 dark:text-slate-200 tracking-tight line-clamp-2">{program.time || "TBD"}</p>
             </div>
           </div>
         )}
 
         {/* View Details CTA */}
         <div className="mt-3 pt-3 w-full flex items-center justify-center gap-2 group-hover:gap-4 transition-all duration-300">
-          <div className="h-px flex-1 bg-slate-100" />
-          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300">
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
+          <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 group-hover:bg-[#4B98C8] group-hover:text-white transition-all duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
-          <div className="h-px flex-1 bg-slate-100" />
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
         </div>
       </div>
     </div>

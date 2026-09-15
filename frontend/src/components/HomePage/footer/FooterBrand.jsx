@@ -6,14 +6,14 @@ const FooterBrand = ({ socialLinks, onNavigate }) => {
     <div className="space-y-8 text-center md:text-left">
       <div className="space-y-2">
         <h3 
-          className="text-2xl font-black tracking-tight text-white uppercase cursor-pointer hover:opacity-80 transition-opacity inline-block"
+          className="text-2xl font-black tracking-tight text-white dark:text-slate-100 uppercase cursor-pointer hover:opacity-80 transition-opacity inline-block"
           onClick={() => onNavigate("greeting")}
         >
-          ACM <span className="text-[#4B98C8]">Alexandria</span>
+          ACM <span className="text-[#4B98C8] dark:text-blue-300">Alexandria</span>
         </h3>
         <p className="text-blue-100/60 text-[10px] font-bold tracking-[0.2em] uppercase">Student Chapter</p>
       </div>
-      <p className="text-blue-50/80 text-base leading-relaxed font-medium max-w-xs mx-auto md:mx-0">
+      <p className="text-blue-50/80 dark:text-blue-100/90 text-base leading-relaxed font-medium max-w-xs mx-auto md:mx-0">
         Empowering students through technology, innovation, and
         professional growth.
       </p>
@@ -26,7 +26,7 @@ const FooterBrand = ({ socialLinks, onNavigate }) => {
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#4B98C8] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-1 border border-white/10"
+              className="w-10 h-10 rounded-xl bg-white/5 dark:bg-white/10 hover:bg-[#4B98C8] text-white dark:text-blue-50 flex items-center justify-center transition-all duration-300 hover:-translate-y-1 border border-white/10 dark:border-white/20"
               aria-label={social.platform || "Social Link"}
             >
               {getSocialIcon(social.url)}

@@ -19,11 +19,11 @@ const CallMessageModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full p-6 animate-[scaleIn_0.25s_ease]">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-lg w-full p-6 animate-[scaleIn_0.25s_ease]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6">
           <div>
-            <h3 className="text-base font-extrabold text-slate-800 tracking-tight">
+            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
               Edit Call Email Message
             </h3>
             <p className="text-[10px] text-slate-400 font-medium mt-0.5">
@@ -32,7 +32,7 @@ const CallMessageModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             <FiX className="w-4.5 h-4.5" />
           </button>
@@ -50,7 +50,7 @@ const CallMessageModal = ({
               value={messageSubject}
               onChange={(e) => setMessageSubject(e.target.value)}
               placeholder="e.g. Call for Members is Open!"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
             />
           </div>
 
@@ -64,16 +64,16 @@ const CallMessageModal = ({
               onChange={(e) => setMessageBody(e.target.value)}
               placeholder="Write the email content here..."
               rows="6"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
             />
           </div>
 
           {/* Actions row */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
             >
               Cancel
             </button>
