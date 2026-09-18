@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.core.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -17,6 +18,9 @@ public class JwtUtil {
 
   @Value("${jwt.expiration}")
   private long expiration;
+
+  @Value("${jwt.email-confirmation-expiration}")
+  private int emailConfirmationExpiration;
 
   private SecretKey key;
 
@@ -59,5 +63,30 @@ public class JwtUtil {
         .verifyWith(key)
         .build()
         .parseSignedClaims(token);
+  }
+
+  public String generateEmailConfirmationToken(String email) {
+    return Jwts.builder()
+        .subject(email)
+        .claim("purpose", "email_confirmation")
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + emailConfirmationExpiration))
+        .signWith(key)
+        .compact();
+  }
+
+  public void validateEmailConfirmationToken(String token) {
+    Claims claims = Jwts.parser()
+        .verifyWith(key)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
+
+    String purpose = claims.get("purpose", String.class);
+    if(!("email_confirmation").equals(purpose)) {
+        throw new RuntimeException("Invalid email confirmation token");
+    }
+
+    return;
   }
 }

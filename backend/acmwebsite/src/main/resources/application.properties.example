@@ -30,6 +30,7 @@ admin.password=
 jwt.secret=YOUR_JWT_SECRET
 jwt.expiration=3600000
 jwt.refresh-expiration=86400000
+jwt.email-confirmation-expiration=900000
 
 
 # Gmail SMTP Configuration (see docs/local-setup.md)

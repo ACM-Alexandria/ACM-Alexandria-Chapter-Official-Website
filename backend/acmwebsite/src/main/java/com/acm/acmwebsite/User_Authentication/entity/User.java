@@ -39,6 +39,10 @@ public class User {
   @Column(nullable = false, unique = true, length = 255)
   private String email;
 
+  @Builder.Default
+  @Column(name = "email_confirmed", nullable = false)
+  private Boolean emailConfirmed = false;
+
   @NotBlank(message = "Password is required")
   @Column(nullable = false, name = "password_hash")
   @com.fasterxml.jackson.annotation.JsonIgnore
