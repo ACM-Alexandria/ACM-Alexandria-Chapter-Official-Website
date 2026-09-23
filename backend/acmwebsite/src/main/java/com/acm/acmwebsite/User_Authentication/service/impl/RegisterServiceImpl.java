@@ -28,7 +28,7 @@ public class RegisterServiceImpl implements RegisterService {
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
   private final EmailExitanceService emailExitanceService;
-  private final EmailService emailService;
+  private final EmailConfirmationServiceImpl emailConfirmationService;
 
   @Override
   @Transactional
@@ -54,11 +54,18 @@ public class RegisterServiceImpl implements RegisterService {
     User savedUser = userRepository.save(user);
 
     // Send welcome email
-    try {
-      emailService.sendWelcomeEmail(user.getEmail(), "ACM Member");
-    } catch (Exception e) {
-      log.error("Failed to send welcome email to {}", user.getEmail(), e);
-    }
+    // moved to EmailConfirmationServiceImpl.confirmEmail
+//    try {
+//      emailService.sendWelcomeEmail(user.getEmail(), "ACM Member");
+//    } catch (Exception e) {
+//      log.error("Failed to send welcome email to {}", user.getEmail(), e);
+//    }
+
+      try {
+          emailConfirmationService.sendConfirmationEmail(user.getEmail());
+      } catch (Exception e) {
+          log.error("Failed to send confirmation email to {}", user.getEmail(), e);
+      }
 
     return userMapper.userToSuccessRegister(savedUser);
   }

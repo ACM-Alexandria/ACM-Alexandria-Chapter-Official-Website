@@ -61,6 +61,36 @@ public class GmailEmailService implements EmailService {
 
     @Override
     @Async
+    public void sendEmailConfirmationEmail(String to, String confirmationToken, String userName) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject("ACM Website - Confirm Your Email Address");
+
+            String link = frontendUrl + "/email-confirmation/" + confirmationToken;
+
+            Context context = new Context();
+            context.setVariable("emailTitle", "Confirm Your Email Address — ACM Alexandria");
+            context.setVariable("preheaderText", "Please confirm your email to activate your account.");
+            context.setVariable("buttonUrl", link);
+            context.setVariable("userName", userName);
+
+            String htmlContent = templateEngine.process("mail/email-confirmation", context);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("Email sent successfully to {}", to);
+
+        } catch (Exception e) {
+            log.error("Failed to send email to {}", to, e);
+        }
+    }
+
+    @Override
+    @Async
     public void sendRegistrationConfirmationEmail(String to, String itemName, String userName) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -322,5 +352,6 @@ public class GmailEmailService implements EmailService {
             log.error("Failed to send generic form submission confirmation email to {}", to, e);
         }
     }
+
 }
 

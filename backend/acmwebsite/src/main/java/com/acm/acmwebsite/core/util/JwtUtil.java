@@ -75,7 +75,7 @@ public class JwtUtil {
         .compact();
   }
 
-  public void validateEmailConfirmationToken(String token) {
+  public String validateEmailConfirmationToken(String token) {
     Claims claims = Jwts.parser()
         .verifyWith(key)
         .build()
@@ -87,6 +87,6 @@ public class JwtUtil {
         throw new RuntimeException("Invalid email confirmation token");
     }
 
-    return;
+    return claims.getSubject();
   }
 }

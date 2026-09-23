@@ -226,6 +226,9 @@ public class UserServiceImpl implements UserService {
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
       throw new IllegalArgumentException("Incorrect email or password");
     }
+    if (!Boolean.TRUE.equals(user.getEmailConfirmed())) { // make sure email is confirmed before allowing login
+        throw new IllegalStateException("Email not confirmed. Please check your inbox.");
+    }
     String refreshToken = tokenService.createRefreshToken(user);
     String accessToken = tokenService.createAccessToken(user);
     return LoginResponse.builder()
@@ -335,6 +338,7 @@ public class UserServiceImpl implements UserService {
                 .name(name)
                 .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString())) // Secure random hash for constraint
                 .role(Role.USER)
+                .emailConfirmed(true)
                 .build();
         user = userRepository.save(user);
         String welcomeName = (name != null && !name.trim().isEmpty()) ? name : "ACM Member";
