@@ -178,6 +178,8 @@ const ProfileEditForm = ({
               className="w-full h-11 px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm transition-all focus:border-[#4B98C8] focus:ring-1 focus:ring-[#4B98C8] bg-none"
             >
               <option value="">-- Select Batch --</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
               <option value="2026">2026</option>
               <option value="2027">2027</option>
               <option value="2028">2028</option>

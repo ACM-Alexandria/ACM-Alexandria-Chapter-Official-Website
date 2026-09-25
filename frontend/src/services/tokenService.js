@@ -179,6 +179,16 @@ export const getRefreshToken = () => refreshToken;
 
 export const loadRefreshToken = async () => {
   await initializeTokenService();
+  try {
+    const record = await getRecord(REFRESH_TOKEN_ID);
+    if (record && record.value) {
+      refreshToken = await decryptText(record.value);
+    } else {
+      refreshToken = null;
+    }
+  } catch (error) {
+    console.warn('Failed to load latest refresh token:', error);
+  }
   return refreshToken;
 };
 

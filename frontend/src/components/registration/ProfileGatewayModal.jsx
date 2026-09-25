@@ -168,6 +168,8 @@ const ProfileGatewayModal = ({
                       className="w-full h-12 px-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-sm appearance-none cursor-pointer transition-all focus:border-[#4B98C8]/30 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30"
                     >
                       <option value="">-- Select Batch --</option>
+                      <option value="2024">2024</option>
+                      <option value="2025">2025</option>
                       <option value="2026">2026</option>
                       <option value="2027">2027</option>
                       <option value="2028">2028</option>

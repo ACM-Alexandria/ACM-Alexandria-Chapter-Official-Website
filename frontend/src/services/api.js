@@ -67,8 +67,8 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/reset-password") ||
       requestUrl.includes("/auth/refresh");
 
-    // If it's a 401 error and it's NOT a public auth endpoint, try to refresh
-    if (error.response?.status === 401 && !isAuthEndpoint && !originalRequest._retry) {
+    // If it's a 401 or 403 error and it's NOT a public auth endpoint, try to refresh
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -126,8 +126,8 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle standard 401 cleanup if the refresh failed or wasn't possible
-    if (error.response?.status === 401 && !isAuthEndpoint && window.location.pathname !== "/login") {
+    // Handle standard 401/403 cleanup if the refresh failed or wasn't possible
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint && window.location.pathname !== "/login") {
       await tokenService.clearAllTokens();
       window.dispatchEvent(new Event("auth:logout"));
     }
