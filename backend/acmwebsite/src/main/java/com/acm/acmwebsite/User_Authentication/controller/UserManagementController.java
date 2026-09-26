@@ -4,11 +4,16 @@ import com.acm.acmwebsite.User_Authentication.dto.ErrorMessageResponse;
 import com.acm.acmwebsite.User_Authentication.dto.UserDTO;
 import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
+import com.acm.acmwebsite.feature.dto.MemberExportPreviewDto;
+import com.acm.acmwebsite.feature.dto.MemberExportRequestDto;
+import com.acm.acmwebsite.feature.dto.MemberExportResultDto;
+import com.acm.acmwebsite.feature.service.MemberExportService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +25,7 @@ import java.util.UUID;
 public class UserManagementController {
 
   private final UserService userService;
+  private final MemberExportService memberExportService;
 
   @GetMapping
   @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
@@ -62,6 +68,29 @@ public class UserManagementController {
     try {
       UserDTO updated = userService.assignUser(id, request);
       return ResponseEntity.ok(updated);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+    }
+  }
+
+  @PostMapping("/export/preview")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+  public ResponseEntity<?> previewMembersExport(@RequestBody MemberExportRequestDto request) {
+    try {
+      MemberExportPreviewDto preview = memberExportService.preview(request);
+      return ResponseEntity.ok(preview);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+    }
+  }
+
+  @PostMapping("/export/sheet")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+  public ResponseEntity<?> exportMembersSheet(@RequestBody MemberExportRequestDto request, Authentication authentication) {
+    try {
+      String exporterEmail = authentication != null ? authentication.getName() : null;
+      MemberExportResultDto result = memberExportService.exportToSheet(request, exporterEmail);
+      return ResponseEntity.ok(result);
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
     }
