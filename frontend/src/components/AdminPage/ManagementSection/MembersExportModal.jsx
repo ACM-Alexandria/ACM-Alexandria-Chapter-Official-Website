@@ -131,6 +131,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
   const [previewLoading, setPreviewLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [lastExport, setLastExport] = useState(null);
+  const [popupBlocked, setPopupBlocked] = useState(false);
   const [error, setError] = useState(null);
   const previewRequestId = useRef(0);
 
@@ -198,26 +199,21 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
     if (!canExport) return;
     setExporting(true);
     setError(null);
-
-    // Open the tab synchronously inside the click so popup blockers allow it, then point it at the sheet
-    const sheetTab = window.open("", "_blank");
-    if (sheetTab) {
-      sheetTab.document.title = "Generating sheet...";
-      sheetTab.document.body.innerHTML =
-        '<p style="font-family: sans-serif; padding: 24px; color: #475569;">Generating members sheet...</p>';
-    }
+    setPopupBlocked(false);
 
     try {
       const result = await exportMembersSheet({ ...filters, title: sheetTitle });
       setLastExport(result);
       setStamp(new Date());
+      // Browsers may block tabs opened after a slow request; the "Open Sheet" link covers that case
+      const sheetTab = window.open(result.googleSheetUrl, "_blank");
       if (sheetTab) {
         sheetTab.opener = null;
-        sheetTab.location.href = result.googleSheetUrl;
+      } else {
+        setPopupBlocked(true);
       }
     } catch (err) {
       console.error("Error exporting members sheet:", err);
-      sheetTab?.close();
       setError(err.message || err.error || "Failed to export members sheet.");
     } finally {
       setExporting(false);
@@ -363,6 +359,11 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
             )}
 
             <div className="flex items-center justify-end gap-2 flex-wrap">
+              {popupBlocked && (
+                <p className="w-full sm:w-auto sm:mr-auto text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                  Sheet is ready. Your browser blocked the new tab, so use Open Sheet.
+                </p>
+              )}
               {lastExport?.googleSheetUrl && (
                 <a
                   href={lastExport.googleSheetUrl}
@@ -376,10 +377,12 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
               <button
                 onClick={handleExport}
                 disabled={!canExport}
-                className="flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+                className={`flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:active:scale-100 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 ${
+                  exporting ? "cursor-wait" : "disabled:opacity-50"
+                }`}
               >
                 <FiRefreshCw className={`w-3.5 h-3.5 ${exporting ? "animate-spin" : ""}`} />
-                {exporting ? "Exporting..." : "Export to Sheets"}
+                {exporting ? "Generating Sheet..." : "Export to Sheets"}
               </button>
             </div>
           </div>
