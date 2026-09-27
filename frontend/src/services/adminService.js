@@ -29,6 +29,27 @@ export const searchUsers = async (query = "", role = "", page = 0, size = 10, co
   }
 };
 
+export const previewMembersExport = async (filters) => {
+  try {
+    const response = await api.post("/api/v1/admin/users/export/preview", filters);
+    return response.data;
+  } catch (error) {
+    console.error("Error previewing members export:", error);
+    throw error.response?.data || new Error("Failed to preview members export.");
+  }
+};
+
+export const exportMembersSheet = async (payload) => {
+  try {
+    // Creating and filling a new sheet can take longer than the default 10s client timeout
+    const response = await api.post("/api/v1/admin/users/export/sheet", payload, { timeout: 60000 });
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting members sheet:", error);
+    throw error.response?.data || new Error("Failed to export members sheet.");
+  }
+};
+
 export const updateUserRole = async (userId, role) => {
   try {
     const response = await api.put(`/api/v1/admin/users/${userId}/role`, { role });
@@ -732,6 +753,8 @@ export const deletePartner = async (id) => {
 export default {
   fetchInsights,
   searchUsers,
+  previewMembersExport,
+  exportMembersSheet,
   updateUserRole,
   assignUserAssociations,
   assignUser,

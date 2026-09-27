@@ -56,6 +56,7 @@ google.sheets.clubs-folder-id=your-clubs-folder-id
 google.sheets.committees-registrations-folder-id=your-committees-registrations-folder-id
 google.sheets.programs-folder-id=your-programs-registrations-folder-id
 google.sheets.exclusive-forms-folder-id=your-exclusive-forms-registrations-folder-id
+google.sheets.members-folder-id=your-members-folder-id
 
 
 # Cloudinary Configuration (see docs/local-setup.md)

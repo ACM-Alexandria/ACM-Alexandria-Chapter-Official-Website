@@ -6,6 +6,8 @@ This guide explains how to configure Google Cloud Platform (GCP) and obtain the 
 
 This integration allows the ACM Alexandria Website backend to automatically export **event and club registration data to Google Sheets** and save the generated spreadsheets in **Google Drive**.
 
+It also powers the **Members export** in the admin Users tab. Each members export creates a brand-new spreadsheet (it is not synced or saved to the database), so every export is a snapshot of the selected roles / committees / clubs at that moment.
+
 You only need to complete this setup if your issue requires working on or testing the **Google Sheets / Google Drive integration**.
 
 > **Important:** If your issue does not involve Google Sheets, Google Drive, event/club registration exports, or any related functionality, you **do not need to follow the steps in this guide**. You can skip this entire setup and continue working on your issue normally.
@@ -87,13 +89,17 @@ google.sheets.refresh-token=YOUR_REFRESH_TOKEN
 # If left empty, sheets will be created in the root of your Google Drive.
 google.sheets.events-folder-id=
 google.sheets.clubs-folder-id=
+google.sheets.committees-registrations-folder-id=
+google.sheets.programs-folder-id=
+google.sheets.exclusive-forms-folder-id=
+google.sheets.members-folder-id=
 ```
 
 ---
 
 ## Step 4: Finding Google Drive Folder IDs (Optional)
 
-If you want Event and Club sheets to be created inside specific Google Drive folders:
+If you want the generated sheets to be created inside specific Google Drive folders (for the members export, create a folder named `members` and use its ID for `google.sheets.members-folder-id`):
 
 1. Open the target folder in your Google Drive using a web browser.
 2. Examine the address bar URL. It will look like:

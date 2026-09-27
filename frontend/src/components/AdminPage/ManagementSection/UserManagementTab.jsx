@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser } from "react-icons/fi";
+import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser, FiFileText } from "react-icons/fi";
 import { searchUsers, assignUser } from "../../../services/adminService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
 import { useAuth } from "../../../contexts/AuthContext";
+import { ROLE_OPTIONS } from "../../../constants/roles";
+import MembersExportModal from "./MembersExportModal";
 
 const UserMediaCell = ({ item }) => {
   const [imgError, setImgError] = useState(false);
@@ -44,6 +46,7 @@ const UserManagementTab = () => {
   const [loading, setLoading] = useState(false);
   
   // Modals
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalStep, setModalStep] = useState('form'); // 'form' or 'confirm'
@@ -218,6 +221,12 @@ const UserManagementTab = () => {
           <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">User Management</h2>
           <p className="text-xs text-slate-400 dark:text-slate-300 font-medium">Manage user roles and board assignments.</p>
         </div>
+        <button
+          onClick={() => setExportModalOpen(true)}
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95"
+        >
+          <FiFileText className="w-4 h-4" /> Export
+        </button>
       </div>
 
       {/* Filters */}
@@ -245,12 +254,7 @@ const UserManagementTab = () => {
           className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
         >
           <option value="">All Roles</option>
-          <option value="SUPER_ADMIN">Super Admin</option>
-          <option value="ACM_HIGH_BOARD">High Board</option>
-          <option value="ACM_COMMITTEE_BOARD">Committee Board</option>
-          <option value="ACM_CLUB_BOARD">Club Board</option>
-          <option value="ACM_MEMBER">ACM Member</option>
-          <option value="USER">Standard User</option>
+          {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
         </select>
 
         {["ACM_COMMITTEE_BOARD", "ACM_MEMBER"].includes(roleFilter) && (
@@ -361,6 +365,15 @@ const UserManagementTab = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {exportModalOpen && (
+        <MembersExportModal
+          onClose={() => setExportModalOpen(false)}
+          committees={committeesList}
+          clubs={clubsList}
+          initialFilters={{ role: roleFilter, committeeId: committeeFilter, clubId: clubFilter }}
+        />
       )}
 
       {/* Dynamic Assign Modal */}

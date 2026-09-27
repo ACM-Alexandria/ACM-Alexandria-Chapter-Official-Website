@@ -145,6 +145,35 @@ public class GoogleSheetsService {
     }
 
     /**
+     * Creates a new spreadsheet (optionally inside a folder) and writes the given rows to it.
+     * Returns the URL of the new spreadsheet.
+     */
+    public String createSpreadsheetWithData(String title, String folderId, List<List<Object>> rows) {
+        String url = createSpreadsheet(title, folderId);
+        writeSpreadsheetData(extractSpreadsheetId(url), rows);
+        return url;
+    }
+
+    /**
+     * Converts a flat list of label/value pairs into metadata rows followed by an empty separator row.
+     */
+    public List<List<Object>> buildMetadataRows(List<String> labelValuePairs) {
+        List<List<Object>> rows = new java.util.ArrayList<>();
+        if (labelValuePairs == null) {
+            return rows;
+        }
+        for (int i = 0; i < labelValuePairs.size(); i += 2) {
+            if (i + 1 < labelValuePairs.size()) {
+                rows.add(java.util.Arrays.asList(labelValuePairs.get(i), labelValuePairs.get(i + 1)));
+            } else {
+                rows.add(java.util.Collections.singletonList(labelValuePairs.get(i)));
+            }
+        }
+        rows.add(java.util.Collections.emptyList());
+        return rows;
+    }
+
+    /**
      * Handles network or IO errors, checking for expired/revoked credentials.
      */
     private void handleIOException(IOException e, String operation) {
@@ -203,20 +232,10 @@ public class GoogleSheetsService {
             java.util.function.Function<Q, String> questionTextExtractor,
             java.util.function.Function<T, java.time.LocalDateTime> registeredAtExtractor
     ) {
-        List<List<Object>> rows = new java.util.ArrayList<>();
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         // Add prefix headers (metadata)
-        if (prefixHeaders != null) {
-            for (int i = 0; i < prefixHeaders.size(); i += 2) {
-                if (i + 1 < prefixHeaders.size()) {
-                    rows.add(java.util.Arrays.asList(prefixHeaders.get(i), prefixHeaders.get(i + 1)));
-                } else {
-                    rows.add(java.util.Collections.singletonList(prefixHeaders.get(i)));
-                }
-            }
-            rows.add(java.util.Collections.emptyList());
-        }
+        List<List<Object>> rows = buildMetadataRows(prefixHeaders);
 
         // Add Column Headers
         List<Object> headers = new java.util.ArrayList<>(java.util.Arrays.asList(
@@ -268,10 +287,7 @@ public class GoogleSheetsService {
         }
 
         if (needsNewSheet) {
-            String newUrl = createSpreadsheet(title, folderId);
-            String newId = extractSpreadsheetId(newUrl);
-            writeSpreadsheetData(newId, rows);
-            return newUrl;
+            return createSpreadsheetWithData(title, folderId, rows);
         }
         return currentSpreadsheetUrl;
     }

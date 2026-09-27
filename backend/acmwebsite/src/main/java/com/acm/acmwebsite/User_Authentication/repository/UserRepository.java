@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.Query;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +25,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                          @Param("committeeId") Long committeeId, 
                          @Param("clubId") Long clubId, 
                          Pageable pageable);
+
+  @Query("SELECT u FROM User u LEFT JOIN FETCH u.committee WHERE u.role IN :roles")
+  List<User> findAllByRoleInWithCommittee(@Param("roles") Collection<com.acm.acmwebsite.User_Authentication.enums.Role> roles);
 
   Optional<User> findByEmail(String email);
 
