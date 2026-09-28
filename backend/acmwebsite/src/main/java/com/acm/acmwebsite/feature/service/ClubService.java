@@ -39,7 +39,7 @@ public class ClubService {
     private final SubscriptionService subscriptionService;
     private final ClubBoardRepository clubBoardRepository;
 
-    @Value("${google.drive.clubs-folder-id:}")
+    @Value("${google.sheets.clubs-folder-id:}")
     private String clubsFolderId;
 
     public ClubService(ClubRepository clubRepository, ClubMapper clubMapper,
