@@ -57,11 +57,19 @@ public class ClubService {
         this.clubBoardRepository = clubBoardRepository;
     }
 
+    public List<ClubCardDto> getAllClubs() {
+        return clubRepository.findAll().stream()
+                .map(this::toClubCardDto)
+                .collect(Collectors.toList());
+    }
 
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
         pageNumber = Math.max(0, pageNumber);
         Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("name").ascending());
-        return clubRepository.findAll(pageable).map(club -> {
+        return clubRepository.findAll(pageable).map(this::toClubCardDto);
+    }
+    
+    private ClubCardDto toClubCardDto(Club club) {
             ClubCardDto dto = clubMapper.toClubCardDto(club);
             var boardEntities = clubBoardRepository.findByClubId(club.getId());
             if (boardEntities != null && !boardEntities.isEmpty()) {
@@ -77,7 +85,6 @@ public class ClubService {
                 dto.setBoardRoles(boardRoles);
             }
             return dto;
-        });
     }
     public Optional<Club> getClubById(long id) {
         return clubRepository.findById(id);

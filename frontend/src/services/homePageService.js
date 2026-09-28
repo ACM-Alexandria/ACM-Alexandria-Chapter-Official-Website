@@ -11,6 +11,17 @@ export const fetchClubs = async (page = 0) => {
   }
 };
 
+// Fetch all clubs
+export const fetchAllClubs = async () => {
+  try {
+    const response = await api.get("/api/clubs");
+    return response.data; 
+  } catch (error) {
+    console.error("Error fetching all clubs:", error);
+    throw error;
+  }
+};
+
 // Fetch single club by id
 export const fetchClubById = async (id) => {
   try {
