@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "../../contexts/AuthContext";
+import { resendConfirmationEmail } from "../../services/authService";
 import {
   validateEmail,
   validatePassword,
@@ -18,7 +19,7 @@ import {
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const { register, login, loginWithGoogle } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -38,6 +39,13 @@ const RegisterForm = () => {
   // Loading and success state
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+
+  // Resend confirmation email
+  const [resendCountdown, setResendCountdown] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const [resendStatusMsg, setResendStatusMsg] = useState("");
 
   const handleGoogleCallback = async (response) => {
     setSuccessMessage("");
@@ -136,6 +144,34 @@ const RegisterForm = () => {
     );
   };
 
+  
+  useEffect(() => {
+    let timer;
+    if (isSuccess && resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isSuccess, resendCountdown]);
+
+  const handleResendInRegister = async () => {
+    if (resendCountdown > 0 || isResending) return;
+
+    setIsResending(true);
+    setResendStatusMsg("");
+
+    try {
+      await resendConfirmationEmail(registeredEmail);
+      setResendStatusMsg("New confirmation link sent! Please check your inbox.");
+      setResendCountdown(60); // Reset countdown back to 60 seconds
+    } catch (err) {
+      setResendStatusMsg(err.message || "Failed to resend confirmation email.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   /**
    * Handle form submission
    */
@@ -159,18 +195,12 @@ const RegisterForm = () => {
         password_confirmation: formData.password_confirmation,
       });
 
-      // Handle successful registration
+      // Handle successful registration (replaced, 
+      // user doesn't login rightaway but has to wait for the email to be confirmed)
       if (response.id && response.email) {
-        setSuccessMessage("Account created successfully! Logging you in...");
-
-        // Log the user in automatically using destructured login
-        await login(formData.email, formData.password);
-        
-        setSuccessMessage("Account created & logged in successfully!");
+        setRegisteredEmail(formData.email);
+        setIsSuccess(true);
         setFormData({ email: "", password: "", password_confirmation: "" });
-
-        // Redirect to main page after a short delay
-        setTimeout(() => navigate("/"), 500);
       }
     } catch (error) {
       // Handle backend errors
@@ -193,6 +223,77 @@ const RegisterForm = () => {
       setIsLoading(false);
     }
   };
+
+  // Email sent page
+  if (isSuccess) {
+    return (
+      <div
+        className="text-center py-4"
+        role="status"
+        aria-live="polite"
+        style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
+      >
+        <div
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+          style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
+        >
+          ✓
+        </div>
+        <h2 className="text-xl font-extrabold text-gray-800 dark:text-gray-100 mb-2 tracking-tight">
+          Check your email!
+        </h2>
+        <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-6">
+          We sent a verification link to <strong className="text-gray-800 dark:text-gray-100">{registeredEmail}</strong>.
+          <br />
+          Please click the confirmation link in the email to activate your account before logging in.
+        </p>
+
+        {/* Resend Button with Countdown */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={handleResendInRegister}
+            disabled={resendCountdown > 0 || isResending}
+            className={`
+              text-xs font-semibold px-4 py-2 rounded-lg border transition-all duration-200
+              ${
+                resendCountdown > 0 || isResending
+                  ? "border-gray-200 dark:border-slate-700 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-800/50 cursor-not-allowed"
+                  : "border-[#4B98C8] text-[#205E85] dark:text-blue-300 hover:bg-[#4B98C8]/10 cursor-pointer"
+              }
+            `}
+          >
+            {isResending ? (
+              "Sending..."
+            ) : resendCountdown > 0 ? (
+              `Resend email in ${resendCountdown}s`
+            ) : (
+              "Resend confirmation email"
+            )}
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5 text-center">
+          <Link
+            to="/login"
+            className="w-full py-3 px-6 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold text-sm rounded-xl shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+          >
+            Go to Sign In
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to main page
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <form onSubmit={handleSubmit} noValidate>

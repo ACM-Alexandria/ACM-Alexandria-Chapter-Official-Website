@@ -226,8 +226,8 @@ public class UserServiceImpl implements UserService {
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
       throw new IllegalArgumentException("Incorrect email or password");
     }
-    if (!Boolean.TRUE.equals(user.getEmailConfirmed())) { // make sure email is confirmed before allowing login
-        throw new IllegalStateException("Email not confirmed. Please check your inbox.");
+    if (!Boolean.TRUE.equals(user.getEmailConfirmed())) {
+        throw new IllegalStateException("Email not confirmed. Please check your email for your confirmation link.");
     }
     String refreshToken = tokenService.createRefreshToken(user);
     String accessToken = tokenService.createAccessToken(user);

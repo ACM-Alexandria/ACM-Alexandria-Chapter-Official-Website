@@ -2,6 +2,8 @@ package com.acm.acmwebsite.User_Authentication.service.impl;
 
 import com.acm.acmwebsite.User_Authentication.entity.EmailConfirmationRateLimit;
 import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.exception.EmailAlreadyConfirmedException;
+import com.acm.acmwebsite.User_Authentication.exception.RateLimitException;
 import com.acm.acmwebsite.User_Authentication.repository.EmailConfirmationRateLimitRepository;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.EmailConfirmationService;
@@ -36,20 +38,17 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
         User user = userOptional.get();
 
         if (Boolean.TRUE.equals(user.getEmailConfirmed())) {
-            return;
+            throw new EmailAlreadyConfirmedException("Email already confirmed.");
         }
 
-        long hourlyCount = rateLimitRepository.countByEmailAndRequestedAtAfter(email, LocalDateTime.now().minusHours(1));
-        long dailyCount  = rateLimitRepository.countByEmailAndRequestedAtAfter(email, LocalDateTime.now().minusDays(1));
+        long minuteCount = rateLimitRepository.countByEmailAndRequestedAtAfter(email, LocalDateTime.now().minusMinutes(1));
 
-        if (hourlyCount >= 1) {
-            throw new IllegalStateException("Confirmation email already sent. Please wait before requesting again.");
-        }
-        if (dailyCount >= 6) {
-            throw new IllegalStateException("Daily confirmation email limit reached. Please try again tomorrow.");
+        if (minuteCount >= 1) {
+            throw new RateLimitException("Confirmation email already sent. Please wait before requesting again.");
         }
 
         String token = jwtUtil.generateEmailConfirmationToken(email);
+        String encodedToken = jwtUtil.encodeTokenForUrl(token);
         rateLimitRepository.save(
                 EmailConfirmationRateLimit.builder()
                         .email(email)
@@ -57,14 +56,15 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
                         .build()
         );
 
-        emailService.sendEmailConfirmationEmail(email, token, user.getName());
+        emailService.sendEmailConfirmationEmail(email, encodedToken, user.getName());
 
         log.info("Confirmation email sent to {}", email);
     }
 
     @Override
     @Transactional
-    public void confirmEmail(String token) {
+    public void confirmEmail(String encodedToken) {
+        String token = jwtUtil.decodeTokenFromUrl(encodedToken);
         String email = jwtUtil.validateEmailConfirmationToken(token);
 
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -74,7 +74,7 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
 
         User user = userOptional.get();
         if (Boolean.TRUE.equals(user.getEmailConfirmed())) {
-            return;
+            throw new EmailAlreadyConfirmedException("Email already confirmed.");
         }
         user.setEmailConfirmed(true);
         userRepository.save(user);

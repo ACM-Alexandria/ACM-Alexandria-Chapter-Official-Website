@@ -9,9 +9,9 @@ import com.acm.acmwebsite.User_Authentication.exception.InvalidEmailException;
 import com.acm.acmwebsite.User_Authentication.exception.PasswordAndConfirmationMisMatch;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.User_Authentication.service.EmailConfirmationService;
 import com.acm.acmwebsite.User_Authentication.service.EmailExitanceService;
 import com.acm.acmwebsite.User_Authentication.service.RegisterService;
-import com.acm.acmwebsite.core.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,7 +28,7 @@ public class RegisterServiceImpl implements RegisterService {
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
   private final EmailExitanceService emailExitanceService;
-  private final EmailConfirmationServiceImpl emailConfirmationService;
+  private final EmailConfirmationService emailConfirmationService;
 
   @Override
   @Transactional

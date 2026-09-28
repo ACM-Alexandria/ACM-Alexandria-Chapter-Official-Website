@@ -5,8 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +27,7 @@ public class JwtUtil {
   private long expiration;
 
   @Value("${jwt.email-confirmation-expiration}")
-  private int emailConfirmationExpiration;
+  private long emailConfirmationExpiration;
 
   private SecretKey key;
 
@@ -88,5 +95,41 @@ public class JwtUtil {
     }
 
     return claims.getSubject();
+  }
+
+  @Value("${jwt.email-confirmation-encoding-secret:#{null}}")
+  private String encodingSecret;
+
+  public String encodeTokenForUrl(String jwt) {
+      if (encodingSecret == null) return jwt;
+      try {
+        SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        byte[] iv = new byte[12];
+        new SecureRandom().nextBytes(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
+        byte[] encrypted = cipher.doFinal(jwt.getBytes(StandardCharsets.UTF_8));
+        byte[] result = new byte[iv.length + encrypted.length];
+        System.arraycopy(iv, 0, result, 0, iv.length);
+        System.arraycopy(encrypted, 0, result, iv.length, encrypted.length);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
+      } catch (Exception e) {
+          throw new RuntimeException("Failed to encode token", e);
+      }
+  }
+
+  public String decodeTokenFromUrl(String encoded) {
+      if (encodingSecret == null) return encoded;
+      try {
+          byte[] data = Base64.getUrlDecoder().decode(encoded);
+          byte[] iv = Arrays.copyOfRange(data, 0, 12);
+          byte[] ciphertext = Arrays.copyOfRange(data, 12, data.length);
+          SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
+          Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+          cipher.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
+          return new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
+      } catch (Exception e) {
+          throw new IllegalArgumentException("Invalid or tampered confirmation token");
+      }
   }
 }
