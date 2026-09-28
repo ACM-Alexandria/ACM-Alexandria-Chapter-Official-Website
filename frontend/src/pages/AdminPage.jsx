@@ -22,32 +22,29 @@ import EpisodesManagementModal from "../components/AdminPage/ManagementSection/E
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
+import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
 import {
-  FiUsers,
   FiCalendar,
   FiAward,
   FiBookOpen,
   FiUserCheck,
   FiLayers,
-  FiCheckCircle,
   FiFileText,
   FiRefreshCw,
-  FiLock,
   FiTrendingUp,
   FiSliders,
   FiActivity,
-  FiAlertCircle,
   FiPlus,
   FiSearch,
   FiChevronLeft,
   FiChevronRight,
   FiAlertTriangle,
   FiShare2,
-  FiHelpCircle,
   FiGrid,
   FiRadio,
   FiMessageSquare,
   FiGlobe,
+  FiMail,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -697,8 +694,9 @@ const AdminPage = () => {
 
 
   const tabs = [
-    { id: "insights",   label: "System Insights",    icon: FiTrendingUp },
+    { id: "insights", label: "System Insights", icon: FiTrendingUp },
     { id: "management", label: "Resource Management", icon: FiSliders },
+    { id: "email", label: "Email Center", icon: FiMail },
   ];
 
   return (
@@ -762,6 +760,10 @@ const AdminPage = () => {
             error={error}
             onRefresh={loadInsights}
           />
+        )}
+
+        {activeTab === "email" && (
+          <EmailCenterTab />
         )}
 
         {/* ━━━━ TAB 2: MANAGEMENT ━━━━ */}
