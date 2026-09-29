@@ -16,7 +16,11 @@ import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +40,7 @@ public class EventService {
     private final EventFormQuestionRepository eventFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
+    private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 
     @Value("${google.sheets.events-folder-id:}")
     private String eventsFolderId;
@@ -59,10 +64,13 @@ public class EventService {
                 .toList();
     }
 
+    @Cacheable(value = "homepageData", key = "'event ' + #id", unless = "#result == null")
     public Optional<Event> getById(Long id) {
+        logger.info("Fetching Event from Database...");
         return eventRepository.findById(id);
     }
 
+    @CacheEvict(value = "homepageData", allEntries = true)
     public Event createEvent(Event event) {
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Event name is required");
@@ -112,6 +120,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "homepageData", allEntries = true)
     public Event updateEvent(Long id, Event updatedEvent) {
         return eventRepository.findById(id).map(event -> {
             if (updatedEvent.getName() == null || updatedEvent.getName().trim().isEmpty()) {
@@ -139,6 +148,7 @@ public class EventService {
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
     }
 
+    @CacheEvict(value = "homepageData", allEntries = true)
     public Event openRegistration(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
@@ -146,6 +156,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    @CacheEvict(value = "homepageData", allEntries = true)
     public Event closeRegistration(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
@@ -154,13 +165,16 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "homepageData", allEntries = true)
     public void deleteEvent(long id) {
         eventRegistrationRepository.deleteByEventId(id);
         eventFormQuestionRepository.deleteByEventId(id);
         eventRepository.deleteById(id);
     }
 
+    @Cacheable(value = "homepageData", key = "'Events' + #pageNumber")
     public Page<EventCardDto> getEventsByPage(int pageNumber) {
+        logger.info("Fetching Events page from Database...");
         pageNumber = Math.max(0, pageNumber);
         Pageable page = PageRequest.of(pageNumber, 6, Sort.by("eventTime").descending());
         return eventRepository.findAll(page).map(eventMapper::toEventCardDto);
@@ -220,6 +234,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "homepageData", allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + eventId));

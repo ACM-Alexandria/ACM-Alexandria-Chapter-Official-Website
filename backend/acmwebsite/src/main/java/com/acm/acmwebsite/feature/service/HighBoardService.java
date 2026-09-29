@@ -3,6 +3,10 @@ package com.acm.acmwebsite.feature.service;
 import com.acm.acmwebsite.feature.entity.HighBoard;
 import com.acm.acmwebsite.feature.repository.HighBoardRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +17,17 @@ import java.util.List;
 public class HighBoardService {
 
   private final HighBoardRepository highBoardRepository;
-
+  private static final Logger logger = LoggerFactory.getLogger(HighBoardService.class);
   public HighBoardService(HighBoardRepository highBoardRepository) {
     this.highBoardRepository = highBoardRepository;
   }
 
+  @Cacheable(value = "homepageData", key = "'HighBoard'")
   public List<HighBoard> getHighBoard() {
+      logger.info("Fetching HighBoards from Database...");
     return highBoardRepository.findAllWithUser();
   }
-
+  @CacheEvict(value = "homepageData", allEntries = true)
   public HighBoard addHighBoardMember(HighBoard highBoard) {
     if (highBoard.getUser() == null) {
       throw new IllegalArgumentException("User is required");
@@ -32,6 +38,7 @@ public class HighBoardService {
     return highBoardRepository.save(highBoard);
   }
 
+  @CacheEvict(value = "homepageData", allEntries = true)
   public HighBoard updateHighBoardMember(Long id, HighBoard updated) {
     return highBoardRepository.findById(id).map(member -> {
       if (updated.getUser() == null) {
@@ -47,6 +54,7 @@ public class HighBoardService {
     }).orElseThrow(() -> new EntityNotFoundException("High Board member not found with id " + id));
   }
 
+  @CacheEvict(value = "homepageData", allEntries = true)
   public void deleteHighBoardMember(Long id) {
     if (!highBoardRepository.existsById(id)) {
       throw new EntityNotFoundException("High Board member not found with id " + id);
