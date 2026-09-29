@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "../../contexts/AuthContext";
+import { getEnv } from "../../utils/env";
 import { resendConfirmationEmail } from "../../services/authService";
 import {
   validateEmail,
@@ -68,7 +69,7 @@ const RegisterForm = () => {
     if (typeof google !== "undefined") {
       try {
         google.accounts.id.initialize({
-          client_id: "286108572806-agfr1j9sshfsg5us3irpdll4omsns06o.apps.googleusercontent.com",
+          client_id: getEnv("VITE_GOOGLE_CLIENT_ID"),
           callback: handleGoogleCallback,
         });
         google.accounts.id.renderButton(

@@ -128,7 +128,7 @@ public class GmailEmailService implements EmailService {
             helper.setTo(to);
             helper.setSubject("Welcome to ACM Alexandria Student Chapter! 🎉");
 
-            String link = frontendUrl + "/login";
+            String link = frontendUrl;
 
             Context context = new Context();
             context.setVariable("emailTitle", "Welcome to ACM Alexandria — Account Activated");
