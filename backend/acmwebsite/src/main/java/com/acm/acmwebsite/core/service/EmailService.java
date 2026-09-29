@@ -23,4 +23,6 @@ public interface EmailService {
     void sendCommitteeRegistrationConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String committeeName, String userName);
 
     void sendGenericFormSubmissionConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String formName, String userName);
+
+    void sendEmailConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String confirmationToken, String userName);
 }

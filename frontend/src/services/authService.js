@@ -22,8 +22,14 @@ export const login = async (email, password) => {
 
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const responseData = error.response?.data;
+    const serverMessage =
+      responseData?.error ||
+      responseData?.message ||
+      (typeof responseData === "string" ? responseData : null);
+
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error("An error occurred during login. Please try again.");
   }
@@ -129,6 +135,43 @@ export const resetPassword = async (data) => {
     }
     throw new Error(
       "An error occurred while resetting password. Please try again.",
+    );
+  }
+};
+
+/**
+ * Confirm email using the token from the confirmation link.
+ * Backend expects: { token }
+ */
+export const confirmEmail = async (token) => {
+  try {
+    const response = await api.post("/api/v1/auth/confirm-email", { token });
+    return response.data;
+  } catch (error) {
+    const confirmationError = new Error(
+      error.response?.data?.error ||
+        "Email confirmation failed. The link may be invalid or expired.",
+    );
+
+    confirmationError.status = error.response?.status;
+    throw confirmationError;
+  }
+};
+
+/**
+ * Resend confirmation email.
+ * Backend expects: { email }
+ */
+export const resendConfirmationEmail = async (email) => {
+  try {
+    const response = await api.post("/api/v1/auth/resend-confirmation-email", { email });
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error(
+      "An error occurred while sending confirmation email. Please try again.",
     );
   }
 };

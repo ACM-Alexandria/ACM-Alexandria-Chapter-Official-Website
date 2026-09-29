@@ -24,7 +24,9 @@ api.interceptors.request.use(
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/forgot-password") ||
       requestUrl.includes("/auth/reset-password") ||
-      requestUrl.includes("/auth/refresh");
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/auth/confirm-email") ||
+      requestUrl.includes("/auth/resend-confirmation-email");
 
     if (!isAuthEndpoint) {
       const token = tokenService.getAccessToken();
@@ -65,7 +67,9 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/forgot-password") ||
       requestUrl.includes("/auth/reset-password") ||
-      requestUrl.includes("/auth/refresh");
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/auth/confirm-email") ||
+      requestUrl.includes("/auth/resend-confirmation-email");
 
     // If it's a 401 or 403 error and it's NOT a public auth endpoint, try to refresh
     if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint && !originalRequest._retry) {
