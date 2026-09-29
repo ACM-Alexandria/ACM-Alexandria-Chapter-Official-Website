@@ -1,10 +1,10 @@
 package com.acm.acmwebsite.User_Authentication.service.impl;
 
-import com.acm.acmwebsite.User_Authentication.entity.EmailConfirmationRateLimit;
+import com.acm.acmwebsite.User_Authentication.entity.EmailConfirmationRequest;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.exception.EmailAlreadyConfirmedException;
 import com.acm.acmwebsite.User_Authentication.exception.RateLimitException;
-import com.acm.acmwebsite.User_Authentication.repository.EmailConfirmationRateLimitRepository;
+import com.acm.acmwebsite.User_Authentication.repository.EmailConfirmationRequestRepository;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.EmailConfirmationService;
 import com.acm.acmwebsite.core.service.EmailService;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 public class EmailConfirmationServiceImpl implements EmailConfirmationService {
     private final UserRepository userRepository;
-    private final EmailConfirmationRateLimitRepository rateLimitRepository;
+    private final EmailConfirmationRequestRepository rateLimitRepository;
     private  final JwtUtil jwtUtil;
     private final EmailService emailService;
 
@@ -50,7 +50,7 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
         String token = jwtUtil.generateEmailConfirmationToken(email);
         String encodedToken = jwtUtil.encodeTokenForUrl(token);
         rateLimitRepository.save(
-                EmailConfirmationRateLimit.builder()
+                EmailConfirmationRequest.builder()
                         .email(email)
                         .requestedAt(LocalDateTime.now())
                         .build()

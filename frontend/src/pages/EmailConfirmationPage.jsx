@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { confirmEmail, resendConfirmationEmail } from "../services/authService";
 import { validateEmail } from "../utils/validation";
@@ -8,6 +8,8 @@ import { ErrorCircleIcon, EnvelopeIcon } from "../components/icons";
 
 const EmailConfirmationPage = () => {
   const { token } = useParams();
+
+  const confirmationRequest = useRef({ token: null, promise: null });
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -31,7 +33,14 @@ const EmailConfirmationPage = () => {
       }
 
       try {
-        await confirmEmail(token);
+        if (confirmationRequest.current.token !== token) {
+          confirmationRequest.current = {
+            token,
+            promise: confirmEmail(token),
+          };
+        }
+
+        await confirmationRequest.current.promise;
         if (isMounted) {
           setIsSuccess(true);
         }
