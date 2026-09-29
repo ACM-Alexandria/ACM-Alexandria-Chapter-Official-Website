@@ -13,5 +13,6 @@ window.APP_CONFIG = {
   VITE_ENABLE_SERVICES: "true",
   VITE_ENABLE_RADIO: "true",    
   VITE_ENABLE_EXCLUSIVE_FORMS: "true",
-  VITE_ENABLE_PARTNERS: "true"
+  VITE_ENABLE_PARTNERS: "true",
+  VITE_GOOGLE_CLIENT_ID: "436463059095-eok0lv5ggpprgr5ks34eav1v58a03v10.apps.googleusercontent.com"
 };
