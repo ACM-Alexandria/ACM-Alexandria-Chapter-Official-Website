@@ -22,6 +22,7 @@ import EpisodesManagementModal from "../components/AdminPage/ManagementSection/E
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
+import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import {
   FiUsers,
   FiCalendar,
