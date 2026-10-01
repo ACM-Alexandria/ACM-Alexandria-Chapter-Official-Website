@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -64,13 +65,13 @@ public class EventService {
                 .toList();
     }
 
-    @Cacheable(value = "homepageData", key = "'event ' + #id", unless = "#result == null")
+    @Cacheable(value = CacheNames.EVENTS, key = "'event ' + #id", unless = "#result == null")
     public Optional<Event> getById(Long id) {
         logger.info("Fetching Event from Database...");
         return eventRepository.findById(id);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public Event createEvent(Event event) {
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Event name is required");
@@ -120,7 +121,7 @@ public class EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public Event updateEvent(Long id, Event updatedEvent) {
         return eventRepository.findById(id).map(event -> {
             if (updatedEvent.getName() == null || updatedEvent.getName().trim().isEmpty()) {
@@ -148,7 +149,7 @@ public class EventService {
         }).orElseThrow(() -> new RuntimeException("EVENT not found"));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public Event openRegistration(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
@@ -156,7 +157,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public Event closeRegistration(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
@@ -165,14 +166,14 @@ public class EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public void deleteEvent(long id) {
         eventRegistrationRepository.deleteByEventId(id);
         eventFormQuestionRepository.deleteByEventId(id);
         eventRepository.deleteById(id);
     }
 
-    @Cacheable(value = "homepageData", key = "'Events' + #pageNumber")
+    @Cacheable(value = CacheNames.EVENTS, key = "'Events' + #pageNumber")
     public Page<EventCardDto> getEventsByPage(int pageNumber) {
         logger.info("Fetching Events page from Database...");
         pageNumber = Math.max(0, pageNumber);
@@ -234,7 +235,7 @@ public class EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EVENTS, allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + eventId));

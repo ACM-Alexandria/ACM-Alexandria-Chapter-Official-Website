@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.RadioEpisodeDto;
 import com.acm.acmwebsite.feature.dto.RadioSeasonDto;
 import com.acm.acmwebsite.feature.entity.RadioEpisode;
@@ -40,7 +41,7 @@ public class RadioService {
     // ── Season CRUD ──
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "homepageData", key = "'RadioSeasonsPage_' + #pageNumber")
+    @Cacheable(value = CacheNames.RADIO, key = "'RadioSeasonsPage_' + #pageNumber")
     public Page<RadioSeasonDto> getSeasonsByPage(int pageNumber) {
         logger.info("fetching seasons by page from database...");
         pageNumber = Math.max(0, pageNumber);
@@ -49,13 +50,13 @@ public class RadioService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "homepageData", key = "'RadioSeason_' + #id", unless = "#result == null")
+    @Cacheable(value = CacheNames.RADIO, key = "'RadioSeason_' + #id", unless = "#result == null")
     public Optional<RadioSeasonDto> getSeasonById(Long id) {
         logger.info("fetching season by id from database...");
         return radioSeasonRepository.findById(id).map(radioMapper::toSeasonDto);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public RadioSeasonDto createSeason(RadioSeasonDto seasonDto) {
         if (seasonDto.getSeasonNumber() == null) {
             throw new IllegalArgumentException("Season number is required");
@@ -70,7 +71,7 @@ public class RadioService {
         return radioMapper.toSeasonDto(radioSeasonRepository.save(season));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public RadioSeasonDto updateSeason(Long id, RadioSeasonDto seasonDto) {
         if (seasonDto.getSeasonNumber() == null) {
             throw new IllegalArgumentException("Season number is required");
@@ -92,7 +93,7 @@ public class RadioService {
         return radioMapper.toSeasonDto(radioSeasonRepository.save(season));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public void deleteSeason(Long id) {
         if (!radioSeasonRepository.existsById(id)) {
             throw new ResourceNotFoundException("Season not found with id: " + id);
@@ -103,7 +104,7 @@ public class RadioService {
     // ── Episode CRUD ──
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "homepageData", key = "'RadioEpisodes_' + #seasonId + '_page_' + #pageNumber")
+    @Cacheable(value = CacheNames.RADIO, key = "'RadioEpisodes_' + #seasonId + '_page_' + #pageNumber")
     public Page<RadioEpisodeDto> getEpisodesBySeason(Long seasonId, int pageNumber) {
         logger.info("fetching episodes by season id from database...");
         pageNumber = Math.max(0, pageNumber);
@@ -111,7 +112,7 @@ public class RadioService {
         return radioEpisodeRepository.findByRadioSeasonId(seasonId, pageable).map(radioMapper::toEpisodeDto);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public RadioEpisodeDto createEpisode(RadioEpisodeDto episodeDto) {
         if (episodeDto.getRadioSeasonId() == null) {
             throw new IllegalArgumentException("Season ID is required");
@@ -136,7 +137,7 @@ public class RadioService {
         return radioMapper.toEpisodeDto(radioEpisodeRepository.save(episode));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public RadioEpisodeDto updateEpisode(Long id, RadioEpisodeDto episodeDto) {
         if (episodeDto.getEpisodeNumber() == null) {
             throw new IllegalArgumentException("Episode number is required");
@@ -164,7 +165,7 @@ public class RadioService {
         return radioMapper.toEpisodeDto(radioEpisodeRepository.save(episode));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.RADIO, allEntries = true)
     public void deleteEpisode(Long id) {
         if (!radioEpisodeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Episode not found with id: " + id);

@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.entity.GalleryImage;
 import com.acm.acmwebsite.feature.repository.GalleryImageRepository;
 import org.slf4j.Logger;
@@ -19,13 +20,13 @@ public class GalleryService {
         this.repository = repository;
     }
 
-    @Cacheable(value = "homepageData",key = "'AllGallery'")
+    @Cacheable(value = CacheNames.GALLERY,key = "'AllGallery'")
     public List<GalleryImage> getAll() {
         logger.info("fetching all gallery images from database...");
         return repository.findAll();
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.GALLERY, allEntries = true)
     public GalleryImage add(GalleryImage image) {
         if (image.getImageUrl() == null || image.getImageUrl().isBlank()) {
             throw new IllegalArgumentException("imageUrl is required");
@@ -33,7 +34,7 @@ public class GalleryService {
         return repository.save(image);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.GALLERY, allEntries = true)
     public GalleryImage update(Long id, GalleryImage updated) {
         GalleryImage existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Gallery image not found: " + id));
@@ -43,7 +44,7 @@ public class GalleryService {
         existing.setCaption(updated.getCaption());
         return repository.save(existing);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.GALLERY, allEntries = true)
     public void delete(Long id) {
         repository.deleteById(id);
     }

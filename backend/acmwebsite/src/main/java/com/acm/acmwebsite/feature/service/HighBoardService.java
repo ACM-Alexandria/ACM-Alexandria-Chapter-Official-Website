@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.entity.HighBoard;
 import com.acm.acmwebsite.feature.repository.HighBoardRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,12 +23,12 @@ public class HighBoardService {
     this.highBoardRepository = highBoardRepository;
   }
 
-  @Cacheable(value = "homepageData", key = "'HighBoard'")
+  @Cacheable(value = CacheNames.HIGH_BOARD, key = "'HighBoard'")
   public List<HighBoard> getHighBoard() {
       logger.info("Fetching HighBoards from Database...");
     return highBoardRepository.findAllWithUser();
   }
-  @CacheEvict(value = "homepageData", allEntries = true)
+  @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true)
   public HighBoard addHighBoardMember(HighBoard highBoard) {
     if (highBoard.getUser() == null) {
       throw new IllegalArgumentException("User is required");
@@ -38,7 +39,7 @@ public class HighBoardService {
     return highBoardRepository.save(highBoard);
   }
 
-  @CacheEvict(value = "homepageData", allEntries = true)
+  @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true)
   public HighBoard updateHighBoardMember(Long id, HighBoard updated) {
     return highBoardRepository.findById(id).map(member -> {
       if (updated.getUser() == null) {
@@ -54,7 +55,7 @@ public class HighBoardService {
     }).orElseThrow(() -> new EntityNotFoundException("High Board member not found with id " + id));
   }
 
-  @CacheEvict(value = "homepageData", allEntries = true)
+  @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true)
   public void deleteHighBoardMember(Long id) {
     if (!highBoardRepository.existsById(id)) {
       throw new EntityNotFoundException("High Board member not found with id " + id);

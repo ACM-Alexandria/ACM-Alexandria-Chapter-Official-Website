@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.entity.SocialLink;
 import com.acm.acmwebsite.feature.repository.SocialLinkRepository;
 import org.slf4j.Logger;
@@ -19,22 +20,22 @@ public class SocialLinkService {
     public SocialLinkService(SocialLinkRepository socialLinkRepository) {
         this.socialLinkRepository = socialLinkRepository;
     }
-    @Cacheable(value = "homepageData",key = "'AllLinks'")
+    @Cacheable(value = CacheNames.SOCIAL_LINKS,key = "'AllLinks'")
     public List<SocialLink> getAllLinks(){
         logger.info("Fetching All Links from Database...");
         return socialLinkRepository.findAll();
     }
 
-    @Cacheable(value = "homepageData",key = "'Link'+#id")
+    @Cacheable(value = CacheNames.SOCIAL_LINKS,key = "'Link'+#id")
     public Optional<SocialLink> getLinkById(Long id){
         logger.info("Fetching Link from Database...");
         return socialLinkRepository.findById(id);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.SOCIAL_LINKS, allEntries = true)
     public SocialLink createSocialLink(SocialLink socialLink){
         return socialLinkRepository.save(socialLink);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.SOCIAL_LINKS, allEntries = true)
     public SocialLink updateSocialLink(Long id,SocialLink updatedSocialLink){
         return socialLinkRepository.findById(id).map(socialLink->{
             socialLink.setUrl(updatedSocialLink.getUrl());
@@ -43,7 +44,7 @@ public class SocialLinkService {
                 }
         ).orElseThrow(()->new RuntimeException("Social Link not found"));
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.SOCIAL_LINKS, allEntries = true)
     public void deleteSocialLink(Long id){
         socialLinkRepository.deleteById(id);
     }

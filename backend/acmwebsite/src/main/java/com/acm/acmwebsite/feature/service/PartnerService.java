@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.entity.Partner;
 import com.acm.acmwebsite.feature.repository.PartnerRepository;
 import org.slf4j.Logger;
@@ -19,17 +20,17 @@ public class PartnerService {
         this.partnerRepository = partnerRepository;
     }
 
-    @Cacheable(value = "homepageData", key = "'Partners'")
+    @Cacheable(value = CacheNames.PARTNERS, key = "'Partners'")
     public List<Partner> getAllPartners() {
         logger.info("fetching all partners from database...");
         return partnerRepository.findAll();
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PARTNERS, allEntries = true)
     public Partner createPartner(Partner partner) {
         return partnerRepository.save(partner);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PARTNERS, allEntries = true)
     public Partner updatePartner(Long id, Partner updatedPartner) {
         return partnerRepository.findById(id).map(partner -> {
             partner.setName(updatedPartner.getName());
@@ -38,7 +39,7 @@ public class PartnerService {
             return partnerRepository.save(partner);
         }).orElseThrow(() -> new RuntimeException("Partner not found with id: " + id));
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PARTNERS, allEntries = true)
     public void deletePartner(Long id) {
         partnerRepository.deleteById(id);
     }

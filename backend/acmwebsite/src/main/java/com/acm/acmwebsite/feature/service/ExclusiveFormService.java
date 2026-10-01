@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.ExclusiveFormDto;
 import com.acm.acmwebsite.feature.entity.ExclusiveForm;
 import com.acm.acmwebsite.feature.repository.ExclusiveFormRepository;
@@ -23,7 +24,7 @@ public class ExclusiveFormService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EXCLUSIVE_FORMS, allEntries = true)
     public ExclusiveForm saveForm(ExclusiveForm form) {
         if (form.getIsActive() == null) {
             form.setIsActive(false);
@@ -32,7 +33,7 @@ public class ExclusiveFormService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EXCLUSIVE_FORMS, allEntries = true)
     public ExclusiveForm updateForm(Long id, ExclusiveFormDto formDto) {
         ExclusiveForm form = formRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Form not found"));
@@ -53,27 +54,27 @@ public class ExclusiveFormService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.EXCLUSIVE_FORMS, allEntries = true)
     public void deleteForm(Long id) {
         ExclusiveForm form = formRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Form not found"));
         formRepository.delete(form);
     }
 
-    @Cacheable(value = "homepageData", key = "'ExclusiveForm_' + #id")
+    @Cacheable(value = CacheNames.EXCLUSIVE_FORMS, key = "'ExclusiveForm_' + #id")
     public ExclusiveForm getFormById(Long id) {
         logger.info("Fetching form with id " + id +"from database...");
         return formRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Form not found"));
     }
 
-    @Cacheable(value = "homepageData", key = "'ExclusiveForms_all'")
+    @Cacheable(value = CacheNames.EXCLUSIVE_FORMS, key = "'ExclusiveForms_all'")
     public List<ExclusiveForm> getAllForms() {
         logger.info("Fetching all forms from database...");
         return formRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    @Cacheable(value = "homepageData", key = "'ExclusiveForms_active'")
+    @Cacheable(value = CacheNames.EXCLUSIVE_FORMS, key = "'ExclusiveForms_active'")
     public List<ExclusiveForm> getActiveForms() {
         logger.info("Fetching all active forms from database...");
         return formRepository.findByIsActiveTrueOrderByCreatedAtDesc();

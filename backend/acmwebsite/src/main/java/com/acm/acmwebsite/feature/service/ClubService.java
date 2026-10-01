@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -63,7 +64,7 @@ public class ClubService {
         this.clubBoardRepository = clubBoardRepository;
     }
 
-    @Cacheable(value = "homepageData", key = "'AllClubs_page_' + #pageNumber")
+    @Cacheable(value = CacheNames.CLUBS, key = "'AllClubs_page_' + #pageNumber")
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
         logger.info("Fetching Clubs from Database...");
         pageNumber = Math.max(0, pageNumber);
@@ -86,12 +87,12 @@ public class ClubService {
             return dto;
         });
     }
-    @Cacheable(value = "homepageData", key = "'club_' + #id")
+    @Cacheable(value = CacheNames.CLUBS, key = "'club_' + #id")
     public Optional<Club> getClubById(long id) {
         logger.info("Fetching One Club from Database...");
         return clubRepository.findById(id);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club createClub(Club club) {
         if (club.getName() == null || club.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
@@ -146,7 +147,7 @@ public class ClubService {
 
         clubFormQuestionRepository.delete(question);
     }
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club updateClub(Long id,Club updatedClub) {
         return clubRepository.findById(id).map(club -> {
             if (updatedClub.getName() == null || updatedClub.getName().trim().isEmpty()) {
@@ -163,7 +164,7 @@ public class ClubService {
         ).orElseThrow(()->new RuntimeException("Club not found"));
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club openRegistration(Long id) {
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
@@ -171,7 +172,7 @@ public class ClubService {
         return clubRepository.save(club);
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club closeRegistration(Long id) {
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
@@ -187,7 +188,7 @@ public class ClubService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public List<String> updateClubSocialLinks(Long clubId, List<String> socialLinks) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
@@ -202,7 +203,7 @@ public class ClubService {
         return cleanLinks;
     }
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public void deleteClubById(long id) {
         clubRegistrationRepository.deleteByClubId(id);
         clubFormQuestionRepository.deleteByClubId(id);
@@ -256,7 +257,7 @@ public class ClubService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));

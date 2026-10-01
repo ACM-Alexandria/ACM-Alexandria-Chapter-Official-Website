@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.ProgramDto;
@@ -57,7 +58,7 @@ public class ProgramService {
         this.subscriptionService = subscriptionService;
     }
 
-    @Cacheable(value = "homepageData",key = "'AllPrograms'")
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'AllPrograms'")
     public List<ProgramDto> getAllPrograms() {
         logger.info("Fetching all programs from database...");
         return programRepository.findAll(Sort.by("startDate").descending()).stream()
@@ -65,7 +66,7 @@ public class ProgramService {
                 .toList();
     }
 
-    @Cacheable(value = "homepageData",key = "'ProgramPages'+#pageNumber")
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'ProgramPages'+#pageNumber")
     public Page<ProgramDto> getProgramsByPage(int pageNumber) {
         logger.info("Fetching program page from database...");
         pageNumber = Math.max(0, pageNumber);
@@ -73,14 +74,14 @@ public class ProgramService {
         return programRepository.findAll(page).map(programMapper::toProgramDto);
     }
 
-    @Cacheable(value = "homepageData",key = "'ProgramPage'+#id")
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'ProgramPage'+#id")
     public Optional<ProgramDto> getProgramById(long id) {
         logger.info("Fetching program by id from database...");
         return programRepository.findById(id).map(programMapper::toProgramDto);
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public void deleteProgram(long id) {
         programRegistrationRepository.deleteByProgramId(id);
         programFormQuestionRepository.deleteByProgramId(id);
@@ -88,7 +89,7 @@ public class ProgramService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto updateProgram(Long id, ProgramDto updatedProgram) {
         if (updatedProgram.getName() == null || updatedProgram.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Program name is required");
@@ -111,7 +112,7 @@ public class ProgramService {
                 .toList();
     }
 
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto createProgram(ProgramDto programDto) {
         if (programDto.getName() == null || programDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Program name is required");
@@ -129,7 +130,7 @@ public class ProgramService {
     // ── Registration Toggle ──
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto toggleRegistration(Long programId, boolean open) {
         Program program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found with id " + programId));
@@ -217,7 +218,7 @@ public class ProgramService {
     }
 
     @Transactional
-    @CacheEvict(value = "homepageData", allEntries = true)
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long programId) {
         Program program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found with id " + programId));
