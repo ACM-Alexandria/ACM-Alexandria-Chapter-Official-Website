@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.EventCardDto;
+import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
@@ -44,6 +45,14 @@ public class EventController {
     return eventService.updateEvent(id, event);
   }
 
+  @PostMapping("/{id}/announce")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+  public ResponseEntity<Void> announceEvent(@PathVariable Long id,
+      @RequestParam(defaultValue = "false") boolean force) {
+    eventService.announceEvent(id, force);
+    return ResponseEntity.ok().build();
+  }
+
   @DeleteMapping("/{id}")
   @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
@@ -61,6 +70,12 @@ public class EventController {
   @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<Event> closeEventCall(@PathVariable Long id) {
     return ResponseEntity.ok(eventService.closeRegistration(id));
+  }
+
+  @GetMapping("/{id}/email-settings")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+  public ResponseEntity<EmailSettingsDto> getEmailSettings(@PathVariable Long id) {
+    return ResponseEntity.ok(eventService.getEmailSettings(id));
   }
 
   @GetMapping("/{id}/registrations/analysis")

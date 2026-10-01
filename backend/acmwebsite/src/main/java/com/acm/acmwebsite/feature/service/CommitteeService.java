@@ -17,6 +17,7 @@ import com.acm.acmwebsite.feature.repository.MessageRepository;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CommitteeService {
     private final CommitteeRepository committeeRepository;
     private final CommitteeBoardRepository committeeBoardRepository;
     private final SubscriptionService subscriptionService;
+    private final SystemSettingsService systemSettingsService;
     private final EmailService emailService;
     private final MessageRepository messageRepository;
     private final CommitteeMapper committeeMapper;
@@ -38,7 +40,7 @@ public class CommitteeService {
     public CommitteeService(CommitteeRepository committeeRepository, CommitteeBoardRepository committeeBoardRepository,
             CommitteeMapper committeeMapper, SubscriptionService subscriptionService, EmailService emailService,
             MessageRepository messageRepository, CommitteeCallRepository committeeCallRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository, SystemSettingsService systemSettingsService) {
         this.committeeRepository = committeeRepository;
         this.committeeBoardRepository = committeeBoardRepository;
         this.subscriptionService = subscriptionService;
@@ -47,12 +49,11 @@ public class CommitteeService {
         this.committeeMapper = committeeMapper;
         this.committeeCallRepository = committeeCallRepository;
         this.userRepository = userRepository;
+        this.systemSettingsService = systemSettingsService;
     }
 
     public void sendCallMessage(SubscripeTo subscripeTo, Long id, Message message) {
-        if (message == null || message.getSubject() == null || message.getBody() == null) {
-            throw new IllegalArgumentException("Call announcement message is empty. Please set the call subject and body first.");
-        }
+        validateCallMessage(message);
         var subscriptions = subscriptionService.getAllSubscribersByTopic(subscripeTo, id);
         for (Subscription subscription : subscriptions) {
             if (subscription.getStatus() == SubscriptionStatus.ACTIVE) {
@@ -62,7 +63,7 @@ public class CommitteeService {
     }
 
     @Transactional
-    public void openCommitteeCall(Long id) {
+    public void openCommitteeCall(Long id, boolean sendAnnouncement) {
         Committee committee = committeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
 
@@ -70,17 +71,58 @@ public class CommitteeService {
             throw new IllegalStateException("The call is already open!");
         }
 
+        boolean announce = sendAnnouncement && systemSettingsService.isEmailsEnabled();
+        // Only needed when the email goes out now; a manual resend validates it later
+        if (announce) {
+            validateCallMessage(committee.getCallMessage());
+        }
+
         committee.setOpen(true);
         saveCommittee(committee);
 
+        LocalDateTime now = LocalDateTime.now();
         CommitteeCall call = CommitteeCall.builder()
                 .committee(committee)
-                .openedAt(LocalDateTime.now())
+                .openedAt(now)
+                .announcementSentAt(announce ? now : null)
                 .build();
         committeeCallRepository.save(call);
 
         // This is now part of the same atomic operation
+        if (announce) {
+            sendCallMessage(SubscripeTo.COMMITTEE, committee.getId(), committee.getCallMessage());
+        }
+    }
+
+    // force = true resends even if this call's email was already sent; otherwise a second send is refused
+    @Transactional
+    public void announceCommitteeCall(Long id, boolean force) {
+        systemSettingsService.assertEmailsEnabled();
+        Committee committee = committeeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
+
+        if (!committee.isOpen()) {
+            throw new IllegalStateException("The call is not open!");
+        }
+        CommitteeCall call = committeeCallRepository.findActiveCallByCommitteeId(id)
+                .orElseThrow(() -> new IllegalStateException("The call is not open!"));
+        // Validate before claiming, so a missing message can't leave the call marked as announced
+        validateCallMessage(committee.getCallMessage());
+
+        LocalDateTime now = LocalDateTime.now();
+        if (force) {
+            call.setAnnouncementSentAt(now);
+            committeeCallRepository.save(call);
+        } else if (committeeCallRepository.claimAnnouncement(call.getId(), now) == 0) {
+            throw new AnnouncementAlreadySentException(call.getAnnouncementSentAt());
+        }
         sendCallMessage(SubscripeTo.COMMITTEE, committee.getId(), committee.getCallMessage());
+    }
+
+    private void validateCallMessage(Message message) {
+        if (message == null || message.getSubject() == null || message.getBody() == null) {
+            throw new IllegalArgumentException("Call announcement message is empty. Please set the call subject and body first.");
+        }
     }
 
     @Transactional

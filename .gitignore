@@ -40,3 +40,7 @@ build/
 ### VS Code ###
 .vscode/
 .agent
+
+
+### Local secrets ###
+local-credentials.txt

@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
@@ -42,6 +43,13 @@ public class ClubController {
     public Club updateClub(@PathVariable Long id,@RequestBody Club club) {
         return clubService.updateClub(id, club);
     }
+    @PostMapping("/{id}/announce")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Void> announceClub(@PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean force) {
+        clubService.announceClub(id, force);
+        return ResponseEntity.ok().build();
+    }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Void> deleteClub(@PathVariable Long id) {
@@ -59,6 +67,12 @@ public class ClubController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<Club> closeClubCall(@PathVariable Long id) {
         return ResponseEntity.ok(clubService.closeRegistration(id));
+    }
+
+    @GetMapping("/{id}/email-settings")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<EmailSettingsDto> getEmailSettings(@PathVariable Long id) {
+        return ResponseEntity.ok(clubService.getEmailSettings(id));
     }
 
     @GetMapping("/{id}/registrations/analysis")

@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -14,6 +15,8 @@ import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.exception.AnnouncementNotAllowedException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class EventService {
     private final EventRepository eventRepository;
@@ -36,6 +41,7 @@ public class EventService {
     private final EventFormQuestionRepository eventFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
+    private final SystemSettingsService systemSettingsService;
 
     @Value("${google.sheets.events-folder-id:}")
     private String eventsFolderId;
@@ -44,13 +50,15 @@ public class EventService {
                         EventRegistrationRepository eventRegistrationRepository,
                         EventFormQuestionRepository eventFormQuestionRepository,
                         GoogleSheetsService googleSheetsService,
-                        SubscriptionService subscriptionService) {
+                        SubscriptionService subscriptionService,
+                        SystemSettingsService systemSettingsService) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.eventRegistrationRepository = eventRegistrationRepository;
         this.eventFormQuestionRepository = eventFormQuestionRepository;
         this.googleSheetsService = googleSheetsService;
         this.subscriptionService = subscriptionService;
+        this.systemSettingsService = systemSettingsService;
     }
 
     public List<EventCardDto> getAllCards() {
@@ -67,9 +75,47 @@ public class EventService {
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Event name is required");
         }
+        // Decided once so the announcement only goes out when it can really be sent (emails unlocked, event not in the past)
+        boolean announce = !Boolean.FALSE.equals(event.getSendAnnouncement())
+                && systemSettingsService.isEmailsEnabled()
+                && !isPastEvent(event);
         Event savedEvent = eventRepository.save(event);
-        notifySubscribersAboutNewEvent(savedEvent);
+        // Only recorded as announced once the send went through, so a failure leaves it sendable later
+        if (announce && notifySubscribersAboutNewEvent(savedEvent)) {
+            savedEvent.setAnnouncementSentAt(LocalDateTime.now());
+            savedEvent = eventRepository.save(savedEvent);
+        }
         return savedEvent;
+    }
+
+    // force = true resends even if it was already announced; otherwise a second send is refused
+    @Transactional
+    public void announceEvent(Long id, boolean force) {
+        systemSettingsService.assertEmailsEnabled();
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
+        if (isPastEvent(event)) {
+            throw new AnnouncementNotAllowedException("This event has already happened, so it can't be announced.");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (force) {
+            event.setAnnouncementSentAt(now);
+            eventRepository.save(event);
+        } else if (eventRepository.claimAnnouncement(id, now) == 0) {
+            throw new AnnouncementAlreadySentException(event.getAnnouncementSentAt());
+        }
+        subscriptionService.sendNewEventNotificationToNewsSubscribers(event);
+    }
+
+    public EmailSettingsDto getEmailSettings(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
+        return new EmailSettingsDto(event.getAnnouncementSentAt());
+    }
+
+    // Matches SubscriptionService, which never announces events that already happened
+    private boolean isPastEvent(Event event) {
+        return event.getEventTime() != null && event.getEventTime().isBefore(LocalDateTime.now());
     }
 
     @Transactional
@@ -166,10 +212,14 @@ public class EventService {
         return eventRepository.findAll(page).map(eventMapper::toEventCardDto);
     }
 
-    private void notifySubscribersAboutNewEvent(Event event) {
+    // Returns false when the send failed, so the event isn't marked as announced
+    private boolean notifySubscribersAboutNewEvent(Event event) {
         try {
             subscriptionService.sendNewEventNotificationToNewsSubscribers(event);
+            return true;
         } catch (Exception e) {
+            log.warn("Announcement for new event {} failed; it can still be sent manually", event.getId(), e);
+            return false;
         }
     }
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/HomePage/Navbar";
 import adminService, { fetchInsights } from "../services/adminService";
+import { useAuth } from "../contexts/AuthContext";
 import {
   fetchHighBoard,
   fetchCommittee,
@@ -20,6 +21,10 @@ import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSoci
 import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
+import RegistrationEmailsModal from "../components/AdminPage/ManagementSection/RegistrationEmailsModal";
+import OpenCallConfirmModal from "../components/AdminPage/ManagementSection/OpenCallConfirmModal";
+import { Highlight } from "../components/ThemedDialog";
+import useThemedDialog from "../hooks/useThemedDialog";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import {
@@ -124,6 +129,26 @@ const AdminPage = () => {
   // Event Gallery modal states
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
+
+  // Registration Emails modal states (events & clubs)
+  const [emailsModalOpen, setEmailsModalOpen] = useState(false);
+  const [selectedResourceForEmails, setSelectedResourceForEmails] = useState(null);
+
+  // Committee open-call confirm states
+  const [openCallCommittee, setOpenCallCommittee] = useState(null);
+
+  // Double-click guards for email-sending actions (refs update immediately, unlike state)
+  const announceInFlight = useRef(false);
+  const openCallInFlight = useRef(false);
+  const [announcingId, setAnnouncingId] = useState(null);
+
+  // Site-wide email lock (only SUPER_ADMIN can change it)
+  const { user } = useAuth();
+  // Themed confirmations, errors and hints for the email actions (same look as the unsubscribe dialog)
+  const { dialog, confirm, notify } = useThemedDialog();
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  const [emailsEnabled, setEmailsEnabled] = useState(true);
+  const [emailLockSaving, setEmailLockSaving] = useState(false);
 
   const mgmtTabs = [
     { id: "users", label: "Users", icon: FiUserCheck },
@@ -293,11 +318,11 @@ const AdminPage = () => {
     } else if (mgmtTab === "committeeBoard") {
       setFormData({ name: "", role: "", imageUrl: "", order: null, linkedinUrl: "" });
     } else if (mgmtTab === "events") {
-      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [], registrationOpen: false });
+      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [], registrationOpen: false, sendAnnouncement: true });
     } else if (mgmtTab === "clubs") {
-      setFormData({ name: "", description: "", imageUrl: "", isExternal: false, registrationOpen: false });
+      setFormData({ name: "", description: "", imageUrl: "", isExternal: false, registrationOpen: false, sendAnnouncement: true });
     } else if (mgmtTab === "programs") {
-      setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false });
+      setFormData({ name: "", description: "", imageUrl: "", startDate: "", endDate: "", time: "", registrationOpen: false, sendAnnouncement: true });
     } else if (mgmtTab === "radio") {
       setFormData({ seasonNumber: "", imageUrl: "" });
     } else if (mgmtTab === "exclusiveForms") {
@@ -545,7 +570,9 @@ const AdminPage = () => {
         if (isCurrentlyOpen) {
           await adminService.closeCommitteeCall(item.id);
         } else {
-          await adminService.openCommitteeCall(item.id);
+          // Opening asks whether to email subscribers first; see handleConfirmOpenCall
+          setOpenCallCommittee(item);
+          return;
         }
       }
       await loadMgmtTabData(mgmtTab);
@@ -563,6 +590,105 @@ const AdminPage = () => {
     }
   };
  
+  const handleConfirmOpenCall = async (sendAnnouncement) => {
+    if (openCallInFlight.current) return;
+    openCallInFlight.current = true;
+    setMgmtLoading(true);
+    setMgmtError(null);
+    try {
+      await adminService.openCommitteeCall(openCallCommittee.id, sendAnnouncement);
+      setOpenCallCommittee(null);
+      await loadMgmtTabData(mgmtTab);
+    } catch (err) {
+      console.error(err);
+      setOpenCallCommittee(null);
+      setMgmtError(err?.error || err?.message || (typeof err === "string" ? err : "Failed to open committee call."));
+    } finally {
+      openCallInFlight.current = false;
+      setMgmtLoading(false);
+    }
+  };
+
+  const handleAnnounceClick = async (item) => {
+    // Claimed before the confirm prompt so a double-click can't open a second prompt or send twice
+    if (announceInFlight.current) return;
+    announceInFlight.current = true;
+    const isCommittee = mgmtTab === "committees";
+    const ok = await confirm({
+      tone: "brand",
+      title: isCommittee ? "Resend Call Email?" : "Send Announcement?",
+      message: isCommittee
+        ? <>Resend the <Highlight>{item.name}</Highlight> call email to its subscribers?</>
+        : <>Send the <Highlight>{item.name}</Highlight> announcement email to all newsletter subscribers?</>,
+      confirmLabel: "Yes, Send",
+    });
+    if (!ok) {
+      announceInFlight.current = false;
+      return;
+    }
+
+    setAnnouncingId(item.id);
+    setMgmtLoading(true);
+    setMgmtError(null);
+    try {
+      const sent = await adminService.sendWithResendPrompt(
+        (force) =>
+          isCommittee
+            ? adminService.announceCommitteeCall(item.id, force)
+            : adminService.sendAnnouncement(mgmtTab, item.id, force),
+        confirm
+      );
+      if (sent) {
+        notify({ tone: "success", title: "Emails On The Way", message: "The emails are being sent to subscribers." });
+      }
+    } catch (err) {
+      console.error(err);
+      notify({
+        tone: "danger",
+        title: "Couldn't Send",
+        message: err?.error || err?.message || (typeof err === "string" ? err : "Failed to send announcement."),
+      });
+    } finally {
+      announceInFlight.current = false;
+      setAnnouncingId(null);
+      setMgmtLoading(false);
+    }
+  };
+
+  const handleEmailsClick = (item) => {
+    setSelectedResourceForEmails({ item, type: mgmtTab });
+    setEmailsModalOpen(true);
+  };
+
+  useEffect(() => {
+    adminService.fetchEmailLock()
+      .then((data) => setEmailsEnabled(data?.emailsEnabled !== false))
+      .catch((err) => console.error("Failed to load email lock status", err));
+  }, []);
+
+  const handleToggleEmailLock = async () => {
+    const enable = !emailsEnabled;
+    if (!enable) {
+      const ok = await confirm({
+        tone: "danger",
+        title: "Lock All Emails?",
+        message: "No emails or notifications will be sent (except password resets) until you unlock them.",
+        confirmLabel: "Yes, Lock",
+      });
+      if (!ok) return;
+    }
+    setEmailLockSaving(true);
+    try {
+      const data = await adminService.updateEmailLock(enable);
+      setEmailsEnabled(data?.emailsEnabled !== false);
+    } catch (err) {
+      console.error(err);
+      notify({ tone: "danger", title: "Couldn't Update", message: err?.message || err?.error || "Failed to update the email lock." });
+    } finally {
+      setEmailLockSaving(false);
+    }
+  };
+
   const handleEditMessageClick = (committee) => {
     setSelectedCommittee(committee);
     setMessageSubject(committee.callMessage?.subject || "");
@@ -723,6 +849,30 @@ const AdminPage = () => {
             </h1>
           </div>
 
+          <div className="flex items-center gap-3">
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={handleToggleEmailLock}
+              disabled={emailLockSaving}
+              title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
+              className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase text-slate-600 dark:text-slate-200 active:scale-95 transition-all disabled:opacity-40"
+            >
+              <FiLock className="w-3.5 h-3.5" style={{ color: emailsEnabled ? B : "#dc2626" }} />
+              Site Emails
+              <span
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
+                  emailsEnabled ? "bg-[#4B98C8]" : "bg-red-500"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                    emailsEnabled ? "translate-x-4" : "translate-x-1"
+                  }`}
+                />
+              </span>
+            </button>
+          )}
           {activeTab === "insights" && (
             <button
               onClick={loadInsights}
@@ -733,7 +883,19 @@ const AdminPage = () => {
               Refresh
             </button>
           )}
+          </div>
         </div>
+
+        {/* ── Email lock warning ── */}
+        {!emailsEnabled && (
+          <div className="flex items-center gap-3 p-4 mb-8 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl">
+            <FiAlertTriangle className="w-5 h-5 shrink-0" />
+            <p className="text-xs font-bold">
+              All site emails are locked. No emails or notifications are sent (except password resets).
+              {isSuperAdmin ? " Use the Site Emails switch above to unlock." : " Only the super admin can unlock them."}
+            </p>
+          </div>
+        )}
 
         {/* ── Tab Bar ── */}
         <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-1 rounded-xl w-fit shadow-sm dark:shadow-slate-950/40 mb-8">
@@ -861,6 +1023,9 @@ const AdminPage = () => {
                     onSocialsClick={handleSocialsClick}
                     onGalleryClick={handleGalleryClick}
                     onEpisodesClick={handleEpisodesClick}
+                    onAnnounceClick={handleAnnounceClick}
+                    announcingId={announcingId}
+                    onEmailsClick={handleEmailsClick}
                   />
                 )}
               </div>
@@ -980,9 +1145,25 @@ const AdminPage = () => {
               event={selectedEventForGallery}
               onSave={() => loadMgmtTabData(mgmtTab)}
             />
+
+            <RegistrationEmailsModal
+              open={emailsModalOpen}
+              onClose={() => { setEmailsModalOpen(false); setSelectedResourceForEmails(null); }}
+              resource={selectedResourceForEmails?.item}
+              resourceType={selectedResourceForEmails?.type}
+            />
+
+            <OpenCallConfirmModal
+              open={Boolean(openCallCommittee)}
+              onClose={() => setOpenCallCommittee(null)}
+              onConfirm={handleConfirmOpenCall}
+              committee={openCallCommittee}
+              loading={mgmtLoading}
+            />
           </div>
         )}
       </main>
+      {dialog}
     </div>
   );
 };

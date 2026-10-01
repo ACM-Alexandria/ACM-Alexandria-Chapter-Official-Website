@@ -17,6 +17,7 @@ import {
   FiVolume2,
   FiFileText,
   FiGlobe,
+  FiSend,
 } from "react-icons/fi";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 
@@ -62,6 +63,9 @@ const ResourceTable = ({
   onSocialsClick,
   onGalleryClick,
   onEpisodesClick,
+  onAnnounceClick,
+  onEmailsClick,
+  announcingId,
 }) => {
   const [imgErrors, setImgErrors] = useState({});
 
@@ -302,6 +306,16 @@ const ResourceTable = ({
                       >
                         <FiMail className="w-3.5 h-3.5" />
                       </button>
+                      {(item.open || item.isOpen) && (
+                        <button
+                          onClick={() => onAnnounceClick(item)}
+                          disabled={announcingId === item.id}
+                          title="Resend Call Email to Subscribers"
+                          className="p-2 disabled:opacity-40 bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-600 dark:text-slate-200 hover:text-amber-600 rounded-lg transition-colors"
+                        >
+                          <FiSend className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </>
                   )}
                   {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs" || activeTab === "exclusiveForms") && (
@@ -320,6 +334,25 @@ const ResourceTable = ({
                       className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-600 dark:text-slate-200 hover:text-sky-600 rounded-lg transition-colors"
                     >
                       <FiHelpCircle className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {(activeTab === "events" || activeTab === "clubs") && (
+                    <button
+                      onClick={() => onEmailsClick(item)}
+                      title={activeTab === "events" ? "Manage Event Emails" : "Manage Club Emails"}
+                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-600 dark:text-slate-200 hover:text-indigo-600 rounded-lg transition-colors"
+                    >
+                      <FiMail className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {activeTab === "programs" && (
+                    <button
+                      onClick={() => onAnnounceClick(item)}
+                      disabled={announcingId === item.id}
+                      title="Send Announcement to Subscribers"
+                      className="p-2 disabled:opacity-40 bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-600 dark:text-slate-200 hover:text-amber-600 rounded-lg transition-colors"
+                    >
+                      <FiSend className="w-3.5 h-3.5" />
                     </button>
                   )}
                   {activeTab === "events" && (

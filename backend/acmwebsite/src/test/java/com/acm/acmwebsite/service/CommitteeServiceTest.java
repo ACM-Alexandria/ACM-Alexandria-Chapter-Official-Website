@@ -1,5 +1,7 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.entity.Committee;
@@ -26,6 +28,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +37,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CommitteeServiceTest {
+
+    @Mock
+    private SystemSettingsService systemSettingsService;
 
     @InjectMocks
     CommitteeService committeService;
@@ -277,14 +283,73 @@ class CommitteeServiceTest {
         committee.setOpen(false);
         committee.setCallMessage(new Message("Subject", "Body"));
 
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
         when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
         when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
         when(subscriptionService.getAllSubscribersByTopic(any(), any())).thenReturn(List.of());
 
-        committeService.openCommitteeCall(1L);
+        committeService.openCommitteeCall(1L, true);
 
         assertTrue(committee.isOpen());
-        verify(committeeCallRepository, times(1)).save(any(CommitteeCall.class));
+        verify(committeeCallRepository, times(1)).save(argThat(call -> call.getAnnouncementSentAt() != null));
+        verify(subscriptionService).getAllSubscribersByTopic(SubscripeTo.COMMITTEE, 1L);
+    }
+
+    @Test
+    @DisplayName("openCommitteeCall while emails are locked opens the call without emailing subscribers")
+    void openCommitteeCallWhileEmailsLocked() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+        committee.setCallMessage(new Message("Subject", "Body"));
+
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
+
+        committeService.openCommitteeCall(1L, true);
+
+        assertTrue(committee.isOpen());
+        // Nothing went out, so the call must still be announceable later
+        verify(committeeCallRepository, times(1)).save(argThat(call -> call.getAnnouncementSentAt() == null));
+        verify(subscriptionService, never()).getAllSubscribersByTopic(any(), any());
+        verify(emailService, never()).sendCommitteeCallEmail(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("openCommitteeCall rejects an empty call message when the email goes out now")
+    void openCommitteeCallRejectsEmptyMessage() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+        committee.setCallMessage(null);
+
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+
+        assertThrows(IllegalArgumentException.class, () -> committeService.openCommitteeCall(1L, true));
+
+        assertFalse(committee.isOpen());
+        verify(commiteeRepository, never()).save(any(Committee.class));
+        verify(committeeCallRepository, never()).save(any(CommitteeCall.class));
+        verify(subscriptionService, never()).getAllSubscribersByTopic(any(), any());
+    }
+
+    @Test
+    @DisplayName("openCommitteeCall while emails are locked opens the call even with an empty message")
+    void openCommitteeCallWhileLockedAllowsEmptyMessage() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+        committee.setCallMessage(null);
+
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
+
+        committeService.openCommitteeCall(1L, true);
+
+        // Nothing was sent, so the message is checked later by the manual resend
+        assertTrue(committee.isOpen());
+        verify(committeeCallRepository, times(1)).save(argThat(call -> call.getAnnouncementSentAt() == null));
+        verify(subscriptionService, never()).getAllSubscribersByTopic(any(), any());
     }
 
     @Test
@@ -295,7 +360,7 @@ class CommitteeServiceTest {
 
         when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
 
-        assertThrows(IllegalStateException.class, () -> committeService.openCommitteeCall(1L));
+        assertThrows(IllegalStateException.class, () -> committeService.openCommitteeCall(1L, true));
     }
 
     @Test
@@ -327,4 +392,89 @@ class CommitteeServiceTest {
         assertThrows(IllegalStateException.class, () -> committeService.closeCommitteeCall(1L));
     }
 
+
+    @Test
+    @DisplayName("openCommitteeCall with sendAnnouncement false opens the call without emailing subscribers")
+    void openCommitteeCallWithoutAnnouncement() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+        committee.setCallMessage(new Message("Subject", "Body"));
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(commiteeRepository.save(any(Committee.class))).thenReturn(committee);
+
+        committeService.openCommitteeCall(1L, false);
+
+        assertTrue(committee.isOpen());
+        verify(committeeCallRepository, times(1)).save(any(CommitteeCall.class));
+        verify(subscriptionService, never()).getAllSubscribersByTopic(any(), any());
+    }
+
+    @Test
+    @DisplayName("announceCommitteeCall emails subscribers when the call is open")
+    void announceCommitteeCallWhenOpen() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(true);
+        committee.setCallMessage(new Message("Subject", "Body"));
+
+        CommitteeCall call = CommitteeCall.builder().id(5L).committee(committee).build();
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(committeeCallRepository.findActiveCallByCommitteeId(1L)).thenReturn(Optional.of(call));
+        when(committeeCallRepository.claimAnnouncement(eq(5L), any())).thenReturn(1);
+        when(subscriptionService.getAllSubscribersByTopic(any(), any())).thenReturn(List.of());
+
+        committeService.announceCommitteeCall(1L, false);
+
+        verify(subscriptionService).getAllSubscribersByTopic(SubscripeTo.COMMITTEE, committee.getId());
+    }
+
+    @Test
+    @DisplayName("announceCommitteeCall throws exception when the call is closed")
+    void announceCommitteeCallThrowsWhenClosed() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(false);
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+
+        assertThrows(IllegalStateException.class, () -> committeService.announceCommitteeCall(1L, false));
+    }
+
+    @Test
+    @DisplayName("announceCommitteeCall refuses a second send for the same call without force")
+    void announceCommitteeCallAlreadySent() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(true);
+        committee.setCallMessage(new Message("Subject", "Body"));
+        CommitteeCall call = CommitteeCall.builder().id(5L).committee(committee).build();
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(committeeCallRepository.findActiveCallByCommitteeId(1L)).thenReturn(Optional.of(call));
+        when(committeeCallRepository.claimAnnouncement(eq(5L), any())).thenReturn(0);
+
+        assertThrows(AnnouncementAlreadySentException.class, () -> committeService.announceCommitteeCall(1L, false));
+
+        verify(subscriptionService, never()).getAllSubscribersByTopic(any(), any());
+    }
+
+    @Test
+    @DisplayName("announceCommitteeCall with force resends an already sent call and updates the sent time")
+    void announceCommitteeCallForceResends() {
+        Committee committee = createDummyCommittee();
+        committee.setOpen(true);
+        committee.setCallMessage(new Message("Subject", "Body"));
+        LocalDateTime firstSentAt = LocalDateTime.now().minusDays(1);
+        CommitteeCall call = CommitteeCall.builder().id(5L).committee(committee).announcementSentAt(firstSentAt).build();
+
+        when(commiteeRepository.findById(1L)).thenReturn(Optional.of(committee));
+        when(committeeCallRepository.findActiveCallByCommitteeId(1L)).thenReturn(Optional.of(call));
+        when(subscriptionService.getAllSubscribersByTopic(any(), any())).thenReturn(List.of());
+
+        committeService.announceCommitteeCall(1L, true);
+
+        // Force skips the claim, so an earlier send doesn't block it
+        verify(committeeCallRepository, never()).claimAnnouncement(any(), any());
+        assertTrue(call.getAnnouncementSentAt().isAfter(firstSentAt));
+        verify(committeeCallRepository).save(call);
+        verify(subscriptionService).getAllSubscribersByTopic(SubscripeTo.COMMITTEE, committee.getId());
+    }
 }

@@ -179,9 +179,9 @@ export const deleteCommittee = async (id) => {
   }
 };
 
-export const openCommitteeCall = async (id) => {
+export const openCommitteeCall = async (id, sendAnnouncement = true) => {
   try {
-    const response = await api.post(`/api/committee/${id}/open-call`);
+    const response = await api.post(`/api/committee/${id}/open-call`, { sendAnnouncement });
     return response.data;
   } catch (error) {
     console.error("Error opening committee call:", error);
@@ -196,6 +196,16 @@ export const closeCommitteeCall = async (id) => {
   } catch (error) {
     console.error("Error closing committee call:", error);
     throw error.response?.data || new Error("Failed to close committee call.");
+  }
+};
+
+export const announceCommitteeCall = async (id, force = false) => {
+  try {
+    const response = await api.post(`/api/committee/${id}/announce-call`, null, { params: { force } });
+    return response.data;
+  } catch (error) {
+    console.error("Error announcing committee call:", error);
+    throw error.response?.data || new Error("Failed to send the call email.");
   }
 };
 
@@ -418,6 +428,87 @@ export const deleteExclusiveForm = async (id) => {
   } catch (error) {
     console.error("Error deleting exclusive form:", error);
     throw error.response?.data || new Error("Failed to delete exclusive form.");
+  }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   6.6. EMAIL NOTIFICATIONS (manual announcements & site-wide lock)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const RESOURCE_PATHS = {
+  events: "/api/events",
+  clubs: "/api/clubs",
+  programs: "/api/program",
+};
+
+const resourcePath = (resourceType) => {
+  const basePath = RESOURCE_PATHS[resourceType];
+  if (!basePath) throw new Error(`Email actions are not supported for ${resourceType}.`);
+  return basePath;
+};
+
+// Pass force = true to resend an announcement that was already sent
+export const sendAnnouncement = async (resourceType, id, force = false) => {
+  const basePath = resourcePath(resourceType);
+  try {
+    const response = await api.post(`${basePath}/${id}/announce`, null, { params: { force } });
+    return response.data;
+  } catch (error) {
+    console.error("Error sending announcement:", error);
+    throw error.response?.data || new Error("Failed to send announcement.");
+  }
+};
+
+// Runs send(false); if the backend says it was already sent, asks the admin and resends with force.
+// confirm is the themed dialog's confirm (useThemedDialog). Returns false when the admin declined to resend.
+export const sendWithResendPrompt = async (send, confirm) => {
+  try {
+    await send(false);
+    return true;
+  } catch (err) {
+    if (err?.code !== "ANNOUNCEMENT_ALREADY_SENT") throw err;
+    const when = err.sentAt ? new Date(err.sentAt).toLocaleString() : "earlier";
+    const resend = await confirm({
+      tone: "warning",
+      title: "Already Sent",
+      message: `This was already sent on ${when}. Send it to all subscribers again?`,
+      confirmLabel: "Yes, Resend",
+    });
+    if (!resend) return false;
+    await send(true);
+    return true;
+  }
+};
+
+// Announcement status (events and clubs)
+export const fetchEmailSettings = async (resourceType, id) => {
+  const basePath = resourcePath(resourceType);
+  try {
+    const response = await api.get(`${basePath}/${id}/email-settings`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching email settings:", error);
+    throw error.response?.data || new Error("Failed to fetch email settings.");
+  }
+};
+
+// Site-wide email lock (any admin can read it; only SUPER_ADMIN can change it)
+export const fetchEmailLock = async () => {
+  try {
+    const response = await api.get("/api/admin/settings/email-lock");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching email lock:", error);
+    throw error.response?.data || new Error("Failed to fetch email lock status.");
+  }
+};
+
+export const updateEmailLock = async (emailsEnabled) => {
+  try {
+    const response = await api.put("/api/admin/settings/email-lock", { emailsEnabled });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating email lock:", error);
+    throw error.response?.data || new Error("Failed to update email lock.");
   }
 };
 
@@ -769,6 +860,7 @@ export default {
   deleteCommittee,
   openCommitteeCall,
   closeCommitteeCall,
+  announceCommitteeCall,
   changeCallMessage,
   createEvent,
   updateEvent,
@@ -790,6 +882,11 @@ export default {
   createExclusiveForm,
   updateExclusiveForm,
   deleteExclusiveForm,
+  sendAnnouncement,
+  sendWithResendPrompt,
+  fetchEmailSettings,
+  fetchEmailLock,
+  updateEmailLock,
   fetchRegistrationAnalysis,
   syncRegistrationSheet,
   fetchQuestions,

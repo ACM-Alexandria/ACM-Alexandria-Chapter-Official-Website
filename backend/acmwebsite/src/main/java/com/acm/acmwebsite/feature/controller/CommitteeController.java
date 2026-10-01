@@ -7,9 +7,12 @@ import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationRequestDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.dto.CommitteeCallResponseDto;
+import com.acm.acmwebsite.feature.dto.OpenCallRequestDto;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.Message;
 import com.acm.acmwebsite.feature.enums.SubscripeTo;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.exception.EmailsLockedException;
 import com.acm.acmwebsite.feature.service.CommitteeService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
 import com.acm.acmwebsite.feature.service.CommitteeRegistrationService;
@@ -106,10 +109,29 @@ public class CommitteeController {
 
     @PostMapping("/{id}/open-call")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
-    public ResponseEntity<?> openCommitteeCall(@PathVariable Long id) {
+    public ResponseEntity<?> openCommitteeCall(@PathVariable Long id,
+            @RequestBody(required = false) OpenCallRequestDto request) {
+        boolean sendAnnouncement = request == null || !Boolean.FALSE.equals(request.getSendAnnouncement());
         try {
-            committeeService.openCommitteeCall(id);
+            committeeService.openCommitteeCall(id, sendAnnouncement);
             return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/announce-call")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<?> announceCommitteeCall(@PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean force) {
+        try {
+            committeeService.announceCommitteeCall(id, force);
+            return ResponseEntity.ok().build();
+        } catch (AnnouncementAlreadySentException | EmailsLockedException e) {
+            // Handled centrally (409 with a message the admin page understands)
+            throw e;
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

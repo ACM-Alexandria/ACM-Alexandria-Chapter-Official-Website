@@ -54,6 +54,14 @@ public class ProgramController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/announce")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public ResponseEntity<Void> announceProgram(@PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean force) {
+        programService.announceProgram(id, force);
+        return ResponseEntity.ok().build();
+    }
+
     // ── Registration Toggle ──
 
     @PostMapping("/{id}/toggle-registration")

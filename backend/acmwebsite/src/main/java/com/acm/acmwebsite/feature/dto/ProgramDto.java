@@ -1,5 +1,7 @@
 package com.acm.acmwebsite.feature.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class ProgramDto {
@@ -13,6 +15,9 @@ public class ProgramDto {
     private boolean registrationOpen;
     private String googleSheetUrl;
     private LocalDateTime sheetLastUpdatedAt;
+    // Request-only flag: when false, creating the program skips the subscriber announcement
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean sendAnnouncement;
 
     public ProgramDto(Long id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String time, String imageUrl,
                       boolean registrationOpen, String googleSheetUrl, LocalDateTime sheetLastUpdatedAt) {
@@ -109,5 +114,13 @@ public class ProgramDto {
 
     public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
         this.sheetLastUpdatedAt = sheetLastUpdatedAt;
+    }
+
+    public Boolean getSendAnnouncement() {
+        return sendAnnouncement;
+    }
+
+    public void setSendAnnouncement(Boolean sendAnnouncement) {
+        this.sendAnnouncement = sendAnnouncement;
     }
 }

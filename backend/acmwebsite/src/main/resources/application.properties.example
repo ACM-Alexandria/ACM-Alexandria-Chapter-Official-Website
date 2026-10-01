@@ -41,7 +41,7 @@ spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 # THYMELEAF EMAIL TEMPLATE CONFIGURATION
-spring.thymeleaf.prefix=classpath:/templates/mail/
+spring.thymeleaf.prefix=classpath:/templates/
 spring.thymeleaf.suffix=.html
 spring.thymeleaf.mode=HTML
 spring.thymeleaf.encoding=UTF-8
