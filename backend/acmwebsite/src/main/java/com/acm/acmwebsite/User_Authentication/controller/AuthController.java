@@ -3,6 +3,9 @@ package com.acm.acmwebsite.User_Authentication.controller;
 import com.acm.acmwebsite.User_Authentication.dto.ForgotPasswordDTO;
 import com.acm.acmwebsite.User_Authentication.dto.ResetPasswordDTO;
 
+import com.acm.acmwebsite.User_Authentication.exception.EmailAlreadyConfirmedException;
+import com.acm.acmwebsite.User_Authentication.exception.RateLimitException;
+import com.acm.acmwebsite.User_Authentication.service.EmailConfirmationService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.User_Authentication.dto.RegisterDTO;
 import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
@@ -37,6 +40,7 @@ public class AuthController {
   private final UserService userService;
   private final TokenService tokenService;
   private final RegisterService registerService;
+  private final EmailConfirmationService emailConfirmationService;
 
   @GetMapping("/currentUser")
   public ResponseEntity<?> getCurrentUser(Authentication authentication) {
@@ -59,12 +63,49 @@ public class AuthController {
     return ResponseEntity.status(201).body(savedUser);
   }
 
+  @PostMapping("/confirm-email")
+  public ResponseEntity<?> confirmEmail(@RequestBody @Valid ConfirmEmailRequest request) {
+    try {
+      emailConfirmationService.confirmEmail(request.getToken());
+      return ResponseEntity.ok(Map.of("message", "Email confirmed successfully."));
+    } catch (RateLimitException ex) {
+        return ResponseEntity.status(429).body(new ErrorMessageResponse(ex.getMessage()));
+    } catch (EmailAlreadyConfirmedException ex) {
+        return ResponseEntity.status(409).body(new ErrorMessageResponse(ex.getMessage()));
+    } catch (Exception ex) {
+      return ResponseEntity.badRequest().body(new ErrorMessageResponse("Invalid or expired confirmation Link."));
+    }
+  }
+
+  @PostMapping("/resend-confirmation-email")
+  public ResponseEntity<?> resendConfirmation(@RequestBody @Valid ResendConfirmationRequest request) {
+      try {
+          emailConfirmationService.sendConfirmationEmail(request.getEmail());
+      } catch (RateLimitException ex) {
+          return ResponseEntity.status(429).body(new ErrorMessageResponse(ex.getMessage()));
+      } catch (EmailAlreadyConfirmedException ex) {
+          return ResponseEntity.status(409).body(new ErrorMessageResponse(ex.getMessage()));
+      } catch (Exception ex) {
+          return ResponseEntity.status(500).body(Map.of(
+                  "error",
+                  "An error occurred while sending the confirmation email. Please try again later."
+          ));
+      }
+
+      return ResponseEntity.ok(Map.of(
+              "message",
+              "If an unconfirmed account with this email exists, a confirmation link has been sent."
+      ));
+  }
+
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
     try {
       LoginResponse response = userService.login(loginRequest);
 
       return ResponseEntity.ok(response);
+    } catch (IllegalStateException ex) {
+      return ResponseEntity.status(403).body(ex.getMessage());
     } catch (IllegalArgumentException ex) {
       return ResponseEntity.status(401)
           .body(new ErrorMessageResponse("Incorrect email or password"));

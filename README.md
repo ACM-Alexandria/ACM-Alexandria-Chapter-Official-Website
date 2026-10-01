@@ -112,8 +112,8 @@ To run this project locally, you need to set up both the backend and frontend se
    npm install
    ```
 3. Configure environment variables:
-   * Copy `.env.example` into `.env`.
-   * Update the backend base URL if it differs from default.
+   * Copy `public/config.example.js` to `public/config.js`.
+   * Open `public/config.js` and edit it with your own credentials (e.g., update `VITE_API_BASE_URL` and `VITE_GOOGLE_CLIENT_ID`).
 4. Launch the local Vite development server:
    ```bash
    npm run dev

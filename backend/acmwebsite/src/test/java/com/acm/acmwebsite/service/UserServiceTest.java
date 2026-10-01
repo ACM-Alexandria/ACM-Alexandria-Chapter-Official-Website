@@ -7,12 +7,14 @@ import com.acm.acmwebsite.User_Authentication.dto.SuccessRegisterResponse;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.mapper.UserMapper;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
+import com.acm.acmwebsite.User_Authentication.service.EmailConfirmationService;
 import com.acm.acmwebsite.User_Authentication.service.impl.RegisterServiceImpl;
 import com.acm.acmwebsite.core.service.EmailService;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,7 +27,7 @@ public class UserServiceTest {
   @Mock PasswordEncoder passwordEncoder;
   @Mock UserMapper userMapper;
   @Mock com.acm.acmwebsite.User_Authentication.service.EmailExitanceService emailExitanceService;
-  @Mock EmailService emailService;
+  @Mock EmailConfirmationService emailConfirmationService;
   @InjectMocks RegisterServiceImpl registerService;
 
   @Test
@@ -50,6 +52,11 @@ public class UserServiceTest {
     // ASSERT
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result.getEmail()).isEqualTo("test@email.com");
-    verify(emailService, times(1)).sendWelcomeEmail(eq("test@email.com"), eq("ACM Member"));
+
+    verify(emailConfirmationService, times(1)).sendConfirmationEmail("test@email.com");
+
+    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(userCaptor.capture());
+    Assertions.assertThat(userCaptor.getValue().getEmailConfirmed()).isFalse();
   }
 }

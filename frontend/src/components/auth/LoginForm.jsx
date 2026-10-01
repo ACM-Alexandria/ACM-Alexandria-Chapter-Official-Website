@@ -3,7 +3,9 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
 import { useAuth } from "../../contexts/AuthContext";
+import { getEnv } from "../../utils/env";
 import { validateEmail, validatePassword } from "../../utils/validation";
+import { resendConfirmationEmail } from "../../services/authService";
 import {
   ErrorCircleIcon,
   SuccessCircleIcon,
@@ -21,6 +23,8 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({ email: "", password: "", general: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
   const handleGoogleCallback = async (response) => {
     setSuccessMessage("");
@@ -44,7 +48,7 @@ const LoginForm = () => {
     if (typeof google !== "undefined") {
       try {
         google.accounts.id.initialize({
-          client_id: "286108572806-agfr1j9sshfsg5us3irpdll4omsns06o.apps.googleusercontent.com",
+          client_id: getEnv("VITE_GOOGLE_CLIENT_ID"),
           callback: handleGoogleCallback,
         });
         google.accounts.id.renderButton(
@@ -107,7 +111,10 @@ const LoginForm = () => {
     } catch (error) {
       const errorMessage = error.message || "Incorrect email or password";
 
-      if (errorMessage.toLowerCase().includes("email")) {
+      if(errorMessage.toLowerCase().includes("not confirmed")) {
+        setErrors((prev) => ({...prev, general: errorMessage, email: "", password: ""}));
+        setUnconfirmedEmail(formData.email);
+      } else if (errorMessage.toLowerCase().includes("email")) {
         setErrors((prev) => ({ ...prev, email: errorMessage, general: "" }));
       } else if (errorMessage.toLowerCase().includes("password")) {
         setErrors((prev) => ({ ...prev, password: errorMessage, general: "" }));
@@ -119,13 +126,47 @@ const LoginForm = () => {
     }
   };
 
+  const handleResendEmail = async() => {
+    if(!unconfirmedEmail) return;
+    setIsResending(true);
+    try {
+      await resendConfirmationEmail(unconfirmedEmail);
+      setErrors((prev) => ({ ...prev, general: "" }));
+      setSuccessMessage("Confirmation link sent! Please check your email inbox.");
+      setUnconfirmedEmail("");
+    } catch (error) {
+      setSuccessMessage("");
+      setErrors((prev) => ({
+        ...prev,
+        general:
+          error.message ||
+          "If an unconfirmed account exists, a link has been sent.",
+      }));
+      setUnconfirmedEmail("");
+    } finally {
+      setIsResending(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} noValidate>
       {/* General error */}
       {errors.general && (
         <div className="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-200" role="alert">
           <ErrorCircleIcon className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
-          <p>{errors.general}</p>
+          <div className="flex-1">
+            <p>{errors.general}</p>
+              {unconfirmedEmail && (
+                <button
+                  type="button"
+                  onClick={handleResendEmail}
+                  disabled={isResending}
+                  className="mt-1.5 inline-block text-xs font-semibold text-red-600 dark:text-red-300 underline hover:text-red-800 transition-colors disabled:opacity-50"
+                >
+                  {isResending ? "Sending confirmation..." : "Resend confirmation email"}
+                </button>
+              )}
+          </div>  
         </div>
       )}
 
