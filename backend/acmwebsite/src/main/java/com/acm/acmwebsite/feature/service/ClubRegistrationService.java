@@ -7,26 +7,28 @@ import com.acm.acmwebsite.feature.dto.RegistrationRequestDto;
 import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.entity.ClubFormQuestion;
 import com.acm.acmwebsite.feature.entity.ClubRegistration;
-import com.acm.acmwebsite.feature.entity.FormQuestion;
 import com.acm.acmwebsite.feature.exception.DuplicateRegistrationException;
-import com.acm.acmwebsite.feature.exception.MissingRequiredAnswerException;
-import com.acm.acmwebsite.feature.exception.ProfileIncompleteException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.feature.enums.RegistrationEntityType;
+import com.acm.acmwebsite.feature.event.SheetSyncEvent;
 import com.acm.acmwebsite.core.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ClubRegistrationService implements RegistrationService {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
@@ -53,6 +55,7 @@ public class ClubRegistrationService implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void registerUser(UUID userId, Long clubId, RegistrationRequestDto request) {
         // 1. Get entities
         User user = userRepository.findById(userId)
@@ -94,7 +97,10 @@ public class ClubRegistrationService implements RegistrationService {
 
         clubRegistrationRepository.save(registration);
 
-        // 6. Trigger Confirmation Email
+        // 6. Trigger an async, debounced sheet sync after the transaction commits.
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.CLUB, clubId));
+
+        // 7. Trigger Confirmation Email
         try {
             coreEmailService.sendRegistrationConfirmationEmail(user.getEmail(), club.getName(), user.getName());
         } catch (Exception e) {
