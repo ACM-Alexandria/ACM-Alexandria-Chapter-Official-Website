@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const STYLES = {
     error: {
@@ -11,8 +11,20 @@ const STYLES = {
     },
 };
 
-const StatusAlert = ({ type, message }) => {
-    if (!message) return null;
+const StatusAlert = ({ type, message, duration = 3000 }) => {
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        if (!message) {
+            setVisible(false);
+            return;
+        }
+        setVisible(true);
+        const timer = setTimeout(() => setVisible(false), duration);
+        return () => clearTimeout(timer);
+    }, [message, duration]);
+
+    if (!message || !visible) return null;
     const { role, className } = STYLES[type];
     return (
         <div className={`mb-4 rounded-md border px-4 py-3 text-sm ${className}`} role={role}>
