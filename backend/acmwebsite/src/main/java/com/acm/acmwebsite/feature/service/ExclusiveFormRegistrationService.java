@@ -16,12 +16,14 @@ import com.acm.acmwebsite.feature.repository.ExclusiveFormRepository;
 import com.acm.acmwebsite.feature.repository.ExclusiveRegistrationRepository;
 import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.feature.enums.RegistrationEntityType;
+import com.acm.acmwebsite.feature.event.SheetSyncEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExclusiveFormRegistrationService implements RegistrationService {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
     private final ExclusiveFormRepository exclusiveFormRepository;
@@ -55,6 +59,7 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void registerUser(UUID userId, Long formId, RegistrationRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -82,6 +87,8 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
                 .build();
 
         exclusiveRegistrationRepository.save(registration);
+
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.EXCLUSIVE_FORM, formId));
 
         try {
             coreEmailService.sendGenericFormSubmissionConfirmationEmail(user.getEmail(), form.getTitle(), user.getName());

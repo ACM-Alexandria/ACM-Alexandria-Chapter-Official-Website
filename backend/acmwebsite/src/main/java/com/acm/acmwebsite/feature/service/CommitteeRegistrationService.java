@@ -12,7 +12,6 @@ import com.acm.acmwebsite.feature.entity.CommitteeCall;
 import com.acm.acmwebsite.feature.entity.CommitteeFormQuestion;
 import com.acm.acmwebsite.feature.entity.CommitteeRegistration;
 import com.acm.acmwebsite.feature.exception.DuplicateRegistrationException;
-import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeFormQuestionRepository;
@@ -20,8 +19,11 @@ import com.acm.acmwebsite.feature.repository.CommitteeRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.feature.enums.RegistrationEntityType;
+import com.acm.acmwebsite.feature.event.SheetSyncEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommitteeRegistrationService implements RegistrationService {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
     private final CommitteeRepository committeeRepository;
@@ -57,6 +61,7 @@ public class CommitteeRegistrationService implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void registerUser(UUID userId, Long committeeId, RegistrationRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -87,6 +92,8 @@ public class CommitteeRegistrationService implements RegistrationService {
                 .build();
 
         committeeRegistrationRepository.save(registration);
+
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.COMMITTEE_CALL, activeCall.getId()));
 
         try {
             coreEmailService.sendCommitteeRegistrationConfirmationEmail(user.getEmail(), committee.getName(), user.getName());
