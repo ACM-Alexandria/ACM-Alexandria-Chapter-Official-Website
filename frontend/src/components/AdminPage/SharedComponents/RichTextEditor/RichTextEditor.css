@@ -1,0 +1,29 @@
+.email-rich-text-editor .ProseMirror {
+    min-height: 220px;
+    outline: none;
+}
+
+.email-rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
+    color: #94a3b8;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+.email-rich-text-editor .ProseMirror table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.email-rich-text-editor .ProseMirror th,
+.email-rich-text-editor .ProseMirror td {
+    min-width: 1em;
+    vertical-align: top;
+}
+
+.email-rich-text-editor .ProseMirror th p,
+.email-rich-text-editor .ProseMirror td p {
+    margin: 0;
+}

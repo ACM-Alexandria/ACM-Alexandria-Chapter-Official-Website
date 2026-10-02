@@ -71,12 +71,21 @@ public class ClubService {
         this.systemSettingsService = systemSettingsService;
     }
 
-    @Cacheable(value = CacheNames.CLUBS, key = "'AllClubs_page_' + #pageNumber")
+    @Cacheable(value = CacheNames.CLUBS, key = "'AllClubs_page_' + #pageNumber")   
+     public List<ClubCardDto> getAllClubs() {
+        return clubRepository.findAll().stream()
+                .map(this::toClubCardDto)
+                .collect(Collectors.toList());
+    }
+
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
         logger.info("Fetching Clubs from Database...");
         pageNumber = Math.max(0, pageNumber);
-        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("id").ascending());
-        return clubRepository.findAll(pageable).map(club -> {
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("name").ascending());
+        return clubRepository.findAll(pageable).map(this::toClubCardDto);
+    }
+    
+    private ClubCardDto toClubCardDto(Club club) {
             ClubCardDto dto = clubMapper.toClubCardDto(club);
             var boardEntities = clubBoardRepository.findByClubId(club.getId());
             if (boardEntities != null && !boardEntities.isEmpty()) {
@@ -92,7 +101,6 @@ public class ClubService {
                 dto.setBoardRoles(boardRoles);
             }
             return dto;
-        });
     }
     @Cacheable(value = CacheNames.CLUBS, key = "'club_' + #id")
     public Optional<Club> getClubById(long id) {

@@ -11,6 +11,26 @@ export const fetchInsights = async () => {
   }
 };
 
+export const sendCustomEmail = async (payload) => {
+  try {
+    const response = await api.post("/api/admin/emails/send-custom", payload, { timeout: 60000 });
+    return response.data;
+  } catch (error) {
+    console.error("Error sending custom email:", error);
+    throw error.response?.data || new Error("Failed to send custom email.");
+  }
+};
+
+export const previewCustomEmail = async (payload) => {
+  try {
+    const response = await api.post("/api/admin/emails/preview", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error previewing custom email recipients:", error);
+    throw error.response?.data || new Error("Failed to preview email recipients.");
+  }
+};
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    0. USER MANAGEMENT
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -519,10 +539,10 @@ export const fetchRegistrationAnalysis = async (resourceType, id) => {
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee/calls";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee/calls";
     const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
     return response.data;
   } catch (error) {
@@ -535,10 +555,10 @@ export const syncRegistrationSheet = async (resourceType, id) => {
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee/calls";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee/calls";
     const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
     return response.data;
   } catch (error) {
@@ -554,10 +574,10 @@ export const fetchQuestions = async (resourceType, resourceId) => {
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee";
     const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
     return response.data;
   } catch (error) {
@@ -570,10 +590,10 @@ export const createQuestion = async (resourceType, resourceId, questionData) => 
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee";
     const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
     return response.data;
   } catch (error) {
@@ -586,10 +606,10 @@ export const updateQuestion = async (resourceType, resourceId, questionId, quest
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee";
     const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
     return response.data;
   } catch (error) {
@@ -602,10 +622,10 @@ export const deleteQuestion = async (resourceType, resourceId, questionId) => {
   try {
     const resourcePath =
       resourceType === "event" ? "events" :
-      resourceType === "club" ? "clubs" :
-      resourceType === "program" ? "program" :
-      resourceType === "exclusive-form" ? "exclusive-forms" :
-      "committee";
+        resourceType === "club" ? "clubs" :
+          resourceType === "program" ? "program" :
+            resourceType === "exclusive-form" ? "exclusive-forms" :
+              "committee";
     const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
     return response.data;
   } catch (error) {

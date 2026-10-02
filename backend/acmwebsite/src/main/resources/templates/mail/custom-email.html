@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/base-layout :: layout(~{::content})}">
+
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${emailTitle}">ACM Alexandria Chapter</title>
+</head>
+
+<body>
+    <th:block th:fragment="content">
+        <h1 th:text="${emailSubject}"
+            style="margin: 0 0 24px 0; font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.3;">
+        </h1>
+        <div th:utext="${bodyHtml}" style="font-size: 15px; color: #334155; line-height: 1.7; overflow-wrap: anywhere;">
+        </div>
+
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0 0 0;">
+            <tr>
+                <td align="center">
+                    <a href="https://alex.hosting.acm.org/" target="_blank" class="acm-btn"
+                        style="display: inline-block; padding: 14px 38px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 50px; background: linear-gradient(135deg, #4B98C8, #205E85); text-align: center;">
+                        Visit ACM Alexandria
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </th:block>
+</body>
+
+</html>

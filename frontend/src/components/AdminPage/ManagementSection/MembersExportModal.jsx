@@ -1,27 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FiX, FiExternalLink, FiRefreshCw, FiRotateCcw, FiUsers } from "react-icons/fi";
 import { previewMembersExport, exportMembersSheet } from "../../../services/adminService";
+import MembersFilter, { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../SharedComponents/MembersFilter";
 import { ROLE_OPTIONS, ROLE_GROUPS, EXPORT_PRESETS } from "../../../constants/roles";
 
 const MAX_TITLE_LENGTH = 150;
 const PREVIEW_DEBOUNCE_MS = 300;
-const DEFAULT_ROLES = EXPORT_PRESETS[0].roles;
 
 // Leadership first, then members, then other accounts (matches the sheet's row order)
 const ORDERED_ROLE_OPTIONS = ROLE_GROUPS.flatMap((g) => ROLE_OPTIONS.filter((r) => r.group === g.key));
-const COMMITTEE_SCOPED_ROLES = ROLE_OPTIONS.filter((r) => r.scope === "committee").map((r) => r.value);
-const CLUB_SCOPED_ROLES = ROLE_OPTIONS.filter((r) => r.scope === "club").map((r) => r.value);
-
-const labelsFor = (roles) => ROLE_OPTIONS.filter((r) => roles.includes(r.value)).map((r) => r.label);
-const scopeHints = (roles) => ({
-  enabled: `Applies to ${labelsFor(roles).join(" & ")}`,
-  disabled: `Select ${labelsFor(roles).join(" or ")} to filter`,
-});
-const COMMITTEE_SCOPE_HINTS = scopeHints(COMMITTEE_SCOPED_ROLES);
-const CLUB_SCOPE_HINTS = scopeHints(CLUB_SCOPED_ROLES);
-
-const toggleValue = (list, value) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
-const sameSet = (a, b) => a.length === b.length && a.every((v) => b.includes(v));
 
 const pad = (n) => String(n).padStart(2, "0");
 const formatStamp = (date) =>
@@ -38,85 +25,9 @@ const buildAutoTitle = (roles, scopeNames, date) => {
   return title.slice(0, MAX_TITLE_LENGTH);
 };
 
-const SectionLabel = ({ children }) => (
-  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{children}</span>
-);
-
-const CheckboxTile = ({ checked, onChange, label, hint }) => (
-  <label
-    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all group/opt ${
-      checked
-        ? "border-[#4B98C8] bg-[#4B98C8]/5 dark:bg-[#4B98C8]/10"
-        : "border-slate-200 dark:border-slate-700 hover:border-[#4B98C8]/50"
-    }`}
-  >
-    <div
-      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
-        checked
-          ? "bg-[#4B98C8] border-[#4B98C8]"
-          : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 group-hover/opt:border-[#4B98C8]/60"
-      }`}
-    >
-      {checked && (
-        <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
-    </div>
-    <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
-    <div className="min-w-0">
-      <span className="block text-xs font-bold text-slate-700 dark:text-slate-200">{label}</span>
-      {hint && <span className="block text-[10px] text-slate-400 font-medium mt-0.5">{hint}</span>}
-    </div>
-  </label>
-);
-
-const ToggleChip = ({ active, onClick, disabled, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    className={`px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${
-      active
-        ? "bg-[#4B98C8] border-[#4B98C8] text-white shadow-md"
-        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
-    }`}
-  >
-    {children}
-  </button>
-);
-
-const AssociationPicker = ({ title, allLabel, emptyLabel, items, selectedIds, onChange, enabled, hints }) => (
-  <div className={`space-y-2.5 transition-opacity ${enabled ? "" : "opacity-50"}`}>
-    <div className="flex items-center justify-between gap-2 flex-wrap">
-      <SectionLabel>{title}</SectionLabel>
-      <span className="text-[10px] text-slate-400 font-medium">{enabled ? hints.enabled : hints.disabled}</span>
-    </div>
-    {items.length === 0 ? (
-      <p className="text-[11px] text-slate-400 italic">{emptyLabel}</p>
-    ) : (
-      <div className="flex flex-wrap gap-2">
-        <ToggleChip active={selectedIds.length === 0} disabled={!enabled} onClick={() => onChange([])}>
-          {allLabel}
-        </ToggleChip>
-        {items.map((item) => (
-          <ToggleChip
-            key={item.id}
-            active={selectedIds.includes(item.id)}
-            disabled={!enabled}
-            onClick={() => onChange(toggleValue(selectedIds, item.id))}
-          >
-            {item.name}
-          </ToggleChip>
-        ))}
-      </div>
-    )}
-  </div>
-);
-
 const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilters = {} }) => {
   const [selectedRoles, setSelectedRoles] = useState(() =>
-    initialFilters.role ? [initialFilters.role] : DEFAULT_ROLES
+    initialFilters.role ? [initialFilters.role] : DEFAULT_MEMBERS_ROLES
   );
   const [selectedCommittees, setSelectedCommittees] = useState(() =>
     initialFilters.committeeId ? [Number(initialFilters.committeeId)] : []
@@ -135,17 +46,9 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
   const [error, setError] = useState(null);
   const previewRequestId = useRef(0);
 
-  const hasCommitteeScope = selectedRoles.some((r) => COMMITTEE_SCOPED_ROLES.includes(r));
-  const hasClubScope = selectedRoles.some((r) => CLUB_SCOPED_ROLES.includes(r));
-
-  // Only send association filters for roles they actually narrow
   const filters = useMemo(
-    () => ({
-      roles: selectedRoles,
-      committeeIds: hasCommitteeScope ? selectedCommittees : [],
-      clubIds: hasClubScope ? selectedClubs : [],
-    }),
-    [selectedRoles, selectedCommittees, selectedClubs, hasCommitteeScope, hasClubScope]
+    () => buildMembersFilters(selectedRoles, selectedCommittees, selectedClubs),
+    [selectedRoles, selectedCommittees, selectedClubs]
   );
 
   const scopeNames = useMemo(
@@ -377,8 +280,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
               <button
                 onClick={handleExport}
                 disabled={!canExport}
-                className={`flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:active:scale-100 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 ${
-                  exporting ? "cursor-wait" : "disabled:opacity-50"
+                className={`flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:active:scale-100 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 ${exporting ? "cursor-wait" : "disabled:opacity-50"
                 }`}
               >
                 <FiRefreshCw className={`w-3.5 h-3.5 ${exporting ? "animate-spin" : ""}`} />
@@ -389,64 +291,16 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
 
           {/* Selection Settings */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-5">
-            <div className="space-y-2.5">
-              <SectionLabel>Quick Presets</SectionLabel>
-              <div className="flex flex-wrap gap-2">
-                {EXPORT_PRESETS.map((preset) => (
-                  <ToggleChip
-                    key={preset.key}
-                    active={sameSet(preset.roles, selectedRoles)}
-                    onClick={() => setSelectedRoles(preset.roles)}
-                  >
-                    {preset.label}
-                  </ToggleChip>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <SectionLabel>Roles</SectionLabel>
-              {ROLE_GROUPS.map((group) => (
-                <div key={group.key} className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{group.label}</span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {ROLE_OPTIONS.filter((r) => r.group === group.key).map((role) => (
-                      <CheckboxTile
-                        key={role.value}
-                        label={role.label}
-                        hint={role.scope === "committee" ? "Filtered by committee" : role.scope === "club" ? "Filtered by club" : null}
-                        checked={selectedRoles.includes(role.value)}
-                        onChange={() => setSelectedRoles((prev) => toggleValue(prev, role.value))}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {selectedRoles.length === 0 && (
-                <p className="text-[11px] font-bold text-rose-500">Select at least one role to export.</p>
-              )}
-            </div>
-
-            <AssociationPicker
-              title="Committees"
-              allLabel="All Committees"
-              emptyLabel="No committees found."
-              items={committees}
-              selectedIds={selectedCommittees}
-              onChange={setSelectedCommittees}
-              enabled={hasCommitteeScope}
-              hints={COMMITTEE_SCOPE_HINTS}
-            />
-
-            <AssociationPicker
-              title="Clubs"
-              allLabel="All Clubs"
-              emptyLabel="No clubs found."
-              items={clubs}
-              selectedIds={selectedClubs}
-              onChange={setSelectedClubs}
-              enabled={hasClubScope}
-              hints={CLUB_SCOPE_HINTS}
+            <MembersFilter
+              selectedRoles={selectedRoles}
+              setSelectedRoles={setSelectedRoles}
+              committees={committees}
+              clubs={clubs}
+              selectedCommitteeIds={selectedCommittees}
+              setSelectedCommitteeIds={setSelectedCommittees}
+              selectedClubIds={selectedClubs}
+              setSelectedClubIds={setSelectedClubs}
+              emptyRoleMessage="Select at least one role to export."
             />
           </div>
         </div>

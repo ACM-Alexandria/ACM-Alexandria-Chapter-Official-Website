@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/base-layout :: layout(~{::content})}">
 <head>
   <meta charset="UTF-8" />
   <title>New Event Announcement — ACM Alexandria</title>
 </head>
 <body>
 
-  <div th:replace="~{mail/base-layout :: content(~{::content})}">
+
     <th:block th:fragment="content">
 
       <!-- Category Eyebrow Badge -->
@@ -84,7 +84,7 @@
       </table>
 
     </th:block>
-  </div>
+
 
 </body>
 </html>

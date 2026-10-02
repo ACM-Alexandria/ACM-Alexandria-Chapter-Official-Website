@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
       const hydrateUser = async () => {
         try {
           const data = await apiGetMe();
-          console.log("[AuthContext] Hydrated CurrentUser Payload:", data);
 
           // Fallback to email-only if backend is returning legacy payloads
           if (data && (data.email || data.id)) {
