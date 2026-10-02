@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:fragment="layout(content)">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -154,7 +154,7 @@
                   </td>
                   <td style="color: #cbd5e1;">&bull;</td>
                   <td style="padding: 0 8px;">
-                    <a href="https://linkedin.com/company/acm-alexandria-student-chapter" target="_blank" style="color: #4B98C8; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">LinkedIn</a>
+                    <a href="https://www.linkedin.com/company/alexacm/" target="_blank" style="color: #4B98C8; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">LinkedIn</a>
                   </td>
                   <td style="color: #cbd5e1;">&bull;</td>
                   <td style="padding: 0 8px;">
@@ -175,28 +175,12 @@
                 &copy; 2026 ACM Alexandria Chapter. All rights reserved.
               </p>
 
-              <!-- Unsubscribe and Preferences -->
-              <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.5;">
-                You are receiving this because you signed up on our website.<br />
-                <a th:href="${unsubscribeUrl != null ? unsubscribeUrl : '#'}" href="#" style="color: #64748b; text-decoration: underline; font-weight: 600;">Unsubscribe</a>
-                &nbsp;&bull;&nbsp;
-                <a th:href="${preferencesUrl != null ? preferencesUrl : '#'}" href="#" style="color: #64748b; text-decoration: underline; font-weight: 600;">Preferences</a>
-              </p>
             </td>
           </tr>
 
         </table>
 
-        <!-- Subtle sub-card copyright / notification disclaimer -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"
-               style="max-width: 600px; width: 100%;">
-          <tr>
-            <td style="padding: 24px 0 0 0; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.5;">
-              This is an automated notification. Please do not reply directly to this email.<br />
-              For support, reach out to us at <a href="mailto:support@acm-alex.org" style="color: #64748b; text-decoration: underline;">support@acm-alex.org</a>.
-            </td>
-          </tr>
-        </table>
+
 
       </td>
     </tr>
