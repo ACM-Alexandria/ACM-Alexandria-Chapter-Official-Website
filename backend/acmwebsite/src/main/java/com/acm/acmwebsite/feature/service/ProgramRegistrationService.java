@@ -13,9 +13,13 @@ import com.acm.acmwebsite.feature.repository.ProgramFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.ProgramRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ProgramRepository;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.feature.enums.RegistrationEntityType;
+import com.acm.acmwebsite.feature.event.SheetSyncEvent;
 import com.acm.acmwebsite.core.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +27,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ProgramRegistrationService implements RegistrationService {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
     private final ProgramRepository programRepository;
@@ -49,6 +55,7 @@ public class ProgramRegistrationService implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void registerUser(UUID userId, Long programId, RegistrationRequestDto request) {
         // 1. Get entities
         User user = userRepository.findById(userId)
@@ -83,7 +90,10 @@ public class ProgramRegistrationService implements RegistrationService {
 
         programRegistrationRepository.save(registration);
 
-        // 7. Trigger Confirmation Email
+        // 7. Trigger an async, debounced sheet sync after the transaction commits.
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.PROGRAM, programId));
+
+        // 8. Trigger Confirmation Email
         try {
             coreEmailService.sendRegistrationConfirmationEmail(user.getEmail(), program.getName(), user.getName());
         } catch (Exception e) {

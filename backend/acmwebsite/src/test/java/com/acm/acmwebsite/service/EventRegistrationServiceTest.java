@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class EventRegistrationServiceTest {
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -109,6 +112,7 @@ public class EventRegistrationServiceTest {
 
         verify(eventRegistrationRepository).save(any(EventRegistration.class));
         verify(coreEmailService).sendRegistrationConfirmationEmail(eq("test@acm.org"), eq("ACM Hackathon"), eq("ACM Member"));
+        verify(eventPublisher).publishEvent(any());
     }
 
     @Test

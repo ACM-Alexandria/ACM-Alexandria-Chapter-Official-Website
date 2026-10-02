@@ -29,6 +29,7 @@ public class AdminSeeder implements CommandLineRunner {
             admin.setEmail(adminEmail);
             admin.setPasswordHash(passwordEncoder.encode(adminPassword));
             admin.setRole(Role.SUPER_ADMIN);
+            admin.setEmailConfirmed(true);
             admin.setName("ACM SuperAdmin");
             admin.setPhoneNumber("0000000000");
             admin.setIsAlexEngStudent(false);
