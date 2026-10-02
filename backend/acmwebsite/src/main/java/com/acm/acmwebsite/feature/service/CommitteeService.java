@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.feature.dto.commiteedtos.CommitteeDto;
 import com.acm.acmwebsite.feature.mapper.CommitteeMapper;
@@ -18,6 +19,10 @@ import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeCallRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +39,7 @@ public class CommitteeService {
     private final CommitteeMapper committeeMapper;
     private final CommitteeCallRepository committeeCallRepository;
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CommitteeService.class);
 
     public CommitteeService(CommitteeRepository committeeRepository, CommitteeBoardRepository committeeBoardRepository,
             CommitteeMapper committeeMapper, SubscriptionService subscriptionService, EmailService emailService,
@@ -62,6 +68,7 @@ public class CommitteeService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public void openCommitteeCall(Long id) {
         Committee committee = committeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
@@ -84,6 +91,7 @@ public class CommitteeService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public void closeCommitteeCall(Long id) {
         Committee committee = committeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Committee not found"));
@@ -103,14 +111,18 @@ public class CommitteeService {
         }
     }
 
+    @Cacheable(value = CacheNames.COMMITTEES, key = "'AllCommittees'")
     public List<Committee> getAllCommittees() {
+        logger.info("Fetching All Committees from Database...");
         return committeeRepository.getAll();
     }
-
+    @Cacheable(value = CacheNames.COMMITTEES, key = "'Committee'+ #id")
     public Committee getCommitteeById(Long id) {
+        logger.info("Fetching Committee from Database...");
         return committeeRepository.findWithDetailsById(id).orElse(null);
     }
 
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public Committee saveCommittee(Committee committee) {
         if (committee.getName() == null || committee.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Committee name is required");
@@ -120,6 +132,7 @@ public class CommitteeService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public CommitteeDto updateCommittee(Long id, CommitteeDto committeeDto) {
         if (committeeDto.getName() != null && committeeDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Committee name cannot be empty");
@@ -136,6 +149,7 @@ public class CommitteeService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public void changeCallMessage(Long committeeId, Message message) {
 
         Committee committee = committeeRepository.findById(committeeId)
@@ -148,10 +162,12 @@ public class CommitteeService {
         committeeRepository.save(committee);
     }
 
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public void deleteCommittee(Long id) {
         committeeRepository.deleteById(id);
     }
 
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public CommitteeBoardMemberDto addCommitteeBoardMember(Long committeeId, CommitteeBoardMemberDto dto) {
         if (dto.getUserId() == null) {
             throw new IllegalArgumentException("User ID is required");
@@ -174,6 +190,7 @@ public class CommitteeService {
         return committeeMapper.toBoardDto(saved);
     }
 
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public CommitteeBoardMemberDto updateCommitteeBoardMember(Long id, CommitteeBoardMemberDto dto) {
         if (dto.getRole() != null && dto.getRole().trim().isEmpty()) {
             throw new IllegalArgumentException("Board member role cannot be empty");
@@ -194,6 +211,7 @@ public class CommitteeService {
         return committeeMapper.toBoardDto(saved);
     }
 
+    @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
     public void deleteCommitteeBoardMember(Long id) {
         if (!committeeBoardRepository.existsById(id)) {
             throw new EntityNotFoundException("Committee Board member not found with id " + id);
