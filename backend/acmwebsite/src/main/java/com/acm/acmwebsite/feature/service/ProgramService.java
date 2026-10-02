@@ -8,6 +8,7 @@ import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.entity.ProgramFormQuestion;
 import com.acm.acmwebsite.feature.entity.ProgramRegistration;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.mapper.ProgramMapper;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ProgramService {
     private final ProgramRepository programRepository;
@@ -39,6 +42,7 @@ public class ProgramService {
     private final ProgramRegistrationRepository programRegistrationRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
+    private final SystemSettingsService systemSettingsService;
     private static final Logger logger = LoggerFactory.getLogger(ProgramService.class);
 
     @Value("${google.sheets.programs-folder-id:}")
@@ -49,13 +53,15 @@ public class ProgramService {
                           ProgramFormQuestionRepository programFormQuestionRepository,
                           ProgramRegistrationRepository programRegistrationRepository,
                           GoogleSheetsService googleSheetsService,
-                          SubscriptionService subscriptionService) {
+                          SubscriptionService subscriptionService,
+                          SystemSettingsService systemSettingsService) {
         this.programRepository = programRepository;
         this.programMapper = programMapper;
         this.programFormQuestionRepository = programFormQuestionRepository;
         this.programRegistrationRepository = programRegistrationRepository;
         this.googleSheetsService = googleSheetsService;
         this.subscriptionService = subscriptionService;
+        this.systemSettingsService = systemSettingsService;
     }
 
     @Cacheable(value = CacheNames.PROGRAMS,key = "'AllPrograms'")
@@ -118,13 +124,43 @@ public class ProgramService {
             throw new IllegalArgumentException("Program name is required");
         }
         Program program = programMapper.toProgram(programDto);
+        // Decided once so the announcement only goes out when it can really be sent (emails unlocked)
+        boolean announce = !Boolean.FALSE.equals(programDto.getSendAnnouncement())
+                && systemSettingsService.isEmailsEnabled();
         Program saved = programRepository.save(program);
-        try {
-            subscriptionService.sendNewProgramNotificationToNewsSubscribers(saved);
-        } catch (Exception e) {
-            logger.warn("Failed to notify subscribers about program {}", saved.getId(), e);
+        // Only recorded as announced once the send went through, so a failure leaves it sendable later
+        if (announce && notifySubscribersAboutNewProgram(saved)) {
+            saved.setAnnouncementSentAt(LocalDateTime.now());
+            saved = programRepository.save(saved);
         }
         return programMapper.toProgramDto(saved);
+    }
+
+    // Returns false when the send failed, so the program isn't marked as announced
+    private boolean notifySubscribersAboutNewProgram(Program program) {
+        try {
+            subscriptionService.sendNewProgramNotificationToNewsSubscribers(program);
+            return true;
+        } catch (Exception e) {
+            log.warn("Announcement for new program {} failed; it can still be sent manually", program.getId(), e);
+            return false;
+        }
+    }
+
+    // force = true resends even if it was already announced; otherwise a second send is refused
+    @Transactional
+    public void announceProgram(Long id, boolean force) {
+        systemSettingsService.assertEmailsEnabled();
+        Program program = programRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Program not found with id " + id));
+        LocalDateTime now = LocalDateTime.now();
+        if (force) {
+            program.setAnnouncementSentAt(now);
+            programRepository.save(program);
+        } else if (programRepository.claimAnnouncement(id, now) == 0) {
+            throw new AnnouncementAlreadySentException(program.getAnnouncementSentAt());
+        }
+        subscriptionService.sendNewProgramNotificationToNewsSubscribers(program);
     }
 
     // ── Registration Toggle ──

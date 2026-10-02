@@ -705,6 +705,31 @@ const ResourceFormModal = ({
             </div>
           )}
 
+          {/* Announcement toggle (Only on Add Mode for Events, Clubs and Programs) */}
+          {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && formMode === "add" && (
+            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 mt-4">
+              <div>
+                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Email Subscribers</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
+                  Send an announcement email to newsletter subscribers (you can send it later instead)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, sendAnnouncement: formData.sendAnnouncement === false })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                  formData.sendAnnouncement !== false ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                    formData.sendAnnouncement !== false ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          )}
+
           {/* Error display */}
           {error && (
             <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-3 flex items-center gap-2 mb-4">

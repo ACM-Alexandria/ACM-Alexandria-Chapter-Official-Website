@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import com.acm.acmwebsite.core.service.impl.GmailEmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ class EmailServiceTest {
     @Mock
     private TemplateEngine templateEngine;
 
+    @Mock
+    private SystemSettingsService systemSettingsService;
+
     @InjectMocks
     private GmailEmailService emailService;
 
@@ -32,6 +36,7 @@ class EmailServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(emailService, "senderEmail", "from@example.com");
         ReflectionTestUtils.setField(emailService, "frontendUrl", "http://localhost:5173");
+        lenient().when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
     }
 
     @Test
@@ -134,6 +139,32 @@ class EmailServiceTest {
                 .thenReturn("<html>committee-registered</html>");
 
         emailService.sendCommitteeRegistrationConfirmationEmail("user@example.com", "Technical", "John Doe");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
+
+    @Test
+    @DisplayName("Should skip non-reset emails while emails are locked")
+    void shouldSkipEmailsWhenLocked() {
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+
+        emailService.sendRegistrationConfirmationEmail("user@example.com", "Kickoff Event", "John Doe");
+        emailService.sendNewEventAnnouncementEmail("user@example.com", "Kickoff", "Soon", "Hall", "John Doe");
+
+        verify(mailSender, never()).createMimeMessage();
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    @DisplayName("Should still send password reset emails while emails are locked")
+    void shouldSendPasswordResetWhenLocked() {
+        lenient().when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/password-reset"), any(Context.class)))
+                .thenReturn("<html>reset</html>");
+
+        emailService.sendPasswordResetEmail("user@example.com", "dummy-token", "John Doe");
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }

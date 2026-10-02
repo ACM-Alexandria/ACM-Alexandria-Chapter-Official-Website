@@ -1,5 +1,9 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.exception.AnnouncementNotAllowedException;
+import com.acm.acmwebsite.feature.exception.EmailsLockedException;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -29,6 +33,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +59,9 @@ public class EventServiceTest {
 
     @Mock
     private SubscriptionService subscriptionService;
+
+    @Mock
+    private SystemSettingsService systemSettingsService;
 
     @InjectMocks
     private EventService eventService;
@@ -114,12 +125,15 @@ public class EventServiceTest {
     @Test
     void createEvent_shouldSave() {
         Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
         when(eventRepository.save(e)).thenReturn(e);
 
         Event saved = eventService.createEvent(e);
 
         assertEquals("Hackathon", saved.getName());
-        verify(eventRepository).save(e);
+        // Saved once on create, then again to record the announcement time
+        verify(eventRepository, times(2)).save(e);
         verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
     }
 
@@ -229,4 +243,134 @@ public class EventServiceTest {
         assertTrue(result.getContent().isEmpty());
     }
 
+
+    @Test
+    void createEvent_withSendAnnouncementFalse_shouldSkipAnnouncement() {
+        Event e = sampleEvent();
+        e.setSendAnnouncement(false);
+        when(eventRepository.save(e)).thenReturn(e);
+
+        eventService.createEvent(e);
+
+        verify(eventRepository).save(e);
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void announceEvent_shouldNotifySubscribers() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+        when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+
+        eventService.announceEvent(1L, false);
+
+        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+    }
+
+    @Test
+    void announceEvent_emailsLocked_shouldThrowWithoutNotifying() {
+        doThrow(new EmailsLockedException()).when(systemSettingsService).assertEmailsEnabled();
+
+        assertThrows(EmailsLockedException.class, () -> eventService.announceEvent(1L, false));
+
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void announceEvent_alreadySent_shouldRefuseWithoutNotifying() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        e.setAnnouncementSentAt(LocalDateTime.of(2026, 5, 1, 12, 0));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+        when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(0);
+
+        AnnouncementAlreadySentException ex = assertThrows(AnnouncementAlreadySentException.class,
+                () -> eventService.announceEvent(1L, false));
+
+        assertEquals(LocalDateTime.of(2026, 5, 1, 12, 0), ex.getSentAt());
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void announceEvent_force_shouldResendAndUpdateSentAt() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        e.setAnnouncementSentAt(LocalDateTime.of(2026, 5, 1, 12, 0));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+
+        eventService.announceEvent(1L, true);
+
+        assertTrue(e.getAnnouncementSentAt().isAfter(LocalDateTime.of(2026, 5, 1, 12, 0)));
+        verify(eventRepository).save(e);
+        verify(eventRepository, never()).claimAnnouncement(any(), any());
+        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+    }
+
+    @Test
+    void announceEvent_pastEvent_shouldRefuse() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().minusDays(1));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+
+        assertThrows(AnnouncementNotAllowedException.class, () -> eventService.announceEvent(1L, false));
+
+        verify(eventRepository, never()).claimAnnouncement(any(), any());
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void createEvent_withAnnouncement_shouldRecordSentAt() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(eventRepository.save(e)).thenReturn(e);
+
+        eventService.createEvent(e);
+
+        assertNotNull(e.getAnnouncementSentAt());
+    }
+
+    @Test
+    void createEvent_whileEmailsLocked_shouldNotRecordSentAt() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        when(eventRepository.save(e)).thenReturn(e);
+
+        eventService.createEvent(e);
+
+        // The announcement was dropped, so it must still be sendable later
+        assertNull(e.getAnnouncementSentAt());
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void createEvent_announcementFails_shouldStillCreateWithoutSentAt() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().plusDays(7));
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(eventRepository.save(e)).thenReturn(e);
+        doThrow(new RuntimeException("db down")).when(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+
+        Event saved = eventService.createEvent(e);
+
+        // The event exists, but stays sendable because the announcement never went out
+        assertSame(e, saved);
+        assertNull(e.getAnnouncementSentAt());
+        verify(eventRepository, times(1)).save(e);
+    }
+
+    @Test
+    void createEvent_pastEvent_shouldNotAnnounce() {
+        Event e = sampleEvent();
+        e.setEventTime(LocalDateTime.now().minusDays(1));
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(eventRepository.save(e)).thenReturn(e);
+
+        eventService.createEvent(e);
+
+        assertNull(e.getAnnouncementSentAt());
+        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+    }
 }

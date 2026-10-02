@@ -1,5 +1,7 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import com.acm.acmwebsite.feature.dto.ProgramDto;
 import com.acm.acmwebsite.feature.entity.Program;
 import com.acm.acmwebsite.feature.mapper.ProgramMapper;
@@ -39,6 +41,9 @@ public class ProgramServiceTest {
 
     @Mock
     private SubscriptionService subscriptionService;
+
+    @Mock
+    private SystemSettingsService systemSettingsService;
 
     @InjectMocks
     private ProgramService programService;
@@ -184,8 +189,10 @@ public class ProgramServiceTest {
         Program saved = program();
         ProgramDto output = dto();
 
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
         when(programMapper.toProgram(input)).thenReturn(entity);
         when(programRepository.save(entity)).thenReturn(saved);
+        when(programRepository.save(saved)).thenReturn(saved);
         when(programMapper.toProgramDto(saved)).thenReturn(output);
 
         ProgramDto result = programService.createProgram(input);
@@ -195,6 +202,81 @@ public class ProgramServiceTest {
         verify(programMapper).toProgram(input);
         verify(programRepository).save(entity);
         verify(subscriptionService).sendNewProgramNotificationToNewsSubscribers(saved);
+        // Saved again to record the announcement time once it went out
+        assertNotNull(saved.getAnnouncementSentAt());
+        verify(programRepository).save(saved);
         verify(programMapper).toProgramDto(saved);
+    }
+
+    @Test
+    void create_announcementFails_shouldStillCreateWithoutSentAt() {
+        ProgramDto input = dto();
+        Program entity = program();
+
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(programMapper.toProgram(input)).thenReturn(entity);
+        when(programRepository.save(entity)).thenReturn(entity);
+        when(programMapper.toProgramDto(entity)).thenReturn(dto());
+        doThrow(new RuntimeException("db down")).when(subscriptionService).sendNewProgramNotificationToNewsSubscribers(entity);
+
+        // Doesn't throw: the program is created even though the announcement failed
+        programService.createProgram(input);
+
+        assertNull(entity.getAnnouncementSentAt());
+        verify(programRepository, times(1)).save(entity);
+    }
+
+    @Test
+    void create_withSendAnnouncementFalse_shouldSkipAnnouncement() {
+        ProgramDto input = dto();
+        input.setSendAnnouncement(false);
+        Program entity = program();
+
+        when(programMapper.toProgram(input)).thenReturn(entity);
+        when(programRepository.save(entity)).thenReturn(entity);
+        when(programMapper.toProgramDto(entity)).thenReturn(dto());
+
+        programService.createProgram(input);
+
+        verify(programRepository).save(entity);
+        verify(subscriptionService, never()).sendNewProgramNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void create_whileEmailsLocked_shouldNotAnnounce() {
+        ProgramDto input = dto();
+        Program entity = program();
+
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        when(programMapper.toProgram(input)).thenReturn(entity);
+        when(programRepository.save(entity)).thenReturn(entity);
+        when(programMapper.toProgramDto(entity)).thenReturn(dto());
+
+        programService.createProgram(input);
+
+        // The announcement was never sent, so it must still be sendable later
+        assertNull(entity.getAnnouncementSentAt());
+        verify(subscriptionService, never()).sendNewProgramNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void announceProgram_shouldNotifySubscribers() {
+        Program entity = program();
+        when(programRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(programRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+
+        programService.announceProgram(1L, false);
+
+        verify(subscriptionService).sendNewProgramNotificationToNewsSubscribers(entity);
+    }
+
+    @Test
+    void announceProgram_alreadySent_shouldRefuseWithoutNotifying() {
+        when(programRepository.findById(1L)).thenReturn(Optional.of(program()));
+        when(programRepository.claimAnnouncement(eq(1L), any())).thenReturn(0);
+
+        assertThrows(AnnouncementAlreadySentException.class, () -> programService.announceProgram(1L, false));
+
+        verify(subscriptionService, never()).sendNewProgramNotificationToNewsSubscribers(any());
     }
 }

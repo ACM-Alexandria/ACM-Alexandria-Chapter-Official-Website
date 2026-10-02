@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.core.service.impl;
 
 import com.acm.acmwebsite.core.service.EmailService;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class GmailEmailService implements EmailService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
+    private final SystemSettingsService systemSettingsService;
 
     // Inject your email from properties to use as the "From" address
     @Value("${spring.mail.username}")
@@ -92,6 +94,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendRegistrationConfirmationEmail(String to, String itemName, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -120,6 +123,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendWelcomeEmail(String to, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -150,6 +154,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendSubscriptionConfirmationEmail(String to, String subject, String body, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -178,6 +183,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendNewEventAnnouncementEmail(String to, String eventName, String eventTime, String eventLocation, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -209,6 +215,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendNewClubAnnouncementEmail(String to, String clubName, String description, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -239,6 +246,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendNewProgramAnnouncementEmail(String to, String programName, String description, String startDate, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -270,6 +278,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendCommitteeCallEmail(String to, String subject, String body, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -300,6 +309,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendCommitteeRegistrationConfirmationEmail(String to, String committeeName, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -328,6 +338,7 @@ public class GmailEmailService implements EmailService {
     @Override
     @Async
     public void sendGenericFormSubmissionConfirmationEmail(String to, String formName, String userName) {
+        if (emailsLocked(to)) return;
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -353,5 +364,12 @@ public class GmailEmailService implements EmailService {
         }
     }
 
+    // Master email lock: every email except password resets is skipped while the super admin has emails locked
+    private boolean emailsLocked(String to) {
+        if (systemSettingsService.isEmailsEnabled()) {
+            return false;
+        }
+        log.info("Emails are locked; skipped email to {}", to);
+        return true;
+    }
 }
-

@@ -33,4 +33,8 @@ public class CommitteeCall {
 
     @Column(name = "sheet_last_updated_at")
     private LocalDateTime sheetLastUpdatedAt;
+
+    // When this call's email last went out to subscribers; null = never sent (guards against accidental resends)
+    @Column(name = "announcement_sent_at")
+    private LocalDateTime announcementSentAt;
 }

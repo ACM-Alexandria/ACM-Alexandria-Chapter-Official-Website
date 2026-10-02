@@ -30,6 +30,10 @@ public class Program {
     @Column(name = "sheet_last_updated_at")
     private LocalDateTime sheetLastUpdatedAt;
 
+    // When the subscriber announcement last went out; null = never announced (guards against accidental resends)
+    @Column(name = "announcement_sent_at")
+    private LocalDateTime announcementSentAt;
+
     public Program() {
     }
 
@@ -121,5 +125,13 @@ public class Program {
         this.startDate = startDate;
         this.endDate = endDate;
         this.time = time;
+    }
+
+    public LocalDateTime getAnnouncementSentAt() {
+        return announcementSentAt;
+    }
+
+    public void setAnnouncementSentAt(LocalDateTime announcementSentAt) {
+        this.announcementSentAt = announcementSentAt;
     }
 }

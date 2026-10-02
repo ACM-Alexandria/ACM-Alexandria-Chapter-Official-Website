@@ -1,7 +1,9 @@
 package com.acm.acmwebsite.feature.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,11 +23,21 @@ public class Club {
     @Column(name = "google_sheet_url")
     private String googleSheetUrl;
     @Column(name = "sheet_last_updated_at")
-    private java.time.LocalDateTime sheetLastUpdatedAt;
+    private LocalDateTime sheetLastUpdatedAt;
     @Column(name = "is_external", nullable = false)
     private boolean isExternal = false;
     @Column(name = "registration_open", nullable = false)
     private boolean registrationOpen = false;
+
+    // When the subscriber announcement last went out; null = never announced (guards against accidental resends)
+    @Column(name = "announcement_sent_at")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private LocalDateTime announcementSentAt;
+
+    // Request-only flag: when false, creating the club skips the subscriber announcement
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean sendAnnouncement;
 
     public Club() {
     }
@@ -95,11 +107,11 @@ public class Club {
         this.googleSheetUrl = googleSheetUrl;
     }
 
-    public java.time.LocalDateTime getSheetLastUpdatedAt() {
+    public LocalDateTime getSheetLastUpdatedAt() {
         return sheetLastUpdatedAt;
     }
 
-    public void setSheetLastUpdatedAt(java.time.LocalDateTime sheetLastUpdatedAt) {
+    public void setSheetLastUpdatedAt(LocalDateTime sheetLastUpdatedAt) {
         this.sheetLastUpdatedAt = sheetLastUpdatedAt;
     }
 
@@ -125,5 +137,21 @@ public class Club {
 
     public void setRegistrationOpen(boolean registrationOpen) {
         this.registrationOpen = registrationOpen;
+    }
+
+    public Boolean getSendAnnouncement() {
+        return sendAnnouncement;
+    }
+
+    public void setSendAnnouncement(Boolean sendAnnouncement) {
+        this.sendAnnouncement = sendAnnouncement;
+    }
+
+    public LocalDateTime getAnnouncementSentAt() {
+        return announcementSentAt;
+    }
+
+    public void setAnnouncementSentAt(LocalDateTime announcementSentAt) {
+        this.announcementSentAt = announcementSentAt;
     }
 }

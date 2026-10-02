@@ -1,5 +1,7 @@
 package com.acm.acmwebsite.service;
 
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
@@ -30,6 +32,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +62,9 @@ public class ClubServiceTest {
 
     @Mock
     private ClubBoardRepository clubBoardRepository;
+
+    @Mock
+    private SystemSettingsService systemSettingsService;
 
     @InjectMocks
     private ClubService clubService;
@@ -111,13 +120,44 @@ public class ClubServiceTest {
     @Test
     void createClub_shouldSave() {
         Club club = createClubSample();
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
         when(clubRepository.save(club)).thenReturn(club);
 
         Club saved = clubService.createClub(club);
 
         assertEquals("CP Club", saved.getName());
-        verify(clubRepository).save(club);
+        assertNotNull(club.getAnnouncementSentAt());
+        // Saved once on create, then again to record the announcement time
+        verify(clubRepository, times(2)).save(club);
         verify(subscriptionService).sendNewClubNotificationToNewsSubscribers(club);
+    }
+
+    @Test
+    void createClub_announcementFails_shouldStillCreateWithoutSentAt() {
+        Club club = createClubSample();
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+        when(clubRepository.save(club)).thenReturn(club);
+        doThrow(new RuntimeException("db down")).when(subscriptionService).sendNewClubNotificationToNewsSubscribers(club);
+
+        Club saved = clubService.createClub(club);
+
+        // The club exists, but stays sendable because the announcement never went out
+        assertSame(club, saved);
+        assertNull(club.getAnnouncementSentAt());
+        verify(clubRepository, times(1)).save(club);
+    }
+
+    @Test
+    void createClub_whileEmailsLocked_shouldNotAnnounce() {
+        Club club = createClubSample();
+        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+        when(clubRepository.save(club)).thenReturn(club);
+
+        clubService.createClub(club);
+
+        // The announcement was never sent, so it must still be sendable later
+        assertNull(club.getAnnouncementSentAt());
+        verify(subscriptionService, never()).sendNewClubNotificationToNewsSubscribers(any());
     }
 
     @Test
@@ -213,5 +253,39 @@ public class ClubServiceTest {
                 com.acm.acmwebsite.feature.exception.ResourceNotFoundException.class,
                 () -> clubService.updateClubSocialLinks(50L, List.of("https://facebook.com"))
         );
+    }
+
+    @Test
+    void createClub_withSendAnnouncementFalse_shouldSkipAnnouncement() {
+        Club club = createClubSample();
+        club.setSendAnnouncement(false);
+        when(clubRepository.save(club)).thenReturn(club);
+
+        clubService.createClub(club);
+
+        verify(clubRepository).save(club);
+        verify(subscriptionService, never()).sendNewClubNotificationToNewsSubscribers(any());
+    }
+
+    @Test
+    void announceClub_shouldNotifySubscribers() {
+        Club club = createClubSample();
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
+        when(clubRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+
+        clubService.announceClub(1L, false);
+
+        verify(subscriptionService).sendNewClubNotificationToNewsSubscribers(club);
+    }
+
+    @Test
+    void announceClub_alreadySent_shouldRefuseWithoutNotifying() {
+        Club club = createClubSample();
+        when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
+        when(clubRepository.claimAnnouncement(eq(1L), any())).thenReturn(0);
+
+        assertThrows(AnnouncementAlreadySentException.class, () -> clubService.announceClub(1L, false));
+
+        verify(subscriptionService, never()).sendNewClubNotificationToNewsSubscribers(any());
     }
 }

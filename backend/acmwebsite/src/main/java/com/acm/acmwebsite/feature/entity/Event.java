@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,16 @@ public class Event {
     @CollectionTable(name = "event_attached_images", joinColumns = @JoinColumn(name = "event_id"))
     @Column(name = "image_url")
     private List<String> attachedImages = new ArrayList<>();
+
+    // When the subscriber announcement last went out; null = never announced (guards against accidental resends)
+    @Column(name = "announcement_sent_at")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private LocalDateTime announcementSentAt;
+
+    // Request-only flag: when false, creating the event skips the subscriber announcement
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean sendAnnouncement;
 
     public Event() {
     }
@@ -125,5 +136,21 @@ public class Event {
 
     public void setRegistrationOpen(boolean registrationOpen) {
         this.registrationOpen = registrationOpen;
+    }
+
+    public Boolean getSendAnnouncement() {
+        return sendAnnouncement;
+    }
+
+    public void setSendAnnouncement(Boolean sendAnnouncement) {
+        this.sendAnnouncement = sendAnnouncement;
+    }
+
+    public LocalDateTime getAnnouncementSentAt() {
+        return announcementSentAt;
+    }
+
+    public void setAnnouncementSentAt(LocalDateTime announcementSentAt) {
+        this.announcementSentAt = announcementSentAt;
     }
 }

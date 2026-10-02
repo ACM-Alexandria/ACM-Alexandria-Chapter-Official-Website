@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
+import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
@@ -16,6 +17,7 @@ import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.ClubRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ClubFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ClubService {
     private final ClubRepository clubRepository;
@@ -43,6 +47,7 @@ public class ClubService {
     private final ClubFormQuestionRepository clubFormQuestionRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
+    private final SystemSettingsService systemSettingsService;
     private final ClubBoardRepository clubBoardRepository;
     private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
 
@@ -54,7 +59,8 @@ public class ClubService {
                        ClubFormQuestionRepository clubFormQuestionRepository,
                        GoogleSheetsService googleSheetsService,
                        SubscriptionService subscriptionService,
-                       ClubBoardRepository clubBoardRepository) {
+                       ClubBoardRepository clubBoardRepository,
+                       SystemSettingsService systemSettingsService) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
         this.clubRegistrationRepository = clubRegistrationRepository;
@@ -62,6 +68,7 @@ public class ClubService {
         this.googleSheetsService = googleSheetsService;
         this.subscriptionService = subscriptionService;
         this.clubBoardRepository = clubBoardRepository;
+        this.systemSettingsService = systemSettingsService;
     }
 
     @Cacheable(value = CacheNames.CLUBS, key = "'AllClubs_page_' + #pageNumber")   
@@ -105,15 +112,48 @@ public class ClubService {
         if (club.getName() == null || club.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
         }
+        // Decided once so the announcement only goes out when it can really be sent (emails unlocked)
+        boolean announce = !Boolean.FALSE.equals(club.getSendAnnouncement())
+                && systemSettingsService.isEmailsEnabled();
         Club savedClub = clubRepository.save(club);
-        notifySubscribersAboutNewClub(savedClub);
+        // Only recorded as announced once the send went through, so a failure leaves it sendable later
+        if (announce && notifySubscribersAboutNewClub(savedClub)) {
+            savedClub.setAnnouncementSentAt(LocalDateTime.now());
+            savedClub = clubRepository.save(savedClub);
+        }
         return savedClub;
     }
 
-    private void notifySubscribersAboutNewClub(Club club) {
+    public EmailSettingsDto getEmailSettings(Long id) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        return new EmailSettingsDto(club.getAnnouncementSentAt());
+    }
+
+    // force = true resends even if it was already announced; otherwise a second send is refused
+    @Transactional
+    public void announceClub(Long id, boolean force) {
+        systemSettingsService.assertEmailsEnabled();
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
+        LocalDateTime now = LocalDateTime.now();
+        if (force) {
+            club.setAnnouncementSentAt(now);
+            clubRepository.save(club);
+        } else if (clubRepository.claimAnnouncement(id, now) == 0) {
+            throw new AnnouncementAlreadySentException(club.getAnnouncementSentAt());
+        }
+        subscriptionService.sendNewClubNotificationToNewsSubscribers(club);
+    }
+
+    // Returns false when the send failed, so the club isn't marked as announced
+    private boolean notifySubscribersAboutNewClub(Club club) {
         try {
             subscriptionService.sendNewClubNotificationToNewsSubscribers(club);
+            return true;
         } catch (Exception e) {
+            log.warn("Announcement for new club {} failed; it can still be sent manually", club.getId(), e);
+            return false;
         }
     }
 
