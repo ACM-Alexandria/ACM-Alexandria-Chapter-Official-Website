@@ -103,6 +103,9 @@ export const useEmailComposer = ({ committees, clubs }) => {
     const total = members?.totalRecipients ?? 0;
     const roleCounts = Object.entries(members?.recipientCounts || {});
     const emailHtml = members?.emailHtml ?? "";
+    const canPreview = subject.trim().length > 0
+        && cleanBody.trim().length > 0
+        && (selectedRoles.length > 0 || selectedUsers.length > 0);
     const canSend = !membersLoading && !sending && total > 0;
 
     return {
@@ -121,5 +124,6 @@ export const useEmailComposer = ({ committees, clubs }) => {
         emailHtml,
         selectedCommitteeNames, selectedClubNames, cleanBody,
         sending, canSend, handleSend,
+        canPreview,
     };
 };

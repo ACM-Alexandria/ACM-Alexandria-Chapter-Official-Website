@@ -36,13 +36,14 @@ const EmailComposerForm = ({ composer, committees, clubs, targetsError }) => (
             selectedClubIds={composer.selectedClubIds}
             setSelectedClubIds={composer.setSelectedClubIds}
             previewError={targetsError}
-            emptyRoleMessage="Select at least one role to target."
+            emptyRoleMessage=""
         />
 
         <div className="flex justify-end">
             <button
                 type="submit"
-                className="flex items-center gap-2 rounded-md bg-[#4B98C8] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-[#205E85] active:scale-95"
+                disabled={!composer.canPreview}
+                className="flex items-center gap-2 rounded-md bg-[#4B98C8] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-[#205E85] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-[#4B98C8] disabled:active:scale-100"
             >
                 <FiEye className="h-4 w-4" /> Preview
             </button>
