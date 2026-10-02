@@ -2,20 +2,13 @@ package com.acm.acmwebsite.feature.service;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.enums.Role;
-import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.dto.MemberExportPreviewDto;
 import com.acm.acmwebsite.feature.dto.MemberExportRequestDto;
 import com.acm.acmwebsite.feature.dto.MemberExportResultDto;
 import com.acm.acmwebsite.feature.entity.Club;
-import com.acm.acmwebsite.feature.entity.ClubBoard;
 import com.acm.acmwebsite.feature.entity.Committee;
-import com.acm.acmwebsite.feature.entity.CommitteeBoard;
-import com.acm.acmwebsite.feature.entity.HighBoard;
-import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
-import com.acm.acmwebsite.feature.repository.CommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
-import com.acm.acmwebsite.feature.repository.HighBoardRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,20 +27,10 @@ import java.util.stream.Collectors;
 public class MemberExportService {
 
     /** Roles whose rows are narrowed by the committee filter. */
-    static final Set<Role> COMMITTEE_SCOPED_ROLES = EnumSet.of(Role.ACM_MEMBER, Role.ACM_COMMITTEE_BOARD);
+    static final Set<Role> COMMITTEE_SCOPED_ROLES = MemberTargetingService.COMMITTEE_SCOPED_ROLES;
 
     /** Roles whose rows are narrowed by the club filter. */
-    static final Set<Role> CLUB_SCOPED_ROLES = EnumSet.of(Role.ACM_CLUB_BOARD);
-
-    /** Sheet ordering: leadership first, then members, then everyone else. Unlisted roles go last. */
-    private static final List<Role> ROLE_ORDER = List.of(
-            Role.ACM_HIGH_BOARD,
-            Role.ACM_COMMITTEE_BOARD,
-            Role.ACM_CLUB_BOARD,
-            Role.ACM_MEMBER,
-            Role.SUPER_ADMIN,
-            Role.USER
-    );
+    static final Set<Role> CLUB_SCOPED_ROLES = MemberTargetingService.CLUB_SCOPED_ROLES;
 
     private static final Map<Role, String> ROLE_LABELS = new EnumMap<>(Map.of(
             Role.SUPER_ADMIN, "Super Admin",
@@ -60,18 +43,14 @@ public class MemberExportService {
 
     static final List<Object> SHEET_HEADERS = List.of(
             "#", "Name", "Email", "Phone Number", "Role", "Position", "Committee / Club",
-            "Is Alex Eng Student", "Batch", "Department", "LinkedIn", "Joined At"
-    );
+            "Is Alex Eng Student", "Batch", "Department", "LinkedIn", "Joined At");
 
     static final int MAX_TITLE_LENGTH = 150;
 
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter TITLE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private final UserRepository userRepository;
-    private final HighBoardRepository highBoardRepository;
-    private final CommitteeBoardRepository committeeBoardRepository;
-    private final ClubBoardRepository clubBoardRepository;
+    private final MemberTargetingService memberTargetingService;
     private final CommitteeRepository committeeRepository;
     private final ClubRepository clubRepository;
     private final GoogleSheetsService googleSheetsService;
@@ -79,17 +58,11 @@ public class MemberExportService {
     @Value("${google.sheets.members-folder-id:}")
     private String membersFolderId;
 
-    public MemberExportService(UserRepository userRepository,
-                               HighBoardRepository highBoardRepository,
-                               CommitteeBoardRepository committeeBoardRepository,
-                               ClubBoardRepository clubBoardRepository,
+    public MemberExportService(MemberTargetingService memberTargetingService,
                                CommitteeRepository committeeRepository,
                                ClubRepository clubRepository,
                                GoogleSheetsService googleSheetsService) {
-        this.userRepository = userRepository;
-        this.highBoardRepository = highBoardRepository;
-        this.committeeBoardRepository = committeeBoardRepository;
-        this.clubBoardRepository = clubBoardRepository;
+        this.memberTargetingService = memberTargetingService;
         this.committeeRepository = committeeRepository;
         this.clubRepository = clubRepository;
         this.googleSheetsService = googleSheetsService;
@@ -98,12 +71,9 @@ public class MemberExportService {
     /**
      * A resolved member with their board title and committee/club association.
      */
-    record MemberRow(User user, String position, Integer boardOrder, Long associationId, String associationName) {
-    }
-
     @Transactional(readOnly = true)
     public MemberExportPreviewDto preview(MemberExportRequestDto request) {
-        List<MemberRow> members = resolveMembers(request);
+        List<MemberTargetingService.TargetedMember> members = resolveMembers(request);
 
         long alexCount = members.stream()
                 .filter(m -> Boolean.TRUE.equals(m.user().getIsAlexEngStudent()))
@@ -115,7 +85,7 @@ public class MemberExportService {
 
         Map<String, Long> associationCounts = members.stream()
                 .filter(m -> m.associationName() != null)
-                .collect(Collectors.groupingBy(MemberRow::associationName, TreeMap::new, Collectors.counting()));
+                .collect(Collectors.groupingBy(member -> member.associationName(), TreeMap::new, Collectors.counting()));
 
         return MemberExportPreviewDto.builder()
                 .totalMembers(members.size())
@@ -130,14 +100,14 @@ public class MemberExportService {
      * Google API calls don't hold a DB transaction open; all associations are fetched eagerly.
      */
     public MemberExportResultDto exportToSheet(MemberExportRequestDto request, String exporterEmail) {
-        List<MemberRow> members = resolveMembers(request);
+        List<MemberTargetingService.TargetedMember> members = resolveMembers(request);
         if (members.isEmpty()) {
             throw new IllegalArgumentException("No members match the selected filters.");
         }
 
-        Set<Role> roles = toRoleSet(request.getRoles());
-        List<String> committeeNames = namesOf(committeeRepository.findAllById(toIdSet(request.getCommitteeIds())), Committee::getName);
-        List<String> clubNames = namesOf(clubRepository.findAllById(toIdSet(request.getClubIds())), Club::getName);
+        Set<Role> roles = MemberTargetingService.toRoleSet(request.getRoles());
+        List<String> committeeNames = namesOf(committeeRepository.findAllById(MemberTargetingService.toIdSet(request.getCommitteeIds())), Committee::getName);
+        List<String> clubNames = namesOf(clubRepository.findAllById(MemberTargetingService.toIdSet(request.getClubIds())), Club::getName);
         String rolesLabel = describeRoles(roles);
         LocalDateTime exportedAt = LocalDateTime.now();
 
@@ -154,7 +124,7 @@ public class MemberExportService {
         rows.add(new ArrayList<>(SHEET_HEADERS));
 
         int seqNum = 1;
-        for (MemberRow member : members) {
+        for (MemberTargetingService.TargetedMember member : members) {
             rows.add(toSheetRow(seqNum++, member));
         }
 
@@ -168,88 +138,14 @@ public class MemberExportService {
                 .build();
     }
 
-    List<MemberRow> resolveMembers(MemberExportRequestDto request) {
-        Set<Role> roles = toRoleSet(request != null ? request.getRoles() : null);
-        if (roles.isEmpty()) {
+    private List<MemberTargetingService.TargetedMember> resolveMembers(MemberExportRequestDto request) {
+        if (request == null || MemberTargetingService.toRoleSet(request.getRoles()).isEmpty()) {
             throw new IllegalArgumentException("Select at least one role to export.");
         }
-        Set<Long> committeeIds = toIdSet(request.getCommitteeIds());
-        Set<Long> clubIds = toIdSet(request.getClubIds());
-
-        Map<UUID, HighBoard> highBoards = roles.contains(Role.ACM_HIGH_BOARD)
-                ? indexByUserId(highBoardRepository.findAllWithUser(), hb -> hb.getUser().getId())
-                : Map.of();
-        Map<UUID, CommitteeBoard> committeeBoards = roles.contains(Role.ACM_COMMITTEE_BOARD)
-                ? indexByUserId(committeeBoardRepository.findAllWithUserAndCommittee(), cb -> cb.getUser().getId())
-                : Map.of();
-        Map<UUID, ClubBoard> clubBoards = roles.contains(Role.ACM_CLUB_BOARD)
-                ? indexByUserId(clubBoardRepository.findAllWithUserAndClub(), cb -> cb.getUser().getId())
-                : Map.of();
-
-        Comparator<MemberRow> order = Comparator
-                .comparingInt((MemberRow m) -> roleRank(m.user().getRole()))
-                .thenComparing(MemberRow::associationName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(MemberRow::boardOrder, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(m -> m.user().getName(), Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-
-        return userRepository.findAllByRoleInWithCommittee(roles).stream()
-                .map(user -> toMemberRow(user, highBoards, committeeBoards, clubBoards))
-                .filter(member -> matchesScope(member, committeeIds, clubIds))
-                .sorted(order)
-                .toList();
+        return memberTargetingService.findMembers(request.getRoles(), request.getCommitteeIds(), request.getClubIds());
     }
 
-    private MemberRow toMemberRow(User user,
-                                  Map<UUID, HighBoard> highBoards,
-                                  Map<UUID, CommitteeBoard> committeeBoards,
-                                  Map<UUID, ClubBoard> clubBoards) {
-        switch (user.getRole()) {
-            case ACM_HIGH_BOARD -> {
-                HighBoard hb = highBoards.get(user.getId());
-                return new MemberRow(user, hb != null ? hb.getRole() : null, hb != null ? hb.getOrder() : null, null, null);
-            }
-            case ACM_COMMITTEE_BOARD -> {
-                CommitteeBoard cb = committeeBoards.get(user.getId());
-                Committee committee = cb != null && cb.getCommittee() != null ? cb.getCommittee() : user.getCommittee();
-                return new MemberRow(user,
-                        cb != null ? cb.getRole() : null,
-                        cb != null ? cb.getOrder() : null,
-                        committee != null ? committee.getId() : null,
-                        committee != null ? committee.getName() : null);
-            }
-            case ACM_CLUB_BOARD -> {
-                ClubBoard cb = clubBoards.get(user.getId());
-                Club club = cb != null ? cb.getClub() : null;
-                return new MemberRow(user,
-                        cb != null ? cb.getRole() : null,
-                        cb != null ? cb.getOrder() : null,
-                        club != null ? club.getId() : null,
-                        club != null ? club.getName() : null);
-            }
-            default -> {
-                Committee committee = user.getCommittee();
-                return new MemberRow(user, null, null,
-                        committee != null ? committee.getId() : null,
-                        committee != null ? committee.getName() : null);
-            }
-        }
-    }
-
-    /**
-     * Committee/club filters only narrow the roles they apply to; every other selected role passes through.
-     */
-    private boolean matchesScope(MemberRow member, Set<Long> committeeIds, Set<Long> clubIds) {
-        Role role = member.user().getRole();
-        if (COMMITTEE_SCOPED_ROLES.contains(role) && !committeeIds.isEmpty()) {
-            return member.associationId() != null && committeeIds.contains(member.associationId());
-        }
-        if (CLUB_SCOPED_ROLES.contains(role) && !clubIds.isEmpty()) {
-            return member.associationId() != null && clubIds.contains(member.associationId());
-        }
-        return true;
-    }
-
-    private List<Object> toSheetRow(int seqNum, MemberRow member) {
+    private List<Object> toSheetRow(int seqNum, MemberTargetingService.TargetedMember member) {
         User user = member.user();
         return new ArrayList<>(Arrays.asList(
                 seqNum,
@@ -283,7 +179,7 @@ public class MemberExportService {
 
     private String describeRoles(Set<Role> roles) {
         return roles.stream()
-                .sorted(Comparator.comparingInt(MemberExportService::roleRank))
+                .sorted(Comparator.comparingInt(MemberTargetingService::roleRank))
                 .map(MemberExportService::roleLabel)
                 .collect(Collectors.joining(", "));
     }
@@ -299,26 +195,6 @@ public class MemberExportService {
         return ROLE_LABELS.getOrDefault(role, role.name());
     }
 
-    private static int roleRank(Role role) {
-        int index = ROLE_ORDER.indexOf(role);
-        return index >= 0 ? index : ROLE_ORDER.size();
-    }
-
-    private static Set<Role> toRoleSet(List<Role> roles) {
-        Set<Role> result = EnumSet.noneOf(Role.class);
-        if (roles != null) {
-            roles.stream().filter(Objects::nonNull).forEach(result::add);
-        }
-        return result;
-    }
-
-    private static Set<Long> toIdSet(List<Long> ids) {
-        if (ids == null) {
-            return Set.of();
-        }
-        return ids.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
     private static <T> List<String> namesOf(List<T> entities, Function<T, String> nameExtractor) {
         return entities.stream()
                 .map(nameExtractor)
@@ -327,7 +203,4 @@ public class MemberExportService {
                 .toList();
     }
 
-    private static <T> Map<UUID, T> indexByUserId(List<T> boards, Function<T, UUID> userIdExtractor) {
-        return boards.stream().collect(Collectors.toMap(userIdExtractor, Function.identity(), (first, second) -> first));
-    }
 }

@@ -21,7 +21,13 @@ public class ClubController {
     public ClubController(ClubService clubService) {
         this.clubService = clubService;
     }
+
     @GetMapping
+    public ResponseEntity<List<ClubCardDto>> getAllClubs() {
+        return ResponseEntity.ok(clubService.getAllClubs());
+    }
+
+    @GetMapping(params = "page")
     public ResponseEntity<Page<ClubCardDto>> getAllClubs(@RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(clubService.getClubsByPage(page));
     }

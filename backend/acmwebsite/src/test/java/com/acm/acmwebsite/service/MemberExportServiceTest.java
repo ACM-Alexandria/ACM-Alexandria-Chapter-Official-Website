@@ -19,6 +19,7 @@ import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.HighBoardRepository;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
 import com.acm.acmwebsite.feature.service.MemberExportService;
+import com.acm.acmwebsite.feature.service.MemberTargetingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +71,6 @@ public class MemberExportServiceTest {
 
     @Mock
     private GoogleSheetsService googleSheetsService;
-
     @InjectMocks
     private MemberExportService memberExportService;
 
@@ -81,6 +81,10 @@ public class MemberExportServiceTest {
 
     @BeforeEach
     void setUp() {
+        MemberTargetingService memberTargetingService = new MemberTargetingService(
+                                userRepository, highBoardRepository, committeeBoardRepository, clubBoardRepository);
+        memberExportService = new MemberExportService(
+                                memberTargetingService, committeeRepository, clubRepository, googleSheetsService);
         ReflectionTestUtils.setField(memberExportService, "membersFolderId", "members-folder");
         tech = committee(1L, "Tech");
         media = committee(2L, "Media");
