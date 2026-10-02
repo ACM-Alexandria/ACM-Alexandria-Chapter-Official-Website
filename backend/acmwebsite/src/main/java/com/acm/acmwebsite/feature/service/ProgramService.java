@@ -133,11 +133,6 @@ public class ProgramService {
             saved.setAnnouncementSentAt(LocalDateTime.now());
             saved = programRepository.save(saved);
         }
-        try {
-            subscriptionService.sendNewProgramNotificationToNewsSubscribers(saved);
-        } catch (Exception e) {
-            logger.warn("Failed to notify subscribers about program {}", saved.getId(), e);
-        }
         return programMapper.toProgramDto(saved);
     }
 
