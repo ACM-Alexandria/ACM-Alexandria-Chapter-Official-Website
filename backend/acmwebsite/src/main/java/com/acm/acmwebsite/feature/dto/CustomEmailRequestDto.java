@@ -1,8 +1,8 @@
 package com.acm.acmwebsite.feature.dto;
 
 import com.acm.acmwebsite.User_Authentication.enums.Role;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -28,8 +28,9 @@ public class CustomEmailRequestDto {
     @Size(max = 100000)
     private String body;
 
-    @NotEmpty
-    private List<Role> roles;
+    private List<Role> roles = new ArrayList<>();
+
+    private List<@Email(message = "Each selected recipient must be a valid email address") String> selectedUserEmails = new ArrayList<>();
 
     private List<Long> committeeIds = new ArrayList<>();
     private List<Long> clubIds = new ArrayList<>();

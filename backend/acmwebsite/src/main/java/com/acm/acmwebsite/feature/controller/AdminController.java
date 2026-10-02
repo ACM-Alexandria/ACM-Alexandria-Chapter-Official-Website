@@ -1,6 +1,8 @@
 package com.acm.acmwebsite.feature.controller;
 
 import com.acm.acmwebsite.feature.dto.AdminInsightsDto;
+import com.acm.acmwebsite.feature.dto.CustomEmailPreviewDto;
+import com.acm.acmwebsite.feature.dto.CustomEmailPreviewRequestDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailRequestDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailResultDto;
 import com.acm.acmwebsite.feature.service.AdminEmailService;
@@ -27,6 +29,16 @@ public class AdminController {
     @GetMapping("/insights")
     public ResponseEntity<AdminInsightsDto> getInsights() {
         return ResponseEntity.ok(adminInsightsService.getInsights());
+    }
+
+    @PostMapping("/emails/preview")
+    public ResponseEntity<?> previewCustomEmail(@Valid @RequestBody CustomEmailPreviewRequestDto request) {
+        try {
+            CustomEmailPreviewDto preview = adminEmailService.previewCustomEmail(request);
+            return ResponseEntity.ok(preview);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
     }
 
     @PostMapping("/emails/send-custom")

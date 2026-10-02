@@ -21,6 +21,16 @@ export const sendCustomEmail = async (payload) => {
   }
 };
 
+export const previewCustomEmail = async (payload) => {
+  try {
+    const response = await api.post("/api/admin/emails/preview", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error previewing custom email recipients:", error);
+    throw error.response?.data || new Error("Failed to preview email recipients.");
+  }
+};
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    0. USER MANAGEMENT
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
