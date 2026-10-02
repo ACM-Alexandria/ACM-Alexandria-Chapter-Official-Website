@@ -81,7 +81,7 @@ public class ClubService {
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
         logger.info("Fetching Clubs from Database...");
         pageNumber = Math.max(0, pageNumber);
-        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("id").ascending());
         return clubRepository.findAll(pageable).map(this::toClubCardDto);
     }
     
