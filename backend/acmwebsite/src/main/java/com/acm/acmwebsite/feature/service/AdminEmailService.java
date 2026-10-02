@@ -140,7 +140,7 @@ public class AdminEmailService {
         context.setVariable("bodyHtml", EMAIL_BODY_POLICY.sanitize(body));
         context.setVariable("showEmailPreferences", false);
         context.setVariable("websiteUrl", "https://alex.hosting.acm.org/");
-        return templateEngine.process("custom-email", context);
+        return templateEngine.process("mail/custom-email", context);
     }
 
     private void sendBatch(CustomEmailRequestDto request, List<String> recipients, String emailHtml) {

@@ -18,7 +18,7 @@
     - emailTitle       : String — <title> tag override
   ==========================================================================
 -->
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/base-layout :: layout(~{::content})}">
 <head>
   <meta charset="UTF-8" />
   <title>Verify Your Email — ACM Alexandria</title>
@@ -34,7 +34,7 @@
 
     Result: header + THIS content + footer — zero duplication.
   -->
-  <div th:replace="~{mail/base-layout :: content(~{::content})}">
+
 
     <!-- ================================================================
          CONTENT — This block is injected into base-layout's slot.
@@ -152,7 +152,7 @@
     </th:block>
     <!-- /content -->
 
-  </div>
+
 
 </body>
 </html>

@@ -126,7 +126,7 @@ class AdminEmailServiceTest {
         assertEquals("<html>ACM custom email</html>", preview.getEmailHtml());
 
         ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
-        verify(templateEngine).process(eq("custom-email"), context.capture());
+        verify(templateEngine).process(eq("mail/custom-email"), context.capture());
         String sanitizedBody = (String) context.getValue().getVariable("bodyHtml");
         assertTrue(sanitizedBody.contains("<strong>members</strong>"));
         assertFalse(sanitizedBody.contains("<script>"));
@@ -150,7 +150,7 @@ class AdminEmailServiceTest {
     @Test
     void customEmailTemplateUsesTheSharedMailLayout() {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("templates/mail/");
+        resolver.setPrefix("templates/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode(TemplateMode.HTML);
         SpringTemplateEngine engine = new SpringTemplateEngine();
@@ -164,7 +164,7 @@ class AdminEmailServiceTest {
         context.setVariable("showEmailPreferences", false);
         context.setVariable("websiteUrl", "https://alex.hosting.acm.org/");
 
-        String html = engine.process("custom-email", context);
+        String html = engine.process("mail/custom-email", context);
 
         assertTrue(html.contains("Alexandria Student Chapter"));
         assertTrue(html.contains("Chapter update"), html);
@@ -194,7 +194,7 @@ class AdminEmailServiceTest {
     }
 
     private void stubCustomEmailTemplate() {
-        when(templateEngine.process(eq("custom-email"), any(Context.class)))
+        when(templateEngine.process(eq("mail/custom-email"), any(Context.class)))
                 .thenReturn("<html>ACM custom email</html>");
     }
 }
