@@ -1,11 +1,10 @@
 import React from "react";
 import { FiSend, FiX } from "react-icons/fi";
-import { EMAIL_CONTENT_CLASSES } from "../../../constants/emailContent";
 
 const EmailPreviewModal = ({ composer }) => {
     const {
         modalError, closePreview, sending, membersLoading, total, roleCounts,
-        selectedCommitteeNames, selectedClubNames, subject, cleanBody, canSend, handleSend,
+        selectedCommitteeNames, selectedClubNames, subject, emailHtml, canSend, handleSend,
     } = composer;
 
     return (
@@ -68,17 +67,12 @@ const EmailPreviewModal = ({ composer }) => {
                         </p>
                     </div>
 
-                    {/* Email */}
-                    <div className="rounded-xl border border-slate-200 dark:border-slate-700">
-                        <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Subject</p>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{subject}</p>
-                        </div>
-                        <div
-                            className={`px-4 py-4 text-sm text-slate-800 dark:text-slate-100 ${EMAIL_CONTENT_CLASSES}`}
-                            dangerouslySetInnerHTML={{ __html: cleanBody }}
-                        />
-                    </div>
+                    <iframe
+                        title={`Email preview: ${subject}`}
+                        srcDoc={emailHtml}
+                        sandbox=""
+                        className="h-[680px] w-full rounded-md border border-slate-200 bg-white dark:border-slate-700"
+                    />
                 </div>
 
                 <div className="flex shrink-0 justify-end gap-2 border-t border-slate-100 pt-4 dark:border-slate-700">

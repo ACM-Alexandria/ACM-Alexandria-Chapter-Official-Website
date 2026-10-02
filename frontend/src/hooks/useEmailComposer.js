@@ -60,6 +60,8 @@ export const useEmailComposer = ({ committees, clubs }) => {
         setMembersLoading(true);
         try {
             const preview = await previewCustomEmail({
+                subject: subject.trim(),
+                body: cleanBody,
                 ...filters,
                 selectedUserEmails,
             });
@@ -100,6 +102,7 @@ export const useEmailComposer = ({ committees, clubs }) => {
 
     const total = members?.totalRecipients ?? 0;
     const roleCounts = Object.entries(members?.recipientCounts || {});
+    const emailHtml = members?.emailHtml ?? "";
     const canSend = !membersLoading && !sending && total > 0;
 
     return {
@@ -115,6 +118,7 @@ export const useEmailComposer = ({ committees, clubs }) => {
         formError, success, modalError,
         previewOpen, openPreview, closePreview,
         membersLoading, total, roleCounts,
+        emailHtml,
         selectedCommitteeNames, selectedClubNames, cleanBody,
         sending, canSend, handleSend,
     };

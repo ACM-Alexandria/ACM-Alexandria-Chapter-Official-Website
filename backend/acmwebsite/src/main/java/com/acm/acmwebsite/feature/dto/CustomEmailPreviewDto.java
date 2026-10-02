@@ -10,4 +10,5 @@ import java.util.Map;
 public class CustomEmailPreviewDto {
     private long totalRecipients;
     private Map<String, Long> recipientCounts;
+    private String emailHtml;
 }

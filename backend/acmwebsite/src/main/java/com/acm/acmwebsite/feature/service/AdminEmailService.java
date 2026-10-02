@@ -13,6 +13,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 
 import java.util.*;
 
@@ -21,9 +25,18 @@ import java.util.*;
 public class AdminEmailService {
 
     private static final int BCC_BATCH_SIZE = 50;
+    private static final PolicyFactory EMAIL_BODY_POLICY = new HtmlPolicyBuilder()
+            .allowElements("a", "blockquote", "br", "div", "em", "h1", "h2", "h3", "li", "ol", "p", "span", "strong",
+                    "u", "ul")
+            .allowAttributes("href")
+            .onElements("a")
+            .allowUrlProtocols("http", "https", "mailto")
+            .allowStyling()
+            .toFactory();
 
     private final MemberTargetingService memberTargetingService;
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
@@ -58,6 +71,7 @@ public class AdminEmailService {
         return CustomEmailPreviewDto.builder()
                 .totalRecipients(filteredRecipients.size() + selectedEmails.size())
                 .recipientCounts(recipientCounts)
+                .emailHtml(renderCustomEmail(request.getSubject(), request.getBody()))
                 .build();
     }
 
@@ -82,8 +96,9 @@ public class AdminEmailService {
             throw new IllegalArgumentException("No accounts match these filters.");
         }
 
+        String emailHtml = renderCustomEmail(request.getSubject(), request.getBody());
         for (int start = 0; start < finalRecipients.size(); start += BCC_BATCH_SIZE) {
-            sendBatch(request,finalRecipients.subList(start, Math.min(start + BCC_BATCH_SIZE, finalRecipients.size())));
+            sendBatch(request,finalRecipients.subList(start, Math.min(start + BCC_BATCH_SIZE, finalRecipients.size())), emailHtml);
         }
 
         return CustomEmailResultDto.builder()
@@ -117,14 +132,25 @@ public class AdminEmailService {
         };
     }
 
-    private void sendBatch(CustomEmailRequestDto request, List<String> recipients) {
+    private String renderCustomEmail(String subject, String body) {
+        Context context = new Context(Locale.ENGLISH);
+        context.setVariable("emailTitle", subject);
+        context.setVariable("preheaderText", subject);
+        context.setVariable("emailSubject", subject);
+        context.setVariable("bodyHtml", EMAIL_BODY_POLICY.sanitize(body));
+        context.setVariable("showEmailPreferences", false);
+        context.setVariable("websiteUrl", "https://alex.hosting.acm.org/");
+        return templateEngine.process("custom-email", context);
+    }
+
+    private void sendBatch(CustomEmailRequestDto request, List<String> recipients, String emailHtml) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(senderEmail);
             helper.setBcc(recipients.toArray(String[]::new));
             helper.setSubject(request.getSubject().trim());
-            helper.setText(request.getBody(), true);
+            helper.setText(emailHtml, true);
             mailSender.send(message);
         } catch (MessagingException exception) {
             throw new IllegalStateException("Unable to compose the email message.", exception);
