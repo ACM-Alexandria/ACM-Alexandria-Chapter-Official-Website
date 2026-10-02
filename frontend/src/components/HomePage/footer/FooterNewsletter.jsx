@@ -9,7 +9,7 @@ import {
   fetchNewsSubscriptionStatus,
 } from "../../../services/homePageService";
 
-const FooterNewsletter = ({ onHelpUsGrowClick }) => {
+const FooterNewsletter = ({ onHelpUsGrowClick, onHRFeedbackClick, canSubmitHRFeedback }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [subscribed, setSubscribed] = useState(false);
@@ -100,6 +100,15 @@ const FooterNewsletter = ({ onHelpUsGrowClick }) => {
           >
             Help Us Grow
           </button>
+          {canSubmitHRFeedback && (
+            <button
+              type="button"
+              onClick={onHRFeedbackClick}
+              className="w-full bg-white/10 hover:bg-white/20 dark:bg-white/15 dark:hover:bg-white/25 text-white font-bold py-3 rounded-xl border border-white/10 dark:border-white/20 uppercase text-[10px] tracking-[0.2em] cursor-pointer transition-all flex items-center justify-center gap-2 mt-3"
+            >
+              Suggestions & Complaints
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

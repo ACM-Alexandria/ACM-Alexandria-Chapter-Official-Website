@@ -26,6 +26,7 @@ import OpenCallConfirmModal from "../components/AdminPage/ManagementSection/Open
 import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
+import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
@@ -51,6 +52,7 @@ import {
   FiMessageSquare,
   FiGlobe,
   FiMail,
+  FiLock,
 } from "react-icons/fi";
 
 /* ─── Brand ─── */
@@ -160,6 +162,7 @@ const AdminPage = () => {
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
     { id: "partners", label: "Partners", icon: FiGlobe },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
+    { id: "hrFeedback", label: "HR Feedback", icon: FiMessageSquare },
   ];
 
   const loadMgmtTabData = async (tab, page = 0) => {
@@ -221,6 +224,8 @@ const AdminPage = () => {
         setPartners(data || []);
       } else if (tab === "feedback") {
         // Handled internally in FeedbackTab
+      } else if (tab === "hrFeedback") {
+        // Handled internally in HRFeedbackTab
       }
     } catch (err) {
       console.error(err);
@@ -941,8 +946,8 @@ const AdminPage = () => {
 
             <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls — hidden for gallery/feedback/users which render their own headers */}
-                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && mgmtTab !== "users" && (
+                {/* Header Controls — hidden for gallery/feedback/hrFeedback/users which render their own headers */}
+                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && mgmtTab !== "hrFeedback" && mgmtTab !== "users" && (
                   <>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                       <div>
@@ -1005,13 +1010,15 @@ const AdminPage = () => {
                   </div>
                 )}
 
-                {/* Table Data — skipped for gallery/feedback/users tabs which render their own UI */}
+                {/* Table Data — skipped for gallery/feedback/hrFeedback/users tabs which render their own UI */}
                 {mgmtTab === "users" ? (
                   <UserManagementTab />
                 ) : mgmtTab === "gallery" ? (
                   <GalleryTab />
                 ) : mgmtTab === "feedback" ? (
                   <FeedbackTab />
+                ) : mgmtTab === "hrFeedback" ? (
+                  <HRFeedbackTab />
                 ) : (
                   <ResourceTable
                     activeTab={mgmtTab}

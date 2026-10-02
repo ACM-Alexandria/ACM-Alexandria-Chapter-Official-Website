@@ -9,6 +9,7 @@ import FooterResources from "./footer/FooterResources";
 import FooterNewsletter from "./footer/FooterNewsletter";
 import FooterBottom from "./footer/FooterBottom";
 import HelpUsGrowModal from "./footer/HelpUsGrowModal";
+import HRFeedbackModal from "./footer/HRFeedbackModal";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -16,7 +17,9 @@ const Footer = () => {
   const location = useLocation();
   const [socialLinks, setSocialLinks] = useState([]);
   const [showGrowModal, setShowGrowModal] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const canSubmitHRFeedback = isAuthenticated && user?.role !== 'USER';
 
   useEffect(() => {
     const loadSocialLinks = async () => {
@@ -60,6 +63,8 @@ const Footer = () => {
       }
     } else if (item === "Partners") {
       handleSectionNavigation("partners");
+    } else if (item === "Suggestions & Complaints") {
+      setShowFeedbackModal(true);
     } else {
       // Do nothing for Sponsors (no proper navigation target)
     }
@@ -81,7 +86,11 @@ const Footer = () => {
           <FooterBrand socialLinks={socialLinks} onNavigate={handleSectionNavigation} />
           <FooterNavigation onNavigate={handleSectionNavigation} />
           <FooterResources onResourceClick={handleResourceClick} />
-          <FooterNewsletter onHelpUsGrowClick={() => handleResourceClick("Help Us Grow")} />
+          <FooterNewsletter 
+            onHelpUsGrowClick={() => handleResourceClick("Help Us Grow")} 
+            onHRFeedbackClick={() => handleResourceClick("Suggestions & Complaints")}
+            canSubmitHRFeedback={canSubmitHRFeedback}
+          />
         </div>
 
         {/* Divider */}
@@ -91,6 +100,7 @@ const Footer = () => {
       </div>
 
       <HelpUsGrowModal open={showGrowModal} onClose={() => setShowGrowModal(false)} />
+      <HRFeedbackModal open={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
     </footer>
   );
 };
