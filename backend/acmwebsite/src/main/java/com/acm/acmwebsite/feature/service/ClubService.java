@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.ClubCardDto;
 import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
@@ -19,7 +20,11 @@ import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
 import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.exception.GoogleSheetsNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,6 +49,7 @@ public class ClubService {
     private final SubscriptionService subscriptionService;
     private final SystemSettingsService systemSettingsService;
     private final ClubBoardRepository clubBoardRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ClubService.class);
 
     @Value("${google.sheets.clubs-folder-id:}")
     private String clubsFolderId;
@@ -64,10 +71,11 @@ public class ClubService {
         this.systemSettingsService = systemSettingsService;
     }
 
-
+    @Cacheable(value = CacheNames.CLUBS, key = "'AllClubs_page_' + #pageNumber")
     public Page<ClubCardDto> getClubsByPage(int pageNumber) {
+        logger.info("Fetching Clubs from Database...");
         pageNumber = Math.max(0, pageNumber);
-        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("id").ascending());
         return clubRepository.findAll(pageable).map(club -> {
             ClubCardDto dto = clubMapper.toClubCardDto(club);
             var boardEntities = clubBoardRepository.findByClubId(club.getId());
@@ -86,9 +94,12 @@ public class ClubService {
             return dto;
         });
     }
+    @Cacheable(value = CacheNames.CLUBS, key = "'club_' + #id")
     public Optional<Club> getClubById(long id) {
+        logger.info("Fetching One Club from Database...");
         return clubRepository.findById(id);
     }
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club createClub(Club club) {
         if (club.getName() == null || club.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
@@ -176,7 +187,7 @@ public class ClubService {
 
         clubFormQuestionRepository.delete(question);
     }
-
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club updateClub(Long id,Club updatedClub) {
         return clubRepository.findById(id).map(club -> {
             if (updatedClub.getName() == null || updatedClub.getName().trim().isEmpty()) {
@@ -193,6 +204,7 @@ public class ClubService {
         ).orElseThrow(()->new RuntimeException("Club not found"));
     }
 
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club openRegistration(Long id) {
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
@@ -200,6 +212,7 @@ public class ClubService {
         return clubRepository.save(club);
     }
 
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public Club closeRegistration(Long id) {
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + id));
@@ -215,6 +228,7 @@ public class ClubService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public List<String> updateClubSocialLinks(Long clubId, List<String> socialLinks) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));
@@ -229,6 +243,7 @@ public class ClubService {
         return cleanLinks;
     }
     @Transactional
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public void deleteClubById(long id) {
         clubRegistrationRepository.deleteByClubId(id);
         clubFormQuestionRepository.deleteByClubId(id);
@@ -282,6 +297,7 @@ public class ClubService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.CLUBS, allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("Club not found with id " + clubId));

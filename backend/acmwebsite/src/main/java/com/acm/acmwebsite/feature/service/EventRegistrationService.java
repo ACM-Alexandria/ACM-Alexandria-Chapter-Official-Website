@@ -7,25 +7,27 @@ import com.acm.acmwebsite.feature.dto.RegistrationRequestDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.entity.EventFormQuestion;
 import com.acm.acmwebsite.feature.entity.EventRegistration;
-import com.acm.acmwebsite.feature.entity.FormQuestion;
 import com.acm.acmwebsite.feature.exception.DuplicateRegistrationException;
-import com.acm.acmwebsite.feature.exception.MissingRequiredAnswerException;
-import com.acm.acmwebsite.feature.exception.ProfileIncompleteException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.util.RegistrationValidationUtil;
+import com.acm.acmwebsite.feature.enums.RegistrationEntityType;
+import com.acm.acmwebsite.feature.event.SheetSyncEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class EventRegistrationService implements RegistrationService {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
@@ -52,6 +54,7 @@ public class EventRegistrationService implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void registerUser(UUID userId, Long eventId, RegistrationRequestDto request) {
         // 1. Get entities
         User user = userRepository.findById(userId)
@@ -86,7 +89,10 @@ public class EventRegistrationService implements RegistrationService {
 
         eventRegistrationRepository.save(registration);
 
-        // 6. Trigger Confirmation Email
+        // 6. Trigger an async, debounced sheet sync after the transaction commits.
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.EVENT, eventId));
+
+        // 7. Trigger Confirmation Email
         try {
             coreEmailService.sendRegistrationConfirmationEmail(user.getEmail(), event.getName(), user.getName());
         } catch (Exception e) {

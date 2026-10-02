@@ -27,6 +27,7 @@ import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
+import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import {
   FiUsers,
   FiCalendar,

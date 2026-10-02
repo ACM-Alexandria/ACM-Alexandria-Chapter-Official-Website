@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.*;
 
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CommitteeRegistrationServiceTest {
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -110,6 +113,7 @@ public class CommitteeRegistrationServiceTest {
 
         verify(committeeRegistrationRepository).save(any(CommitteeRegistration.class));
         verify(coreEmailService).sendCommitteeRegistrationConfirmationEmail(eq("test@acm.org"), eq("Tech"), eq("ACM Member"));
+        verify(eventPublisher).publishEvent(any());
     }
 
     @Test

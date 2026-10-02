@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
 import com.acm.acmwebsite.feature.dto.ProgramDto;
@@ -15,7 +16,11 @@ import com.acm.acmwebsite.feature.repository.ProgramFormQuestionRepository;
 import com.acm.acmwebsite.feature.repository.ProgramRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.ProgramRepository;
 import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +43,7 @@ public class ProgramService {
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
     private final SystemSettingsService systemSettingsService;
+    private static final Logger logger = LoggerFactory.getLogger(ProgramService.class);
 
     @Value("${google.sheets.programs-folder-id:}")
     private String programsFolderId;
@@ -58,23 +64,30 @@ public class ProgramService {
         this.systemSettingsService = systemSettingsService;
     }
 
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'AllPrograms'")
     public List<ProgramDto> getAllPrograms() {
+        logger.info("Fetching all programs from database...");
         return programRepository.findAll(Sort.by("startDate").descending()).stream()
                 .map(programMapper::toProgramDto)
                 .toList();
     }
 
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'ProgramPages'+#pageNumber")
     public Page<ProgramDto> getProgramsByPage(int pageNumber) {
+        logger.info("Fetching program page from database...");
         pageNumber = Math.max(0, pageNumber);
         Pageable page = PageRequest.of(pageNumber, 4, Sort.by("startDate").descending());
         return programRepository.findAll(page).map(programMapper::toProgramDto);
     }
 
+    @Cacheable(value = CacheNames.PROGRAMS,key = "'ProgramPage'+#id")
     public Optional<ProgramDto> getProgramById(long id) {
+        logger.info("Fetching program by id from database...");
         return programRepository.findById(id).map(programMapper::toProgramDto);
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public void deleteProgram(long id) {
         programRegistrationRepository.deleteByProgramId(id);
         programFormQuestionRepository.deleteByProgramId(id);
@@ -82,6 +95,7 @@ public class ProgramService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto updateProgram(Long id, ProgramDto updatedProgram) {
         if (updatedProgram.getName() == null || updatedProgram.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Program name is required");
@@ -104,6 +118,7 @@ public class ProgramService {
                 .toList();
     }
 
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto createProgram(ProgramDto programDto) {
         if (programDto.getName() == null || programDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Program name is required");
@@ -117,6 +132,11 @@ public class ProgramService {
         if (announce && notifySubscribersAboutNewProgram(saved)) {
             saved.setAnnouncementSentAt(LocalDateTime.now());
             saved = programRepository.save(saved);
+        }
+        try {
+            subscriptionService.sendNewProgramNotificationToNewsSubscribers(saved);
+        } catch (Exception e) {
+            logger.warn("Failed to notify subscribers about program {}", saved.getId(), e);
         }
         return programMapper.toProgramDto(saved);
     }
@@ -151,6 +171,7 @@ public class ProgramService {
     // ── Registration Toggle ──
 
     @Transactional
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public ProgramDto toggleRegistration(Long programId, boolean open) {
         Program program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found with id " + programId));
@@ -238,6 +259,7 @@ public class ProgramService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.PROGRAMS, allEntries = true)
     public RegistrationAnalysisDto syncRegistrationsSheet(Long programId) {
         Program program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found with id " + programId));
