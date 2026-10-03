@@ -38,16 +38,31 @@ const ThemedDialog = ({
   icon,
   title,
   message,
+  description,
   confirmLabel = "OK",
   cancelLabel,
   onConfirm,
   onCancel,
 }) => {
+  const dismiss = onCancel || onConfirm;
+
+  React.useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (dismiss) dismiss();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, dismiss]);
+
   if (!open) return null;
 
+  const content = description !== undefined ? description : message;
   const theme = TONES[tone] || TONES.info;
   const Icon = icon || theme.icon;
-  const dismiss = onCancel || onConfirm;
 
   return createPortal(
     <div
@@ -64,13 +79,14 @@ const ThemedDialog = ({
           <Icon className="w-6 h-6" />
         </div>
         <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{title}</h3>
-        {message && (
-          <p className="text-xs text-slate-400 dark:text-slate-300 font-semibold mt-2 leading-relaxed">{message}</p>
+        {content && (
+          <div className="text-xs text-slate-400 dark:text-slate-300 font-semibold mt-2 leading-relaxed">{content}</div>
         )}
         <div className="flex gap-3 justify-center mt-6">
           {cancelLabel && (
             <button
               onClick={onCancel}
+              autoFocus={tone === "danger"}
               className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all cursor-pointer"
             >
               {cancelLabel}
@@ -78,7 +94,7 @@ const ThemedDialog = ({
           )}
           <button
             onClick={onConfirm}
-            autoFocus
+            autoFocus={tone !== "danger" || !cancelLabel}
             className={`px-4 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow cursor-pointer ${theme.buttonClass}`}
           >
             {confirmLabel}

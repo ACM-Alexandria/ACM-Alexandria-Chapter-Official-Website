@@ -14,6 +14,15 @@ const useThemedDialog = () => {
     if (resolve) resolve(result);
   }, []);
 
+  React.useEffect(() => {
+    return () => {
+      if (resolverRef.current) {
+        resolverRef.current(false);
+        resolverRef.current = null;
+      }
+    };
+  }, []);
+
   const open = useCallback((opts) => {
     // A dialog that is still open counts as cancelled, so its caller never hangs
     if (resolverRef.current) resolverRef.current(false);

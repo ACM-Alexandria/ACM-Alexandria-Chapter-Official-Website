@@ -26,7 +26,7 @@ public class JwtUtil {
   @Value("${jwt.expiration}")
   private long expiration;
 
-  @Value("${jwt.email-confirmation-expiration}")
+  @Value("${jwt.email-confirmation-expiration:900000}")
   private long emailConfirmationExpiration;
 
   private SecretKey key;

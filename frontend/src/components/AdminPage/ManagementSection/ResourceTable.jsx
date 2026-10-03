@@ -21,7 +21,7 @@ import {
 } from "react-icons/fi";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 
-const UserMediaCell = ({ item, activeTab }) => {
+const UserMediaCell = ({ item }) => {
   const { profile, loading } = useUserProfile(item.userId);
   const [imgError, setImgError] = useState(false);
   
@@ -233,7 +233,8 @@ const ResourceTable = ({
                     </span>
                     <button
                       onClick={() => onToggleCall(item)}
-                      className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 ${
+                      disabled={loading}
+                      className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${
                         (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen))
                           ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                           : "bg-sky-50 text-[#4B98C8] border-sky-200 hover:bg-sky-100"
@@ -390,7 +391,8 @@ const ResourceTable = ({
                   </button>
                   <button
                     onClick={() => onDeleteClick(item)}
-                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-200 hover:text-red-500 rounded-lg transition-colors"
+                    disabled={loading}
+                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-200 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                   >
                     <FiTrash2 className="w-3.5 h-3.5" />
                   </button>

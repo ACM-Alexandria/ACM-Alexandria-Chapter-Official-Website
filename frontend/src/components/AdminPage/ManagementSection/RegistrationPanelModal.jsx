@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiX, FiExternalLink, FiRefreshCw, FiFileText, FiUsers, FiAward, FiBook, FiArrowLeft } from "react-icons/fi";
 import { fetchCommitteeCalls, fetchRegistrationAnalysis, syncRegistrationSheet } from "../../../services/adminService";
+import useThemedDialog from "../../../hooks/useThemedDialog";
+import { Highlight } from "../../ThemedDialog";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
@@ -24,6 +26,9 @@ const RegistrationPanelModal = ({
   const [callAnalysisLoading, setCallAnalysisLoading] = useState(false);
   const [callSyncLoading, setCallSyncLoading] = useState(false);
   const [callError, setCallError] = useState(null);
+
+  const { dialog, confirm } = useThemedDialog();
+  const syncCallSheetInFlight = useRef(false);
 
   // Load committee calls history
   useEffect(() => {
@@ -70,23 +75,46 @@ const RegistrationPanelModal = ({
 
   const handleSyncCallSheet = async () => {
     if (!selectedCall) return;
-    setCallSyncLoading(true);
-    setCallError(null);
+    if (syncCallSheetInFlight.current) return;
+    syncCallSheetInFlight.current = true;
+
     try {
-      const updated = await syncRegistrationSheet("committeeCall", selectedCall.id);
-      setCallAnalysis(updated);
-      setCalls((prev) =>
-        prev.map((c) =>
-          c.id === selectedCall.id
-            ? { ...c, googleSheetUrl: updated.googleSheetUrl, sheetLastUpdatedAt: updated.sheetLastUpdatedAt }
-            : c
-        )
-      );
-    } catch (err) {
-      console.error("Error syncing call sheet:", err);
-      setCallError(err.message || "Failed to sync spreadsheet.");
+      const callLabel = resourceName ? `${resourceName} Open Call` : "this call";
+
+      const confirmed = await confirm({
+        tone: "danger",
+        title: "Overwrite Google Sheet?",
+        description: (
+          <>
+            This will replace the existing spreadsheet contents for <Highlight>{callLabel}</Highlight> with the latest registration data from the website. Any manual notes, formulas, or other changes currently in the Google Sheet may be permanently erased.
+          </>
+        ),
+        confirmLabel: "Yes, Overwrite Sheet",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setCallSyncLoading(true);
+      setCallError(null);
+      try {
+        const updated = await syncRegistrationSheet("committeeCall", selectedCall.id);
+        setCallAnalysis(updated);
+        setCalls((prev) =>
+          prev.map((c) =>
+            c.id === selectedCall.id
+              ? { ...c, googleSheetUrl: updated.googleSheetUrl, sheetLastUpdatedAt: updated.sheetLastUpdatedAt }
+              : c
+          )
+        );
+      } catch (err) {
+        console.error("Error syncing call sheet:", err);
+        setCallError(err.message || "Failed to sync spreadsheet.");
+      } finally {
+        setCallSyncLoading(false);
+      }
     } finally {
-      setCallSyncLoading(false);
+      syncCallSheetInFlight.current = false;
     }
   };
 
@@ -474,6 +502,7 @@ const RegistrationPanelModal = ({
           </button>
         </div>
       </div>
+      {dialog}
     </div>
   );
 };
