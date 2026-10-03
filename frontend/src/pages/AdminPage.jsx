@@ -14,7 +14,6 @@ import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemIns
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
 import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTable";
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
-import DeleteConfirmModal from "../components/AdminPage/ManagementSection/DeleteConfirmModal";
 import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
 import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
@@ -106,10 +105,6 @@ const AdminPage = () => {
   const [formMode, setFormMode] = useState("add"); // 'add' or 'edit'
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
-
-  // Delete Confirm Modal states
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deletingItem, setDeletingItem] = useState(null);
 
   // Message Modal states
   const [messageModalOpen, setMessageModalOpen] = useState(false);
@@ -354,7 +349,7 @@ const AdminPage = () => {
       setFormData({ ...item, startDate: formattedStartDate, endDate: formattedEndDate });
     } else if (mgmtTab === "committees") {
       // Only send fields relevant to the committee itself — boardRoles are managed separately
-      const { boardRoles, callMessage, topicToken, open, ...committeeFields } = item;
+      const { boardRoles: _boardRoles, callMessage: _callMessage, topicToken: _topicToken, open: _open, ...committeeFields } = item;
       setFormData(committeeFields);
     } else {
       setFormData({ ...item });
@@ -409,7 +404,7 @@ const AdminPage = () => {
         if (formMode === "add") {
           let newEvent = null;
           try {
-            const { questions, ...eventPayload } = formData;
+            const { questions: _questions, ...eventPayload } = formData;
             newEvent = await adminService.createEvent(eventPayload);
             
             if (newEvent?.id && formData.questions && formData.questions.length > 0) {
@@ -439,7 +434,7 @@ const AdminPage = () => {
           loadMgmtTabData(mgmtTab);
           return; // skip the generic setFormOpen(false) / loadMgmtTabData below
         } else {
-          const { questions, ...eventPayload } = formData;
+          const { questions: _questions, ...eventPayload } = formData;
           await adminService.updateEvent(editingItem.id, eventPayload);
         }
       } else if (mgmtTab === "clubs") {
@@ -491,48 +486,113 @@ const AdminPage = () => {
     }
   };
  
-  const handleMgmtDeleteClick = (item) => {
-    setDeletingItem(item);
-    setModalError(null);
-    setDeleteOpen(true);
-  };
- 
-  const handleConfirmMgmtDelete = async () => {
-    setMgmtLoading(true);
-    setMgmtError(null);
-    setModalError(null);
+  const handleMgmtDeleteClick = async (item) => {
+    if (deleteInFlight.current) return;
+    deleteInFlight.current = true;
+
     try {
-      if (mgmtTab === "highboard") {
-        await adminService.deleteHighBoardMember(deletingItem.id);
-      } else if (mgmtTab === "committees") {
-        await adminService.deleteCommittee(deletingItem.id);
-      } else if (mgmtTab === "committeeBoard") {
-        await adminService.deleteCommitteeBoardMember(deletingItem.id);
+      const itemName = item.name || (item.seasonNumber !== undefined ? `Season ${item.seasonNumber}` : "this item");
+
+      // Dynamic cascade-aware description based on entity type
+      let title = "Delete Record?";
+      let description = (
+        <>
+          Are you sure you want to delete <Highlight>{itemName}</Highlight>? This action is permanent and cannot be undone.
+        </>
+      );
+
+      if (mgmtTab === "radio") {
+        title = "Delete Season and All Episodes?";
+        const episodeCount = item.episodesCount ?? item.episodes?.length;
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently delete the season and{" "}
+            {episodeCount !== undefined ? `all ${episodeCount} episodes` : "all episodes"}{" "}
+            belonging to it. This action cannot be undone.
+          </>
+        );
       } else if (mgmtTab === "events") {
-        await adminService.deleteEvent(deletingItem.id);
+        title = "Delete Event?";
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently delete the event, its custom questions, and all attendee registrations. This action cannot be undone.
+          </>
+        );
       } else if (mgmtTab === "clubs") {
-        await adminService.deleteClub(deletingItem.id);
+        title = "Delete Club?";
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently delete the club, its questions, and all club registrations. This action cannot be undone.
+          </>
+        );
       } else if (mgmtTab === "programs") {
-        await adminService.deleteProgram(deletingItem.id);
-      } else if (mgmtTab === "radio") {
-        await adminService.deleteSeason(deletingItem.id);
+        title = "Delete Program?";
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently delete the program, its questions, and all participant registrations. This action cannot be undone.
+          </>
+        );
+      } else if (mgmtTab === "committees") {
+        title = "Delete Committee?";
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently remove the committee, its board members, questions, call history, and subscriber list. This action cannot be undone.
+          </>
+        );
       } else if (mgmtTab === "exclusiveForms") {
-        await adminService.deleteExclusiveForm(deletingItem.id);
-      } else if (mgmtTab === "socialLinks") {
-        await adminService.deleteSocialLink(deletingItem.id);
-      } else if (mgmtTab === "partners") {
-        await adminService.deletePartner(deletingItem.id);
+        title = "Delete Exclusive Form?";
+        description = (
+          <>
+            Deleting <Highlight>{itemName}</Highlight> will permanently delete the form, all its configured questions, and submissions. This action cannot be undone.
+          </>
+        );
       }
- 
-      setDeleteOpen(false);
-      setDeletingItem(null);
-      loadMgmtTabData(mgmtTab);
-    } catch (err) {
-      console.error(err);
-      const msg = err.message || err.error || (typeof err === "string" ? err : null) || "Failed to delete resource.";
-      setModalError(msg);
+
+      const confirmed = await confirm({
+        tone: "danger",
+        title,
+        description,
+        confirmLabel: "Yes, Delete",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setMgmtLoading(true);
+      setMgmtError(null);
+      try {
+        if (mgmtTab === "highboard") {
+          await adminService.deleteHighBoardMember(item.id);
+        } else if (mgmtTab === "committees") {
+          await adminService.deleteCommittee(item.id);
+        } else if (mgmtTab === "committeeBoard") {
+          await adminService.deleteCommitteeBoardMember(item.id);
+        } else if (mgmtTab === "events") {
+          await adminService.deleteEvent(item.id);
+        } else if (mgmtTab === "clubs") {
+          await adminService.deleteClub(item.id);
+        } else if (mgmtTab === "programs") {
+          await adminService.deleteProgram(item.id);
+        } else if (mgmtTab === "radio") {
+          await adminService.deleteSeason(item.id);
+        } else if (mgmtTab === "exclusiveForms") {
+          await adminService.deleteExclusiveForm(item.id);
+        } else if (mgmtTab === "socialLinks") {
+          await adminService.deleteSocialLink(item.id);
+        } else if (mgmtTab === "partners") {
+          await adminService.deletePartner(item.id);
+        }
+
+        await loadMgmtTabData(mgmtTab);
+      } catch (err) {
+        console.error(err);
+        const msg = err.message || err.error || (typeof err === "string" ? err : null) || "Failed to delete resource.";
+        setMgmtError(msg);
+      } finally {
+        setMgmtLoading(false);
+      }
     } finally {
-      setMgmtLoading(false);
+      deleteInFlight.current = false;
     }
   };
 
@@ -541,47 +601,116 @@ const AdminPage = () => {
     setEpisodesModalOpen(true);
   };
  
+  const toggleInFlight = useRef(false);
+  const syncSheetInFlight = useRef(false);
+  const deleteInFlight = useRef(false);
+
   const handleToggleCall = async (item) => {
+    if (toggleInFlight.current) return;
+    toggleInFlight.current = true;
+
+    try {
+      const isCurrentlyOpen =
+      mgmtTab === "programs"
+        ? Boolean(item.registrationOpen)
+        : mgmtTab === "exclusiveForms"
+        ? Boolean(item.isActive)
+        : Boolean(item.registrationOpen || item.open || item.isOpen);
+
+    const resourceName = item.name || item.title || "this resource";
+
+    // If opening a committee call, preserve OpenCallConfirmModal to configure emailing subscribers
+    if (mgmtTab === "committees" && !isCurrentlyOpen) {
+      setOpenCallCommittee(item);
+      return;
+    }
+
+    // Determine confirmation tone, title, and description based on resource type and action direction
+    const isClosing = isCurrentlyOpen;
+    let title = "";
+    let description = "";
+    let tone = isClosing ? "warning" : "brand";
+    let confirmLabel = isClosing ? "Close" : "Open";
+
+    if (mgmtTab === "committees") {
+      title = "Close Committee Call?";
+      description = (
+        <>
+          Closing this call for <Highlight>{resourceName}</Highlight> will immediately stop accepting new committee applications. Existing applications will remain safely stored, but new applicants will no longer be able to submit until the call is reopened.
+        </>
+      );
+      confirmLabel = "Close Call";
+    } else if (mgmtTab === "exclusiveForms") {
+      title = isClosing ? "Deactivate Form?" : "Activate Form?";
+      description = isClosing ? (
+        <>
+          Deactivating <Highlight>{resourceName}</Highlight> will immediately prevent new submissions. Existing submissions will remain saved.
+        </>
+      ) : (
+        <>
+          Activating <Highlight>{resourceName}</Highlight> will make the form publicly available and allow new applicants to submit entries.
+        </>
+      );
+      confirmLabel = isClosing ? "Deactivate" : "Activate";
+    } else {
+      title = isClosing ? "Close Registration?" : "Open Registration?";
+      description = isClosing ? (
+        <>
+          Closing registration for <Highlight>{resourceName}</Highlight> will immediately stop accepting new registrations. Existing registrations will remain preserved.
+        </>
+      ) : (
+        <>
+          Opening registration for <Highlight>{resourceName}</Highlight> will make the registration form publicly available and allow new applicants to register.
+        </>
+      );
+      confirmLabel = isClosing ? "Close Registration" : "Open Registration";
+    }
+
+    const confirmed = await confirm({
+      tone,
+      title,
+      description,
+      confirmLabel,
+      cancelLabel: "Cancel",
+    });
+
+    if (!confirmed) return;
+
     setMgmtLoading(true);
     setMgmtError(null);
     try {
       if (mgmtTab === "programs") {
-        const isCurrentlyOpen = item.registrationOpen;
         await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
       } else if (mgmtTab === "clubs") {
-        const isCurrentlyOpen = item.registrationOpen || item.open || item.isOpen;
         if (isCurrentlyOpen) {
           await adminService.closeClubCall(item.id);
         } else {
           await adminService.openClubCall(item.id);
         }
       } else if (mgmtTab === "events") {
-        const isCurrentlyOpen = item.registrationOpen || item.open || item.isOpen;
         if (isCurrentlyOpen) {
           await adminService.closeEventCall(item.id);
         } else {
           await adminService.openEventCall(item.id);
         }
       } else if (mgmtTab === "exclusiveForms") {
-        const isCurrentlyActive = item.isActive;
         await adminService.updateExclusiveForm(item.id, {
           ...item,
-          isActive: !isCurrentlyActive
+          isActive: !isCurrentlyOpen,
         });
       } else {
-        const isCurrentlyOpen = item.open || item.isOpen;
-        if (isCurrentlyOpen) {
-          await adminService.closeCommitteeCall(item.id);
-        } else {
-          // Opening asks whether to email subscribers first; see handleConfirmOpenCall
-          setOpenCallCommittee(item);
-          return;
-        }
+        await adminService.closeCommitteeCall(item.id);
       }
       await loadMgmtTabData(mgmtTab);
     } catch (err) {
       console.error(err);
-      let errMsg = `Failed to update ${mgmtTab === "programs" ? "program registration" : mgmtTab === "exclusiveForms" ? "exclusive form status" : "committee call"} status.`;
+      let errMsg = `Failed to update ${
+        mgmtTab === "programs"
+          ? "program registration"
+          : mgmtTab === "exclusiveForms"
+          ? "exclusive form status"
+          : "committee call"
+      } status.`;
       if (typeof err === "string") {
         errMsg = err;
       } else if (err && typeof err === "object") {
@@ -591,8 +720,11 @@ const AdminPage = () => {
     } finally {
       setMgmtLoading(false);
     }
-  };
- 
+  } finally {
+    toggleInFlight.current = false;
+  }
+};
+
   const handleConfirmOpenCall = async (sendAnnouncement) => {
     if (openCallInFlight.current) return;
     openCallInFlight.current = true;
@@ -669,26 +801,45 @@ const AdminPage = () => {
       .catch((err) => console.error("Failed to load email lock status", err));
   }, []);
 
+  const emailLockInFlight = useRef(false);
+
   const handleToggleEmailLock = async () => {
-    const enable = !emailsEnabled;
-    if (!enable) {
-      const ok = await confirm({
-        tone: "danger",
-        title: "Lock All Emails?",
-        message: "No emails or notifications will be sent (except password resets) until you unlock them.",
-        confirmLabel: "Yes, Lock",
-      });
-      if (!ok) return;
-    }
-    setEmailLockSaving(true);
+    if (emailLockInFlight.current || emailLockSaving) return;
+    emailLockInFlight.current = true;
+
     try {
-      const data = await adminService.updateEmailLock(enable);
-      setEmailsEnabled(data?.emailsEnabled !== false);
-    } catch (err) {
-      console.error(err);
-      notify({ tone: "danger", title: "Couldn't Update", message: err?.message || err?.error || "Failed to update the email lock." });
+      const enable = !emailsEnabled;
+      if (!enable) {
+        const ok = await confirm({
+          tone: "danger",
+          title: "Lock All Emails?",
+          description: "No emails or notifications will be sent (except password resets) until you unlock them.",
+          confirmLabel: "Yes, Lock",
+          cancelLabel: "Cancel",
+        });
+        if (!ok) return;
+      } else {
+        const ok = await confirm({
+          tone: "brand",
+          title: "Enable System Emails?",
+          description: "This will re-enable system-wide email delivery for notifications and other email operations.",
+          confirmLabel: "Yes, Enable",
+          cancelLabel: "Cancel",
+        });
+        if (!ok) return;
+      }
+      setEmailLockSaving(true);
+      try {
+        const data = await adminService.updateEmailLock(enable);
+        setEmailsEnabled(data?.emailsEnabled !== false);
+      } catch (err) {
+        console.error(err);
+        notify({ tone: "danger", title: "Couldn't Update", message: err?.message || err?.error || "Failed to update the email lock." });
+      } finally {
+        setEmailLockSaving(false);
+      }
     } finally {
-      setEmailLockSaving(false);
+      emailLockInFlight.current = false;
     }
   };
 
@@ -773,35 +924,58 @@ const AdminPage = () => {
 
   const handleSyncRegistrationSheet = async () => {
     if (!selectedResourceForAnalysis) return;
-    const { id, type } = selectedResourceForAnalysis;
-    setRegSyncLoading(true);
-    setRegModalError(null);
+    if (syncSheetInFlight.current) return;
+    syncSheetInFlight.current = true;
+
     try {
-      const updatedData = await adminService.syncRegistrationSheet(type, id);
-      setRegAnalysisData(updatedData);
-      
-      // Update local state list so URL and timestamp are updated in the main table data
-      if (type === "event") {
-        setEvents(prev => ({
-          ...prev,
-          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-        }));
-      } else if (type === "club") {
-        setClubs(prev => ({
-          ...prev,
-          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-        }));
-      } else if (type === "program") {
-        setPrograms(prev => ({
-          ...prev,
-          content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-        }));
+      const resourceName = selectedResourceForAnalysis.name || "this resource";
+
+      const confirmed = await confirm({
+        tone: "danger",
+        title: "Overwrite Google Sheet?",
+        description: (
+          <>
+            This will replace the existing spreadsheet contents for <Highlight>{resourceName}</Highlight> with the latest registration data from the website. Any manual notes, formulas, or other changes currently in the Google Sheet may be permanently erased.
+          </>
+        ),
+        confirmLabel: "Yes, Overwrite Sheet",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      const { id, type } = selectedResourceForAnalysis;
+      setRegSyncLoading(true);
+      setRegModalError(null);
+      try {
+        const updatedData = await adminService.syncRegistrationSheet(type, id);
+        setRegAnalysisData(updatedData);
+        
+        // Update local state list so URL and timestamp are updated in the main table data
+        if (type === "event") {
+          setEvents(prev => ({
+            ...prev,
+            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+          }));
+        } else if (type === "club") {
+          setClubs(prev => ({
+            ...prev,
+            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+          }));
+        } else if (type === "program") {
+          setPrograms(prev => ({
+            ...prev,
+            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+        setRegModalError(err.message || err.error || "Failed to synchronize spreadsheet.");
+      } finally {
+        setRegSyncLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setRegModalError(err.message || err.error || "Failed to synchronize spreadsheet.");
     } finally {
-      setRegSyncLoading(false);
+      syncSheetInFlight.current = false;
     }
   };
 
@@ -1088,15 +1262,6 @@ const AdminPage = () => {
               activeTab={mgmtTab}
               formData={formData}
               setFormData={setFormData}
-              loading={mgmtLoading}
-              error={modalError}
-            />
-
-            <DeleteConfirmModal
-              open={deleteOpen}
-              onClose={() => { setDeleteOpen(false); setModalError(null); }}
-              onConfirm={handleConfirmMgmtDelete}
-              deletingItem={deletingItem}
               loading={mgmtLoading}
               error={modalError}
             />

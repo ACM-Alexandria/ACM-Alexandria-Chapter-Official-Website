@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import api from "../../../services/api";
 import adminService from "../../../services/adminService";
+import useThemedDialog from "../../../hooks/useThemedDialog";
 
 /* ── upload a single file via the authenticated axios instance ── */
 const uploadFile = (file) => {
@@ -196,19 +197,39 @@ const GalleryTab = () => {
   const handleDragOver = (e) => e.preventDefault();
   const handleDrop = (e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); };
 
+  const { dialog, confirm } = useThemedDialog();
+  const deleteImageInFlight = useRef(false);
+
   const handleDelete = async (image, idx) => {
-    setDeletingId(image.id);
+    if (deleteImageInFlight.current || deletingId === image.id) return;
+    deleteImageInFlight.current = true;
+
     try {
-      await adminService.deleteGalleryImage(image.id);
-      setImages((prev) => prev.filter((_, i) => i !== idx));
-      if (lightboxIndex !== null) {
-        if (idx === lightboxIndex) setLightboxIndex(null);
-        else if (idx < lightboxIndex) setLightboxIndex((l) => l - 1);
+      const confirmed = await confirm({
+        tone: "danger",
+        title: "Delete Image?",
+        description: "Are you sure you want to delete this image from the gallery? This action cannot be undone.",
+        confirmLabel: "Yes, Delete",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setDeletingId(image.id);
+      try {
+        await adminService.deleteGalleryImage(image.id);
+        setImages((prev) => prev.filter((_, i) => i !== idx));
+        if (lightboxIndex !== null) {
+          if (idx === lightboxIndex) setLightboxIndex(null);
+          else if (idx < lightboxIndex) setLightboxIndex((l) => l - 1);
+        }
+      } catch (err) {
+        setError(err.message || "Failed to delete image.");
+      } finally {
+        setDeletingId(null);
       }
-    } catch (err) {
-      setError(err.message || "Failed to delete image.");
     } finally {
-      setDeletingId(null);
+      deleteImageInFlight.current = false;
     }
   };
 
@@ -367,6 +388,8 @@ const GalleryTab = () => {
           onClose={() => setLightboxIndex(null)}
         />
       )}
+
+      {dialog}
     </>
   );
 };

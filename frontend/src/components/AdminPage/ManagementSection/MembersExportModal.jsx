@@ -45,6 +45,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
   const [popupBlocked, setPopupBlocked] = useState(false);
   const [error, setError] = useState(null);
   const previewRequestId = useRef(0);
+  const exportInFlight = useRef(false);
 
   const filters = useMemo(
     () => buildMembersFilters(selectedRoles, selectedCommittees, selectedClubs),
@@ -99,7 +100,8 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
   const canExport = selectedRoles.length > 0 && total > 0 && !previewLoading && !exporting;
 
   const handleExport = async () => {
-    if (!canExport) return;
+    if (!canExport || exportInFlight.current) return;
+    exportInFlight.current = true;
     setExporting(true);
     setError(null);
     setPopupBlocked(false);
@@ -119,6 +121,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
       console.error("Error exporting members sheet:", err);
       setError(err.message || err.error || "Failed to export members sheet.");
     } finally {
+      exportInFlight.current = false;
       setExporting(false);
     }
   };

@@ -44,6 +44,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.acm.acmwebsite.feature.exception.EmailsLockedException;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
+
 @ExtendWith(MockitoExtension.class)
 class AdminEmailServiceTest {
 
@@ -55,6 +58,9 @@ class AdminEmailServiceTest {
 
     @Mock
     private TemplateEngine templateEngine;
+
+    @Mock
+    private SystemSettingsService systemSettingsService;
 
     @InjectMocks
     private AdminEmailService adminEmailService;
@@ -180,6 +186,15 @@ class AdminEmailServiceTest {
         when(memberTargetingService.findRecipientEmails(any(), any(), any())).thenReturn(List.of());
 
         assertThrows(IllegalArgumentException.class, () -> adminEmailService.sendCustomEmail(request()));
+
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendCustomEmailThrowsWhenEmailsLocked() {
+        org.mockito.Mockito.doThrow(new EmailsLockedException()).when(systemSettingsService).assertEmailsEnabled();
+
+        assertThrows(EmailsLockedException.class, () -> adminEmailService.sendCustomEmail(request()));
 
         verify(mailSender, never()).send(any(MimeMessage.class));
     }

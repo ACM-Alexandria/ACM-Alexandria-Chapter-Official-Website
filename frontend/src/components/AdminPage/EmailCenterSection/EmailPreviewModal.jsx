@@ -1,11 +1,41 @@
-import React from "react";
+import React, { useRef } from "react";
 import { FiSend, FiX } from "react-icons/fi";
+import useThemedDialog from "../../../hooks/useThemedDialog";
+import { Highlight } from "../../ThemedDialog";
 
 const EmailPreviewModal = ({ composer }) => {
     const {
         modalError, closePreview, sending, membersLoading, total, roleCounts,
         selectedCommitteeNames, selectedClubNames, subject, emailHtml, canSend, handleSend,
     } = composer;
+
+    const { dialog, confirm } = useThemedDialog();
+    const sendInFlight = useRef(false);
+
+    const onConfirmSend = async () => {
+        if (sendInFlight.current || !canSend) return;
+        sendInFlight.current = true;
+
+        try {
+            const confirmed = await confirm({
+                tone: "danger",
+                title: "Send Bulk Email?",
+                description: (
+                    <>
+                        You are about to send this email to <Highlight>{total}</Highlight> recipient account(s). This action cannot be recalled once the messages are sent.
+                    </>
+                ),
+                confirmLabel: `Yes, Send to ${total}`,
+                cancelLabel: "Cancel",
+            });
+
+            if (!confirmed) return;
+
+            await handleSend();
+        } finally {
+            sendInFlight.current = false;
+        }
+    };
 
     return (
         <div
@@ -86,7 +116,7 @@ const EmailPreviewModal = ({ composer }) => {
                     </button>
                     <button
                         type="button"
-                        onClick={handleSend}
+                        onClick={onConfirmSend}
                         disabled={!canSend}
                         className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
                     >
@@ -95,6 +125,7 @@ const EmailPreviewModal = ({ composer }) => {
                     </button>
                 </div>
             </div>
+            {dialog}
         </div>
     );
 };

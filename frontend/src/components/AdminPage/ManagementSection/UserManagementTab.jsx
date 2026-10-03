@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser, FiFileText } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser, FiFileText, FiLoader } from "react-icons/fi";
 import { searchUsers, assignUser } from "../../../services/adminService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -44,6 +44,8 @@ const UserManagementTab = () => {
   const [committeeFilter, setCommitteeFilter] = useState("");
   const [clubFilter, setClubFilter] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const assignInFlight = useRef(false);
   
   // Modals
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -148,6 +150,9 @@ const UserManagementTab = () => {
   };
 
   const handleConfirmSave = async () => {
+    if (assignInFlight.current || saving) return;
+    assignInFlight.current = true;
+    setSaving(true);
     setModalError(null);
     try {
       const payload = { ...formData };
@@ -169,6 +174,9 @@ const UserManagementTab = () => {
       loadUsers();
     } catch (err) {
       setModalError("Failed to assign user: " + err.message);
+    } finally {
+      setSaving(false);
+      assignInFlight.current = false;
     }
   };
 
@@ -527,9 +535,18 @@ const UserManagementTab = () => {
                   </button>
                   <button
                     onClick={handleConfirmSave}
-                    className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                    disabled={saving}
+                    className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
-                    <FiCheck className="w-4 h-4" /> Confirm & Apply
+                    {saving ? (
+                      <>
+                        <FiLoader className="w-4 h-4 animate-spin" /> Saving…
+                      </>
+                    ) : (
+                      <>
+                        <FiCheck className="w-4 h-4" /> Confirm & Apply
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
