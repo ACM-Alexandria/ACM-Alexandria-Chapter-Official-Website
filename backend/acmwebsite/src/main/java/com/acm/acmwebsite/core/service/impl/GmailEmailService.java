@@ -12,7 +12,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import com.acm.acmwebsite.feature.entity.Event;
 
+import java.time.format.DateTimeFormatter;
+import org.springframework.core.io.ByteArrayResource;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -114,6 +118,51 @@ public class GmailEmailService implements EmailService {
 
             javaMailSender.send(message);
             log.info("Registration confirmation email sent successfully to {} for item {}", to, itemName);
+
+        } catch (Exception e) {
+            log.error("Failed to send registration confirmation email to {}", to, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendEventRegistrationConfirmationEmail(String to, Event event , String userName) {
+        if (emailsLocked(to)) return;
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject("ACM Website - Registration Confirmation: " + event.getName());
+
+            Context context = new Context();
+            context.setVariable("emailTitle", "Registration Confirmed — ACM Alexandria");
+            context.setVariable("preheaderText", "You have successfully registered  for " + event.getName());
+            context.setVariable("userName", userName);
+            context.setVariable("itemName", event.getName());
+
+            String htmlContent = templateEngine.process("mail/registration-confirmation", context);
+            helper.setText(htmlContent, true);
+            String icsContent = "BEGIN:VCALENDAR\r\n"
+                + "VERSION:2.0\r\n"
+                + "PRODID:-//ACM Alexandria//Event//EN\r\n"
+                + "BEGIN:VEVENT\r\n"
+                + "SUMMARY:" + event.getName() + "\r\n"
+                + "DESCRIPTION:" + event.getDescription() + "\r\n"
+                + "LOCATION:" + event.getLocation() + "\r\n"
+                + "DTSTART:" + event.getEventTime().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")) + "\r\n"
+                + "DTEND:" + event.getEventTime().plusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")) + "\r\n"
+                + "END:VEVENT\r\n"
+                + "END:VCALENDAR\r\n";
+
+            helper.addAttachment(
+                    "event.ics",
+                    new ByteArrayResource(icsContent.getBytes(StandardCharsets.UTF_8))
+            );
+
+            javaMailSender.send(message);
+            log.info("Registration confirmation email sent successfully to {} for item {}", to, event.getName());
 
         } catch (Exception e) {
             log.error("Failed to send registration confirmation email to {}", to, e);

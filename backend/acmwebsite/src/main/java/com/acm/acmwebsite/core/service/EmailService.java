@@ -2,11 +2,15 @@ package com.acm.acmwebsite.core.service;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import com.acm.acmwebsite.feature.entity.Event;
+
 
 public interface EmailService {
     void sendPasswordResetEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String email, String rawToken, String userName);
 
     void sendRegistrationConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String itemName, String userName);
+
+    void sendEventRegistrationConfirmationEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, Event event, String userName);
 
     void sendWelcomeEmail(@NotBlank(message = "Email is required") @Email(message = "Email should be valid") String to, String userName);
 
