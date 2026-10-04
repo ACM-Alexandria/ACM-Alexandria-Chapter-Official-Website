@@ -121,10 +121,6 @@ const UserGrowthChart = ({ data = [] }) => {
           <path d={areaPath} fill="url(#ugFill)" />
           <path d={linePath} fill="none" stroke="url(#ugLine)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-          {/* Dots */}
-          {pts.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r="3" fill="white" stroke={BRAND} strokeWidth="2" />
-          ))}
 
           {/* Crosshair + active dot */}
           {active && (
