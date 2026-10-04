@@ -90,8 +90,8 @@ public class JwtUtil {
         .getPayload();
 
     String purpose = claims.get("purpose", String.class);
-    if(!("email_confirmation").equals(purpose)) {
-        throw new RuntimeException("Invalid email confirmation token");
+    if (!("email_confirmation").equals(purpose)) {
+      throw new RuntimeException("Invalid email confirmation token");
     }
 
     return claims.getSubject();
@@ -101,35 +101,37 @@ public class JwtUtil {
   private String encodingSecret;
 
   public String encodeTokenForUrl(String jwt) {
-      if (encodingSecret == null) return jwt;
-      try {
-        SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        byte[] iv = new byte[12];
-        new SecureRandom().nextBytes(iv);
-        cipher.init(Cipher.ENCRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
-        byte[] encrypted = cipher.doFinal(jwt.getBytes(StandardCharsets.UTF_8));
-        byte[] result = new byte[iv.length + encrypted.length];
-        System.arraycopy(iv, 0, result, 0, iv.length);
-        System.arraycopy(encrypted, 0, result, iv.length, encrypted.length);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
-      } catch (Exception e) {
-          throw new RuntimeException("Failed to encode token", e);
-      }
+    if (encodingSecret == null)
+      return jwt;
+    try {
+      SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      byte[] iv = new byte[12];
+      new SecureRandom().nextBytes(iv);
+      cipher.init(Cipher.ENCRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
+      byte[] encrypted = cipher.doFinal(jwt.getBytes(StandardCharsets.UTF_8));
+      byte[] result = new byte[iv.length + encrypted.length];
+      System.arraycopy(iv, 0, result, 0, iv.length);
+      System.arraycopy(encrypted, 0, result, iv.length, encrypted.length);
+      return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to encode token", e);
+    }
   }
 
   public String decodeTokenFromUrl(String encoded) {
-      if (encodingSecret == null) return encoded;
-      try {
-          byte[] data = Base64.getUrlDecoder().decode(encoded);
-          byte[] iv = Arrays.copyOfRange(data, 0, 12);
-          byte[] ciphertext = Arrays.copyOfRange(data, 12, data.length);
-          SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
-          Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-          cipher.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
-          return new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
-      } catch (Exception e) {
-          throw new IllegalArgumentException("Invalid or tampered confirmation token");
-      }
+    if (encodingSecret == null)
+      return encoded;
+    try {
+      byte[] data = Base64.getUrlDecoder().decode(encoded);
+      byte[] iv = Arrays.copyOfRange(data, 0, 12);
+      byte[] ciphertext = Arrays.copyOfRange(data, 12, data.length);
+      SecretKey aesKey = new SecretKeySpec(encodingSecret.getBytes(StandardCharsets.UTF_8), 0, 32, "AES");
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
+      return new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Invalid or tampered confirmation token");
+    }
   }
 }

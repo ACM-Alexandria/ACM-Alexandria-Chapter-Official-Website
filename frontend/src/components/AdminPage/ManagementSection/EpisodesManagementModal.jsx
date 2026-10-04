@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiUploadCloud, FiLoader, FiExternalLink, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import adminService from "../../../services/adminService";
+import useThemedDialog from "../../../hooks/useThemedDialog";
+import { Highlight } from "../../ThemedDialog";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
 
 const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
+  const { dialog, confirm } = useThemedDialog();
+  const deleteEpisodeInFlight = useRef(false);
+
   const [episodesPage, setEpisodesPage] = useState({ content: [], number: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -142,23 +147,46 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
     }
   };
 
-  const handleDeleteClick = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this episode? This action is permanent.")) {
-      return;
-    }
-    setLoading(true);
-    setError(null);
+  const handleDeleteClick = async (ep) => {
+    if (deleteEpisodeInFlight.current) return;
+    deleteEpisodeInFlight.current = true;
+
     try {
-      await adminService.deleteEpisode(id);
-      // Reload current page, or previous if current became empty
-      const targetPage = episodesPage.content.length === 1 && episodesPage.number > 0 
-        ? episodesPage.number - 1 
-        : episodesPage.number;
-      loadEpisodes(targetPage);
-    } catch (err) {
-      console.error("Error deleting episode:", err);
-      setError(err.message || "Failed to delete episode.");
-      setLoading(false);
+      const episodeTitle = typeof ep === "object" ? ep.title : null;
+      const episodeId = typeof ep === "object" ? ep.id : ep;
+
+      const confirmed = await confirm({
+        tone: "danger",
+        title: "Delete Episode?",
+        description: episodeTitle ? (
+          <>
+            Are you sure you want to delete <Highlight>{episodeTitle}</Highlight>? This episode will be permanently deleted. This action cannot be undone.
+          </>
+        ) : (
+          "This episode will be permanently deleted. This action cannot be undone."
+        ),
+        confirmLabel: "Yes, Delete",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        await adminService.deleteEpisode(episodeId);
+        // Reload current page, or previous if current became empty
+        const targetPage = episodesPage.content.length === 1 && episodesPage.number > 0 
+          ? episodesPage.number - 1 
+          : episodesPage.number;
+        await loadEpisodes(targetPage);
+      } catch (err) {
+        console.error("Error deleting episode:", err);
+        setError(err.message || "Failed to delete episode.");
+        setLoading(false);
+      }
+    } finally {
+      deleteEpisodeInFlight.current = false;
     }
   };
 
@@ -266,8 +294,9 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                                 <FiEdit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
-                                onClick={() => handleDeleteClick(ep.id)}
-                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                                onClick={() => handleDeleteClick(ep)}
+                                disabled={loading}
+                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                               >
                                 <FiTrash2 className="w-3.5 h-3.5" />
                               </button>
@@ -453,6 +482,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
           )}
         </div>
       </div>
+      {dialog}
     </div>
   );
 };

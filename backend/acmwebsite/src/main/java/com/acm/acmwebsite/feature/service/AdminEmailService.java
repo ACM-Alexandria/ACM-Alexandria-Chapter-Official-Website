@@ -37,6 +37,7 @@ public class AdminEmailService {
     private final MemberTargetingService memberTargetingService;
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final SystemSettingsService systemSettingsService;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
@@ -76,6 +77,7 @@ public class AdminEmailService {
     }
 
     public CustomEmailResultDto sendCustomEmail(CustomEmailRequestDto request) {
+        systemSettingsService.assertEmailsEnabled();
         List<String> recipients = new ArrayList<>();
         if (!MemberTargetingService.toRoleSet(request.getRoles()).isEmpty()) {
             recipients.addAll(memberTargetingService.findRecipientEmails(

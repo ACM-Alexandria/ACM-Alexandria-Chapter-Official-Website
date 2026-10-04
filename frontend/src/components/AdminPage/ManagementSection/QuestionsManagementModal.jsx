@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiCheckSquare, FiList, FiType, FiImage } from "react-icons/fi";
 import adminService from "../../../services/adminService";
+import useThemedDialog from "../../../hooks/useThemedDialog";
+import { Highlight } from "../../ThemedDialog";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
 
 const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, resourceType }) => {
+  const { dialog, confirm } = useThemedDialog();
+  const deleteQuestionInFlight = useRef(false);
+
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -102,17 +107,42 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
     setMode("add");
   };
 
-  const handleDeleteClick = async (questionId) => {
-    if (!window.confirm("Are you sure you want to delete this question? This will also remove all submitted answers for it.")) return;
-    setLoading(true);
-    setError(null);
+  const handleDeleteClick = async (q) => {
+    if (deleteQuestionInFlight.current) return;
+    deleteQuestionInFlight.current = true;
+
     try {
-      await adminService.deleteQuestion(resourceType, resourceId, questionId);
-      loadQuestions();
-    } catch (err) {
-      console.error("Error deleting question:", err);
-      setError(err.message || "Failed to delete question.");
-      setLoading(false);
+      const questionId = typeof q === "object" ? q.id : q;
+      const questionName = typeof q === "object" ? q.questionText : null;
+
+      const confirmed = await confirm({
+        tone: "danger",
+        title: "Delete Form Question?",
+        description: questionName ? (
+          <>
+            Are you sure you want to delete <Highlight>{questionName}</Highlight>? This will permanently delete the question and all historical submitted answers for it.
+          </>
+        ) : (
+          "Are you sure you want to delete this question? This will permanently delete the question and all historical submitted answers for it."
+        ),
+        confirmLabel: "Yes, Delete",
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        await adminService.deleteQuestion(resourceType, resourceId, questionId);
+        await loadQuestions();
+      } catch (err) {
+        console.error("Error deleting question:", err);
+        setError(err.message || "Failed to delete question.");
+        setLoading(false);
+      }
+    } finally {
+      deleteQuestionInFlight.current = false;
     }
   };
 
@@ -308,8 +338,9 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteClick(q.id)}
-                          className="p-2 bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 dark:text-slate-300 hover:text-rose-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95"
+                          onClick={() => handleDeleteClick(q)}
+                          disabled={loading}
+                          className="p-2 bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 dark:text-slate-300 hover:text-rose-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                           title="Delete Question"
                         >
                           <FiTrash2 className="w-3.5 h-3.5" />
@@ -493,6 +524,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
           </div>
         )}
       </div>
+      {dialog}
     </div>
   );
 };
