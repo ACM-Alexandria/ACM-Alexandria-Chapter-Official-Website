@@ -53,6 +53,8 @@ const Footer = () => {
   const handleResourceClick = (item) => {
     if (item === "Join Community") {
       navigate("/register");
+    } else if (item === "Rules") {
+      navigate("/rules");
     } else if (item === "Contact") {
       scrollToSection("footer");
     } else if (item === "Help Us Grow") {

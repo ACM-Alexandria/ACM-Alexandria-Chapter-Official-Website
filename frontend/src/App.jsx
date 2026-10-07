@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AdminPage from "./pages/AdminPage";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import EmailConfirmationPage from "./pages/EmailConfirmationPage";
+import RulesPage from "./pages/RulesPage";
 
 /**
  * Main App component with routing configuration
@@ -29,22 +30,23 @@ function App() {
       <Route path="/programs" element={<ProgramsPage />} />
       <Route path="/radio" element={<RadioPage />} />
       <Route path="/radio/seasons/:id" element={<SeasonDetailPage />} />
+      <Route path="/rules" element={<RulesPage />} />
       <Route path="/email-confirmation/:token" element={<EmailConfirmationPage />} />
-      <Route 
-        path="/profile" 
+      <Route
+        path="/profile"
         element={
           <ProtectedRoute>
             <UserProfilePage />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/admin" 
+      <Route
+        path="/admin"
         element={
           <AdminProtectedRoute>
             <AdminPage />
           </AdminProtectedRoute>
-        } 
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
