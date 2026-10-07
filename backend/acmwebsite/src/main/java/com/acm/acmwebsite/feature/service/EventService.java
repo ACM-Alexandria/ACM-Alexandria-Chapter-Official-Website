@@ -189,6 +189,7 @@ public class EventService {
             }
             
             event.setEventTime(updatedEvent.getEventTime());
+            event.setEndTime(updatedEvent.getEndTime());
             event.setLocation(updatedEvent.getLocation());
             event.setRegistrationOpen(updatedEvent.getRegistrationOpen());
             return eventRepository.save(event);
