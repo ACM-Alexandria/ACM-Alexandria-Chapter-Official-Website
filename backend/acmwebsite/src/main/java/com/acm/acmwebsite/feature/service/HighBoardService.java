@@ -48,7 +48,16 @@ public class HighBoardService {
       if (updated.getRole() == null || updated.getRole().trim().isEmpty()) {
         throw new IllegalArgumentException("Role is required");
       }
-      member.setUser(updated.getUser());
+      if (updated.getUser() != null) {
+          com.acm.acmwebsite.User_Authentication.entity.User existingUser = member.getUser();
+          if (existingUser != null) {
+              if (updated.getUser().getName() != null) existingUser.setName(updated.getUser().getName());
+              if (updated.getUser().getProfileImageUrl() != null) existingUser.setProfileImageUrl(updated.getUser().getProfileImageUrl());
+              if (updated.getUser().getLinkedinUrl() != null) existingUser.setLinkedinUrl(updated.getUser().getLinkedinUrl());
+          } else {
+              member.setUser(updated.getUser());
+          }
+      }
       member.setRole(updated.getRole());
       member.setOrder(updated.getOrder());
       return highBoardRepository.save(member);

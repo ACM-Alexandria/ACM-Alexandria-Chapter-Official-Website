@@ -351,6 +351,13 @@ const AdminPage = () => {
       // Only send fields relevant to the committee itself — boardRoles are managed separately
       const { boardRoles: _boardRoles, callMessage: _callMessage, topicToken: _topicToken, open: _open, ...committeeFields } = item;
       setFormData(committeeFields);
+    } else if (mgmtTab === "highboard" || mgmtTab === "committeeBoard") {
+      setFormData({
+        ...item,
+        name: item.user?.name || "",
+        imageUrl: item.user?.profileImageUrl || "",
+        linkedinUrl: item.user?.linkedinUrl || ""
+      });
     } else {
       setFormData({ ...item });
     }
@@ -382,11 +389,25 @@ const AdminPage = () => {
     setModalError(null);
  
     try {
+      let payload = { ...formData };
+      if (mgmtTab === "highboard" && payload.user) {
+        payload.user = {
+          ...payload.user,
+          name: payload.name !== undefined ? payload.name : payload.user.name,
+          profileImageUrl: payload.imageUrl !== undefined ? payload.imageUrl : payload.user.profileImageUrl,
+          linkedinUrl: payload.linkedinUrl !== undefined ? payload.linkedinUrl : payload.user.linkedinUrl
+        };
+      } else if (mgmtTab === "committeeBoard") {
+        payload.userName = payload.name !== undefined ? payload.name : payload.userName;
+        payload.profileImageUrl = payload.imageUrl !== undefined ? payload.imageUrl : payload.profileImageUrl;
+        payload.linkedinUrl = payload.linkedinUrl !== undefined ? payload.linkedinUrl : payload.linkedinUrl;
+      }
+
       if (mgmtTab === "highboard") {
         if (formMode === "add") {
-          await adminService.addHighBoardMember(formData);
+          await adminService.addHighBoardMember(payload);
         } else {
-          await adminService.updateHighBoardMember(editingItem.id, formData);
+          await adminService.updateHighBoardMember(editingItem.id, payload);
         }
       } else if (mgmtTab === "committees") {
         if (formMode === "add") {
@@ -396,9 +417,9 @@ const AdminPage = () => {
         }
       } else if (mgmtTab === "committeeBoard") {
         if (formMode === "add") {
-          await adminService.addCommitteeBoardMember(parseInt(selectedCommitteeId), formData);
+          await adminService.addCommitteeBoardMember(parseInt(selectedCommitteeId), payload);
         } else {
-          await adminService.updateCommitteeBoardMember(editingItem.id, formData);
+          await adminService.updateCommitteeBoardMember(editingItem.id, payload);
         }
       } else if (mgmtTab === "events") {
         if (formMode === "add") {

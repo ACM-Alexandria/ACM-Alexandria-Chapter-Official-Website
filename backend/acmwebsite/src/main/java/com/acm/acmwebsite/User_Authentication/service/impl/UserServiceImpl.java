@@ -18,6 +18,9 @@ import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
 
 import com.acm.acmwebsite.User_Authentication.enums.Role;
+import com.acm.acmwebsite.core.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -275,6 +278,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true),
+      @CacheEvict(value = CacheNames.CLUBS, allEntries = true),
+      @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
+  })
   public UserProfileDto updateUserProfile(UUID id, UserProfileDto profileDto) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
@@ -303,6 +311,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @Caching(evict = {
+      @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true),
+      @CacheEvict(value = CacheNames.CLUBS, allEntries = true),
+      @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
+  })
   public String uploadProfileImage(UUID id, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));

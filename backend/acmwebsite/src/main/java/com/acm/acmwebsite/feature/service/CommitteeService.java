@@ -247,6 +247,13 @@ public class CommitteeService {
             boardEntity.setUser(user);
         }
 
+        User existingUser = boardEntity.getUser();
+        if (existingUser != null) {
+            if (dto.getUserName() != null) existingUser.setName(dto.getUserName());
+            if (dto.getProfileImageUrl() != null) existingUser.setProfileImageUrl(dto.getProfileImageUrl());
+            if (dto.getLinkedinUrl() != null) existingUser.setLinkedinUrl(dto.getLinkedinUrl());
+        }
+
         committeeMapper.updateBoardEntityFromDto(dto, boardEntity);
 
         CommitteeBoard saved = committeeBoardRepository.save(boardEntity);
