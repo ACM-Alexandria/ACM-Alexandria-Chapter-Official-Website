@@ -316,7 +316,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "committeeBoard") {
       setFormData({ name: "", role: "", imageUrl: "", order: null, linkedinUrl: "" });
     } else if (mgmtTab === "events") {
-      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", location: "", attachedImages: [], registrationOpen: false, sendAnnouncement: true });
+      setFormData({ name: "", description: "", imageUrl: "", eventTime: "", endTime: "", location: "", attachedImages: [], registrationOpen: false, sendAnnouncement: true });
     } else if (mgmtTab === "clubs") {
       setFormData({ name: "", description: "", imageUrl: "", isExternal: false, registrationOpen: false, sendAnnouncement: true });
     } else if (mgmtTab === "programs") {
@@ -342,7 +342,15 @@ const AdminPage = () => {
     if (mgmtTab === "events" && item.eventTime) {
       const date = new Date(item.eventTime);
       const formattedDate = date.toISOString().slice(0, 16);
-      setFormData({ ...item, eventTime: formattedDate });
+      const formattedEndDate = item.endTime
+        ? new Date(item.endTime).toISOString().slice(0, 16)
+        : "";
+
+      setFormData({
+        ...item,
+        eventTime: formattedDate,
+        endTime: formattedEndDate
+      });
     } else if (mgmtTab === "programs") {
       const formattedStartDate = item.startDate ? new Date(item.startDate).toISOString().slice(0, 16) : "";
       const formattedEndDate = item.endDate ? new Date(item.endDate).toISOString().slice(0, 16) : "";

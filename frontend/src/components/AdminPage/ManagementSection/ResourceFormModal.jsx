@@ -334,6 +334,7 @@ const ResourceFormModal = ({
             </>
           )}
 
+
           {/* Event specific fields */}
           {activeTab === "events" && (
             <div className="space-y-4">
@@ -349,22 +350,36 @@ const ResourceFormModal = ({
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
+
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Location
+                    Event End Date & Time
                   </label>
                   <input
-                    type="text"
-                    value={formData.location || ""}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
-                    placeholder="e.g. Hall A / Zoom (Optional)"
+                    type="datetime-local"
+                    value={formData.endTime || ""}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value || null })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
               </div>
-              
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={formData.location || ""}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
+                  placeholder="e.g. Hall A / Zoom (Optional)"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                />
+              </div>
             </div>
           )}
+
+
 
           {/* Program specific fields */}
           {activeTab === "programs" && (

@@ -8,6 +8,7 @@ public class EventCardDto {
   private String imageUrl;
   private String description;
   private LocalDateTime eventTime;
+  private LocalDateTime endTime;
   private String location;
   private boolean registrationOpen;
 
@@ -65,6 +66,14 @@ public class EventCardDto {
 
   public void setEventTime(LocalDateTime eventTime) {
     this.eventTime = eventTime;
+  }
+
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
   }
 
   public String getLocation() {

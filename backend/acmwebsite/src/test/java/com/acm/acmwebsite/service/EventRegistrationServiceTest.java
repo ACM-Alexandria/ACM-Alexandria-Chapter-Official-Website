@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import com.acm.acmwebsite.feature.entity.Event;
 
 import java.util.HashMap;
 import java.util.List;
@@ -111,7 +112,7 @@ public class EventRegistrationServiceTest {
         registrationService.registerUser(userId, 1L, request);
 
         verify(eventRegistrationRepository).save(any(EventRegistration.class));
-        verify(coreEmailService).sendRegistrationConfirmationEmail(eq("test@acm.org"), eq("ACM Hackathon"), eq("ACM Member"));
+        verify(coreEmailService).sendEventRegistrationConfirmationEmail(eq("test@acm.org"), eq(event), eq("ACM Member"));
         verify(eventPublisher).publishEvent(any());
     }
 
