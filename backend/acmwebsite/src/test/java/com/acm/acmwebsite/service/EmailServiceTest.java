@@ -14,6 +14,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import com.acm.acmwebsite.feature.entity.Event;
+import java.time.LocalDateTime;
+
 
 import static org.mockito.Mockito.*;
 
@@ -165,6 +168,28 @@ class EmailServiceTest {
                 .thenReturn("<html>reset</html>");
 
         emailService.sendPasswordResetEmail("user@example.com", "dummy-token", "John Doe");
+
+        verify(mailSender, times(1)).send(mockMimeMessage);
+    }
+    @Test
+   @DisplayName("Should send event registration confirmation email successfully")
+    void shouldSendEventRegistrationConfirmationEmail(){
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMimeMessage);
+        when(templateEngine.process(eq("mail/registration-confirmation"), any(Context.class)))
+                .thenReturn("<html>registered</html>");
+
+        Event event = new Event();
+        event.setName("ACM Hackathon");
+        event.setDescription("A coding event");
+        event.setLocation("Alexandria University");
+        event.setEventTime(LocalDateTime.of(2026, 10, 10, 18, 0));
+
+        emailService.sendEventRegistrationConfirmationEmail(
+                "user@example.com",
+                event,
+                "John Doe"
+        );
 
         verify(mailSender, times(1)).send(mockMimeMessage);
     }

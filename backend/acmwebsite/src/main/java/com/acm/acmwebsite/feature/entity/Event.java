@@ -17,6 +17,7 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
     private LocalDateTime eventTime;
+    private LocalDateTime endTime;
     private String Location;
     private String imageUrl;
     @Column(name = "google_sheet_url")
@@ -83,7 +84,15 @@ public class Event {
     }
 
     public void setEventTime(LocalDateTime eventTime) {
-        this.eventTime = eventTime;
+    this.eventTime = eventTime;
+    }
+
+    public LocalDateTime getEndTime() {
+    return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public String getLocation() {

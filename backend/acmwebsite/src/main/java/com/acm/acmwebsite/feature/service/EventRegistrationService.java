@@ -94,7 +94,7 @@ public class EventRegistrationService implements RegistrationService {
 
         // 7. Trigger Confirmation Email
         try {
-            coreEmailService.sendRegistrationConfirmationEmail(user.getEmail(), event.getName(), user.getName());
+           coreEmailService.sendEventRegistrationConfirmationEmail(user.getEmail(), event, user.getName());
         } catch (Exception e) {
             // Non-blocking
         }
