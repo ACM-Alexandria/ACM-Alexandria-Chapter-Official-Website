@@ -16,6 +16,8 @@ public interface ProgramRegistrationRepository extends JpaRepository<ProgramRegi
 
     void deleteByProgramId(Long programId);
 
+    long deleteByUserIdAndProgramId(UUID userId, Long programId);
+
     @Query("SELECT r.program.id, r.program.name, COUNT(r) FROM ProgramRegistration r GROUP BY r.program.id, r.program.name")
     List<Object[]> countRegistrationsByProgram();
 }
