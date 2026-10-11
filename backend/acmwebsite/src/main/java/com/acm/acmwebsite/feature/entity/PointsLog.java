@@ -4,12 +4,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 
-import io.micrometer.core.annotation.Counted;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,8 +37,8 @@ public class PointsLog {
     private User member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assinged_by_id", nullable = false)
-    private User assingedBy;
+    @JoinColumn(name = "assigner_id", nullable = false)
+    private User assigner;
 
     @Column(name = "points", nullable = false)
     private int points;
