@@ -7,6 +7,7 @@ import {
   HiOutlineLibrary,
   HiOutlineLink
 } from "react-icons/hi";
+import {FiLayers} from "react-icons/fi";
 
 const getRoleDisplay = (role) => {
   switch (role) {
@@ -45,7 +46,7 @@ const ProfileViewCard = ({ user, profile }) => {
           
           <div className="flex flex-col gap-1 w-full sm:w-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words">
-              {profile.name || "ACM Member"}
+              {profile.name || "User"}
             </h2>
             <span className="text-sm text-slate-500 dark:text-slate-400 break-all">{user?.email}</span>
           </div>
@@ -93,6 +94,20 @@ const ProfileViewCard = ({ user, profile }) => {
             )}
           </div>
         </div>
+
+        {profile.committeeName && (
+          <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4 col-span-1 md:col-span-2">
+            <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
+              <FiLayers className="w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <div className="overflow-hidden w-full">
+              <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Committee</span>
+              <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block break-words">
+                {profile.committeeName}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Alexandria University Status */}
         {profile.isAlexEngStudent !== null && (

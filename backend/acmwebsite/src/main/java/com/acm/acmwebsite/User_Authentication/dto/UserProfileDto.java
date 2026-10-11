@@ -44,5 +44,7 @@ public class UserProfileDto {
     @JsonProperty("committee_id")
     private Long committeeId;
 
+    @JsonProperty("committee_name")
+    private String committeeName;
 
 }
