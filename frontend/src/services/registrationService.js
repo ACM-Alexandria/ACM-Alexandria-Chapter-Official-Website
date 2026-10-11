@@ -195,6 +195,15 @@ export const registerForExclusiveForm = async (formId, userId, answers = {}) => 
   }
 };
 
+// Removing the submission also removes its saved answers, so a later submission starts fresh.
+export const cancelExclusiveFormRegistration = async (formId, userId) => {
+  try {
+    await api.delete(`/api/exclusive-forms/${formId}/register/${userId}`);
+  } catch (error) {
+    throw error.response?.data || new Error("Unable to cancel form submission.");
+  }
+};
+
 // Checks if user is registered for an exclusive form.
 export const checkExclusiveFormRegistrationStatus = async (formId, userId) => {
   try {
@@ -221,6 +230,7 @@ export default {
   registerForProgram,
   cancelProgramRegistration,
   registerForExclusiveForm,
+  cancelExclusiveFormRegistration,
   checkEventRegistrationStatus,
   checkClubRegistrationStatus,
   checkCommitteeRegistrationStatus,
