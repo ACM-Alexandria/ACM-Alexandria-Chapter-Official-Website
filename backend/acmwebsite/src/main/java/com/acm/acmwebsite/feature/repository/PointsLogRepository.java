@@ -12,5 +12,5 @@ public interface PointsLogRepository extends JpaRepository<PointsLog, UUID> {
 
     Page<PointsLog> findByMember_Id(UUID id, Pageable pageable);
 
-    Page<PointsLog> findByAssinged_Id(UUID id, Pageable pageable);
+    Page<PointsLog> findByAssigner_Id(UUID id, Pageable pageable);
 }

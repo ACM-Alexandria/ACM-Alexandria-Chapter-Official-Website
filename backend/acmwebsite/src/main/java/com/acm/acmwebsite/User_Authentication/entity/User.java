@@ -98,11 +98,14 @@ public class User {
   @Column(name = "linkedin_url")
   private String linkedinUrl;
 
-  @Column(name = "season_points")
+  @Column(name = "season_points", nullable = false)
   @Builder.Default
-  private int seasonPoints = 0;
+  private Integer seasonPoints = 0;
 
   public void addPoints(int p) {
+    if (this.seasonPoints == null) {
+      this.seasonPoints = 0;
+    }
     this.seasonPoints += p;
   }
 }
