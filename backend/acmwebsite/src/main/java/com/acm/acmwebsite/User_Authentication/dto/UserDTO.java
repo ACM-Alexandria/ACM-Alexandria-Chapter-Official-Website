@@ -45,5 +45,8 @@ public class UserDTO {
 
   @JsonProperty("club_id")
   private Long clubId;
+
+  @JsonProperty("season_points")
+  private Integer seasonPoints;
   // no reset password fields here for security reasons
 }

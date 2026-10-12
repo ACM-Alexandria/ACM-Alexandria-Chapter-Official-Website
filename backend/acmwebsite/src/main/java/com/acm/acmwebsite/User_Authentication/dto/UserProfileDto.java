@@ -46,5 +46,8 @@ public class UserProfileDto {
 
     @JsonProperty("committee_name")
     private String committeeName;
+    
+    @JsonProperty("season_points")
+    private Integer seasonPoints;
 
 }
