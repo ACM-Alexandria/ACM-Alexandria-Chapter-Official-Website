@@ -14,6 +14,7 @@ import AdminPage from "./pages/AdminPage";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import EmailConfirmationPage from "./pages/EmailConfirmationPage";
 import RulesPage from "./pages/RulesPage";
+import AdminUserProfileView from "./pages/AdminUserProfileView";
 
 /**
  * Main App component with routing configuration
@@ -45,6 +46,14 @@ function App() {
         element={
           <AdminProtectedRoute>
             <AdminPage />
+          </AdminProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/user-profile"
+        element={
+          <AdminProtectedRoute>
+            <AdminUserProfileView />
           </AdminProtectedRoute>
         }
       />
