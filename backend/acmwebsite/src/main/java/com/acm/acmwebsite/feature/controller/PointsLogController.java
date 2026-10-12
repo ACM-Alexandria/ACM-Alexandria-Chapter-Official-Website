@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class PointsLogController {
     }
 
     @GetMapping("/{id}/logs")
-    public ResponseEntity<Page<PointsLogDto>> getMemberLogs(@PathVariable UUID memberId,
+    public ResponseEntity<Page<PointsLogDto>> getMemberLogs(@PathVariable("id") UUID memberId,
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<PointsLog> logs = pointsLogService.getMemberPointsLog(memberId, pageable);
@@ -52,14 +53,21 @@ public class PointsLogController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<PointsLogDto> updatePointsLog(
-            @PathVariable UUID id,
+            @PathVariable("id") UUID logId,
             @RequestBody PointsLogDto logDto) {
 
         PointsLog updatedLog = pointsLogService.updatePointsLog(
-                id,
+                logId,
                 logDto.getPoints(),
                 logDto.getReason());
 
         return ResponseEntity.ok(PointsLogDto.convertToDto(updatedLog));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deletePointsLog(@PathVariable("id") UUID logId) {
+
+        pointsLogService.deletePointsLog(logId);
+        return ResponseEntity.noContent().build();
     }
 }

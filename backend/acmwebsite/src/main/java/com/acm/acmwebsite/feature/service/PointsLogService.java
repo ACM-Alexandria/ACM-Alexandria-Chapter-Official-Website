@@ -4,7 +4,9 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
@@ -31,10 +33,21 @@ public class PointsLogService {
     }
 
     @Transactional
-    public PointsLog updatePointsLog(UUID id, int newPoints, String newReason) {
+    public PointsLog addPointsLog(UUID member_Id, UUID assigner_Id, int amount, String reason) {
 
-        PointsLog log = pointsLogRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("PointsLog not found with ID: " + id));
+        User member = userRepository.getReferenceById(member_Id);
+        User assigner = userRepository.getReferenceById(assigner_Id);
+        member.addPoints(amount);
+        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null);
+
+        return pointsLogRepository.save(log);
+    }
+
+    @Transactional
+    public PointsLog updatePointsLog(UUID logId, int newPoints, String newReason) {
+
+        PointsLog log = pointsLogRepository.findById(logId)
+                .orElseThrow(() -> new EntityNotFoundException("PointsLog not found with ID: " + logId));
 
         User member = log.getMember();
         member.addPoints(newPoints - log.getPoints());
@@ -44,12 +57,12 @@ public class PointsLogService {
     }
 
     @Transactional
-    public PointsLog addPointsLog(UUID memberId, UUID assignerId, int amount, String reason) {
+    public void deletePointsLog(UUID logId) {
 
-        User member = userRepository.getReferenceById(memberId);
-        User assigner = userRepository.getReferenceById(assignerId);
-        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null);
-
-        return pointsLogRepository.save(log);
+        PointsLog log = pointsLogRepository.findById(logId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Points log not found"));
+        User member = log.getMember();
+        member.addPoints(-log.getPoints());
+        pointsLogRepository.deleteById(logId);
     }
 }

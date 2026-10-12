@@ -5,8 +5,11 @@ import { fetchUserProfile, updateUserProfile } from "../services/userService";
 import Navbar from "../components/HomePage/Navbar";
 import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
+import PointsLogSection from "../components/UserProfile/PointsLogSection";
+import PointsLogModal from "../components/UserProfile/PointsLogModal";
 import { uploadProfileImage } from "../services/userService";
-import { 
+import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserPointsLog } from "../services/pointsLogService";
+import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
   HiOutlinePencilAlt
@@ -35,6 +38,92 @@ const UserProfilePage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  // --- POINTS LOG STATE ---
+  const [pointsLogs, setPointsLogs] = useState([]);
+  const [pointsPage, setPointsPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLog, setEditingLog] = useState(null);
+
+  // Check if the currently logged-in user is an admin
+  // (Adjust these role strings if your backend uses different ones)
+  const isAdmin = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD"].includes(user?.role);
+
+  // Placeholder functions for our buttons (we will build these next)
+  const handleAddPointsClick = () => {
+    setEditingLog(null); // Clear any old data
+    setIsModalOpen(true); // Open the popup
+  };
+
+  const handleEditPointsClick = (log) => {
+    setEditingLog(log); // Pass the specific log data into the popup
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingLog(null);
+  };
+
+  const handleModalSubmit = async (formData) => {
+    try {
+      if (editingLog) {
+        await updateUserPointsLog(editingLog.id, {
+          reason: formData.reason,
+          points: formData.points
+        });
+      } else {
+        await addUserPointsLog({
+          member: user.id,
+          assigner: user.id,
+          reason: formData.reason,
+          points: formData.points
+        });
+      }
+
+      handleModalClose();
+
+      const data = await fetchUserPointsLogs(user.id, pointsPage);
+      setPointsLogs(data.content || []);
+      setTotalPages(data.totalPages || 0);
+
+      setSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      console.error("Failed to save points:", err);
+      setError("Failed to save points log. Please try again.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleDeletePointsClick = async (log) => {
+    // Show a confirmation popup
+    const isConfirmed = window.confirm(`Are you sure you want to delete this log? ("${log.reason}")`);
+    
+    if (isConfirmed) {
+      try {
+        await deleteUserPointsLog(log.id); // Call the backend
+        
+        // Refresh the list
+        const data = await fetchUserPointsLogs(user.id, pointsPage);
+        setPointsLogs(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        
+        setSuccess(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        console.error("Failed to delete points log:", err);
+        setError("Failed to delete points log. Please try again.");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Fetch profile data from backend
   useEffect(() => {
@@ -77,6 +166,29 @@ const UserProfilePage = () => {
       return () => clearTimeout(timer);
     }
   }, [success]);
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // --- FETCH POINTS LOGS ---
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadPointsLogs = async () => {
+      try {
+        // Calls the service we made earlier, passing the user ID and the current page
+        const data = await fetchUserPointsLogs(user.id, pointsPage);
+
+        // Spring Boot Page objects store the array in 'content' and total pages in 'totalPages'
+        setPointsLogs(data.content || []);
+        setTotalPages(data.totalPages || 0);
+      } catch (err) {
+        console.error("Failed to load points logs:", err);
+      }
+    };
+
+    loadPointsLogs();
+  }, [user?.id, pointsPage]);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -175,7 +287,7 @@ const UserProfilePage = () => {
       <Navbar />
 
       <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
-        
+
         {/* Page Header Section */}
         <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -219,7 +331,7 @@ const UserProfilePage = () => {
         )}
 
         {/* Master Profile Display Card */}
-        <div 
+        <div
           className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500"
           style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
         >
@@ -239,13 +351,13 @@ const UserProfilePage = () => {
           ) : !isEditing ? (
             <ProfileViewCard user={user} profile={profile} />
           ) : (
-            <ProfileEditForm 
-              user={user} 
-              profile={profile} 
-              handleInputChange={handleInputChange} 
-              handleToggleAlexEng={handleToggleAlexEng} 
-              handleCancelEdit={handleCancelEdit} 
-              handleSubmit={handleSubmit} 
+            <ProfileEditForm
+              user={user}
+              profile={profile}
+              handleInputChange={handleInputChange}
+              handleToggleAlexEng={handleToggleAlexEng}
+              handleCancelEdit={handleCancelEdit}
+              handleSubmit={handleSubmit}
               submitting={submitting}
               onImageUpload={async (file) => {
                 const res = await uploadProfileImage(user.id, file);
@@ -257,6 +369,32 @@ const UserProfilePage = () => {
             />
           )}
         </div>
+
+        {/* //////////////////////////////////////////////////////////////////// */}
+        {/* --- POINTS LOG SECTION STARTS HERE --- */}
+        {!isEditing && !loading && (
+          <PointsLogSection
+            logs={pointsLogs}
+            isAdmin={isAdmin}
+            page={pointsPage}
+            totalPages={totalPages}
+            onPageChange={(newPage) => setPointsPage(newPage)}
+            onAddClick={handleAddPointsClick}
+            onEditClick={handleEditPointsClick}
+            onDeleteClick={handleDeletePointsClick}
+          />
+        )}
+        {/* --- POINTS LOG SECTION ENDS HERE --- */}
+
+        {/* 👇 ADD THE MODAL RIGHT HERE 👇 */}
+        <PointsLogModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleModalSubmit}
+          editingLog={editingLog}
+        />
+        {/* //////////////////////////////////////////////////////////////////// */}
+
       </main>
     </div>
   );

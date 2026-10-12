@@ -48,10 +48,10 @@ public class PointsLog {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAT;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime updatedAT;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
 }
