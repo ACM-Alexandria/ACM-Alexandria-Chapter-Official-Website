@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { getEnv } from "../utils/env";
+import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/HomePage/Navbar";
 import GreetingSection from "../components/HomePage/sections/GreetingSection";
 import AboutSection from "../components/HomePage/sections/AboutSection";
@@ -25,6 +26,7 @@ import { fetchHomePageData, fetchActiveExclusiveForms, fetchPartners } from "../
 import { FiClock } from "react-icons/fi";
 
 const HomePage = () => {
+  const { isAuthenticated, user } = useAuth();
   const [clubs, setClubs] = useState([]);
   const [committee, setCommittee] = useState([]);
   const [highBoard, setHighBoard] = useState([]);
@@ -234,6 +236,10 @@ const HomePage = () => {
   }, []);
 
   const isEnabled = (envVal) => envVal !== "false";
+  const myCommitteeId =
+    isAuthenticated && ["ACM_MEMBER", "ACM_COMMITTEE_BOARD"].includes(user?.role)
+      ? user?.committeeId
+      : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
@@ -253,6 +259,7 @@ const HomePage = () => {
           <CommitteesSection 
             loading={loading}
             committees={committee}
+            myCommitteeId={myCommitteeId}
             onApplyClick={handleApplyClick}
             isRegistrationModalOpen={isCommitteeRegOpen}
           />

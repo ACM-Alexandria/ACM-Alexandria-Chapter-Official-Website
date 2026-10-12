@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,14 +70,22 @@ public class UserServiceImpl implements UserService {
   private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   @Override
+  @Transactional(readOnly = true)
   public Map<String, Object> getUserAuthDetails(String email) {
     User user = userRepository.findByEmail(email.trim().toLowerCase())
         .orElseThrow(() -> new UserNotFoundException("User session invalid"));
-    return Map.of(
-        "id", user.getId(),
-        "email", user.getEmail(),
-        "role", user.getRole().name()
-    );
+    UserDTO userDetails = userMapper.toDTO(user);
+    Map<String, Object> authDetails = new HashMap<>();
+    authDetails.put("id", user.getId());
+    authDetails.put("email", user.getEmail());
+    authDetails.put("role", user.getRole().name());
+    authDetails.put("committee_id", isCommitteeMember(user) ? userDetails.getCommitteeId() : null);
+    authDetails.put("committee_name", isCommitteeMember(user) ? userDetails.getAssociationName() : null);
+    return authDetails;
+  }
+
+  private boolean isCommitteeMember(User user) {
+    return user.getRole() == Role.ACM_MEMBER || user.getRole() == Role.ACM_COMMITTEE_BOARD;
   }
 
   @Override
@@ -234,10 +243,13 @@ public class UserServiceImpl implements UserService {
     }
     String refreshToken = tokenService.createRefreshToken(user);
     String accessToken = tokenService.createAccessToken(user);
+    UserDTO userDetails = userMapper.toDTO(user);
     return LoginResponse.builder()
             .email(user.getEmail())
             .id(user.getId())
             .role(user.getRole().name())
+            .committeeId(isCommitteeMember(user) ? userDetails.getCommitteeId() : null)
+            .committeeName(isCommitteeMember(user) ? userDetails.getAssociationName() : null)
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
@@ -365,11 +377,14 @@ public class UserServiceImpl implements UserService {
 
     String refreshToken = tokenService.createRefreshToken(user);
     String accessToken = tokenService.createAccessToken(user);
+    UserDTO userDetails = userMapper.toDTO(user);
 
     return LoginResponse.builder()
             .email(user.getEmail())
             .id(user.getId())
             .role(user.getRole().name())
+            .committeeId(isCommitteeMember(user) ? userDetails.getCommitteeId() : null)
+            .committeeName(isCommitteeMember(user) ? userDetails.getAssociationName() : null)
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();

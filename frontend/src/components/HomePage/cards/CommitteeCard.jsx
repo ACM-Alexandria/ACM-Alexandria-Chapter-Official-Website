@@ -12,7 +12,7 @@ import {
 import { checkCommitteeRegistrationStatus } from "../../../services/registrationService";
 import CommitteeMemberCard from "./CommitteeMemberCard";
 
-const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => {
+const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegistrationModalOpen }) => {
   const [imageError, setImageError] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -99,9 +99,11 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
   const rootLabel = (
     <div
       className={`relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border transition-all duration-300 ${
-        isOpen
-          ? "border-blue-100 dark:border-blue-800 shadow-2xl shadow-blue-100/40 dark:shadow-blue-950/30 hover:border-blue-300/85 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-[#4B98C8]/10"
-          : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
+        isMyCommittee
+          ? "border-[#4B98C8] dark:border-sky-500 ring-2 ring-[#4B98C8]/20 dark:ring-sky-400/20 shadow-2xl shadow-blue-100/60 dark:shadow-blue-950/40"
+          : isOpen
+            ? "border-blue-100 dark:border-blue-800 shadow-2xl shadow-blue-100/40 dark:shadow-blue-950/30 hover:border-blue-300/85 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-[#4B98C8]/10"
+            : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
       }`}
     >
       <button
@@ -149,12 +151,17 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
       </div>
 
       <div className="p-4.5 min-[375px]:p-5 min-[425px]:p-6 sm:p-8 md:p-9 lg:p-10">
-        <div className="flex items-center justify-between mb-2 min-[375px]:mb-3 sm:mb-4">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg min-[375px]:text-xl sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight group-hover:text-[#4B98C8] transition-colors leading-tight">
-              {committee.name}
-            </h3>
-          </div>
+        <div className="mb-2 min-[375px]:mb-3 sm:mb-4">
+          {isMyCommittee && (
+            <span className="mb-2 inline-flex max-w-full items-center rounded-full border border-[#4B98C8]/30 dark:border-sky-400/30 bg-sky-50 dark:bg-sky-950/60 px-2 py-1 text-[15px] font-extrabold leading-tight text-[#205E85] dark:text-sky-200">
+              My committee
+            </span>
+          )}
+          <h3 className={`break-words text-lg min-[375px]:text-xl sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight group-hover:text-[#4B98C8] transition-colors leading-tight ${
+            isMyCommittee ? "text-[#205E85] dark:text-sky-300" : "text-slate-900 dark:text-slate-100"
+          }`}>
+            {committee.name}
+          </h3>
         </div>
         <p className="text-slate-500 dark:text-slate-300 text-xs min-[375px]:text-sm sm:text-sm md:text-base leading-relaxed mb-4 min-[375px]:mb-5 sm:mb-6 line-clamp-3 font-medium">
           {committee.description || "Advancing computing through collaborative efforts and specialized initiatives."}
