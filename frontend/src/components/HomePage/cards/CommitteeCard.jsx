@@ -99,9 +99,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
   const rootLabel = (
     <div
       className={`relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border transition-all duration-300 ${
-        isMyCommittee
-          ? "border-[#4B98C8] dark:border-sky-500 ring-2 ring-[#4B98C8]/20 dark:ring-sky-400/20 shadow-2xl shadow-blue-100/60 dark:shadow-blue-950/40"
-          : isOpen
+          isOpen
             ? "border-blue-100 dark:border-blue-800 shadow-2xl shadow-blue-100/40 dark:shadow-blue-950/30 hover:border-blue-300/85 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-[#4B98C8]/10"
             : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
       }`}
