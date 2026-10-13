@@ -29,6 +29,7 @@ import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackT
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
+import { useNavigate } from "react-router-dom";
 import {
   FiCalendar,
   FiAward,
@@ -53,6 +54,7 @@ import {
   FiMail,
   FiLock,
 } from "react-icons/fi";
+import { HiOutlineArrowLeft } from "react-icons/hi";
 
 /* ─── Brand ─── */
 const B = "#4B98C8";
@@ -66,6 +68,7 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("insights");
+  const navigate = useNavigate();
 
   // ── Resource Management States ──
   const [mgmtTab, setMgmtTab] = useState("users");
@@ -395,7 +398,7 @@ const AdminPage = () => {
     setMgmtLoading(true);
     setMgmtError(null);
     setModalError(null);
- 
+
     try {
       let payload = { ...formData };
       if (mgmtTab === "highboard" && payload.user) {
@@ -435,7 +438,7 @@ const AdminPage = () => {
           try {
             const { questions: _questions, ...eventPayload } = formData;
             newEvent = await adminService.createEvent(eventPayload);
-            
+
             if (newEvent?.id && formData.questions && formData.questions.length > 0) {
               for (const q of formData.questions) {
                 const payload = {
@@ -503,7 +506,7 @@ const AdminPage = () => {
           await adminService.updatePartner(editingItem.id, formData);
         }
       }
- 
+
       setFormOpen(false);
       loadMgmtTabData(mgmtTab);
     } catch (err) {
@@ -514,7 +517,7 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
- 
+
   const handleMgmtDeleteClick = async (item) => {
     if (deleteInFlight.current) return;
     deleteInFlight.current = true;
@@ -629,7 +632,7 @@ const AdminPage = () => {
     setSelectedSeasonForEpisodes(season);
     setEpisodesModalOpen(true);
   };
- 
+
   const toggleInFlight = useRef(false);
   const syncSheetInFlight = useRef(false);
   const deleteInFlight = useRef(false);
@@ -640,119 +643,118 @@ const AdminPage = () => {
 
     try {
       const isCurrentlyOpen =
-      mgmtTab === "programs"
-        ? Boolean(item.registrationOpen)
-        : mgmtTab === "exclusiveForms"
-        ? Boolean(item.isActive)
-        : Boolean(item.registrationOpen || item.open || item.isOpen);
-
-    const resourceName = item.name || item.title || "this resource";
-
-    // If opening a committee call, preserve OpenCallConfirmModal to configure emailing subscribers
-    if (mgmtTab === "committees" && !isCurrentlyOpen) {
-      setOpenCallCommittee(item);
-      return;
-    }
-
-    // Determine confirmation tone, title, and description based on resource type and action direction
-    const isClosing = isCurrentlyOpen;
-    let title = "";
-    let description = "";
-    let tone = isClosing ? "warning" : "brand";
-    let confirmLabel = isClosing ? "Close" : "Open";
-
-    if (mgmtTab === "committees") {
-      title = "Close Committee Call?";
-      description = (
-        <>
-          Closing this call for <Highlight>{resourceName}</Highlight> will immediately stop accepting new committee applications. Existing applications will remain safely stored, but new applicants will no longer be able to submit until the call is reopened.
-        </>
-      );
-      confirmLabel = "Close Call";
-    } else if (mgmtTab === "exclusiveForms") {
-      title = isClosing ? "Deactivate Form?" : "Activate Form?";
-      description = isClosing ? (
-        <>
-          Deactivating <Highlight>{resourceName}</Highlight> will immediately prevent new submissions. Existing submissions will remain saved.
-        </>
-      ) : (
-        <>
-          Activating <Highlight>{resourceName}</Highlight> will make the form publicly available and allow new applicants to submit entries.
-        </>
-      );
-      confirmLabel = isClosing ? "Deactivate" : "Activate";
-    } else {
-      title = isClosing ? "Close Registration?" : "Open Registration?";
-      description = isClosing ? (
-        <>
-          Closing registration for <Highlight>{resourceName}</Highlight> will immediately stop accepting new registrations. Existing registrations will remain preserved.
-        </>
-      ) : (
-        <>
-          Opening registration for <Highlight>{resourceName}</Highlight> will make the registration form publicly available and allow new applicants to register.
-        </>
-      );
-      confirmLabel = isClosing ? "Close Registration" : "Open Registration";
-    }
-
-    const confirmed = await confirm({
-      tone,
-      title,
-      description,
-      confirmLabel,
-      cancelLabel: "Cancel",
-    });
-
-    if (!confirmed) return;
-
-    setMgmtLoading(true);
-    setMgmtError(null);
-    try {
-      if (mgmtTab === "programs") {
-        await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
-      } else if (mgmtTab === "clubs") {
-        if (isCurrentlyOpen) {
-          await adminService.closeClubCall(item.id);
-        } else {
-          await adminService.openClubCall(item.id);
-        }
-      } else if (mgmtTab === "events") {
-        if (isCurrentlyOpen) {
-          await adminService.closeEventCall(item.id);
-        } else {
-          await adminService.openEventCall(item.id);
-        }
-      } else if (mgmtTab === "exclusiveForms") {
-        await adminService.updateExclusiveForm(item.id, {
-          ...item,
-          isActive: !isCurrentlyOpen,
-        });
-      } else {
-        await adminService.closeCommitteeCall(item.id);
-      }
-      await loadMgmtTabData(mgmtTab);
-    } catch (err) {
-      console.error(err);
-      let errMsg = `Failed to update ${
         mgmtTab === "programs"
+          ? Boolean(item.registrationOpen)
+          : mgmtTab === "exclusiveForms"
+            ? Boolean(item.isActive)
+            : Boolean(item.registrationOpen || item.open || item.isOpen);
+
+      const resourceName = item.name || item.title || "this resource";
+
+      // If opening a committee call, preserve OpenCallConfirmModal to configure emailing subscribers
+      if (mgmtTab === "committees" && !isCurrentlyOpen) {
+        setOpenCallCommittee(item);
+        return;
+      }
+
+      // Determine confirmation tone, title, and description based on resource type and action direction
+      const isClosing = isCurrentlyOpen;
+      let title = "";
+      let description = "";
+      let tone = isClosing ? "warning" : "brand";
+      let confirmLabel = isClosing ? "Close" : "Open";
+
+      if (mgmtTab === "committees") {
+        title = "Close Committee Call?";
+        description = (
+          <>
+            Closing this call for <Highlight>{resourceName}</Highlight> will immediately stop accepting new committee applications. Existing applications will remain safely stored, but new applicants will no longer be able to submit until the call is reopened.
+          </>
+        );
+        confirmLabel = "Close Call";
+      } else if (mgmtTab === "exclusiveForms") {
+        title = isClosing ? "Deactivate Form?" : "Activate Form?";
+        description = isClosing ? (
+          <>
+            Deactivating <Highlight>{resourceName}</Highlight> will immediately prevent new submissions. Existing submissions will remain saved.
+          </>
+        ) : (
+          <>
+            Activating <Highlight>{resourceName}</Highlight> will make the form publicly available and allow new applicants to submit entries.
+          </>
+        );
+        confirmLabel = isClosing ? "Deactivate" : "Activate";
+      } else {
+        title = isClosing ? "Close Registration?" : "Open Registration?";
+        description = isClosing ? (
+          <>
+            Closing registration for <Highlight>{resourceName}</Highlight> will immediately stop accepting new registrations. Existing registrations will remain preserved.
+          </>
+        ) : (
+          <>
+            Opening registration for <Highlight>{resourceName}</Highlight> will make the registration form publicly available and allow new applicants to register.
+          </>
+        );
+        confirmLabel = isClosing ? "Close Registration" : "Open Registration";
+      }
+
+      const confirmed = await confirm({
+        tone,
+        title,
+        description,
+        confirmLabel,
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setMgmtLoading(true);
+      setMgmtError(null);
+      try {
+        if (mgmtTab === "programs") {
+          await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
+        } else if (mgmtTab === "clubs") {
+          if (isCurrentlyOpen) {
+            await adminService.closeClubCall(item.id);
+          } else {
+            await adminService.openClubCall(item.id);
+          }
+        } else if (mgmtTab === "events") {
+          if (isCurrentlyOpen) {
+            await adminService.closeEventCall(item.id);
+          } else {
+            await adminService.openEventCall(item.id);
+          }
+        } else if (mgmtTab === "exclusiveForms") {
+          await adminService.updateExclusiveForm(item.id, {
+            ...item,
+            isActive: !isCurrentlyOpen,
+          });
+        } else {
+          await adminService.closeCommitteeCall(item.id);
+        }
+        await loadMgmtTabData(mgmtTab);
+      } catch (err) {
+        console.error(err);
+        let errMsg = `Failed to update ${mgmtTab === "programs"
           ? "program registration"
           : mgmtTab === "exclusiveForms"
-          ? "exclusive form status"
-          : "committee call"
-      } status.`;
-      if (typeof err === "string") {
-        errMsg = err;
-      } else if (err && typeof err === "object") {
-        errMsg = err.error || err.message || errMsg;
+            ? "exclusive form status"
+            : "committee call"
+          } status.`;
+        if (typeof err === "string") {
+          errMsg = err;
+        } else if (err && typeof err === "object") {
+          errMsg = err.error || err.message || errMsg;
+        }
+        setMgmtError(errMsg);
+      } finally {
+        setMgmtLoading(false);
       }
-      setMgmtError(errMsg);
     } finally {
-      setMgmtLoading(false);
+      toggleInFlight.current = false;
     }
-  } finally {
-    toggleInFlight.current = false;
-  }
-};
+  };
 
   const handleConfirmOpenCall = async (sendAnnouncement) => {
     if (openCallInFlight.current) return;
@@ -880,7 +882,7 @@ const AdminPage = () => {
     setModalError(null);
     setMessageModalOpen(true);
   };
- 
+
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
     setMgmtLoading(true);
@@ -913,7 +915,7 @@ const AdminPage = () => {
     setRegAnalysisLoading(true);
     setRegModalError(null);
     setRegAnalysisData(null);
-    
+
     if (resourceType !== "committee") {
       try {
         const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
@@ -933,10 +935,10 @@ const AdminPage = () => {
     setSelectedResourceForQuestions(item);
     setQuestionsResourceType(
       mgmtTab === "events" ? "event" :
-      mgmtTab === "clubs" ? "club" :
-      mgmtTab === "programs" ? "program" :
-      mgmtTab === "exclusiveForms" ? "exclusive-form" :
-      "committee"
+        mgmtTab === "clubs" ? "club" :
+          mgmtTab === "programs" ? "program" :
+            mgmtTab === "exclusiveForms" ? "exclusive-form" :
+              "committee"
     );
     setQuestionsModalOpen(true);
   };
@@ -979,7 +981,7 @@ const AdminPage = () => {
       try {
         const updatedData = await adminService.syncRegistrationSheet(type, id);
         setRegAnalysisData(updatedData);
-        
+
         // Update local state list so URL and timestamp are updated in the main table data
         if (type === "event") {
           setEvents(prev => ({
@@ -1039,6 +1041,14 @@ const AdminPage = () => {
       <Navbar activeSection="" />
 
       <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
+
+        <button
+          onClick={() => navigate("/")}
+          className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+        >
+          <HiOutlineArrowLeft className="w-4 h-4" /> Back
+        </button>
+
         {/* ── Header ── */}
         <div
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
@@ -1057,39 +1067,37 @@ const AdminPage = () => {
           </div>
 
           <div className="flex items-center gap-3">
-          {isSuperAdmin && (
-            <button
-              type="button"
-              onClick={handleToggleEmailLock}
-              disabled={emailLockSaving}
-              title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
-              className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase text-slate-600 dark:text-slate-200 active:scale-95 transition-all disabled:opacity-40"
-            >
-              <FiLock className="w-3.5 h-3.5" style={{ color: emailsEnabled ? B : "#dc2626" }} />
-              Site Emails
-              <span
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
-                  emailsEnabled ? "bg-[#4B98C8]" : "bg-red-500"
-                }`}
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={handleToggleEmailLock}
+                disabled={emailLockSaving}
+                title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
+                className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase text-slate-600 dark:text-slate-200 active:scale-95 transition-all disabled:opacity-40"
               >
+                <FiLock className="w-3.5 h-3.5" style={{ color: emailsEnabled ? B : "#dc2626" }} />
+                Site Emails
                 <span
-                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    emailsEnabled ? "translate-x-4" : "translate-x-1"
-                  }`}
-                />
-              </span>
-            </button>
-          )}
-          {activeTab === "insights" && (
-            <button
-              onClick={loadInsights}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
-            >
-              <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} style={{ color: B }} />
-              Refresh
-            </button>
-          )}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${emailsEnabled ? "bg-[#4B98C8]" : "bg-red-500"
+                    }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${emailsEnabled ? "translate-x-4" : "translate-x-1"
+                      }`}
+                  />
+                </span>
+              </button>
+            )}
+            {activeTab === "insights" && (
+              <button
+                onClick={loadInsights}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
+              >
+                <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} style={{ color: B }} />
+                Refresh
+              </button>
+            )}
           </div>
         </div>
 
@@ -1110,11 +1118,10 @@ const AdminPage = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                activeTab === tab.id
-                  ? "text-white shadow-md"
-                  : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-              }`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${activeTab === tab.id
+                ? "text-white shadow-md"
+                : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+                }`}
               style={activeTab === tab.id ? { background: `linear-gradient(135deg, ${B}, ${BD})` } : {}}
             >
               <tab.icon className="w-3.5 h-3.5" />

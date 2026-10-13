@@ -71,7 +71,7 @@ const ProfileViewCard = ({ user, profile }) => {
             </div>
           )}
           {/* Season Points - Simple Text */}
-          <div className="flex items-center gap-1.5 px-2 text-slate-600 dark:text-slate-400 translate-x-[10px]">
+          <div className="flex items-center gap-1.5 px-2 text-slate-600 dark:text-slate-400 translate-x-[0px]">
             <HiOutlineStar className="w-4 h-4" />
             <span className="text-sm font-semibold">
               {profile.seasonPoints || 0} Season Points
