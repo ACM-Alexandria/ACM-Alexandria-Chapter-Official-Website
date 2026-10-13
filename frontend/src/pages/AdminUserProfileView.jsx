@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { adminFetchUserProfile } from "../services/userService"; // Update this import if your fetch func is named differently
+import { adminFetchUserProfile} from "../services/userService"; 
 import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserPointsLog } from "../services/pointsLogService";
 
+import Navbar from "../components/HomePage/Navbar";
 import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
 import PointsLogSection from "../components/UserProfile/PointsLogSection";
 import PointsLogModal from "../components/UserProfile/PointsLogModal";
@@ -11,19 +12,22 @@ import PointsLogModal from "../components/UserProfile/PointsLogModal";
 import {
     HiOutlineCheckCircle,
     HiOutlineExclamationCircle,
-    HiOutlineArrowLeft
+    HiOutlineArrowLeft,
+    HiOutlineCamera
 } from "react-icons/hi";
 
 const AdminUserProfileView = () => {
-    const { user: adminUser } = useAuth(); // The logged-in Admin
+    const { user: adminUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Get the target user's ID invisibly from the router state
     const targetUserId = location.state?.targetUserId;
+
+    const self = (adminUser.id != targetUserId)
 
     const [profile, setProfile] = useState({
         name: "",
+        email: "",
         phoneNumber: "",
         isAlexEngStudent: null,
         department: "",
@@ -37,8 +41,8 @@ const AdminUserProfileView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [successMsg, setSuccessMsg] = useState("Action completed successfully!"); // <-- Dynamic success message
 
-    // --- POINTS LOG STATE ---
     const [pointsLogs, setPointsLogs] = useState([]);
     const [pointsPage, setPointsPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
@@ -46,14 +50,12 @@ const AdminUserProfileView = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLog, setEditingLog] = useState(null);
 
-    // If accessed directly without a target user, redirect back to management table
     useEffect(() => {
         if (!targetUserId) {
-            navigate("/admin", { replace: true }); // Change to your management path
+            navigate("/admin", { replace: true });
         }
     }, [targetUserId, navigate]);
 
-    // Fetch profile data
     useEffect(() => {
         if (!targetUserId) return;
 
@@ -61,9 +63,10 @@ const AdminUserProfileView = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await adminFetchUserProfile(targetUserId); // Ensure this hits the backend /users/{id}
+                const data = await adminFetchUserProfile(targetUserId);
                 const profileData = {
                     name: data.name || "",
+                    email: data.email || "",
                     phoneNumber: data.phone_number || "",
                     isAlexEngStudent: data.is_alex_eng_student ?? null,
                     department: data.department || "",
@@ -85,7 +88,6 @@ const AdminUserProfileView = () => {
         loadProfile();
     }, [targetUserId]);
 
-    // Fetch points logs
     useEffect(() => {
         if (!targetUserId) return;
 
@@ -102,7 +104,6 @@ const AdminUserProfileView = () => {
         loadPointsLogs();
     }, [targetUserId, pointsPage]);
 
-    // Auto-hide success banners
     useEffect(() => {
         if (success) {
             const timer = setTimeout(() => setSuccess(false), 4000);
@@ -137,10 +138,11 @@ const AdminUserProfileView = () => {
                     ...prev,
                     seasonPoints: (prev.seasonPoints || 0) + (formData.points - editingLog.points)
                 }));
+                setSuccessMsg("Points updated successfully!");
             } else {
                 await addUserPointsLog({
-                    member: targetUserId,     // Assigning to the target user
-                    assigner: adminUser.id,   // The admin performing the action
+                    member: targetUserId,
+                    assigner: adminUser.id,
                     reason: formData.reason,
                     points: formData.points
                 });
@@ -148,6 +150,7 @@ const AdminUserProfileView = () => {
                     ...prev,
                     seasonPoints: (prev.seasonPoints || 0) + formData.points
                 }));
+                setSuccessMsg("Points added successfully!");
             }
 
             handleModalClose();
@@ -176,6 +179,7 @@ const AdminUserProfileView = () => {
                 const data = await fetchUserPointsLogs(targetUserId, pointsPage);
                 setPointsLogs(data.content || []);
                 setTotalPages(data.totalPages || 0);
+                setSuccessMsg("Points log deleted.");
                 setSuccess(true);
             } catch (err) {
                 console.error("Failed to delete points log:", err);
@@ -184,27 +188,31 @@ const AdminUserProfileView = () => {
         }
     };
 
-    if (!targetUserId) return null; // Avoid rendering if redirect is happening
+    if (!targetUserId) return null;
 
     return (
         <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40">
-            <main className="pt-[40px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
+            <Navbar />
 
-                {/* Back Button */}
+            <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
                 <button
                     onClick={() => navigate(-1)}
                     className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                 >
-                    <HiOutlineArrowLeft className="w-4 h-4" /> Back to Management
+                    <HiOutlineArrowLeft className="w-4 h-4" /> Back
                 </button>
 
-                {/* Page Header Section */}
                 <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                         <div className="flex items-start sm:items-center gap-4">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-lg shadow-blue-200/50 flex items-center justify-center text-white text-2xl font-black tracking-wider shrink-0">
-                                {profile.name?.[0]?.toUpperCase() || "U"}
+
+                            {/* <-- UPDATED AVATAR TO DISPLAY THE IMAGE IF IT EXISTS --> */}
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-lg shadow-blue-200/50 flex items-center justify-center text-white text-2xl font-black tracking-wider shrink-0 overflow-hidden">
+                                {
+                                    profile.name?.[0]?.toUpperCase() || "U"
+                                }
                             </div>
+
                             <div>
                                 <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">User Profile View</h1>
                                 <p className="text-slate-500 dark:text-slate-300 font-medium text-sm mt-1">
@@ -215,23 +223,6 @@ const AdminUserProfileView = () => {
                     </div>
                 </div>
 
-                {/* Notification Alerts */}
-                <div className="translate-y-[16px]">
-                    {success && (
-                        <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                            <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
-                            <p className="font-bold text-sm">Action completed successfully!</p>
-                        </div>
-                    )}
-                    {error && (
-                        <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                            <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                            <p className="font-bold text-sm">{error}</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Master Profile Display Card */}
                 <div
                     className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500 mb-8"
                     style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
@@ -248,16 +239,31 @@ const AdminUserProfileView = () => {
                             </div>
                         </div>
                     ) : (
-                        <ProfileViewCard user={null} profile={profile} />
+                        <ProfileViewCard user={profile} profile={profile} />
                     )}
                 </div>
 
-                {/* Points Log Section */}
                 {!loading && (
                     <div className="space-y-4">
+                        <div className="translate-y-[0px]">
+                            {success && (
+                                <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
+                                    <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
+                                    {/* <-- UPDATED TO SHOW DYNAMIC MESSAGE --> */}
+                                    <p className="font-bold text-sm">{successMsg}</p>
+                                </div>
+                            )}
+                            {error && (
+                                <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
+                                    <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
+                                    <p className="font-bold text-sm">{error}</p>
+                                </div>
+                            )}
+                        </div>
+
                         <PointsLogSection
                             logs={pointsLogs}
-                            isAdmin={true} // Since this is the admin view, it's always editable!
+                            isAdmin={self} // edited to check if user fetchs his profile to prevent him to edit on his points
                             page={pointsPage}
                             totalPages={totalPages}
                             onPageChange={(newPage) => setPointsPage(newPage)}
@@ -268,7 +274,6 @@ const AdminUserProfileView = () => {
                     </div>
                 )}
 
-                {/* Modal */}
                 <PointsLogModal
                     isOpen={isModalOpen}
                     onClose={handleModalClose}

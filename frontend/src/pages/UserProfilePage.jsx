@@ -12,6 +12,7 @@ import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserP
 import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
+  HiOutlineArrowLeft,
   HiOutlinePencilAlt
 } from "react-icons/hi";
 
@@ -45,96 +46,6 @@ const UserProfilePage = () => {
   const [pointsLogs, setPointsLogs] = useState([]);
   const [pointsPage, setPointsPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingLog, setEditingLog] = useState(null);
-
-  // Check if the currently logged-in user is an admin
-  // (Adjust these role strings if your backend uses different ones)
-  const isAdmin = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD"].includes(user?.role);
-
-  // Placeholder functions for our buttons (we will build these next)
-  const handleAddPointsClick = () => {
-    setEditingLog(null); // Clear any old data
-    setIsModalOpen(true); // Open the popup
-  };
-
-  const handleEditPointsClick = (log) => {
-    setEditingLog(log); // Pass the specific log data into the popup
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditingLog(null);
-  };
-
-  const handleModalSubmit = async (formData) => {
-    try {
-      if (editingLog) {
-        await updateUserPointsLog(editingLog.id, {
-          reason: formData.reason,
-          points: formData.points
-        });
-        setProfile((prev) => ({
-          ...prev,
-          seasonPoints: (prev.seasonPoints || 0) + (formData.points - editingLog.points)
-        }));
-      } else {
-        await addUserPointsLog({
-          member: user.id,
-          assigner: user.id,
-          reason: formData.reason,
-          points: formData.points
-        });
-        setProfile((prev) => ({
-          ...prev,
-          seasonPoints: (prev.seasonPoints || 0) + formData.points
-        }));
-      }
-
-      handleModalClose();
-
-      const data = await fetchUserPointsLogs(user.id, pointsPage);
-
-      setPointsLogs(data.content || []);
-      setTotalPages(data.totalPages || 0);
-
-      setSuccess(true);
-      // window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (err) {
-      console.error("Failed to save points:", err);
-      setError("Failed to save points log. Please try again.");
-      // window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleDeletePointsClick = async (log) => {
-    // Show a confirmation popup
-    const isConfirmed = window.confirm(`Are you sure you want to delete this log? ("${log.reason}")`);
-
-    if (isConfirmed) {
-      try {
-        await deleteUserPointsLog(log.id); // Call the backend
-        setProfile((prev) => ({
-          ...prev,
-          seasonPoints: (prev.seasonPoints || 0) - log.points
-        }));
-        // Refresh the list
-        const data = await fetchUserPointsLogs(user.id, pointsPage);
-        setPointsLogs(data.content || []);
-        setTotalPages(data.totalPages || 0);
-
-        setSuccess(true);
-        // window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (err) {
-        console.error("Failed to delete points log:", err);
-        setError("Failed to delete points log. Please try again.");
-        // window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  };
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -301,6 +212,12 @@ const UserProfilePage = () => {
       <Navbar />
 
       <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
+        <button
+          onClick={() => navigate("/")}
+          className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+        >
+          <HiOutlineArrowLeft className="w-4 h-4" /> Back
+        </button>
 
         {/* Page Header Section */}
         <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
@@ -408,25 +325,13 @@ const UserProfilePage = () => {
 
             <PointsLogSection
               logs={pointsLogs}
-              isAdmin={isAdmin}
+              isAdmin={false}
               page={pointsPage}
               totalPages={totalPages}
               onPageChange={(newPage) => setPointsPage(newPage)}
-              onAddClick={handleAddPointsClick}
-              onEditClick={handleEditPointsClick}
-              onDeleteClick={handleDeletePointsClick}
             />
           </div>
         )}
-        {/* 👇 ADD THE MODAL RIGHT HERE 👇 */}
-        <PointsLogModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          onSubmit={handleModalSubmit}
-          editingLog={editingLog}
-        />
-        {/* //////////////////////////////////////////////////////////////////// */}
-
       </main>
     </div>
   );

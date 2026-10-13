@@ -298,13 +298,14 @@ const UserManagementTab = () => {
               <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                 <th className="pb-3 pl-4 pt-3">User</th>
                 <th className="pb-3 pt-3">Role</th>
-                <th className="pb-3 pr-4 pt-3 text-right">Actions</th>
+                <th className="pb-3 pt-3 -translate-x-[12px]">Points</th>
+                <th className="pb-3 pr-4 pt-3 text-right w-[260px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan="3" className="p-8">
+                  <td colSpan="4" className="p-8">
                     <div className="flex items-center justify-center">
                       <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
                     </div>
@@ -312,13 +313,13 @@ const UserManagementTab = () => {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="p-8 text-center text-slate-400 dark:text-slate-300 font-medium">
+                  <td colSpan="4" className="p-8 text-center text-slate-400 dark:text-slate-300 font-medium">
                     No users found.
                   </td>
                 </tr>
               ) : (
                 users.map(u => (
-                  <tr key={u.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
+                  <tr key={u.id} className="group hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
                     <td className="py-3.5 pl-4">
                       <UserMediaCell item={u} />
                     </td>
@@ -334,24 +335,35 @@ const UserManagementTab = () => {
                         )}
                       </div>
                     </td>
-                    <td className="py-3.5 pr-4 text-right">
-
-                      <button
-                        onClick={() => navigate(`/admin/user-profile`, { state: { targetUserId: u.id } })}
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all -translate-x-[5px]"
-                        title="View Profile"
-                      >
-                        <FiUser className="w-3.5 h-3.5" /> Profile
-                      </button>
-
-                      {canManageUser(u) && (
+                    <td className="py-3.5 font-extrabold text-slate-700 dark:text-slate-200">
+                      {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
+                    </td>
+                    <td className="py-3.5 pr-4 text-right w-[260px]">
+                      <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleOpenModal(u)}
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all"
+                          onClick={() => navigate(`/admin/user-profile`, { state: { targetUserId: u.id } })}
+                          className="inline-flex items-center justify-center px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                          title="View Profile"
                         >
-                          <FiShield className="w-3.5 h-3.5" /> Manage Access
+                          <FiUser className="w-3.5 h-3.5 shrink-0" />
+                          <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
+                            Profile
+                          </span>
                         </button>
-                      )}
+
+                        {canManageUser(u) && (
+                          <button
+                            onClick={() => handleOpenModal(u)}
+                            className="inline-flex items-center justify-center px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                            title="Manage Access"
+                          >
+                            <FiShield className="w-3.5 h-3.5 shrink-0" />
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[110px] group-hover:opacity-100 group-hover:ml-2 whitespace-nowrap transition-all duration-500 ease-in-out">
+                              Manage Access
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
