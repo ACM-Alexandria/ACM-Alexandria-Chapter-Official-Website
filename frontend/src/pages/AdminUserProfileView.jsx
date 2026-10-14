@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { adminFetchUserProfile} from "../services/userService"; 
+import { adminFetchUserProfile } from "../services/userService";
 import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserPointsLog } from "../services/pointsLogService";
+import ConfirmDeleteModal from "../components/UserProfile/ConfirmDeleteModal";
 
 import Navbar from "../components/HomePage/Navbar";
 import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
@@ -49,6 +50,9 @@ const AdminUserProfileView = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLog, setEditingLog] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [logToDelete, setLogToDelete] = useState(null);
 
     useEffect(() => {
         if (!targetUserId) {
@@ -165,26 +169,34 @@ const AdminUserProfileView = () => {
         }
     };
 
-    const handleDeletePointsClick = async (log) => {
-        const isConfirmed = window.confirm(`Are you sure you want to delete this log? ("${log.reason}")`);
+    // 1. Opens the modal when the delete button is clicked
+    const handleDeletePointsClick = (log) => {
+        setLogToDelete(log);
+        setIsDeleteModalOpen(true);
+    };
 
-        if (isConfirmed) {
-            try {
-                await deleteUserPointsLog(log.id);
-                setProfile((prev) => ({
-                    ...prev,
-                    seasonPoints: (prev.seasonPoints || 0) - log.points
-                }));
+    // 2. Actually deletes the log when "Yes, Delete" is clicked inside the modal
+    const handleConfirmDelete = async () => {
+        if (!logToDelete) return;
 
-                const data = await fetchUserPointsLogs(targetUserId, pointsPage);
-                setPointsLogs(data.content || []);
-                setTotalPages(data.totalPages || 0);
-                setSuccessMsg("Points log deleted.");
-                setSuccess(true);
-            } catch (err) {
-                console.error("Failed to delete points log:", err);
-                setError("Failed to delete points log. Please try again.");
-            }
+        try {
+            await deleteUserPointsLog(logToDelete.id);
+            setProfile((prev) => ({
+                ...prev,
+                seasonPoints: (prev.seasonPoints || 0) - logToDelete.points
+            }));
+
+            const data = await fetchUserPointsLogs(targetUserId, pointsPage);
+            setPointsLogs(data.content || []);
+            setTotalPages(data.totalPages || 0);
+            setSuccessMsg("Points log deleted.");
+            setSuccess(true);
+        } catch (err) {
+            console.error("Failed to delete points log:", err);
+            setError("Failed to delete points log. Please try again.");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setLogToDelete(null);
         }
     };
 
@@ -279,6 +291,12 @@ const AdminUserProfileView = () => {
                     onClose={handleModalClose}
                     onSubmit={handleModalSubmit}
                     editingLog={editingLog}
+                />
+                <ConfirmDeleteModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    itemName={logToDelete?.reason || "this log"}
                 />
 
             </main>
