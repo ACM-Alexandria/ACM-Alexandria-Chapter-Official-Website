@@ -47,6 +47,23 @@ public class EventRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/events/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelEventRegistration(
+            @PathVariable("id") Long eventId,
+            @PathVariable UUID userId,
+            Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!authorizationService.isSelf(userId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        eventRegistrationService.cancelRegistration(userId, eventId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/events/{id}/is-registered/{userId}")
     public ResponseEntity<java.util.Map<String, Boolean>> isRegisteredForEvent(
             @PathVariable("id") Long eventId,

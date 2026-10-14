@@ -112,4 +112,13 @@ public class ClubRegistrationService implements RegistrationService {
     public boolean isUserRegistered(UUID userId, Long clubId) {
         return clubRegistrationRepository.existsByUserIdAndClubId(userId, clubId);
     }
+
+    @Transactional
+    public void cancelRegistration(UUID userId, Long clubId) {
+        if (!clubRepository.existsById(clubId)) throw new ResourceNotFoundException("Club not found");
+        if (clubRegistrationRepository.deleteByUserIdAndClubId(userId, clubId) == 0) {
+            throw new ResourceNotFoundException("Club registration not found");
+        }
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.CLUB, clubId));
+    }
 }

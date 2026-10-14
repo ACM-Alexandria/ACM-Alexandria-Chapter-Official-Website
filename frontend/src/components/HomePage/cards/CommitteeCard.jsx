@@ -10,7 +10,9 @@ import {
   fetchCommitteeSubscriptionStatus,
 } from "../../../services/homePageService";
 import { checkCommitteeRegistrationStatus } from "../../../services/registrationService";
+import { cancelCommitteeRegistration } from "../../../services/registrationService";
 import CommitteeMemberCard from "./CommitteeMemberCard";
+import RegistrationCancellationModal from "../../registration/RegistrationCancellationModal";
 
 const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegistrationModalOpen }) => {
   const [imageError, setImageError] = useState(false);
@@ -21,6 +23,9 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
   const [modalOpen, setModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState(false);
+  const [isCancellingRegistration, setIsCancellingRegistration] = useState(false);
+  const [cancellationError, setCancellationError] = useState("");
 
   useEffect(() => {
     const checkRegStatus = async () => {
@@ -81,6 +86,21 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
       console.error("Error toggling committee subscription:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelRegistration = async () => {
+    if (!user?.id) return;
+    setIsCancellingRegistration(true);
+    setCancellationError("");
+    try {
+      await cancelCommitteeRegistration(committee.id, user.id);
+      setIsRegistered(false);
+      setIsCancelConfirmationOpen(false);
+    } catch (err) {
+      setCancellationError(typeof err === "string" ? err : "We couldn't cancel your application. Please try again.");
+    } finally {
+      setIsCancellingRegistration(false);
     }
   };
 
@@ -184,9 +204,12 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
                 Checking
               </div>
             ) : isRegistered ? (
-              <div className="inline-flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                <FiCheck className="w-3.5 h-3.5" />
-                Applied
+              <div className="flex flex-col items-end gap-2">
+                <div className="inline-flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                  <FiCheck className="w-3.5 h-3.5" />
+                  Applied
+                </div>
+                <button type="button" onClick={() => { setCancellationError(""); setIsCancelConfirmationOpen(true); }} className="rounded-lg border border-red-700 bg-red-600 px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wide text-white shadow-md shadow-red-500/30 transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/40 active:scale-95">Cancel application</button>
               </div>
             ) : (
               <button
@@ -226,6 +249,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
           loading={loading}
           isSubscribe={!subscribed}
         />
+        <RegistrationCancellationModal open={isCancelConfirmationOpen} onClose={() => setIsCancelConfirmationOpen(false)} onConfirm={handleCancelRegistration} entityName={committee.name} entityLabel="application" loading={isCancellingRegistration} error={cancellationError} />
       </div>
     );
   }
@@ -254,6 +278,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
         loading={loading}
         isSubscribe={!subscribed}
       />
+      <RegistrationCancellationModal open={isCancelConfirmationOpen} onClose={() => setIsCancelConfirmationOpen(false)} onConfirm={handleCancelRegistration} entityName={committee.name} entityLabel="application" loading={isCancellingRegistration} error={cancellationError} />
     </div>
   );
 };

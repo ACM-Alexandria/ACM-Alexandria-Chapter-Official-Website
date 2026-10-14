@@ -51,6 +51,14 @@ public class ProgramRegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/program/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelProgramRegistration(@PathVariable("id") Long programId, @PathVariable UUID userId, Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!authorizationService.isSelf(userId, authentication)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        programRegistrationService.cancelRegistration(userId, programId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/program/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForProgram(
             @PathVariable("id") Long programId,

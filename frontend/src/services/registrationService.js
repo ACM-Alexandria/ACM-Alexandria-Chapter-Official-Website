@@ -35,6 +35,16 @@ export const registerForEvent = async (eventId, userId, answers = {}) => {
   }
 };
 
+// Cancels the authenticated user's registration so they can register again later.
+export const cancelEventRegistration = async (eventId, userId) => {
+  try {
+    await api.delete(`/api/events/${eventId}/register/${userId}`);
+  } catch (error) {
+    // console.error(`Error cancelling event registration for ${eventId}:`, error);
+    throw error.response?.data || new Error("Unable to cancel event registration.");
+  }
+};
+
 
 // Submits registration payload (answers map) for a club.
 export const registerForClub = async (clubId, userId, answers = {}) => {
@@ -45,6 +55,14 @@ export const registerForClub = async (clubId, userId, answers = {}) => {
   } catch (error) {
     console.error(`Error registering for club ${clubId}:`, error);
     throw error.response?.data || new Error("Club joining failed.");
+  }
+};
+
+export const cancelClubRegistration = async (clubId, userId) => {
+  try {
+    await api.delete(`/api/clubs/${clubId}/register/${userId}`);
+  } catch (error) {
+    throw error.response?.data || new Error("Unable to cancel club registration.");
   }
 };
 
@@ -93,6 +111,14 @@ export const registerForCommittee = async (committeeId, userId, answers = {}) =>
   }
 };
 
+export const cancelCommitteeRegistration = async (committeeId, userId) => {
+  try {
+    await api.delete(`/api/committee/${committeeId}/register/${userId}`);
+  } catch (error) {
+    throw error.response?.data || new Error("Unable to cancel committee application.");
+  }
+};
+
 // Checks if user has already applied for the currently open call of a committee.
 export const checkCommitteeRegistrationStatus = async (committeeId, userId) => {
   try {
@@ -124,6 +150,14 @@ export const registerForProgram = async (programId, userId, answers = {}) => {
   } catch (error) {
     console.error(`Error registering for program ${programId}:`, error);
     throw error.response?.data || new Error("Program registration failed.");
+  }
+};
+
+export const cancelProgramRegistration = async (programId, userId) => {
+  try {
+    await api.delete(`/api/program/${programId}/register/${userId}`);
+  } catch (error) {
+    throw error.response?.data || new Error("Unable to cancel program registration.");
   }
 };
 
@@ -161,6 +195,15 @@ export const registerForExclusiveForm = async (formId, userId, answers = {}) => 
   }
 };
 
+// Removing the submission also removes its saved answers, so a later submission starts fresh.
+export const cancelExclusiveFormRegistration = async (formId, userId) => {
+  try {
+    await api.delete(`/api/exclusive-forms/${formId}/register/${userId}`);
+  } catch (error) {
+    throw error.response?.data || new Error("Unable to cancel form submission.");
+  }
+};
+
 // Checks if user is registered for an exclusive form.
 export const checkExclusiveFormRegistrationStatus = async (formId, userId) => {
   try {
@@ -179,10 +222,15 @@ export default {
   fetchProgramQuestions,
   fetchExclusiveFormQuestions,
   registerForEvent,
+  cancelEventRegistration,
   registerForClub,
+  cancelClubRegistration,
   registerForCommittee,
+  cancelCommitteeRegistration,
   registerForProgram,
+  cancelProgramRegistration,
   registerForExclusiveForm,
+  cancelExclusiveFormRegistration,
   checkEventRegistrationStatus,
   checkClubRegistrationStatus,
   checkCommitteeRegistrationStatus,

@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -46,6 +47,14 @@ public class ClubRegistrationController {
 
         clubRegistrationService.registerUser(request.getUserId(), clubId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/clubs/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelClubRegistration(@PathVariable("id") Long clubId, @PathVariable UUID userId, Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!authorizationService.isSelf(userId, authentication)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        clubRegistrationService.cancelRegistration(userId, clubId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/clubs/{id}/is-registered/{userId}")

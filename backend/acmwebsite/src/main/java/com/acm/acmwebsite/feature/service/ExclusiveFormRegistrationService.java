@@ -103,6 +103,17 @@ public class ExclusiveFormRegistrationService implements RegistrationService {
     }
 
     @Transactional
+    public void cancelRegistration(UUID userId, Long formId) {
+        if (!exclusiveFormRepository.existsById(formId)) {
+            throw new ResourceNotFoundException("Exclusive form not found");
+        }
+        if (exclusiveRegistrationRepository.deleteByUserIdAndExclusiveFormId(userId, formId) == 0) {
+            throw new ResourceNotFoundException("Form submission not found");
+        }
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.EXCLUSIVE_FORM, formId));
+    }
+
+    @Transactional
     public FormQuestionResponseDto createQuestion(Long formId, FormQuestionRequestDto request) {
         ExclusiveForm form = exclusiveFormRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exclusive form not found with id " + formId));
