@@ -52,11 +52,20 @@ const ProfileViewCard = ({ user, profile }) => {
           </div>
         </div>
         
-        {/* Role Badge - Simple Pill */}
-        <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 self-start md:self-auto mt-2 md:mt-0">
-          <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
-            {roleDisplay.label}
-          </span>
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto mt-2 md:mt-0">
+          <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+            <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+              {roleDisplay.label}
+            </span>
+          </div>
+
+          {profile.committeeName && (
+            <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+              <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+                {profile.committeeName}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
