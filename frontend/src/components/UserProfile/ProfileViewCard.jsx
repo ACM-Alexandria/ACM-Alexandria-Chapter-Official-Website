@@ -7,6 +7,7 @@ import {
   HiOutlineLibrary,
   HiOutlineLink
 } from "react-icons/hi";
+import {FiLayers} from "react-icons/fi";
 
 const getRoleDisplay = (role) => {
   switch (role) {
@@ -45,17 +46,26 @@ const ProfileViewCard = ({ user, profile }) => {
           
           <div className="flex flex-col gap-1 w-full sm:w-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words">
-              {profile.name || "ACM Member"}
+              {profile.name || "User"}
             </h2>
             <span className="text-sm text-slate-500 dark:text-slate-400 break-all">{user?.email}</span>
           </div>
         </div>
         
-        {/* Role Badge - Simple Pill */}
-        <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 self-start md:self-auto mt-2 md:mt-0">
-          <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
-            {roleDisplay.label}
-          </span>
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto mt-2 md:mt-0">
+          <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+            <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+              {roleDisplay.label}
+            </span>
+          </div>
+
+          {profile.committeeName && (
+            <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+              <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+                {profile.committeeName}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

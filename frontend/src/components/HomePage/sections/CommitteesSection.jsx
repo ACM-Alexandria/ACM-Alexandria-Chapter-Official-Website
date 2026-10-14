@@ -4,6 +4,7 @@ import { getEnv } from "../../../utils/env";
 const CommitteesSection = ({ 
   loading, 
   committees = [], 
+  myCommitteeId = null,
   onApplyClick, 
   isRegistrationModalOpen 
 }) => {
@@ -50,6 +51,7 @@ const CommitteesSection = ({
               >
                 <CommitteeCard 
                   committee={committee} 
+                  isMyCommittee={myCommitteeId != null &&String(committee.id) === String(myCommitteeId)}
                   onApplyClick={onApplyClick} 
                   isRegistrationModalOpen={isRegistrationModalOpen}
                 />

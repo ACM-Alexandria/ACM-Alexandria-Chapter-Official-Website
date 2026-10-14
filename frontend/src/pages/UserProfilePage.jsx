@@ -24,6 +24,7 @@ const UserProfilePage = () => {
     batch: "",
     linkedinUrl: "",
     profileImageUrl: "",
+    committeeName: "",
     role: "USER"
   });
 
@@ -53,6 +54,7 @@ const UserProfilePage = () => {
           batch: data.batch || "",
           linkedinUrl: data.linkedin_url || "",
           profileImageUrl: data.profile_image_url || "",
+          committeeName: data.committee_name || "",
           role: data.role || user?.role || "USER"
         };
         setProfile(profileData);
