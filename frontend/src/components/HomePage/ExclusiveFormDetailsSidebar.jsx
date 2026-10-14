@@ -5,7 +5,8 @@ import { fetchExclusiveFormById } from "../../services/homePageService";
 import { HiOutlineX } from "react-icons/hi";
 import { FiFileText } from "react-icons/fi";
 import RegistrationModal from "../registration/RegistrationModal";
-import { checkExclusiveFormRegistrationStatus } from "../../services/registrationService";
+import RegistrationCancellationModal from "../registration/RegistrationCancellationModal";
+import { cancelExclusiveFormRegistration, checkExclusiveFormRegistrationStatus } from "../../services/registrationService";
 
 const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
   const { isAuthenticated, user } = useAuth();
@@ -15,6 +16,9 @@ const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
   const [error, setError] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState(false);
+  const [isCancellingRegistration, setIsCancellingRegistration] = useState(false);
+  const [cancellationError, setCancellationError] = useState("");
 
   // Registration presence trackers
   const [isRegistered, setIsRegistered] = useState(false);
@@ -89,6 +93,21 @@ const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  const handleCancelRegistration = async () => {
+    if (!user?.id) return;
+    setIsCancellingRegistration(true);
+    setCancellationError("");
+    try {
+      await cancelExclusiveFormRegistration(formId, user.id);
+      setIsRegistered(false);
+      setIsCancelConfirmationOpen(false);
+    } catch (err) {
+      setCancellationError(typeof err === "string" ? err : "We couldn't cancel your form submission. Please try again.");
+    } finally {
+      setIsCancellingRegistration(false);
+    }
+  };
 
   if (!formId) return null;
 
@@ -196,17 +215,15 @@ const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
                       <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
                     </button>
                   ) : isRegistered ? (
-                    <button
-                      disabled
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
-                    >
-                      <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Already Registered
-                      </span>
-                    </button>
+                    <div className="space-y-3">
+                      <div className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default">
+                        <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                          Already Registered
+                        </span>
+                      </div>
+                      <button type="button" onClick={() => { setCancellationError(""); setIsCancelConfirmationOpen(true); }} className="mx-auto mt-5 flex items-center justify-center rounded-xl border border-red-700 bg-red-600 px-5 py-2.5 text-xs font-extrabold uppercase tracking-wide text-white shadow-lg shadow-red-500/30 transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-xl hover:shadow-red-500/40 active:scale-95">Cancel registration</button>
+                    </div>
                   ) : (
                     <button
                       onClick={() => {
@@ -242,6 +259,7 @@ const ExclusiveFormDetailsSidebar = ({ formId, isOpen, onClose }) => {
         type="exclusive-form"
         entityName={form?.title}
       />
+      <RegistrationCancellationModal open={isCancelConfirmationOpen} onClose={() => setIsCancelConfirmationOpen(false)} onConfirm={handleCancelRegistration} entityName={form?.title} entityLabel="form submission" loading={isCancellingRegistration} error={cancellationError} />
     </div>
   );
 };

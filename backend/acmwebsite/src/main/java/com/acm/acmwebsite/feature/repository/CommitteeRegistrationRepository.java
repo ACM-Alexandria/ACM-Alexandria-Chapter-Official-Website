@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface CommitteeRegistrationRepository extends JpaRepository<CommitteeRegistration, Long> {
     List<CommitteeRegistration> findByCommitteeCallId(Long committeeCallId);
     boolean existsByUserIdAndCommitteeCallId(UUID userId, Long committeeCallId);
+    long deleteByUserIdAndCommitteeCallId(UUID userId, Long committeeCallId);
     long countByCommitteeCallId(Long committeeCallId);
 }

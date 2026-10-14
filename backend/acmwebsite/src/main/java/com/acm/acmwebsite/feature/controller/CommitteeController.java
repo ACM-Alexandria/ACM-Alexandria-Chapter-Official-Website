@@ -177,6 +177,14 @@ public class CommitteeController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelCommitteeRegistration(@PathVariable("id") Long committeeId, @PathVariable java.util.UUID userId, Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!authorizationService.isSelf(userId, authentication)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        committeeRegistrationService.cancelRegistration(userId, committeeId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForCommittee(
             @PathVariable("id") Long committeeId,

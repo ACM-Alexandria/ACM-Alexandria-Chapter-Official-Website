@@ -104,4 +104,18 @@ public class EventRegistrationService implements RegistrationService {
     public boolean isUserRegistered(UUID userId, Long eventId) {
         return eventRegistrationRepository.existsByUserIdAndEventId(userId, eventId);
     }
+
+    @Transactional
+    public void cancelRegistration(UUID userId, Long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResourceNotFoundException("Event not found");
+        }
+
+        long deleted = eventRegistrationRepository.deleteByUserIdAndEventId(userId, eventId);
+        if (deleted == 0) {
+            throw new ResourceNotFoundException("Event registration not found");
+        }
+
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.EVENT, eventId));
+    }
 }
