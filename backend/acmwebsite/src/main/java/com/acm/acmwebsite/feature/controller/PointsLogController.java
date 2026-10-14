@@ -32,7 +32,7 @@ public class PointsLogController {
 
     @GetMapping("/{id}/logs")
     public ResponseEntity<Page<PointsLogDto>> getMemberLogs(@PathVariable("id") UUID memberId,
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 5, sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<PointsLog> logs = pointsLogService.getMemberPointsLog(memberId, pageable);
         Page<PointsLogDto> logsDto = logs.map(PointsLogDto::convertToDto);

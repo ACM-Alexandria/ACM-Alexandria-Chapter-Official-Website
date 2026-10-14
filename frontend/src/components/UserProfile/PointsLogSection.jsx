@@ -62,6 +62,20 @@ const PointsLogSection = ({
                     {log.reason}
                   </span>
                   {/* You can add a date here if your DTO gets a createdAt field later! */}
+                  {(log.updated_at || log.updatedAt || log.created_at || log.createdAt) && (
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold tracking-wide mt-0.5">
+                      {new Date(log.updated_at || log.updatedAt || log.created_at || log.createdAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                      <span className="mx-1.5">•</span>
+                      {new Date(log.updated_at || log.updatedAt || log.created_at || log.createdAt).toLocaleTimeString(undefined, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">
