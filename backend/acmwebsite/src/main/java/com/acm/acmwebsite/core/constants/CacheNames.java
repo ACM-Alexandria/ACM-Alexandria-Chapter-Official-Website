@@ -7,6 +7,8 @@ public final class CacheNames {
     public static final String PROGRAMS = "programs";
     public static final String COMMITTEES = "committees";
     public static final String HIGH_BOARD = "highBoard";
+    public static final String PAST_BOARDS = "pastBoards";
+    public static final String BOARD_SEASONS = "boardSeasons";
     public static final String PARTNERS = "partners";
     public static final String GALLERY = "gallery";
     public static final String SOCIAL_LINKS = "socialLinks";
