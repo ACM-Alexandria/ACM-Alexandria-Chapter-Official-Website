@@ -150,6 +150,21 @@ public class ExclusiveFormController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelFormRegistration(
+            @PathVariable("id") Long formId,
+            @PathVariable java.util.UUID userId,
+            Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(userId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        registrationService.cancelRegistration(userId, formId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForForm(
             @PathVariable("id") Long formId,

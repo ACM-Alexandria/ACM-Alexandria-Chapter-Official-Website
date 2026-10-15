@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Tree, TreeNode } from "react-organizational-chart";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
-import { FiBell, FiCheck, FiArrowRight } from "react-icons/fi";
+import { FiBell, FiCheck, FiArrowRight, FiStar } from "react-icons/fi";
 import UnsubscribeConfirmModal from "../../UnsubscribeConfirmModal";
 import {
   subscribeToCommittee,
@@ -10,9 +10,11 @@ import {
   fetchCommitteeSubscriptionStatus,
 } from "../../../services/homePageService";
 import { checkCommitteeRegistrationStatus } from "../../../services/registrationService";
+import { cancelCommitteeRegistration } from "../../../services/registrationService";
 import CommitteeMemberCard from "./CommitteeMemberCard";
+import RegistrationCancellationModal from "../../registration/RegistrationCancellationModal";
 
-const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => {
+const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegistrationModalOpen }) => {
   const [imageError, setImageError] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +23,9 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
   const [modalOpen, setModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState(false);
+  const [isCancellingRegistration, setIsCancellingRegistration] = useState(false);
+  const [cancellationError, setCancellationError] = useState("");
 
   useEffect(() => {
     const checkRegStatus = async () => {
@@ -84,6 +89,21 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
     }
   };
 
+  const handleCancelRegistration = async () => {
+    if (!user?.id) return;
+    setIsCancellingRegistration(true);
+    setCancellationError("");
+    try {
+      await cancelCommitteeRegistration(committee.id, user.id);
+      setIsRegistered(false);
+      setIsCancelConfirmationOpen(false);
+    } catch (err) {
+      setCancellationError(typeof err === "string" ? err : "We couldn't cancel your application. Please try again.");
+    } finally {
+      setIsCancellingRegistration(false);
+    }
+  };
+
   const orderedBoardRoles = [...(committee?.boardRoles || [])].sort((a, b) => {
     const firstOrder = Number.isFinite(Number(a?.order))
       ? Number(a.order)
@@ -99,9 +119,9 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
   const rootLabel = (
     <div
       className={`relative bg-white dark:bg-slate-800 rounded-3xl sm:rounded-[2.5rem] text-left w-full max-w-[210px] min-[375px]:max-w-[240px] min-[425px]:max-w-[270px] sm:max-w-[320px] md:max-w-sm lg:max-w-lg mx-auto group border transition-all duration-300 ${
-        isOpen
-          ? "border-blue-100 dark:border-blue-800 shadow-2xl shadow-blue-100/40 dark:shadow-blue-950/30 hover:border-blue-300/85 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-[#4B98C8]/10"
-          : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
+          isOpen
+            ? "border-blue-100 dark:border-blue-800 shadow-2xl shadow-blue-100/40 dark:shadow-blue-950/30 hover:border-blue-300/85 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-[#4B98C8]/10"
+            : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
       }`}
     >
       <button
@@ -126,12 +146,24 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
 
       <div className="bg-slate-100 dark:bg-slate-700 h-32 min-[375px]:h-36 min-[425px]:h-40 sm:h-48 md:h-56 lg:h-64 flex items-center justify-center overflow-hidden relative rounded-t-3xl sm:rounded-t-[2.5rem]">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-        {isOpen && (
-          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 border border-emerald-400/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-white" />
-            <span className="tracking-wide uppercase">Open</span>
+
+        {(isMyCommittee || isOpen) && (
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex flex-col items-start gap-1.5">
+            {isMyCommittee && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-3 py-1.5 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-white shadow-lg shadow-[#4B98C8]/30 ring-1 ring-white/25 backdrop-blur-md">
+                <FiStar className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
+                My Committee
+              </span>
+            )}
+            {isOpen && (
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl shadow-lg shadow-emerald-500/20 border border-emerald-400/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="tracking-wide uppercase">Open</span>
+              </span>
+            )}
           </div>
         )}
+
         {committee.logoUrl && !imageError ? (
           <img
             src={committee.logoUrl}
@@ -149,12 +181,12 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
       </div>
 
       <div className="p-4.5 min-[375px]:p-5 min-[425px]:p-6 sm:p-8 md:p-9 lg:p-10">
-        <div className="flex items-center justify-between mb-2 min-[375px]:mb-3 sm:mb-4">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg min-[375px]:text-xl sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight group-hover:text-[#4B98C8] transition-colors leading-tight">
-              {committee.name}
-            </h3>
-          </div>
+        <div className="mb-2 min-[375px]:mb-3 sm:mb-4">
+          <h3 className={`break-words text-lg min-[375px]:text-xl sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight group-hover:text-[#4B98C8] transition-colors leading-tight ${
+            isMyCommittee ? "text-[#205E85] dark:text-sky-300" : "text-slate-900 dark:text-slate-100"
+          }`}>
+            {committee.name}
+          </h3>
         </div>
         <p className="text-slate-500 dark:text-slate-300 text-xs min-[375px]:text-sm sm:text-sm md:text-base leading-relaxed mb-4 min-[375px]:mb-5 sm:mb-6 line-clamp-3 font-medium">
           {committee.description || "Advancing computing through collaborative efforts and specialized initiatives."}
@@ -172,9 +204,12 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
                 Checking
               </div>
             ) : isRegistered ? (
-              <div className="inline-flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                <FiCheck className="w-3.5 h-3.5" />
-                Applied
+              <div className="flex flex-col items-end gap-2">
+                <div className="inline-flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                  <FiCheck className="w-3.5 h-3.5" />
+                  Applied
+                </div>
+                <button type="button" onClick={() => { setCancellationError(""); setIsCancelConfirmationOpen(true); }} className="rounded-lg border border-red-700 bg-red-600 px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wide text-white shadow-md shadow-red-500/30 transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/40 active:scale-95">Cancel application</button>
               </div>
             ) : (
               <button
@@ -214,6 +249,7 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
           loading={loading}
           isSubscribe={!subscribed}
         />
+        <RegistrationCancellationModal open={isCancelConfirmationOpen} onClose={() => setIsCancelConfirmationOpen(false)} onConfirm={handleCancelRegistration} entityName={committee.name} entityLabel="application" loading={isCancellingRegistration} error={cancellationError} />
       </div>
     );
   }
@@ -242,6 +278,7 @@ const CommitteeCard = ({ committee, onApplyClick, isRegistrationModalOpen }) => 
         loading={loading}
         isSubscribe={!subscribed}
       />
+      <RegistrationCancellationModal open={isCancelConfirmationOpen} onClose={() => setIsCancelConfirmationOpen(false)} onConfirm={handleCancelRegistration} entityName={committee.name} entityLabel="application" loading={isCancellingRegistration} error={cancellationError} />
     </div>
   );
 };

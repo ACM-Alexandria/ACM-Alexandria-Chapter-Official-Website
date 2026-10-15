@@ -112,6 +112,16 @@ public class CommitteeRegistrationService implements RegistrationService {
     }
 
     @Transactional
+    public void cancelRegistration(UUID userId, Long committeeId) {
+        CommitteeCall activeCall = committeeCallRepository.findActiveCallByCommitteeId(committeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("No active call found for this committee."));
+        if (committeeRegistrationRepository.deleteByUserIdAndCommitteeCallId(userId, activeCall.getId()) == 0) {
+            throw new ResourceNotFoundException("Committee application not found");
+        }
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.COMMITTEE_CALL, activeCall.getId()));
+    }
+
+    @Transactional
     public FormQuestionResponseDto createQuestion(Long committeeId, FormQuestionRequestDto request) {
         Committee committee = committeeRepository.findById(committeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Committee not found with id " + committeeId));
