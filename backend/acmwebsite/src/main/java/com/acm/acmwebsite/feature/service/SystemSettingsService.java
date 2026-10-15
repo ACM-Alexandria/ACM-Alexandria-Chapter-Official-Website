@@ -5,8 +5,6 @@ import com.acm.acmwebsite.feature.exception.EmailsLockedException;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -18,7 +16,6 @@ public class SystemSettingsService {
 
     // Cached so the email guard doesn't hit the database for every email; null until first read
     private volatile Boolean emailsEnabled;
-    private volatile Integer currentSeason;
 
     @Autowired
     public SystemSettingsService(SystemSettingsRepository systemSettingsRepository) {
@@ -51,13 +48,7 @@ public class SystemSettingsService {
         return enabled;
     }
 
-    // Serialize first reads in this application; ordinary reads do not need a database lock.
-    public synchronized Integer getCurrentSeason() {
-        Integer cached = currentSeason;
-        if (cached != null) {
-            return cached;
-        }
-
+    public Integer getCurrentSeason() {
         SystemSettings settings = systemSettingsRepository.findById(SystemSettings.SINGLETON_ID)
                 .orElseGet(() -> new SystemSettings(SystemSettings.SINGLETON_ID, true, null));
         if (settings.getCurrentSeason() == null) {
@@ -66,29 +57,14 @@ public class SystemSettingsService {
             settings.setCurrentSeason(season);
             systemSettingsRepository.save(settings);
         }
-        // Repository saves commit before returning unless a caller owns a larger transaction.
-        // In that case, leave the cache empty so a rollback cannot cache an unsaved season.
-        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
-            currentSeason = settings.getCurrentSeason();
-        }
         return settings.getCurrentSeason();
     }
 
-    // Archive passes its locked settings row; update the cached year only after commit.
+    // Archive supplies the settings row locked by its transaction.
     public Integer incrementCurrentSeason(SystemSettings settings) {
-        int nextSeason = Math.addExact(settings.getCurrentSeason(), 1);
+        int nextSeason = settings.getCurrentSeason() + 1;
         settings.setCurrentSeason(nextSeason);
         systemSettingsRepository.save(settings);
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    currentSeason = nextSeason;
-                }
-            });
-        } else {
-            currentSeason = nextSeason;
-        }
         return nextSeason;
     }
 

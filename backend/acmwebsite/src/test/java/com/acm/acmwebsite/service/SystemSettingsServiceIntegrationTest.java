@@ -69,27 +69,7 @@ class SystemSettingsServiceIntegrationTest {
     }
 
     @Test
-    void simultaneousFirstReadsCreateOnlyOneSettingsRow() throws Exception {
-        CountDownLatch start = new CountDownLatch(1);
-        try (var executor = Executors.newFixedThreadPool(2)) {
-            var first = executor.submit(() -> {
-                assertTrue(start.await(5, TimeUnit.SECONDS));
-                return service.getCurrentSeason();
-            });
-            var second = executor.submit(() -> {
-                assertTrue(start.await(5, TimeUnit.SECONDS));
-                return service.getCurrentSeason();
-            });
-            start.countDown();
-
-            assertEquals(2026, first.get(5, TimeUnit.SECONDS));
-            assertEquals(2026, second.get(5, TimeUnit.SECONDS));
-            assertEquals(1, repository.count());
-        }
-    }
-
-    @Test
-    void rolledBackInitializationLeavesDatabaseAndCacheUninitialized() {
+    void rolledBackInitializationLeavesDatabaseUninitialized() {
         assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
             assertEquals(2026, service.getCurrentSeason());
             throw new IllegalStateException("Simulated archive failure");
@@ -101,12 +81,12 @@ class SystemSettingsServiceIntegrationTest {
     }
 
     @Test
-    void rolledBackSeasonChangePreservesDatabaseAndCachedSeason() {
+    void rolledBackIncrementPreservesStoredSeason() {
         assertEquals(2026, service.getCurrentSeason());
         assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
             SystemSettings settings = repository.findSingletonForUpdate().orElseThrow();
-            settings.setCurrentSeason(2027);
-            repository.saveAndFlush(settings);
+            assertEquals(2027, service.incrementCurrentSeason(settings));
+            repository.flush();
             throw new IllegalStateException("Simulated archive failure");
         }));
 

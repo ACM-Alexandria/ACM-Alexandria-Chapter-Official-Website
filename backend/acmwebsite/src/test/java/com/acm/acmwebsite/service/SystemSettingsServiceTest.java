@@ -5,13 +5,10 @@ import com.acm.acmwebsite.feature.exception.EmailsLockedException;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -89,46 +86,23 @@ public class SystemSettingsServiceTest {
         assertDoesNotThrow(() -> systemSettingsService.assertEmailsEnabled());
     }
 
-    @AfterEach
-    void clearTransactionSynchronization() {
-        TransactionSynchronizationManager.setActualTransactionActive(false);
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.clearSynchronization();
-        }
-    }
-
     @Test
-    void incrementCurrentSeason_shouldPersistAndUpdateCacheOnlyAfterCommit() {
-        SystemSettings settings = settings(false, 2026);
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
-        TransactionSynchronizationManager.initSynchronization();
+    void incrementCurrentSeason_shouldPersistNextSeasonAndPreserveEmailFlag() {
+        SystemSettings settings = new SystemSettings(SystemSettings.SINGLETON_ID, false, 2026);
+
         assertEquals(2027, systemSettingsService.incrementCurrentSeason(settings));
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
+
         verify(systemSettingsRepository).save(settings);
+        assertEquals(2027, settings.getCurrentSeason());
         assertFalse(settings.isEmailsEnabled());
-        TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
-        assertEquals(2027, systemSettingsService.getCurrentSeason());
     }
 
     @Test
-    void rolledBackIncrement_shouldKeepCachedSeason() {
-        SystemSettings settings = settings(true, 2026);
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
-        TransactionSynchronizationManager.initSynchronization();
-        systemSettingsService.incrementCurrentSeason(settings);
-        TransactionSynchronizationManager.getSynchronizations().forEach(
-                callback -> callback.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
-        TransactionSynchronizationManager.clearSynchronization();
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
-    }
-
-    @Test
-    void failedIncrement_shouldNotUpdateCache() {
-        SystemSettings settings = settings(true, 2026);
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
+    void incrementCurrentSeason_shouldPropagateSaveFailure() {
+        SystemSettings settings = new SystemSettings(SystemSettings.SINGLETON_ID, true, 2026);
         doThrow(new IllegalStateException("Save failed")).when(systemSettingsRepository).save(settings);
+
         assertThrows(IllegalStateException.class, () -> systemSettingsService.incrementCurrentSeason(settings));
-        assertEquals(2026, systemSettingsService.getCurrentSeason());
     }
 
     private SystemSettings settings(boolean emailsEnabled, Integer season) {
@@ -143,7 +117,7 @@ public class SystemSettingsServiceTest {
     }
 
     @Test
-    void getCurrentSeason_inAugust_shouldPersistPreviousYearAndCacheIt() {
+    void getCurrentSeason_inAugust_shouldPersistPreviousYear() {
         SystemSettings settings = settings(false, null);
         serverDate("2026-08-31T12:00:00Z", "UTC");
 
@@ -151,7 +125,7 @@ public class SystemSettingsServiceTest {
         assertEquals(2025, systemSettingsService.getCurrentSeason());
         assertFalse(settings.isEmailsEnabled());
         verify(systemSettingsRepository).save(settings);
-        verify(systemSettingsRepository, times(1)).findById(SystemSettings.SINGLETON_ID);
+        verify(systemSettingsRepository, times(2)).findById(SystemSettings.SINGLETON_ID);
     }
 
     @Test
@@ -187,7 +161,7 @@ public class SystemSettingsServiceTest {
         assertEquals(2024, systemSettingsService.getCurrentSeason());
         verify(systemSettingsRepository, never()).save(any());
         verifyNoInteractions(clock);
-        verify(systemSettingsRepository, times(1)).findById(SystemSettings.SINGLETON_ID);
+        verify(systemSettingsRepository, times(2)).findById(SystemSettings.SINGLETON_ID);
     }
 
     @Test
@@ -223,30 +197,13 @@ public class SystemSettingsServiceTest {
     }
 
     @Test
-    void seasonReadsInsideTransaction_shouldLeaveCacheEmptyUntilAnOrdinaryRead() {
-        settings(true, 2025);
-        TransactionSynchronizationManager.setActualTransactionActive(true);
-
-        assertEquals(2025, systemSettingsService.getCurrentSeason());
-        assertEquals(2025, systemSettingsService.getCurrentSeason());
-        verify(systemSettingsRepository, times(2)).findById(SystemSettings.SINGLETON_ID);
-        TransactionSynchronizationManager.setActualTransactionActive(false);
-
-        assertEquals(2025, systemSettingsService.getCurrentSeason());
-        assertEquals(2025, systemSettingsService.getCurrentSeason());
-        verify(systemSettingsRepository, times(3)).findById(SystemSettings.SINGLETON_ID);
-    }
-
-    @Test
-    void rolledBackSeasonRead_shouldNotPopulateCache() {
+    void getCurrentSeason_shouldReadUpdatedStoredSeason() {
         SystemSettings settings = settings(true, 2025);
-        TransactionSynchronizationManager.setActualTransactionActive(true);
         assertEquals(2025, systemSettingsService.getCurrentSeason());
-        TransactionSynchronizationManager.setActualTransactionActive(false);
+
         settings.setCurrentSeason(2026);
 
         assertEquals(2026, systemSettingsService.getCurrentSeason());
-        verify(systemSettingsRepository, times(2)).findById(SystemSettings.SINGLETON_ID);
     }
 
 }
