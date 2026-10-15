@@ -149,6 +149,60 @@ class UserServiceImplTest {
                     .isInstanceOf(UserNotFoundException.class)
                     .hasMessage("User session invalid");
         }
+
+        @Test
+        @DisplayName("should include committee details when user is ACM_MEMBER")
+        void shouldIncludeCommitteeDetails_whenAcmMember() {
+            UUID id = UUID.randomUUID();
+            User user = buildUser(id, "member@test.com", Role.ACM_MEMBER);
+            UserDTO dto = buildUserDTO(id, "member@test.com");
+            dto.setCommitteeId(10L);
+            dto.setAssociationName("Web Committee");
+
+            when(userRepository.findByEmail("member@test.com")).thenReturn(Optional.of(user));
+            when(userMapper.toDTO(user)).thenReturn(dto);
+
+            Map<String, Object> result = userService.getUserAuthDetails("member@test.com");
+
+            assertThat(result).containsEntry("committee_id", 10L)
+                    .containsEntry("committee_name", "Web Committee");
+        }
+
+        @Test
+        @DisplayName("should include committee details when user is ACM_COMMITTEE_BOARD")
+        void shouldIncludeCommitteeDetails_whenAcmCommitteeBoard() {
+            UUID id = UUID.randomUUID();
+            User user = buildUser(id, "board@test.com", Role.ACM_COMMITTEE_BOARD);
+            UserDTO dto = buildUserDTO(id, "board@test.com");
+            dto.setCommitteeId(20L);
+            dto.setAssociationName("HR Committee");
+
+            when(userRepository.findByEmail("board@test.com")).thenReturn(Optional.of(user));
+            when(userMapper.toDTO(user)).thenReturn(dto);
+
+            Map<String, Object> result = userService.getUserAuthDetails("board@test.com");
+
+            assertThat(result).containsEntry("committee_id", 20L)
+                    .containsEntry("committee_name", "HR Committee");
+        }
+
+        @Test
+        @DisplayName("should have null committee details when user is not committee member (e.g. USER, ADMIN)")
+        void shouldHaveNullCommitteeDetails_whenNotCommitteeMember() {
+            UUID id = UUID.randomUUID();
+            User user = buildUser(id, "user@test.com", Role.USER);
+            UserDTO dto = buildUserDTO(id, "user@test.com");
+            dto.setCommitteeId(10L);
+            dto.setAssociationName("Web Committee");
+
+            when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(user));
+            when(userMapper.toDTO(user)).thenReturn(dto);
+
+            Map<String, Object> result = userService.getUserAuthDetails("user@test.com");
+
+            assertThat(result).containsEntry("committee_id", null)
+                    .containsEntry("committee_name", null);
+        }
     }
 
     @Nested
@@ -593,6 +647,48 @@ class UserServiceImplTest {
             userService.login(buildLoginRequest("  User@TEST.COM  ", "pass"));
 
             verify(userRepository).findByEmail("user@test.com");
+        }
+
+        @Test
+        @DisplayName("should populate committee details in LoginResponse when user is committee member")
+        void shouldIncludeCommitteeDetailsInLogin_whenCommitteeMember() {
+            UUID id = UUID.randomUUID();
+            User user = buildUser(id, "member@test.com", Role.ACM_MEMBER);
+            UserDTO dto = buildUserDTO(id, "member@test.com");
+            dto.setCommitteeId(15L);
+            dto.setAssociationName("PR Committee");
+
+            when(userRepository.findByEmail("member@test.com")).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("pass", "hashedPassword")).thenReturn(true);
+            when(tokenService.createRefreshToken(user)).thenReturn("refreshTok");
+            when(tokenService.createAccessToken(user)).thenReturn("accessTok");
+            when(userMapper.toDTO(user)).thenReturn(dto);
+
+            LoginResponse result = userService.login(buildLoginRequest("member@test.com", "pass"));
+
+            assertThat(result.getCommitteeId()).isEqualTo(15L);
+            assertThat(result.getCommitteeName()).isEqualTo("PR Committee");
+        }
+
+        @Test
+        @DisplayName("should have null committee details in LoginResponse when user is not committee member")
+        void shouldHaveNullCommitteeDetailsInLogin_whenNotCommitteeMember() {
+            UUID id = UUID.randomUUID();
+            User user = buildUser(id, "user@test.com", Role.USER);
+            UserDTO dto = buildUserDTO(id, "user@test.com");
+            dto.setCommitteeId(15L);
+            dto.setAssociationName("PR Committee");
+
+            when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("pass", "hashedPassword")).thenReturn(true);
+            when(tokenService.createRefreshToken(user)).thenReturn("refreshTok");
+            when(tokenService.createAccessToken(user)).thenReturn("accessTok");
+            when(userMapper.toDTO(user)).thenReturn(dto);
+
+            LoginResponse result = userService.login(buildLoginRequest("user@test.com", "pass"));
+
+            assertThat(result.getCommitteeId()).isNull();
+            assertThat(result.getCommitteeName()).isNull();
         }
     }
 
@@ -1329,6 +1425,114 @@ class UserServiceImplTest {
 
             assertThatThrownBy(() -> userService.assignUser(userId, UserAssignmentDto.builder().build()))
                     .isInstanceOf(UserNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when committee not found for ACM_MEMBER")
+        void shouldThrowIllegalArgumentException_whenCommitteeNotFound_forMemberRole() {
+            UUID userId = UUID.randomUUID();
+            User user = buildUser(userId, "user@test.com", Role.USER);
+            setSecurityAuthority("ROLE_SUPER_ADMIN");
+
+            UserAssignmentDto assignDto = UserAssignmentDto.builder()
+                    .targetRole(Role.ACM_MEMBER)
+                    .committeeId(99L)
+                    .build();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(committeeRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userService.assignUser(userId, assignDto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Committee not found");
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when committee not found for ACM_COMMITTEE_BOARD")
+        void shouldThrowIllegalArgumentException_whenCommitteeNotFound_forCommitteeBoard() {
+            UUID userId = UUID.randomUUID();
+            User user = buildUser(userId, "user@test.com", Role.USER);
+            setSecurityAuthority("ROLE_SUPER_ADMIN");
+
+            UserAssignmentDto assignDto = UserAssignmentDto.builder()
+                    .targetRole(Role.ACM_COMMITTEE_BOARD)
+                    .committeeId(99L)
+                    .build();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(committeeRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userService.assignUser(userId, assignDto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Committee not found");
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when club not found for ACM_CLUB_BOARD")
+        void shouldThrowIllegalArgumentException_whenClubNotFound_forClubBoard() {
+            UUID userId = UUID.randomUUID();
+            User user = buildUser(userId, "user@test.com", Role.USER);
+            setSecurityAuthority("ROLE_SUPER_ADMIN");
+
+            UserAssignmentDto assignDto = UserAssignmentDto.builder()
+                    .targetRole(Role.ACM_CLUB_BOARD)
+                    .clubId(99L)
+                    .build();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(highBoardRepository.findByUserId(userId)).thenReturn(Optional.empty());
+            when(committeeBoardRepository.findByUserId(userId)).thenReturn(Optional.empty());
+            when(clubBoardRepository.findByUserId(userId)).thenReturn(Optional.empty());
+            when(clubRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userService.assignUser(userId, assignDto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Club not found");
+        }
+    }
+
+    @Nested
+    @DisplayName("nullValidation")
+    class NullValidationTests {
+
+        @Test
+        @DisplayName("getUserById should throw NullPointerException when id is null")
+        void getUserById_shouldThrowNullPointerException_whenIdIsNull() {
+            assertThatThrownBy(() -> userService.getUserById(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("updateUserEmail should throw NullPointerException when id is null")
+        void updateUserEmail_shouldThrowNullPointerException_whenIdIsNull() {
+            assertThatThrownBy(() -> userService.updateUserEmail(null, "test@test.com"))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("updateUserPassword should throw NullPointerException when id is null")
+        void updateUserPassword_shouldThrowNullPointerException_whenIdIsNull() {
+            assertThatThrownBy(() -> userService.updateUserPassword(null, "old", "new"))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("deleteUser should throw NullPointerException when id is null")
+        void deleteUser_shouldThrowNullPointerException_whenIdIsNull() {
+            assertThatThrownBy(() -> userService.deleteUser(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("loginWithGoogle")
+    class LoginWithGoogleTests {
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when token is invalid")
+        void shouldThrowIllegalArgumentException_whenTokenInvalid() {
+            assertThatThrownBy(() -> userService.loginWithGoogle("invalid.token.here"))
+                    .isInstanceOf(IllegalArgumentException.class);
         }
     }
 }

@@ -1,22 +1,30 @@
 package com.acm.acmwebsite.service;
 
-import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
-import com.acm.acmwebsite.feature.exception.AnnouncementNotAllowedException;
-import com.acm.acmwebsite.feature.exception.EmailsLockedException;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.enums.Department;
+import com.acm.acmwebsite.feature.dto.EmailSettingsDto;
 import com.acm.acmwebsite.feature.dto.EventCardDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionRequestDto;
 import com.acm.acmwebsite.feature.dto.FormQuestionResponseDto;
+import com.acm.acmwebsite.feature.dto.RegistrationAnalysisDto;
 import com.acm.acmwebsite.feature.entity.Event;
 import com.acm.acmwebsite.feature.entity.EventFormQuestion;
+import com.acm.acmwebsite.feature.entity.EventRegistration;
 import com.acm.acmwebsite.feature.enums.QuestionType;
+import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
+import com.acm.acmwebsite.feature.exception.AnnouncementNotAllowedException;
+import com.acm.acmwebsite.feature.exception.EmailsLockedException;
+import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.mapper.EventMapper;
-import com.acm.acmwebsite.feature.repository.EventRepository;
-import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
+import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.service.EventService;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
+import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,8 +33,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,14 +45,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
+
     @Mock
     private EventRepository eventRepository;
 
@@ -84,293 +92,839 @@ public class EventServiceTest {
         return new EventCardDto(1L, "Hackathon", "img", "Coding event", EVENT_TIME, "Hall A");
     }
 
-    @Test
-    void getAllCards_shouldReturnEventCards() {
-        Event event = sampleEvent();
-        EventCardDto dto = sampleEventCardDto();
+    @Nested
+    @DisplayName("getAllCards Tests")
+    class GetAllCardsTests {
 
-        when(eventRepository.findAll(org.springframework.data.domain.Sort.by("eventTime").descending()))
-                .thenReturn(List.of(event));
-        when(eventMapper.toEventCardDto(event)).thenReturn(dto);
+        @Test
+        @DisplayName("getAllCards should return event cards ordered by eventTime descending")
+        void getAllCards_shouldReturnEventCards() {
+            Event event = sampleEvent();
+            EventCardDto dto = sampleEventCardDto();
 
-        List<EventCardDto> result = eventService.getAllCards();
+            when(eventRepository.findAll(Sort.by("eventTime").descending()))
+                    .thenReturn(List.of(event));
+            when(eventMapper.toEventCardDto(event)).thenReturn(dto);
 
-        assertEquals(1, result.size());
-        assertEquals("Hackathon", result.get(0).getName());
-        verify(eventRepository).findAll(org.springframework.data.domain.Sort.by("eventTime").descending());
+            List<EventCardDto> result = eventService.getAllCards();
+
+            assertEquals(1, result.size());
+            assertEquals("Hackathon", result.getFirst().getName());
+            verify(eventRepository).findAll(Sort.by("eventTime").descending());
+        }
     }
 
-    @Test
-    void getById_found() {
-        Event e = sampleEvent();
-        when(eventRepository.findById(1L))
-                .thenReturn(Optional.of(e));
+    @Nested
+    @DisplayName("getById Tests")
+    class GetByIdTests {
 
-        Optional<Event> result = eventService.getById(1L);
+        @Test
+        @DisplayName("getById found should return Event")
+        void getById_found() {
+            Event e = sampleEvent();
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
 
-        assertTrue(result.isPresent());
-        assertEquals("Hackathon", result.get().getName());
+            Optional<Event> result = eventService.getById(1L);
+
+            assertTrue(result.isPresent());
+            assertEquals("Hackathon", result.get().getName());
+        }
+
+        @Test
+        @DisplayName("getById not found should return empty Optional")
+        void getById_notFound() {
+            when(eventRepository.findById(1L)).thenReturn(Optional.empty());
+
+            Optional<Event> result = eventService.getById(1L);
+
+            assertTrue(result.isEmpty());
+        }
     }
 
-    @Test
-    void getById_notFound() {
-        when(eventRepository.findById(1L))
-                .thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("createEvent Tests")
+    class CreateEventTests {
 
-        Optional<Event> result = eventService.getById(1L);
+        @Test
+        @DisplayName("createEvent with null name should throw IllegalArgumentException")
+        void createEvent_nullName_shouldThrow() {
+            Event e = sampleEvent();
+            e.setName(null);
 
-        assertTrue(result.isEmpty());
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> eventService.createEvent(e));
+
+            assertEquals("Event name is required", ex.getMessage());
+            verify(eventRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("createEvent with blank name should throw IllegalArgumentException")
+        void createEvent_blankName_shouldThrow() {
+            Event e = sampleEvent();
+            e.setName("   ");
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> eventService.createEvent(e));
+
+            assertEquals("Event name is required", ex.getMessage());
+            verify(eventRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("createEvent should save and announce when emails are enabled and event is upcoming")
+        void createEvent_shouldSave() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            Event saved = eventService.createEvent(e);
+
+            assertEquals("Hackathon", saved.getName());
+            assertNotNull(e.getAnnouncementSentAt());
+            verify(eventRepository, times(2)).save(e);
+            verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+        }
+
+        @Test
+        @DisplayName("createEvent with announcement should record sentAt")
+        void createEvent_withAnnouncement_shouldRecordSentAt() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            eventService.createEvent(e);
+
+            assertNotNull(e.getAnnouncementSentAt());
+        }
+
+        @Test
+        @DisplayName("createEvent with sendAnnouncement false should skip announcement")
+        void createEvent_withSendAnnouncementFalse_shouldSkipAnnouncement() {
+            Event e = sampleEvent();
+            e.setSendAnnouncement(false);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            eventService.createEvent(e);
+
+            verify(eventRepository).save(e);
+            assertNull(e.getAnnouncementSentAt());
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
+
+        @Test
+        @DisplayName("createEvent while emails locked should not record announcementSentAt")
+        void createEvent_whileEmailsLocked_shouldNotRecordSentAt() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            eventService.createEvent(e);
+
+            assertNull(e.getAnnouncementSentAt());
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
+
+        @Test
+        @DisplayName("createEvent announcement fails should still save without sentAt")
+        void createEvent_announcementFails_shouldStillCreateWithoutSentAt() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+            when(eventRepository.save(e)).thenReturn(e);
+            doThrow(new RuntimeException("db down")).when(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+
+            Event saved = eventService.createEvent(e);
+
+            assertSame(e, saved);
+            assertNull(e.getAnnouncementSentAt());
+            verify(eventRepository, times(1)).save(e);
+        }
+
+        @Test
+        @DisplayName("createEvent past event should not announce")
+        void createEvent_pastEvent_shouldNotAnnounce() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().minusDays(1));
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            eventService.createEvent(e);
+
+            assertNull(e.getAnnouncementSentAt());
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
+
+        @Test
+        @DisplayName("createEvent with null eventTime should not be treated as past event and announce")
+        void createEvent_withNullEventTime_shouldAnnounce() {
+            Event e = sampleEvent();
+            e.setEventTime(null);
+            when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
+            when(eventRepository.save(e)).thenReturn(e);
+
+            Event saved = eventService.createEvent(e);
+
+            assertNotNull(e.getAnnouncementSentAt());
+            verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+        }
     }
 
-    @Test
-    void createEvent_shouldSave() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
-        when(eventRepository.save(e)).thenReturn(e);
+    @Nested
+    @DisplayName("getEmailSettings Tests")
+    class GetEmailSettingsTests {
 
-        Event saved = eventService.createEvent(e);
+        @Test
+        @DisplayName("getEmailSettings found should return EmailSettingsDto")
+        void getEmailSettings_found_shouldReturnDto() {
+            Event event = sampleEvent();
+            LocalDateTime sentAt = LocalDateTime.of(2026, 4, 10, 11, 0);
+            event.setAnnouncementSentAt(sentAt);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
-        assertEquals("Hackathon", saved.getName());
-        // Saved once on create, then again to record the announcement time
-        verify(eventRepository, times(2)).save(e);
-        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+            EmailSettingsDto dto = eventService.getEmailSettings(1L);
+
+            assertNotNull(dto);
+            assertEquals(sentAt, dto.getAnnouncementSentAt());
+        }
+
+        @Test
+        @DisplayName("getEmailSettings not found should throw ResourceNotFoundException")
+        void getEmailSettings_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.getEmailSettings(99L));
+        }
     }
 
-    @Test
-    void createQuestion_shouldSaveEventQuestion() {
-        Event event = sampleEvent();
-        FormQuestionRequestDto request = FormQuestionRequestDto.builder()
-                .questionText("Why do you want to attend?")
-                .questionType("text")
-                .isRequired(true)
-                .options(List.of("  ", "ignored"))
-                .build();
+    @Nested
+    @DisplayName("announceEvent Tests")
+    class AnnounceEventTests {
 
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
-        when(eventFormQuestionRepository.save(any(EventFormQuestion.class))).thenAnswer(invocation -> {
-            EventFormQuestion question = invocation.getArgument(0);
-            question.setId(20L);
-            return question;
-        });
+        @Test
+        @DisplayName("announceEvent when emails locked should throw EmailsLockedException")
+        void announceEvent_emailsLocked_shouldThrowWithoutNotifying() {
+            doThrow(new EmailsLockedException()).when(systemSettingsService).assertEmailsEnabled();
 
-        FormQuestionResponseDto result = eventService.createQuestion(1L, request);
+            assertThrows(EmailsLockedException.class, () -> eventService.announceEvent(1L, false));
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
 
-        assertEquals(20L, result.getId());
-        assertEquals("Why do you want to attend?", result.getQuestionText());
-        assertEquals(QuestionType.TEXT.name(), result.getQuestionType());
-        assertTrue(result.getIsRequired());
-        verify(eventFormQuestionRepository).save(argThat(question ->
-                question.getEvent() == event
-                        && question.getQuestionType() == QuestionType.TEXT
-                        && question.getOptions().equals(List.of("ignored"))
-        ));
+        @Test
+        @DisplayName("announceEvent not found should throw ResourceNotFoundException")
+        void announceEvent_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.announceEvent(99L, false));
+        }
+
+        @Test
+        @DisplayName("announceEvent past event should refuse with AnnouncementNotAllowedException")
+        void announceEvent_pastEvent_shouldRefuse() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().minusDays(1));
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+
+            assertThrows(AnnouncementNotAllowedException.class, () -> eventService.announceEvent(1L, false));
+
+            verify(eventRepository, never()).claimAnnouncement(any(), any());
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
+
+        @Test
+        @DisplayName("announceEvent should notify subscribers on successful claim")
+        void announceEvent_shouldNotifySubscribers() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+            when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+
+            eventService.announceEvent(1L, false);
+
+            verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+        }
+
+        @Test
+        @DisplayName("announceEvent with null eventTime should not be treated as past event")
+        void announceEvent_nullEventTime_shouldNotBeTreatedAsPastEvent() {
+            Event e = sampleEvent();
+            e.setEventTime(null);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+            when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+
+            eventService.announceEvent(1L, false);
+
+            verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+        }
+
+        @Test
+        @DisplayName("announceEvent already sent should throw AnnouncementAlreadySentException")
+        void announceEvent_alreadySent_shouldRefuseWithoutNotifying() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            LocalDateTime sentAt = LocalDateTime.of(2026, 5, 1, 12, 0);
+            e.setAnnouncementSentAt(sentAt);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+            when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(0);
+
+            AnnouncementAlreadySentException ex = assertThrows(AnnouncementAlreadySentException.class,
+                    () -> eventService.announceEvent(1L, false));
+
+            assertEquals(sentAt, ex.getSentAt());
+            verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+        }
+
+        @Test
+        @DisplayName("announceEvent force resends and updates sentAt")
+        void announceEvent_force_shouldResendAndUpdateSentAt() {
+            Event e = sampleEvent();
+            e.setEventTime(LocalDateTime.now().plusDays(7));
+            LocalDateTime oldSent = LocalDateTime.of(2026, 5, 1, 12, 0);
+            e.setAnnouncementSentAt(oldSent);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+
+            eventService.announceEvent(1L, true);
+
+            assertTrue(e.getAnnouncementSentAt().isAfter(oldSent));
+            verify(eventRepository).save(e);
+            verify(eventRepository, never()).claimAnnouncement(any(), any());
+            verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
+        }
     }
 
-    @Test
-    void updateEvent_success() {
-        Event existing = sampleEvent();
+    @Nested
+    @DisplayName("Question Management Tests")
+    class QuestionManagementTests {
 
-        Event updated = new Event();
-        updated.setName("New Name");
-        updated.setDescription("New Desc");
-        updated.setImageUrl("newImg");
-        updated.setLocation("New Hall");
-        updated.setEventTime(LocalDateTime.now().plusDays(1));
+        @Test
+        @DisplayName("createQuestion event not found should throw ResourceNotFoundException")
+        void createQuestion_eventNotFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(eventRepository.findById(1L))
-                .thenReturn(Optional.of(existing));
+            FormQuestionRequestDto req = FormQuestionRequestDto.builder()
+                    .questionText("Question?")
+                    .questionType("TEXT")
+                    .build();
 
-        when(eventRepository.save(any(Event.class)))
-                .thenReturn(existing);
+            assertThrows(ResourceNotFoundException.class, () -> eventService.createQuestion(99L, req));
+        }
 
-        Event result = eventService.updateEvent(1L, updated);
+        @Test
+        @DisplayName("createQuestion success should save event question and return DTO")
+        void createQuestion_success() {
+            Event event = sampleEvent();
+            FormQuestionRequestDto request = FormQuestionRequestDto.builder()
+                    .questionText("Why do you want to attend?")
+                    .questionType("text")
+                    .isRequired(true)
+                    .options(List.of("  ", "ignored"))
+                    .build();
 
-        assertEquals("New Name", result.getName());
-        assertEquals("New Desc", result.getDescription());
-        assertEquals("New Hall", result.getLocation());
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+            when(eventFormQuestionRepository.save(any(EventFormQuestion.class))).thenAnswer(invocation -> {
+                EventFormQuestion question = invocation.getArgument(0);
+                question.setId(20L);
+                return question;
+            });
 
-        verify(eventRepository).save(existing);
+            FormQuestionResponseDto result = eventService.createQuestion(1L, request);
+
+            assertEquals(20L, result.getId());
+            assertEquals("Why do you want to attend?", result.getQuestionText());
+            assertEquals(QuestionType.TEXT.name(), result.getQuestionType());
+            assertTrue(result.getIsRequired());
+            verify(eventFormQuestionRepository).save(argThat(question ->
+                    question.getEvent() == event
+                            && question.getQuestionType() == QuestionType.TEXT
+                            && question.getOptions().equals(List.of("ignored"))
+            ));
+        }
+
+        @Test
+        @DisplayName("updateQuestion question not found should throw ResourceNotFoundException")
+        void updateQuestion_questionNotFound_shouldThrow() {
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.empty());
+
+            FormQuestionRequestDto req = FormQuestionRequestDto.builder()
+                    .questionText("Updated?")
+                    .questionType("TEXT")
+                    .build();
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.updateQuestion(1L, 100L, req));
+        }
+
+        @Test
+        @DisplayName("updateQuestion event mismatch or null event should throw ResourceNotFoundException")
+        void updateQuestion_eventMismatch_shouldThrow() {
+            Event otherEvent = sampleEvent();
+            otherEvent.setId(999L);
+            EventFormQuestion existingWithOther = EventFormQuestion.builder()
+                    .id(100L)
+                    .event(otherEvent)
+                    .questionText("Old text")
+                    .build();
+
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.of(existingWithOther));
+
+            FormQuestionRequestDto req = FormQuestionRequestDto.builder()
+                    .questionText("Updated?")
+                    .questionType("TEXT")
+                    .build();
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.updateQuestion(1L, 100L, req));
+
+            // Also test null event
+            EventFormQuestion existingWithNull = EventFormQuestion.builder()
+                    .id(101L)
+                    .event(null)
+                    .questionText("Old text")
+                    .build();
+            when(eventFormQuestionRepository.findById(101L)).thenReturn(Optional.of(existingWithNull));
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.updateQuestion(1L, 101L, req));
+        }
+
+        @Test
+        @DisplayName("updateQuestion success should update fields and save")
+        void updateQuestion_success_shouldUpdateAndSave() {
+            Event event = sampleEvent();
+            EventFormQuestion existing = EventFormQuestion.builder()
+                    .id(100L)
+                    .event(event)
+                    .questionText("Old text")
+                    .questionType(QuestionType.TEXT)
+                    .isRequired(false)
+                    .build();
+
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.of(existing));
+            when(eventFormQuestionRepository.save(any(EventFormQuestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            FormQuestionRequestDto req = FormQuestionRequestDto.builder()
+                    .questionText("Updated text?")
+                    .questionType("CHECKBOX")
+                    .isRequired(true)
+                    .options(List.of("Option A", "Option B"))
+                    .build();
+
+            FormQuestionResponseDto result = eventService.updateQuestion(1L, 100L, req);
+
+            assertEquals(100L, result.getId());
+            assertEquals("Updated text?", result.getQuestionText());
+            assertEquals(QuestionType.CHECKBOX.name(), result.getQuestionType());
+            assertTrue(result.getIsRequired());
+            assertEquals(List.of("Option A", "Option B"), result.getOptions());
+            verify(eventFormQuestionRepository).save(existing);
+        }
+
+        @Test
+        @DisplayName("deleteQuestion question not found should throw ResourceNotFoundException")
+        void deleteQuestion_questionNotFound_shouldThrow() {
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.deleteQuestion(1L, 100L));
+        }
+
+        @Test
+        @DisplayName("deleteQuestion event mismatch or null event should throw ResourceNotFoundException")
+        void deleteQuestion_eventMismatch_shouldThrow() {
+            Event otherEvent = sampleEvent();
+            otherEvent.setId(999L);
+            EventFormQuestion existingWithOther = EventFormQuestion.builder()
+                    .id(100L)
+                    .event(otherEvent)
+                    .build();
+
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.of(existingWithOther));
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.deleteQuestion(1L, 100L));
+
+            // Also test null event
+            EventFormQuestion existingWithNull = EventFormQuestion.builder()
+                    .id(101L)
+                    .event(null)
+                    .build();
+            when(eventFormQuestionRepository.findById(101L)).thenReturn(Optional.of(existingWithNull));
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.deleteQuestion(1L, 101L));
+            verify(eventFormQuestionRepository, never()).delete(any());
+        }
+
+        @Test
+        @DisplayName("deleteQuestion success should delete entity")
+        void deleteQuestion_success_shouldDelete() {
+            Event event = sampleEvent();
+            EventFormQuestion existing = EventFormQuestion.builder()
+                    .id(100L)
+                    .event(event)
+                    .build();
+
+            when(eventFormQuestionRepository.findById(100L)).thenReturn(Optional.of(existing));
+
+            eventService.deleteQuestion(1L, 100L);
+
+            verify(eventFormQuestionRepository).delete(existing);
+        }
     }
 
-    @Test
-    void updateEvent_notFound_shouldThrow() {
-        when(eventRepository.findById(1L))
-                .thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("updateEvent Tests")
+    class UpdateEventTests {
 
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
-                () -> eventService.updateEvent(1L, new Event()));
+        @Test
+        @DisplayName("updateEvent not found should throw RuntimeException")
+        void updateEvent_notFound_shouldThrow() {
+            when(eventRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertEquals("EVENT not found", ex.getMessage());
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> eventService.updateEvent(1L, new Event()));
+
+            assertEquals("EVENT not found", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("updateEvent null name should throw IllegalArgumentException")
+        void updateEvent_nullName_shouldThrow() {
+            Event existing = sampleEvent();
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+            Event updateReq = new Event();
+            updateReq.setName(null);
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> eventService.updateEvent(1L, updateReq));
+
+            assertEquals("Event name is required", ex.getMessage());
+            verify(eventRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("updateEvent blank name should throw IllegalArgumentException")
+        void updateEvent_blankName_shouldThrow() {
+            Event existing = sampleEvent();
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+            Event updateReq = new Event();
+            updateReq.setName("   ");
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> eventService.updateEvent(1L, updateReq));
+
+            assertEquals("Event name is required", ex.getMessage());
+            verify(eventRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("updateEvent success with existing attached images and non-null updated attached images")
+        void updateEvent_success_withAttachedImagesReplacement() {
+            Event existing = sampleEvent();
+            existing.setAttachedImages(new ArrayList<>(List.of("old1.jpg", "old2.jpg")));
+
+            Event updated = new Event();
+            updated.setName("New Name");
+            updated.setDescription("New Desc");
+            updated.setImageUrl("newImg");
+            updated.setLocation("New Hall");
+            LocalDateTime newTime = LocalDateTime.now().plusDays(2);
+            LocalDateTime newEnd = LocalDateTime.now().plusDays(2).plusHours(3);
+            updated.setEventTime(newTime);
+            updated.setEndTime(newEnd);
+            updated.setRegistrationOpen(true);
+            updated.setAttachedImages(List.of("new1.jpg", "new2.jpg"));
+
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Event result = eventService.updateEvent(1L, updated);
+
+            assertEquals("New Name", result.getName());
+            assertEquals("New Desc", result.getDescription());
+            assertEquals("New Hall", result.getLocation());
+            assertEquals(newTime, result.getEventTime());
+            assertEquals(newEnd, result.getEndTime());
+            assertTrue(result.getRegistrationOpen());
+            assertEquals(List.of("new1.jpg", "new2.jpg"), result.getAttachedImages());
+            verify(eventRepository).save(existing);
+        }
+
+        @Test
+        @DisplayName("updateEvent success when existing attachedImages is non-null but updated is null")
+        void updateEvent_success_existingAttachedImages_updatedNull() {
+            Event existing = sampleEvent();
+            existing.setAttachedImages(new ArrayList<>(List.of("old1.jpg")));
+
+            Event updated = new Event();
+            updated.setName("Updated");
+            updated.setAttachedImages(null);
+
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Event result = eventService.updateEvent(1L, updated);
+
+            assertNotNull(result.getAttachedImages());
+            assertTrue(result.getAttachedImages().isEmpty());
+        }
+
+        @Test
+        @DisplayName("updateEvent success when existing attachedImages is null")
+        void updateEvent_success_existingAttachedImagesNull() {
+            Event existing = sampleEvent();
+            existing.setAttachedImages(null);
+
+            Event updated = new Event();
+            updated.setName("Updated");
+            updated.setAttachedImages(List.of("imgA.jpg"));
+
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Event result = eventService.updateEvent(1L, updated);
+
+            assertEquals(List.of("imgA.jpg"), result.getAttachedImages());
+
+            // Also test null updated attached images when existing is null
+            existing.setAttachedImages(null);
+            updated.setAttachedImages(null);
+            Event result2 = eventService.updateEvent(1L, updated);
+            assertNotNull(result2.getAttachedImages());
+            assertTrue(result2.getAttachedImages().isEmpty());
+        }
     }
 
-    @Test
-    void deleteEvent_shouldCallRepository() {
-        eventService.deleteEvent(1L);
-        verify(eventRegistrationRepository).deleteByEventId(1L);
-        verify(eventFormQuestionRepository).deleteByEventId(1L);
-        verify(eventRepository).deleteById(1L);
+    @Nested
+    @DisplayName("openRegistration & closeRegistration Tests")
+    class RegistrationStatusTests {
+
+        @Test
+        @DisplayName("openRegistration success should set registrationOpen to true")
+        void openRegistration_success() {
+            Event event = sampleEvent();
+            event.setRegistrationOpen(false);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Event result = eventService.openRegistration(1L);
+
+            assertTrue(result.getRegistrationOpen());
+            verify(eventRepository).save(event);
+        }
+
+        @Test
+        @DisplayName("openRegistration not found should throw ResourceNotFoundException")
+        void openRegistration_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.openRegistration(99L));
+        }
+
+        @Test
+        @DisplayName("closeRegistration success should set registrationOpen to false")
+        void closeRegistration_success() {
+            Event event = sampleEvent();
+            event.setRegistrationOpen(true);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Event result = eventService.closeRegistration(1L);
+
+            assertFalse(result.getRegistrationOpen());
+            verify(eventRepository).save(event);
+        }
+
+        @Test
+        @DisplayName("closeRegistration not found should throw ResourceNotFoundException")
+        void closeRegistration_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> eventService.closeRegistration(99L));
+        }
     }
 
-    @Test
-    void getEventsByPage_shouldReturnPagedEvents() {
-        Event e = sampleEvent();
-        EventCardDto dto = sampleEventCardDto();
+    @Nested
+    @DisplayName("deleteEvent Tests")
+    class DeleteEventTests {
 
-        Page<Event> page = new PageImpl<>(List.of(e));
-
-        when(eventRepository.findAll(any(PageRequest.class)))
-                .thenReturn(page);
-        when(eventMapper.toEventCardDto(e)).thenReturn(dto);
-
-        Page<EventCardDto> result = eventService.getEventsByPage(0);
-
-        assertEquals(1, result.getContent().size());
-        assertEquals("Hackathon", result.getContent().get(0).getName());
-        verify(eventRepository).findAll(any(PageRequest.class));
+        @Test
+        @DisplayName("deleteEvent should delete cascade references and event")
+        void deleteEvent_shouldCallRepository() {
+            eventService.deleteEvent(1L);
+            verify(eventRegistrationRepository).deleteByEventId(1L);
+            verify(eventFormQuestionRepository).deleteByEventId(1L);
+            verify(eventRepository).deleteById(1L);
+        }
     }
 
-    @Test
-    void getEventsByPage_emptyPage() {
-        Page<Event> page = new PageImpl<>(List.of());
+    @Nested
+    @DisplayName("getEventsByPage Tests")
+    class GetEventsByPageTests {
 
-        when(eventRepository.findAll(any(PageRequest.class)))
-                .thenReturn(page);
+        @Test
+        @DisplayName("getEventsByPage should return paged events")
+        void getEventsByPage_shouldReturnPagedEvents() {
+            Event e = sampleEvent();
+            EventCardDto dto = sampleEventCardDto();
+            Page<Event> page = new PageImpl<>(List.of(e));
 
-        Page<EventCardDto> result = eventService.getEventsByPage(0);
+            when(eventRepository.findAll(any(PageRequest.class))).thenReturn(page);
+            when(eventMapper.toEventCardDto(e)).thenReturn(dto);
 
-        assertTrue(result.getContent().isEmpty());
+            Page<EventCardDto> result = eventService.getEventsByPage(0);
+
+            assertEquals(1, result.getContent().size());
+            assertEquals("Hackathon", result.getContent().getFirst().getName());
+            verify(eventRepository).findAll(any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("getEventsByPage with negative page should clamp to zero")
+        void getEventsByPage_negativePage_shouldClampToZero() {
+            Page<Event> page = new PageImpl<>(List.of());
+            when(eventRepository.findAll(argThat((PageRequest pr) -> pr.getPageNumber() == 0))).thenReturn(page);
+
+            Page<EventCardDto> result = eventService.getEventsByPage(-3);
+
+            assertTrue(result.getContent().isEmpty());
+            verify(eventRepository).findAll(argThat((PageRequest pr) -> pr.getPageNumber() == 0));
+        }
+
+        @Test
+        @DisplayName("getEventsByPage empty page")
+        void getEventsByPage_emptyPage() {
+            Page<Event> page = new PageImpl<>(List.of());
+
+            when(eventRepository.findAll(any(PageRequest.class))).thenReturn(page);
+
+            Page<EventCardDto> result = eventService.getEventsByPage(0);
+
+            assertTrue(result.getContent().isEmpty());
+        }
     }
 
+    @Nested
+    @DisplayName("Registration Analysis & Google Sheets Sync Tests")
+    class RegistrationAnalysisTests {
 
-    @Test
-    void createEvent_withSendAnnouncementFalse_shouldSkipAnnouncement() {
-        Event e = sampleEvent();
-        e.setSendAnnouncement(false);
-        when(eventRepository.save(e)).thenReturn(e);
+        @Test
+        @DisplayName("getRegistrationAnalysis not found should throw ResourceNotFoundException")
+        void getRegistrationAnalysis_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
 
-        eventService.createEvent(e);
+            assertThrows(ResourceNotFoundException.class, () -> eventService.getRegistrationAnalysis(99L));
+        }
 
-        verify(eventRepository).save(e);
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
-    }
+        @Test
+        @DisplayName("getRegistrationAnalysis should compute statistics correctly across diverse registrations")
+        void getRegistrationAnalysis_success_shouldComputeStats() {
+            Event event = sampleEvent();
+            event.setGoogleSheetUrl("https://docs.google.com/event-sheet");
+            LocalDateTime sheetTime = LocalDateTime.of(2026, 9, 21, 14, 0);
+            event.setSheetLastUpdatedAt(sheetTime);
 
-    @Test
-    void announceEvent_shouldNotifySubscribers() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
-        when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(1);
+            User userAlexCsed = new User();
+            userAlexCsed.setIsAlexEngStudent(true);
+            userAlexCsed.setDepartment(Department.CSED);
+            userAlexCsed.setBatch("2026");
 
-        eventService.announceEvent(1L, false);
+            User userNonAlexCce = new User();
+            userNonAlexCce.setIsAlexEngStudent(false);
+            userNonAlexCce.setDepartment(Department.CCE);
+            userNonAlexCce.setBatch("2027");
 
-        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
-    }
+            User userNullDeptAndBatch = new User();
+            userNullDeptAndBatch.setIsAlexEngStudent(null);
+            userNullDeptAndBatch.setDepartment(null);
+            userNullDeptAndBatch.setBatch(null);
 
-    @Test
-    void announceEvent_emailsLocked_shouldThrowWithoutNotifying() {
-        doThrow(new EmailsLockedException()).when(systemSettingsService).assertEmailsEnabled();
+            User userBlankBatch = new User();
+            userBlankBatch.setIsAlexEngStudent(false);
+            userBlankBatch.setDepartment(Department.OTHER);
+            userBlankBatch.setBatch("   ");
 
-        assertThrows(EmailsLockedException.class, () -> eventService.announceEvent(1L, false));
+            EventRegistration reg1 = EventRegistration.builder().id(1L).user(userAlexCsed).event(event).build();
+            EventRegistration reg2 = EventRegistration.builder().id(2L).user(userNonAlexCce).event(event).build();
+            EventRegistration reg3 = EventRegistration.builder().id(3L).user(userNullDeptAndBatch).event(event).build();
+            EventRegistration reg4 = EventRegistration.builder().id(4L).user(userBlankBatch).event(event).build();
+            EventRegistration reg5 = EventRegistration.builder().id(5L).user(null).event(event).build();
 
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
-    }
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+            when(eventRegistrationRepository.findByEventId(1L))
+                    .thenReturn(List.of(reg1, reg2, reg3, reg4, reg5));
 
-    @Test
-    void announceEvent_alreadySent_shouldRefuseWithoutNotifying() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        e.setAnnouncementSentAt(LocalDateTime.of(2026, 5, 1, 12, 0));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
-        when(eventRepository.claimAnnouncement(eq(1L), any())).thenReturn(0);
+            RegistrationAnalysisDto analysis = eventService.getRegistrationAnalysis(1L);
 
-        AnnouncementAlreadySentException ex = assertThrows(AnnouncementAlreadySentException.class,
-                () -> eventService.announceEvent(1L, false));
+            assertEquals(5, analysis.getTotalRegistrations());
+            assertEquals(1L, analysis.getAlexUniStudentCount());
+            assertEquals(4L, analysis.getNonAlexUniStudentCount());
 
-        assertEquals(LocalDateTime.of(2026, 5, 1, 12, 0), ex.getSentAt());
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
-    }
+            assertEquals(1L, analysis.getDepartmentCounts().get("CSED"));
+            assertEquals(1L, analysis.getDepartmentCounts().get("CCE"));
+            assertEquals(1L, analysis.getDepartmentCounts().get("OTHER"));
+            assertEquals(1L, analysis.getDepartmentCounts().get("N/A"));
 
-    @Test
-    void announceEvent_force_shouldResendAndUpdateSentAt() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        e.setAnnouncementSentAt(LocalDateTime.of(2026, 5, 1, 12, 0));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+            assertEquals(1L, analysis.getBatchCounts().get("2026"));
+            assertEquals(1L, analysis.getBatchCounts().get("2027"));
+            assertEquals(2L, analysis.getBatchCounts().get("N/A"));
 
-        eventService.announceEvent(1L, true);
+            assertEquals("https://docs.google.com/event-sheet", analysis.getGoogleSheetUrl());
+            assertEquals(sheetTime, analysis.getSheetLastUpdatedAt());
+        }
 
-        assertTrue(e.getAnnouncementSentAt().isAfter(LocalDateTime.of(2026, 5, 1, 12, 0)));
-        verify(eventRepository).save(e);
-        verify(eventRepository, never()).claimAnnouncement(any(), any());
-        verify(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
-    }
+        @Test
+        @DisplayName("syncRegistrationsSheet not found should throw ResourceNotFoundException")
+        void syncRegistrationsSheet_notFound_shouldThrow() {
+            when(eventRepository.findById(99L)).thenReturn(Optional.empty());
 
-    @Test
-    void announceEvent_pastEvent_shouldRefuse() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().minusDays(1));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(e));
+            assertThrows(ResourceNotFoundException.class, () -> eventService.syncRegistrationsSheet(99L));
+        }
 
-        assertThrows(AnnouncementNotAllowedException.class, () -> eventService.announceEvent(1L, false));
+        @Test
+        @DisplayName("syncRegistrationsSheet should invoke GoogleSheetsService and update sheet metadata")
+        void syncRegistrationsSheet_success_shouldSync() {
+            Event event = sampleEvent();
+            event.setGoogleSheetUrl("https://docs.google.com/old-event-url");
 
-        verify(eventRepository, never()).claimAnnouncement(any(), any());
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
-    }
+            EventRegistration reg = EventRegistration.builder().id(1L).event(event).build();
+            EventFormQuestion q = EventFormQuestion.builder().id(10L).event(event).questionText("Question?").build();
 
-    @Test
-    void createEvent_withAnnouncement_shouldRecordSentAt() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
-        when(eventRepository.save(e)).thenReturn(e);
+            when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+            when(eventRegistrationRepository.findByEventId(1L)).thenReturn(List.of(reg));
+            when(eventFormQuestionRepository.findByEventId(1L)).thenReturn(List.of(q));
+            when(googleSheetsService.syncRegistrationData(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )).thenReturn("https://docs.google.com/new-event-url");
+            when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        eventService.createEvent(e);
+            RegistrationAnalysisDto result = eventService.syncRegistrationsSheet(1L);
 
-        assertNotNull(e.getAnnouncementSentAt());
-    }
+            assertNotNull(result);
+            assertEquals("https://docs.google.com/new-event-url", event.getGoogleSheetUrl());
+            assertNotNull(event.getSheetLastUpdatedAt());
+            verify(eventRepository).save(event);
+            verify(googleSheetsService).syncRegistrationData(
+                    eq("ACM Alexandria - Event: Hackathon - Registrations"),
+                    any(),
+                    eq("https://docs.google.com/old-event-url"),
+                    eq(Arrays.asList("Event Name:", "Hackathon", "Event Time:", EVENT_TIME.toString())),
+                    eq(List.of(reg)),
+                    eq(List.of(q)),
+                    any(), any(), any(), any(), any(), any()
+            );
 
-    @Test
-    void createEvent_whileEmailsLocked_shouldNotRecordSentAt() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        when(systemSettingsService.isEmailsEnabled()).thenReturn(false);
-        when(eventRepository.save(e)).thenReturn(e);
-
-        eventService.createEvent(e);
-
-        // The announcement was dropped, so it must still be sendable later
-        assertNull(e.getAnnouncementSentAt());
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
-    }
-
-    @Test
-    void createEvent_announcementFails_shouldStillCreateWithoutSentAt() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().plusDays(7));
-        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
-        when(eventRepository.save(e)).thenReturn(e);
-        doThrow(new RuntimeException("db down")).when(subscriptionService).sendNewEventNotificationToNewsSubscribers(e);
-
-        Event saved = eventService.createEvent(e);
-
-        // The event exists, but stays sendable because the announcement never went out
-        assertSame(e, saved);
-        assertNull(e.getAnnouncementSentAt());
-        verify(eventRepository, times(1)).save(e);
-    }
-
-    @Test
-    void createEvent_pastEvent_shouldNotAnnounce() {
-        Event e = sampleEvent();
-        e.setEventTime(LocalDateTime.now().minusDays(1));
-        when(systemSettingsService.isEmailsEnabled()).thenReturn(true);
-        when(eventRepository.save(e)).thenReturn(e);
-
-        eventService.createEvent(e);
-
-        assertNull(e.getAnnouncementSentAt());
-        verify(subscriptionService, never()).sendNewEventNotificationToNewsSubscribers(any());
+            // Also test branch where eventTime is null (prefix header has "N/A")
+            event.setEventTime(null);
+            eventService.syncRegistrationsSheet(1L);
+            verify(googleSheetsService).syncRegistrationData(
+                    eq("ACM Alexandria - Event: Hackathon - Registrations"),
+                    any(),
+                    eq("https://docs.google.com/new-event-url"),
+                    eq(Arrays.asList("Event Name:", "Hackathon", "Event Time:", "N/A")),
+                    eq(List.of(reg)),
+                    eq(List.of(q)),
+                    any(), any(), any(), any(), any(), any()
+            );
+        }
     }
 }
