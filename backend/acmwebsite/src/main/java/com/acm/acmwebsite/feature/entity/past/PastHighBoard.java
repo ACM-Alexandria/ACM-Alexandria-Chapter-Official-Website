@@ -1,4 +1,4 @@
-package com.acm.acmwebsite.feature.entity;
+package com.acm.acmwebsite.feature.entity.past;
 
 import jakarta.persistence.*;
 import lombok.Getter;

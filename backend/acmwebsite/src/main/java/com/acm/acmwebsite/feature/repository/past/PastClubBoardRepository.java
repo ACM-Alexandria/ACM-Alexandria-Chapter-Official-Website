@@ -1,6 +1,6 @@
-package com.acm.acmwebsite.feature.repository;
+package com.acm.acmwebsite.feature.repository.past;
 
-import com.acm.acmwebsite.feature.entity.PastCommitteeBoard;
+import com.acm.acmwebsite.feature.entity.past.PastClubBoard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PastCommitteeBoardRepository extends JpaRepository<PastCommitteeBoard, Long> {
+public interface PastClubBoardRepository extends JpaRepository<PastClubBoard, Long> {
     boolean existsBySeason(Integer season);
 
-    @Query("SELECT DISTINCT p.season FROM PastCommitteeBoard p")
+    @Query("SELECT DISTINCT p.season FROM PastClubBoard p")
     List<Integer> findDistinctSeasons();
 
     // Keep null orders last and use the ID to make ties deterministic.
-    @Query("SELECT p FROM PastCommitteeBoard p JOIN FETCH p.pastCommittee WHERE p.season = :season "
+    @Query("SELECT p FROM PastClubBoard p JOIN FETCH p.pastClub WHERE p.season = :season "
             + "ORDER BY CASE WHEN p.displayOrder IS NULL THEN 1 ELSE 0 END, p.displayOrder, p.id")
-    List<PastCommitteeBoard> findBySeasonOrdered(Integer season);
+    List<PastClubBoard> findBySeasonOrdered(Integer season);
 }

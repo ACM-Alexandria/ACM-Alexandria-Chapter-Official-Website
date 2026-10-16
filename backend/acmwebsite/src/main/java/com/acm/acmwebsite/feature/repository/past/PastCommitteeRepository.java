@@ -1,6 +1,6 @@
-package com.acm.acmwebsite.feature.repository;
+package com.acm.acmwebsite.feature.repository.past;
 
-import com.acm.acmwebsite.feature.entity.PastCommittee;
+import com.acm.acmwebsite.feature.entity.past.PastCommittee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

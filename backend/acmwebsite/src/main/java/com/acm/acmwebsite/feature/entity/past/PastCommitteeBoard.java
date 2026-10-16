@@ -1,4 +1,4 @@
-package com.acm.acmwebsite.feature.entity;
+package com.acm.acmwebsite.feature.entity.past;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,11 +8,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "past_club_board", indexes = @Index(name = "idx_past_club_board_season", columnList = "season"))
+@Table(name = "past_committee_board", indexes = @Index(name = "idx_past_committee_board_season", columnList = "season"))
 @Getter
 @Setter
 @NoArgsConstructor
-public class PastClubBoard {
+public class PastCommitteeBoard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,7 +36,7 @@ public class PastClubBoard {
     private Integer displayOrder;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "past_club_id", nullable = false)
+    @JoinColumn(name = "past_committee_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private PastClub pastClub;
+    private PastCommittee pastCommittee;
 }
