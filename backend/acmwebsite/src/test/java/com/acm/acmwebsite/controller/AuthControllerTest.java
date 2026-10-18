@@ -52,11 +52,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = AuthController.class)
@@ -68,12 +68,12 @@ class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private UserService userService;
-  @MockBean private TokenService tokenService;
-  @MockBean private RegisterService registerService;
-  @MockBean private EmailConfirmationService emailConfirmationService;
-  @MockBean private JwtUtil jwtUtil;
-  @MockBean private RateLimitInterceptor rateLimitInterceptor;
+  @MockitoBean private UserService userService;
+  @MockitoBean private TokenService tokenService;
+  @MockitoBean private RegisterService registerService;
+  @MockitoBean private EmailConfirmationService emailConfirmationService;
+  @MockitoBean private JwtUtil jwtUtil;
+  @MockitoBean private RateLimitInterceptor rateLimitInterceptor;
 
   @BeforeEach
   void setUp() throws Exception {
