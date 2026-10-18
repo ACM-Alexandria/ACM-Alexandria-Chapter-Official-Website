@@ -54,4 +54,8 @@ public class PointsLog {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_updater_id")
+    private User lastUpdater;
+
 }

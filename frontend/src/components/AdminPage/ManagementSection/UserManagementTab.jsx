@@ -35,7 +35,7 @@ const UserMediaCell = ({ item }) => {
   );
 };
 
-const UserManagementTab = () => {
+const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
@@ -342,7 +342,7 @@ const UserManagementTab = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => navigate(`/admin/user-profile`, { state: { targetUserId: u.id } })}
-                          className="inline-flex items-center justify-center px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                          className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
                           title="View Profile"
                         >
                           <FiUser className="w-3.5 h-3.5 shrink-0" />
@@ -351,14 +351,14 @@ const UserManagementTab = () => {
                           </span>
                         </button>
 
-                        {canManageUser(u) && (
+                        {!hideManageAccess && canManageUser(u) && (
                           <button
                             onClick={() => handleOpenModal(u)}
-                            className="inline-flex items-center justify-center px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                            className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
                             title="Manage Access"
                           >
                             <FiShield className="w-3.5 h-3.5 shrink-0" />
-                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[110px] group-hover:opacity-100 group-hover:ml-2 whitespace-nowrap transition-all duration-500 ease-in-out">
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
                               Manage Access
                             </span>
                           </button>
