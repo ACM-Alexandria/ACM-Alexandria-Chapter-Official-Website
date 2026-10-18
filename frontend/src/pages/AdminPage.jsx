@@ -20,6 +20,7 @@ import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
+import PastBoardsTab from "../components/AdminPage/PastBoardsSection/PastBoardsTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
 import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageHeader";
 import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
@@ -830,6 +831,7 @@ const AdminPage = () => {
   const tabs = [
     { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
     { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
+    ...(isSuperAdmin ? [{ id: "pastBoards", label: "Past Boards", shortLabel: "Past Boards", icon: FiLayers }] : []),
     { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
   ];
 
@@ -900,6 +902,8 @@ const AdminPage = () => {
         {activeTab === "insights" && (
           <InsightsTab />
         )}
+
+        {activeTab === "pastBoards" && isSuperAdmin && <PastBoardsTab />}
 
         {activeTab === "email" && <EmailCenterTab />}
 
