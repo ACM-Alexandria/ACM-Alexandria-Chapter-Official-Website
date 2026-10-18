@@ -38,21 +38,23 @@ public class PointsLogService {
         User member = userRepository.getReferenceById(member_Id);
         User assigner = userRepository.getReferenceById(assigner_Id);
         member.addPoints(amount);
-        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null);
+        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null, null);
 
         return pointsLogRepository.save(log);
     }
 
     @Transactional
-    public PointsLog updatePointsLog(UUID logId, int newPoints, String newReason) {
+    public PointsLog updatePointsLog(UUID logId, UUID updaterID ,int newPoints, String newReason) {
 
         PointsLog log = pointsLogRepository.findById(logId)
                 .orElseThrow(() -> new EntityNotFoundException("PointsLog not found with ID: " + logId));
 
         User member = log.getMember();
+        User updater = userRepository.getReferenceById(updaterID);
         member.addPoints(newPoints - log.getPoints());
         log.setPoints(newPoints);
         log.setReason(newReason);
+        log.setLastUpdater(updater);
         return log;
     }
 

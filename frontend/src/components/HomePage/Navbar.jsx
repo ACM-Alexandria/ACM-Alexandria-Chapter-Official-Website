@@ -6,7 +6,7 @@ import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser, HiOutlineShieldCheck } from "react-icons/hi2";
 import { getEnv } from "../../utils/env";
 import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
-
+import HRFolderIcon from '../icons/HRFolderIcon';
 
 const Navbar = ({ activeSection }) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -18,6 +18,20 @@ const Navbar = ({ activeSection }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
+
+  // 1. Extract season points (fallback to 0 if undefined)
+  const userPoints = user?.season_points ?? 0;
+  const userInitial = user?.email?.[0]?.toUpperCase() || "U";
+  const isAcmMember = user?.role && user.role !== 'USER';
+  const avatarDisplay = isAcmMember ? userPoints : userInitial;
+  // 2. Check permissions to view the HR dashboard
+  const isSuperOrHighBoard = ['SUPER_ADMIN', 'ACM_HIGH_BOARD'].includes(user?.role);
+  // Ensure this matches exactly how your backend sends the HR committee name
+  const isHRCommittee = user?.association_name &&
+    (user.association_name.includes('HR') || user.association_name.includes('Human Resources'));
+  const isHRBoardOrMember = ['ACM_COMMITTEE_BOARD', 'ACM_MEMBER'].includes(user?.role) && isHRCommittee;
+  const showHRLink = isSuperOrHighBoard || isHRBoardOrMember;
+
   const isEnabled = (envVal) => envVal !== "false";
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -179,7 +193,7 @@ const Navbar = ({ activeSection }) => {
               onClick={() => setShowProfileMenu((prev) => !prev)}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                {user?.email?.[0].toUpperCase() || "U"}
+                {avatarDisplay}
               </div>
               <HiOutlineChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${showProfileMenu ? "rotate-180" : ""}`} />
             </button>
@@ -218,6 +232,19 @@ const Navbar = ({ activeSection }) => {
                     >
                       <HiOutlineShieldCheck className="h-5 w-5 text-slate-500" />
                       Admin Tools
+                    </button>
+                  )}
+                  {showHRLink && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        navigate("/hr-dashboard");
+                      }}
+                    >
+                      <HRFolderIcon className="h-5 w-5 text-slate-500" />
+                      HR Dashboard
                     </button>
                   )}
                   <button

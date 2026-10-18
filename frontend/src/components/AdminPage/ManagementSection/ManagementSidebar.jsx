@@ -3,14 +3,23 @@ import React from "react";
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
 
-const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery }) => {
+const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHRMode = false}) => {
+
+  const filteredTabs = tabs.filter(tab => {
+    if (isHRMode) {
+      // Allow only these specific tab IDs for HR
+      return ['users', 'committees', 'events', 'clubs', 'programs', 'exclusiveForms', 'exclusive_forms'].includes(tab.id);
+    }
+    return true; // Show all tabs if it's a standard Admin
+  });
+
   return (
     <div className="w-full lg:w-64 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-3 shadow-sm dark:shadow-slate-950/40 shrink-0">
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">
         Resources
       </p>
       <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1 pb-2 lg:pb-0 scrollbar-hide">
-        {tabs.map((tab) => {
+        {filteredTabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
           return (

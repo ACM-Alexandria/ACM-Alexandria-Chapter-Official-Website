@@ -135,6 +135,7 @@ const AdminUserProfileView = () => {
         try {
             if (editingLog) {
                 await updateUserPointsLog(editingLog.id, {
+                    lastUpdater: adminUser.id,
                     reason: formData.reason,
                     points: formData.points
                 });

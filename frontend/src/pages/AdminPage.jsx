@@ -1043,7 +1043,7 @@ const AdminPage = () => {
       <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
 
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(-1)}
           className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
         >
           <HiOutlineArrowLeft className="w-4 h-4" /> Back

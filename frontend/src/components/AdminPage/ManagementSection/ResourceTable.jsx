@@ -66,6 +66,7 @@ const ResourceTable = ({
   onAnnounceClick,
   onEmailsClick,
   announcingId,
+  isHRMode = false,
 }) => {
   const [imgErrors, setImgErrors] = useState({});
 
@@ -231,6 +232,7 @@ const ResourceTable = ({
                     >
                       {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Open" : "Closed"}
                     </span>
+                    {!isHRMode && (
                     <button
                       onClick={() => onToggleCall(item)}
                       disabled={loading}
@@ -242,6 +244,7 @@ const ResourceTable = ({
                     >
                       {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Close Form" : "Open Form"}
                     </button>
+                    )}
                   </div>
                 </td>
               )}
@@ -346,6 +349,8 @@ const ResourceTable = ({
                       <FiMail className="w-3.5 h-3.5" />
                     </button>
                   )}
+                  {!isHRMode && (
+                    <>
                   {activeTab === "programs" && (
                     <button
                       onClick={() => onAnnounceClick(item)}
@@ -396,6 +401,8 @@ const ResourceTable = ({
                   >
                     <FiTrash2 className="w-3.5 h-3.5" />
                   </button>
+                  </>
+                  )}
                 </div>
               </td>
             </tr>

@@ -58,6 +58,7 @@ public class PointsLogController {
 
         PointsLog updatedLog = pointsLogService.updatePointsLog(
                 logId,
+                logDto.getLastUpdater(),
                 logDto.getPoints(),
                 logDto.getReason());
 
