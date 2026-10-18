@@ -54,10 +54,28 @@ public class SystemSettingsServiceTest {
     }
 
     @Test
+    void setEmailsEnabled_whenRowAlreadyExists_shouldUpdateExisting() {
+        SystemSettings existing = new SystemSettings(SystemSettings.SINGLETON_ID, false);
+        when(systemSettingsRepository.findById(SystemSettings.SINGLETON_ID)).thenReturn(Optional.of(existing));
+
+        assertTrue(systemSettingsService.setEmailsEnabled(true));
+
+        verify(systemSettingsRepository).save(existing);
+        assertTrue(systemSettingsService.isEmailsEnabled());
+    }
+
+    @Test
     void assertEmailsEnabled_whenLocked_shouldThrow() {
         systemSettingsService.setEmailsEnabled(false);
 
         assertThrows(EmailsLockedException.class, () -> systemSettingsService.assertEmailsEnabled());
         verify(systemSettingsRepository).save(any(SystemSettings.class));
+    }
+
+    @Test
+    void assertEmailsEnabled_whenUnlocked_shouldNotThrow() {
+        when(systemSettingsRepository.findById(SystemSettings.SINGLETON_ID)).thenReturn(Optional.empty());
+
+        assertDoesNotThrow(() -> systemSettingsService.assertEmailsEnabled());
     }
 }

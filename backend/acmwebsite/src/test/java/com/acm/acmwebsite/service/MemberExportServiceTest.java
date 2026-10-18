@@ -325,4 +325,91 @@ public class MemberExportServiceTest {
 
         assertEquals(150, result.getTitle().length());
     }
+
+    @Test
+    void preview_throwsWhenRequestIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> memberExportService.preview(null));
+    }
+
+    @Test
+    void exportToSheet_handlesNullExporterEmail_nullTitle_allScopes_andNullUserFields() {
+        User sparseUser = User.builder()
+                .id(UUID.randomUUID())
+                .role(Role.ACM_COMMITTEE_BOARD)
+                .name(null)
+                .email(null)
+                .phoneNumber(null)
+                .isAlexEngStudent(null)
+                .batch(null)
+                .department(null)
+                .linkedinUrl(null)
+                .createdAt(null)
+                .build();
+
+        when(userRepository.findAllByRoleInWithCommittee(any())).thenReturn(List.of(sparseUser));
+        when(committeeBoardRepository.findAllWithUserAndCommittee()).thenReturn(List.of());
+        doCallRealMethod().when(googleSheetsService).buildMetadataRows(anyList());
+        when(googleSheetsService.createSpreadsheetWithData(anyString(), anyString(), anyList())).thenReturn("url");
+
+        MemberExportResultDto result = memberExportService.exportToSheet(
+                request(List.of(Role.ACM_COMMITTEE_BOARD), null, null, null), null);
+
+        assertNotNull(result);
+        assertTrue(result.getTitle().contains("All"));
+
+        List<List<Object>> rows = captureExportedRows(result.getTitle());
+        assertEquals(List.of("Exported By:", ""), rows.get(1));
+        assertEquals(List.of("Committees:", "All Committees"), rows.get(3));
+        assertEquals(List.of("Clubs:", "N/A"), rows.get(4));
+
+        List<Object> userRow = rows.get(HEADER_ROW_INDEX + 1);
+        assertEquals(1, userRow.get(0));
+        assertEquals("", userRow.get(1)); // name
+        assertEquals("", userRow.get(2)); // email
+        assertEquals("", userRow.get(3)); // phone
+        assertEquals("Committee Board", userRow.get(4)); // role
+        assertEquals("", userRow.get(5)); // position
+        assertEquals("", userRow.get(6)); // association
+        assertEquals("No", userRow.get(7)); // alex student
+        assertEquals("", userRow.get(8)); // batch
+        assertEquals("", userRow.get(9)); // department
+        assertEquals("", userRow.get(10)); // linkedin
+        assertEquals("", userRow.get(11)); // createdAt
+    }
+
+    @Test
+    void exportToSheet_describesClubScope_whenClubScopedRolesAndClubsPresent() {
+        User clubHead = user("Club Head", Role.ACM_CLUB_BOARD, null);
+        when(userRepository.findAllByRoleInWithCommittee(any())).thenReturn(List.of(clubHead));
+        when(clubBoardRepository.findAllWithUserAndClub()).thenReturn(List.of(
+                new ClubBoard(1L, "Head", 1, cpClub, clubHead)));
+
+        Club unnamedClub = new Club(99L, null, "desc", "img", List.of());
+        when(clubRepository.findAllById(any())).thenReturn(List.of(cpClub, unnamedClub));
+        doCallRealMethod().when(googleSheetsService).buildMetadataRows(anyList());
+        when(googleSheetsService.createSpreadsheetWithData(anyString(), anyString(), anyList())).thenReturn("url");
+
+        MemberExportResultDto result = memberExportService.exportToSheet(
+                request(List.of(Role.ACM_CLUB_BOARD), null, List.of(cpClub.getId()), "Clubs Export"), "admin@acm.org");
+
+        List<List<Object>> rows = captureExportedRows("Clubs Export");
+        assertEquals(List.of("Committees:", "N/A"), rows.get(3));
+        assertEquals(List.of("Clubs:", "CP Club"), rows.get(4));
+    }
+
+    @Test
+    void exportToSheet_describesAllClubs_whenClubScopedRolesPresentAndNoClubsSelected() {
+        User clubHead = user("Club Head", Role.ACM_CLUB_BOARD, null);
+        when(userRepository.findAllByRoleInWithCommittee(any())).thenReturn(List.of(clubHead));
+        when(clubBoardRepository.findAllWithUserAndClub()).thenReturn(List.of());
+        when(clubRepository.findAllById(any())).thenReturn(List.of());
+        doCallRealMethod().when(googleSheetsService).buildMetadataRows(anyList());
+        when(googleSheetsService.createSpreadsheetWithData(anyString(), anyString(), anyList())).thenReturn("url");
+
+        MemberExportResultDto result = memberExportService.exportToSheet(
+                request(List.of(Role.ACM_CLUB_BOARD), null, null, "Clubs All Export"), "admin@acm.org");
+
+        List<List<Object>> rows = captureExportedRows("Clubs All Export");
+        assertEquals(List.of("Clubs:", "All Clubs"), rows.get(4));
+    }
 }
