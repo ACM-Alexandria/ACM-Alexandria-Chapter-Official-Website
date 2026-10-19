@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchUserProfile, updateUserProfile } from "../services/userService";
+import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
+import { fetchUserPointsLogs } from "../services/pointsLogService";
 import Navbar from "../components/HomePage/Navbar";
 import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
 import PointsLogSection from "../components/UserProfile/PointsLogSection";
-import PointsLogModal from "../components/UserProfile/PointsLogModal";
-import { uploadProfileImage } from "../services/userService";
-import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserPointsLog } from "../services/pointsLogService";
+
 import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
@@ -38,16 +37,19 @@ const UserProfilePage = () => {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  // --- PROFILE ALERTS STATE ---
+  const [profileError, setProfileError] = useState(null);
+  const [profileSuccess, setProfileSuccess] = useState(false);
+
+  // --- POINTS LOG ALERTS STATE ---
+  const [pointsError, setPointsError] = useState(null);
+  const [pointsSuccess, setPointsSuccess] = useState(false);
+
   // --- POINTS LOG STATE ---
   const [pointsLogs, setPointsLogs] = useState([]);
   const [pointsPage, setPointsPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Fetch profile data from backend
   useEffect(() => {
@@ -55,10 +57,9 @@ const UserProfilePage = () => {
 
     const loadProfile = async () => {
       setLoading(true);
-      setError(null);
+      setProfileError(null);
       try {
         const data = await fetchUserProfile(user.id);
-        // Carefully map from database JSON keys defined by @JsonProperty
         const profileData = {
           name: data.name || "",
           phoneNumber: data.phone_number || "",
@@ -75,7 +76,7 @@ const UserProfilePage = () => {
         setBackupProfile(profileData);
       } catch (err) {
         console.error("Profile fetch failure:", err);
-        setError("Failed to load your profile. Please try again later.");
+        setProfileError("Failed to load your profile. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -84,24 +85,29 @@ const UserProfilePage = () => {
     loadProfile();
   }, [user?.id]);
 
-  // Auto-hide success banners
+  // Auto-hide Profile success banner
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(false), 4000);
+    if (profileSuccess) {
+      const timer = setTimeout(() => setProfileSuccess(false), 4000);
       return () => clearTimeout(timer);
     }
-  }, [success]);
+  }, [profileSuccess]);
 
-  // --- FETCH POINTS LOGS ---
+  // Auto-hide Points success banner
+  useEffect(() => {
+    if (pointsSuccess) {
+      const timer = setTimeout(() => setPointsSuccess(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [pointsSuccess]);
+
+  // Fetch Points Logs
   useEffect(() => {
     if (!user?.id) return;
 
     const loadPointsLogs = async () => {
       try {
-        // Calls the service we made earlier, passing the user ID and the current page
         const data = await fetchUserPointsLogs(user.id, pointsPage);
-
-        // Spring Boot Page objects store the array in 'content' and total pages in 'totalPages'
         setPointsLogs(data.content || []);
         setTotalPages(data.totalPages || 0);
       } catch (err) {
@@ -115,7 +121,6 @@ const UserProfilePage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "phoneNumber") {
-      // Filter out non-digit inputs and limit strictly to 11 chars
       const cleanVal = value.replace(/\D/g, "").substring(0, 11);
       setProfile((prev) => ({ ...prev, [name]: cleanVal }));
       return;
@@ -127,14 +132,12 @@ const UserProfilePage = () => {
     setProfile((prev) => ({
       ...prev,
       isAlexEngStudent: val,
-      // Clear university specific values if turned off
       department: val ? prev.department : "",
       batch: val ? prev.batch : ""
     }));
   };
 
   const handleStartEdit = () => {
-    // If state is null when user clicks edit, automatically promote it to true to pre-select 'Yes' in form
     setProfile(prev => ({
       ...prev,
       isAlexEngStudent: prev.isAlexEngStudent ?? true
@@ -144,9 +147,9 @@ const UserProfilePage = () => {
 
   const handleCancelEdit = () => {
     if (backupProfile) {
-      setProfile(backupProfile); // Restore original state
+      setProfile(backupProfile);
     }
-    setError(null);
+    setProfileError(null);
     setIsEditing(false);
   };
 
@@ -154,33 +157,30 @@ const UserProfilePage = () => {
     e.preventDefault();
     if (!user?.id) return;
 
-    // Strictly enforce: Exactly 11 digits, starting with 01
     const phoneRegex = /^01[0-9]{9}$/;
     if (!phoneRegex.test(profile.phoneNumber)) {
-      setError("Invalid Phone Number: Must be exactly 11 digits starting with '01'.");
+      setProfileError("Invalid Phone Number: Must be exactly 11 digits starting with '01'.");
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // Enforce Batch and Department if student flag is checked
     if (profile.isAlexEngStudent === true) {
       if (!profile.batch) {
-        setError("Validation Error: Please select your Academic Batch.");
+        setProfileError("Validation Error: Please select your Academic Batch.");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
       if (!profile.department) {
-        setError("Validation Error: Please select your Department.");
+        setProfileError("Validation Error: Please select your Department.");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
 
     setSubmitting(true);
-    setError(null);
-    setSuccess(false);
+    setProfileError(null);
+    setProfileSuccess(false);
 
-    // Compose payload strictly matching @JsonProperty backend specifications
     const payload = {
       name: profile.name,
       phone_number: profile.phoneNumber,
@@ -192,13 +192,13 @@ const UserProfilePage = () => {
 
     try {
       await updateUserProfile(user.id, payload);
-      setBackupProfile(profile); // Commit local updates to persistent backup
-      setSuccess(true);
+      setBackupProfile(profile);
+      setProfileSuccess(true);
       setIsEditing(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error("Profile update failure:", err);
-      setError(err.message || "Unable to save your changes. Please check your inputs.");
+      setProfileError(err.message || "Unable to save your changes. Please check your inputs.");
     } finally {
       setSubmitting(false);
     }
@@ -243,18 +243,18 @@ const UserProfilePage = () => {
           </div>
         </div>
 
-        {/* Notification Alerts */}
-        {success && (
+        {/* Profile Notification Alerts */}
+        {profileSuccess && (
           <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
             <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
             <p className="font-bold text-sm">Profile saved successfully! Your information is now fully updated.</p>
           </div>
         )}
 
-        {error && (
+        {profileError && (
           <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
             <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-            <p className="font-bold text-sm">{error}</p>
+            <p className="font-bold text-sm">{profileError}</p>
           </div>
         )}
 
@@ -298,21 +298,22 @@ const UserProfilePage = () => {
           )}
         </div>
 
+        {/* Points Log Section */}
         {!isEditing && !loading && profile.role !== "USER" && (
           <div className="space-y-4">
 
             <div className="translate-y-[16px]">
-              {success && (
+              {pointsSuccess && (
                 <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
                   <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
                   <p className="font-bold text-sm">Points updated successfully!</p>
                 </div>
               )}
 
-              {error && (
+              {pointsError && (
                 <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
                   <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                  <p className="font-bold text-sm">{error}</p>
+                  <p className="font-bold text-sm">{pointsError}</p>
                 </div>
               )}
             </div>

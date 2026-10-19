@@ -37,6 +37,7 @@ const ProfileViewCard = ({ user, profile }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 md:pb-8">
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 w-full md:w-auto">
+          {/* Avatar */}
           {profile.profileImageUrl && profile.role !== "USER" && profile.role !== "ACM_MEMBER" ? (
             <img src={profile.profileImageUrl} alt="Profile" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
           ) : (
@@ -45,36 +46,42 @@ const ProfileViewCard = ({ user, profile }) => {
             </div>
           )}
 
-          <div className="flex flex-col gap-1 w-full sm:w-auto">
+          {/* User Details & Points */}
+          <div className="flex flex-col items-start gap-1 w-full sm:w-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words">
               {profile.name || "User"}
             </h2>
-            <span className="text-sm text-slate-500 dark:text-slate-400 break-all">{user?.email}</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 break-all">
+              {user?.email}
+            </span>
+
+            {/* Points (Centered under email) */}
+            {profile.role !== "USER" && (
+              <div className="w-fit flex items-center justify-center gap-1.5 text-slate-500 dark:text-slate-400 mt-1.5">
+                <HiOutlineStar className="w-[18px] h-[18px]" />
+                <span className="text-sm font-semibold">
+                  {profile.seasonPoints || 0} Season Points
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Role and Points Group */}
-        <div className="flex flex-col items-center gap-1.5 self-start md:self-auto mt-2 md:mt-0">
+        {/* Badges Container (Right Side) */}
+        <div className="flex flex-row items-center justify-center gap-2 self-start md:self-auto mt-2 md:mt-0">
 
-          {/* Role Badge - Simple Pill */}
-          <div className="w-fit flex items-center justify-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
-            <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400 text-center">
+          {/* Role Badge */}
+          <div className="w-fit flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-900/30 border border-blue-800">
+            <span className="font-semibold text-sm text-blue-400 text-center">
               {roleDisplay.label}
             </span>
           </div>
 
+          {/* Committee Badge */}
           {profile.committeeName && (
-            <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
-              <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+            <div className="w-fit flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-900/30 border border-blue-800">
+              <span className="font-semibold text-sm text-blue-400 text-center">
                 {profile.committeeName}
-              </span>
-            </div>
-          )}
-          {profile.role !== "USER" && (
-            <div className="w-fit flex items-center justify-center gap-1.5 px-2 text-slate-600 dark:text-slate-400">
-              <HiOutlineStar className="w-4 h-4" />
-              <span className="text-sm font-semibold">
-                {profile.seasonPoints || 0} Season Points
               </span>
             </div>
           )}

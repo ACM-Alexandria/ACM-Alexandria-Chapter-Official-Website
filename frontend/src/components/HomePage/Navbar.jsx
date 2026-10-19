@@ -19,14 +19,8 @@ const Navbar = ({ activeSection }) => {
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
 
-  // 1. Extract season points (fallback to 0 if undefined)
-  const userPoints = user?.points ?? 0;
-  const userInitial = user?.email?.[0]?.toUpperCase() || "U";
-  const isAcmMember = user?.role && user.role !== 'USER';
-  const avatarDisplay = isAcmMember && (userPoints > 0) ? userPoints : userInitial;
-  // 2. Check permissions to view the HR dashboard
   const isSuperOrHighBoard = ['SUPER_ADMIN', 'ACM_HIGH_BOARD'].includes(user?.role);
-  // Ensure this matches exactly how your backend sends the HR committee name
+  
   const isHRCommittee = user?.committeeName && user.committeeName === 'HR Committee';
   const isHRBoardOrMember = ['ACM_COMMITTEE_BOARD', 'ACM_MEMBER'].includes(user?.role) && isHRCommittee;
   const showHRLink = isSuperOrHighBoard || isHRBoardOrMember;
@@ -192,7 +186,7 @@ const Navbar = ({ activeSection }) => {
               onClick={() => setShowProfileMenu((prev) => !prev)}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                {avatarDisplay}
+                {user?.email?.[0]?.toUpperCase() || "U"}
               </div>
               <HiOutlineChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${showProfileMenu ? "rotate-180" : ""}`} />
             </button>
