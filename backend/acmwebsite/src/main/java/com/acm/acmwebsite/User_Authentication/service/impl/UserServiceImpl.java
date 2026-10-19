@@ -13,6 +13,7 @@ import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.User_Authentication.service.TokenService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
+import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.service.ImageUploadService;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.ClubRepository;
@@ -79,6 +80,7 @@ public class UserServiceImpl implements UserService {
     authDetails.put("id", user.getId());
     authDetails.put("email", user.getEmail());
     authDetails.put("role", user.getRole().name());
+    authDetails.put("points", user.getSeasonPoints());
     authDetails.put("committee_id", isCommitteeMember(user) ? userDetails.getCommitteeId() : null);
     authDetails.put("committee_name", isCommitteeMember(user) ? userDetails.getAssociationName() : null);
     return authDetails;
@@ -302,7 +304,7 @@ public class UserServiceImpl implements UserService {
 
     user.setName(profileDto.getName());
     user.setPhoneNumber(profileDto.getPhoneNumber());
-    
+
     boolean isStudent = Boolean.TRUE.equals(profileDto.getIsAlexEngStudent());
     user.setIsAlexEngStudent(isStudent);
 
@@ -313,7 +315,7 @@ public class UserServiceImpl implements UserService {
       user.setDepartment(null);
       user.setBatch(null);
     }
-    
+
     if (profileDto.getLinkedinUrl() != null) {
       user.setLinkedinUrl(profileDto.getLinkedinUrl());
     }

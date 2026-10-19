@@ -43,13 +43,11 @@ public class PointsLogDto {
                 .id(log.getId())
                 .member(log.getMember().getId())
 
-                // Safe check for Assigner
-                .assigner(log.getAssigner() != null ? log.getAssigner().getId() : null)
-                .assignerName(log.getAssigner() != null ? log.getAssigner().getName() : "System")
+                .assigner(log.getAssigner().getId())
+                .assignerName(log.getAssigner().getName())
 
-                // 👇 THE CRITICAL FIX: Safe check for Last Updater
-                .lastUpdater(log.getLastUpdater() != null ? log.getLastUpdater().getId() : null)
-                .lastUpdaterName(log.getLastUpdater() != null ? log.getLastUpdater().getName() : null)
+                .lastUpdater(log.getLastUpdater().getId())
+                .lastUpdaterName(log.getLastUpdater().getName())
 
                 .reason(log.getReason())
                 .points(log.getPoints())

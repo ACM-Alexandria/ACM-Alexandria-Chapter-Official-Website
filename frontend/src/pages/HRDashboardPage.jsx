@@ -80,8 +80,7 @@ const HRDashboardPage = () => {
 
     // check user role & committee
     const isSuperOrHighBoard = ['SUPER_ADMIN', 'ACM_HIGH_BOARD'].includes(user.role);
-    const isHRCommittee = user.association_name &&
-        (user.association_name.includes('HR') || user.association_name.includes('Human Resources'));
+    const isHRCommittee = user.committee_name && user.committee_name === 'HR Committee';
 
     const isHRBoard = user.role === 'ACM_COMMITTEE_BOARD' && isHRCommittee;
     const isHRMember = user.role === 'ACM_MEMBER' && isHRCommittee;

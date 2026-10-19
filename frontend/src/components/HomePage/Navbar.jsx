@@ -20,15 +20,14 @@ const Navbar = ({ activeSection }) => {
   const { isAuthenticated, isLoading, logout, user } = useAuth();
 
   // 1. Extract season points (fallback to 0 if undefined)
-  const userPoints = user?.season_points ?? 0;
+  const userPoints = user?.points ?? 0;
   const userInitial = user?.email?.[0]?.toUpperCase() || "U";
   const isAcmMember = user?.role && user.role !== 'USER';
-  const avatarDisplay = isAcmMember ? userPoints : userInitial;
+  const avatarDisplay = isAcmMember && (userPoints > 0) ? userPoints : userInitial;
   // 2. Check permissions to view the HR dashboard
   const isSuperOrHighBoard = ['SUPER_ADMIN', 'ACM_HIGH_BOARD'].includes(user?.role);
   // Ensure this matches exactly how your backend sends the HR committee name
-  const isHRCommittee = user?.association_name &&
-    (user.association_name.includes('HR') || user.association_name.includes('Human Resources'));
+  const isHRCommittee = user?.committeeName && user.committeeName === 'HR Committee';
   const isHRBoardOrMember = ['ACM_COMMITTEE_BOARD', 'ACM_MEMBER'].includes(user?.role) && isHRCommittee;
   const showHRLink = isSuperOrHighBoard || isHRBoardOrMember;
 
