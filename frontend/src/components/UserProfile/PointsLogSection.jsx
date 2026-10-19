@@ -28,7 +28,7 @@ const PointsLogSection = ({
   };
 
   // Helper to format dates cleanly
-const formatDateTime = (dateString) => {
+  const formatDateTime = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     return `${date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })} • ${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
@@ -144,22 +144,25 @@ const formatDateTime = (dateString) => {
                           </span>
                         </div>
 
-                        {/* Assigner */}
-                        <div className="flex flex-col gap-1">
-                          <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Assigned By</span>
-                          <span className="text-slate-700 dark:text-slate-300 font-medium">
-                            {log.assignerName || "System"}
-                          </span>
-                        </div>
+                        {isAdmin && (
+                          <>
+                            {/* Assigner */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Assigned By</span>
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                {log.assignerName || "System"}
+                              </span>
+                            </div>
 
-                        {/* Last Updater */}
-                        <div className="flex flex-col gap-1">
-                          <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Last Modified By</span>
-                          <span className="text-slate-700 dark:text-slate-300 font-medium">
-                            {log.lastUpdaterName || "N/A"}
-                          </span>
-                        </div>
-
+                            {/* Last Updater */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Last Modified By</span>
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                {log.lastUpdaterName || "N/A"}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

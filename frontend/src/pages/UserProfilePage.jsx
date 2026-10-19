@@ -92,7 +92,6 @@ const UserProfilePage = () => {
     }
   }, [success]);
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////
   // --- FETCH POINTS LOGS ---
   useEffect(() => {
     if (!user?.id) return;
@@ -111,9 +110,7 @@ const UserProfilePage = () => {
     };
 
     loadPointsLogs();
-  }, [user?.id, pointsPage]);
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  }, [user?.id, pointsPage, profile.role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -302,7 +299,7 @@ const UserProfilePage = () => {
         </div>
 
         {/* //////////////////////////////////////////////////////////////////// */}
-        {!isEditing && !loading && (
+        {!isEditing && !loading && profile.role !== "USER" && (
           <div className="space-y-4">
 
             {/* 👇 SUCCESS & ERROR ALERTS NOW APPEAR RIGHT HERE 👇 */}

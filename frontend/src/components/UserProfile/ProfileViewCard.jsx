@@ -8,7 +8,7 @@ import {
   HiOutlineLink,
   HiOutlineStar
 } from "react-icons/hi";
-import {FiLayers} from "react-icons/fi";
+import { FiLayers } from "react-icons/fi";
 
 const getRoleDisplay = (role) => {
   switch (role) {
@@ -54,11 +54,11 @@ const ProfileViewCard = ({ user, profile }) => {
         </div>
 
         {/* Role and Points Group */}
-        <div className="flex flex-col gap-1.5 self-start md:self-auto mt-2 md:mt-0">
-          
+        <div className="flex flex-col items-center gap-1.5 self-start md:self-auto mt-2 md:mt-0">
+
           {/* Role Badge - Simple Pill */}
-          <div className="flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
-            <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400">
+          <div className="w-fit flex items-center justify-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+            <span className="font-semibold text-sm text-[#4B98C8] dark:text-blue-400 text-center">
               {roleDisplay.label}
             </span>
           </div>
@@ -70,14 +70,15 @@ const ProfileViewCard = ({ user, profile }) => {
               </span>
             </div>
           )}
-          {/* Season Points - Simple Text */}
-          <div className="flex items-center gap-1.5 px-2 text-slate-600 dark:text-slate-400 translate-x-[0px]">
-            <HiOutlineStar className="w-4 h-4" />
-            <span className="text-sm font-semibold">
-              {profile.seasonPoints || 0} Season Points
-            </span>
-          </div>
-          
+          {profile.role !== "USER" && (
+            <div className="w-fit flex items-center justify-center gap-1.5 px-2 text-slate-600 dark:text-slate-400">
+              <HiOutlineStar className="w-4 h-4" />
+              <span className="text-sm font-semibold">
+                {profile.seasonPoints || 0} Season Points
+              </span>
+            </div>
+          )}
+
         </div>
 
       </div>

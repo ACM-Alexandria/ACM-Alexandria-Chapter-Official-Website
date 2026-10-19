@@ -38,7 +38,7 @@ public class PointsLogService {
         User member = userRepository.getReferenceById(member_Id);
         User assigner = userRepository.getReferenceById(assigner_Id);
         member.addPoints(amount);
-        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null, null);
+        PointsLog log = new PointsLog(null, member, assigner, amount, reason, null, null, assigner);
 
         return pointsLogRepository.save(log);
     }
