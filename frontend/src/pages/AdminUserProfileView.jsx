@@ -134,6 +134,16 @@ const AdminUserProfileView = () => {
     const handleModalSubmit = async (formData) => {
         try {
             if (editingLog) {
+
+                if (
+                    editingLog.reason === formData.reason &&
+                    Number(editingLog.points) === Number(formData.points)
+                ) {
+                    setIsModalOpen(false);
+                    setEditingLog(null);
+                    return;
+                }
+
                 await updateUserPointsLog(editingLog.id, {
                     lastUpdater: adminUser.id,
                     reason: formData.reason,
