@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PointsLogDto {
 
-    private UUID id;
+    private Long id;
     private UUID member;
     private UUID assigner;
     private String assignerName;
