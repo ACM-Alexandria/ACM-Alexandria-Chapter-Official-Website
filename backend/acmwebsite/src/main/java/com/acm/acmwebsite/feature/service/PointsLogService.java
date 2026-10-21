@@ -44,7 +44,7 @@ public class PointsLogService {
     }
 
     @Transactional
-    public PointsLog updatePointsLog(UUID logId, UUID updaterID ,int newPoints, String newReason) {
+    public PointsLog updatePointsLog(Long logId, UUID updaterID ,int newPoints, String newReason) {
 
         PointsLog log = pointsLogRepository.findById(logId)
                 .orElseThrow(() -> new EntityNotFoundException("PointsLog not found with ID: " + logId));
@@ -59,7 +59,7 @@ public class PointsLogService {
     }
 
     @Transactional
-    public void deletePointsLog(UUID logId) {
+    public void deletePointsLog(Long logId) {
 
         PointsLog log = pointsLogRepository.findById(logId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Points log not found"));

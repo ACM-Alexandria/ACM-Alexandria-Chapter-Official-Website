@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,14 +42,14 @@ public class PointsLogServiceTest {
     private User assigner;
     private UUID memberId;
     private UUID assignerId;
-    private UUID logId;
+    private Long logId;
     private PointsLog existingLog;
 
     @BeforeEach
     void setUp() {
         memberId = UUID.randomUUID();
         assignerId = UUID.randomUUID();
-        logId = UUID.randomUUID();
+        logId = ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
 
         member = new User();
         member.setId(memberId);

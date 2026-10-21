@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.acm.acmwebsite.feature.entity.PointsLog;
 
-public interface PointsLogRepository extends JpaRepository<PointsLog, UUID> {
+public interface PointsLogRepository extends JpaRepository<PointsLog, Long> {
 
     Page<PointsLog> findByMember_Id(UUID id, Pageable pageable);
 
