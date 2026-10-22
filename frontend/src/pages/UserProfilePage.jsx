@@ -181,13 +181,20 @@ const UserProfilePage = () => {
     setProfileError(null);
     setProfileSuccess(false);
 
+    const linkedinRegex = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|pub)\/[A-Za-z0-9_%.-]+\/?([?#].*)?$/;
+    if (profile.linkedinUrl && !linkedinRegex.test(profile.linkedinUrl.trim())) {
+      setProfileError("Invalid LinkedIn URL: Use your profile link, like https://linkedin.com/in/username.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     const payload = {
       name: profile.name,
       phone_number: profile.phoneNumber,
       is_alex_eng_student: profile.isAlexEngStudent,
       department: profile.isAlexEngStudent ? (profile.department || null) : null,
       batch: profile.isAlexEngStudent ? (profile.batch || null) : null,
-      linkedin_url: profile.linkedinUrl || null
+      linkedin_url: profile.linkedinUrl.trim() || null
     };
 
     try {
