@@ -148,6 +148,10 @@ const AdminPage = () => {
   const [emailsEnabled, setEmailsEnabled] = useState(true);
   const [emailLockSaving, setEmailLockSaving] = useState(false);
 
+  // HR Feedback is visible to the super admin and to the HR Committee board only
+  const canSeeHRFeedback =
+    isSuperAdmin || (user?.role === "ACM_COMMITTEE_BOARD" && user?.committeeName === "HR Committee");
+
   const mgmtTabs = [
     { id: "users", label: "Users", icon: FiUserCheck },
     { id: "committees", label: "Committees", icon: FiLayers },
@@ -161,7 +165,7 @@ const AdminPage = () => {
     { id: "partners", label: "Partners", icon: FiGlobe },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
     { id: "hrFeedback", label: "HR Feedback", icon: FiMessageSquare },
-  ];
+  ].filter((tab) => tab.id !== "hrFeedback" || canSeeHRFeedback);
 
   const loadMgmtTabData = async (tab, page = 0) => {
     setMgmtLoading(true);
@@ -1227,7 +1231,7 @@ const AdminPage = () => {
                   <GalleryTab />
                 ) : mgmtTab === "feedback" ? (
                   <FeedbackTab />
-                ) : mgmtTab === "hrFeedback" ? (
+                ) : mgmtTab === "hrFeedback" && canSeeHRFeedback ? (
                   <HRFeedbackTab />
                 ) : (
                   <ResourceTable
