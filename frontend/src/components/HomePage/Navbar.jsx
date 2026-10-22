@@ -19,11 +19,11 @@ const Navbar = ({ activeSection }) => {
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
 
-  const isSuperOrHighBoard = ['SUPER_ADMIN', 'ACM_HIGH_BOARD'].includes(user?.role);
-  
-  const isHRCommittee = user?.committeeName && user.committeeName === 'HR Committee';
-  const isHRBoardOrMember = ['ACM_COMMITTEE_BOARD', 'ACM_MEMBER'].includes(user?.role) && isHRCommittee;
-  const showHRLink = isSuperOrHighBoard || isHRBoardOrMember;
+  // Admin Tools: super admin, high board, committee board and club board
+  const showAdminLink = ['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'].includes(user?.role);
+
+  // HR Dashboard: only ACM members who belong to the HR Committee
+  const showHRLink = user?.role === 'ACM_MEMBER' && user?.committeeName === 'HR Committee';
 
   const isEnabled = (envVal) => envVal !== "false";
   const [isDark, setIsDark] = useState(() => {
@@ -214,7 +214,7 @@ const Navbar = ({ activeSection }) => {
                     <HiOutlineUser className="h-5 w-5 text-slate-500" />
                     My Profile
                   </button>
-                  {['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'].includes(user?.role) && (
+                  {showAdminLink && (
                     <button
                       type="button"
                       className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
