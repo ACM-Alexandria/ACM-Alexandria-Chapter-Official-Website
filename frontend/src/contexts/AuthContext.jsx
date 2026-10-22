@@ -52,7 +52,8 @@ export const AuthProvider = ({ children }) => {
               email: data.email || null,
               role: data.role || null,
               committeeId: data.committee_id || null,
-              committeeName: data.committee_name || null
+              committeeName: data.committee_name || null,
+              points: data.points || 0,
             });
             setIsAuthenticated(true);
             return true;

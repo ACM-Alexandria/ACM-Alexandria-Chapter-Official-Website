@@ -14,6 +14,8 @@ import AdminPage from "./pages/AdminPage";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import EmailConfirmationPage from "./pages/EmailConfirmationPage";
 import RulesPage from "./pages/RulesPage";
+import AdminUserProfileView from "./pages/AdminUserProfileView";
+import HRDashboardPage from './pages/HRDashboardPage';
 
 /**
  * Main App component with routing configuration
@@ -46,6 +48,22 @@ function App() {
           <AdminProtectedRoute>
             <AdminPage />
           </AdminProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/user-profile"
+        element={
+          <AdminProtectedRoute>
+            <AdminUserProfileView />
+          </AdminProtectedRoute>
+        }
+      />
+      <Route
+        path="/hr-dashboard"
+        element={
+          <ProtectedRoute>
+            <HRDashboardPage />
+          </ProtectedRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

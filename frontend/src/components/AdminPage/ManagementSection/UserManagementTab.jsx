@@ -5,13 +5,14 @@ import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { ROLE_OPTIONS } from "../../../constants/roles";
 import MembersExportModal from "./MembersExportModal";
+import { useNavigate } from "react-router-dom";
 
 const UserMediaCell = ({ item }) => {
   const [imgError, setImgError] = useState(false);
-  
+
   const name = item.name || "Unknown User";
   const url = item.profile_image_url;
-  
+
   return (
     <div className="flex items-center gap-3.5">
       {url && !imgError ? (
@@ -34,8 +35,9 @@ const UserMediaCell = ({ item }) => {
   );
 };
 
-const UserManagementTab = () => {
+const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,14 +48,14 @@ const UserManagementTab = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const assignInFlight = useRef(false);
-  
+
   // Modals
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalStep, setModalStep] = useState('form'); // 'form' or 'confirm'
   const [modalError, setModalError] = useState(null);
-  
+
   // Modal Data
   const [formData, setFormData] = useState({
     targetRole: "",
@@ -184,7 +186,7 @@ const UserManagementTab = () => {
     const role = formData.targetRole;
     const items = [];
     items.push(`Role will be set to: ${role}`);
-    
+
     if (["ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"].includes(role)) {
       items.push(`Title: ${formData.boardRole}`);
       items.push(`Order: ${formData.boardOrder}`);
@@ -205,7 +207,7 @@ const UserManagementTab = () => {
     if (role === "SUPER_ADMIN") {
       items.push("WARNING: This user will have full unrestricted access to the entire platform.");
     }
-    
+
     if (role === "USER") {
       items.push("This user will lose all admin and board privileges.");
     }
@@ -253,11 +255,11 @@ const UserManagementTab = () => {
         </div>
         <select
           value={roleFilter}
-          onChange={(e) => { 
+          onChange={(e) => {
             setRoleFilter(e.target.value);
             setCommitteeFilter("");
             setClubFilter("");
-            setPage(0); 
+            setPage(0);
           }}
           className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
         >
@@ -296,13 +298,14 @@ const UserManagementTab = () => {
               <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                 <th className="pb-3 pl-4 pt-3">User</th>
                 <th className="pb-3 pt-3">Role</th>
-                <th className="pb-3 pr-4 pt-3 text-right">Actions</th>
+                <th className="pb-3 pt-3 -translate-x-[12px]">Points</th>
+                <th className="pb-3 pr-4 pt-3 text-right w-[260px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan="3" className="p-8">
+                  <td colSpan="4" className="p-8">
                     <div className="flex items-center justify-center">
                       <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
                     </div>
@@ -310,13 +313,13 @@ const UserManagementTab = () => {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="p-8 text-center text-slate-400 dark:text-slate-300 font-medium">
+                  <td colSpan="4" className="p-8 text-center text-slate-400 dark:text-slate-300 font-medium">
                     No users found.
                   </td>
                 </tr>
               ) : (
                 users.map(u => (
-                  <tr key={u.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
+                  <tr key={u.id} className="group hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
                     <td className="py-3.5 pl-4">
                       <UserMediaCell item={u} />
                     </td>
@@ -332,15 +335,35 @@ const UserManagementTab = () => {
                         )}
                       </div>
                     </td>
-                    <td className="py-3.5 pr-4 text-right">
-                      {canManageUser(u) && (
+                    <td className="py-3.5 font-extrabold text-slate-700 dark:text-slate-200">
+                      {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
+                    </td>
+                    <td className="py-3.5 pr-4 text-right w-[260px]">
+                      <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleOpenModal(u)}
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all"
+                          onClick={() => navigate(`/admin/user-profile`, { state: { targetUserId: u.id } })}
+                          className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                          title="View Profile"
                         >
-                          <FiShield className="w-3.5 h-3.5" /> Manage Access
+                          <FiUser className="w-3.5 h-3.5 shrink-0" />
+                          <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
+                            Profile
+                          </span>
                         </button>
-                      )}
+
+                        {!hideManageAccess && canManageUser(u) && (
+                          <button
+                            onClick={() => handleOpenModal(u)}
+                            className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
+                            title="Manage Access"
+                          >
+                            <FiShield className="w-3.5 h-3.5 shrink-0" />
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
+                              Manage Access
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -400,7 +423,7 @@ const UserManagementTab = () => {
                 <FiX className="w-4.5 h-4.5" />
               </button>
             </div>
-            
+
             {modalError && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-xs font-bold text-red-600 dark:text-red-400">
                 {modalError}
@@ -525,7 +548,7 @@ const UserManagementTab = () => {
                 <div className="bg-sky-50 dark:bg-sky-900/20 p-5 rounded-xl border border-sky-100 dark:border-sky-800/50">
                   {renderConfirmationSummary()}
                 </div>
-                
+
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => setModalStep('form')}
