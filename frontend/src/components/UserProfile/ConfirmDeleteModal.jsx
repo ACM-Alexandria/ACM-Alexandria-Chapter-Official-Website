@@ -5,7 +5,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, itemName }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
+        <div data-modal-overlay className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-sm w-full p-6 animate-[scaleIn_0.25s_ease] relative">
 
                 {/* Close Button */}
