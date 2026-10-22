@@ -49,5 +49,8 @@ public interface UserService {
 
   UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, Long clubId);
 
+  /** Requires an existing transaction; clears non-super-admin board users' committees and counts role changes. */
+  int demoteBoardMembers();
+
   UserDTO assignUser(UUID userId, com.acm.acmwebsite.User_Authentication.dto.UserAssignmentDto dto);
 }

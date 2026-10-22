@@ -39,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -71,7 +72,23 @@ public class UserServiceImpl implements UserService {
   private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional(propagation = Propagation.MANDATORY)
+  public int demoteBoardMembers() {
+    int downgraded = 0;
+    for (User user : userRepository.findCurrentBoardMembers()) {
+      if (user.getRole() == Role.SUPER_ADMIN) {
+        continue;
+      }
+      if (user.getRole() != Role.USER) {
+        user.setRole(Role.USER);
+        downgraded++;
+      }
+      user.setCommittee(null);
+    }
+    return downgraded;
+  }
+
+  @Override
   public Map<String, Object> getUserAuthDetails(String email) {
     User user = userRepository.findByEmail(email.trim().toLowerCase())
         .orElseThrow(() -> new UserNotFoundException("User session invalid"));

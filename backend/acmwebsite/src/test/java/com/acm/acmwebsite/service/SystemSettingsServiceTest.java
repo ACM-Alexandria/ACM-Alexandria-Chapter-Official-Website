@@ -206,4 +206,31 @@ public class SystemSettingsServiceTest {
         assertEquals(2026, systemSettingsService.getCurrentSeason());
     }
 
+
+    @Test
+    void lockForArchiveBootstrapsAndLocksBeforeInitializingNullSeason() {
+        var row = new SystemSettings(1L, false, null);
+        when(systemSettingsRepository.findSingletonForUpdate()).thenReturn(Optional.of(row));
+        when(systemSettingsRepository.findById(1L)).thenReturn(Optional.of(row));
+        serverDate("2026-09-01T00:00:00Z", "UTC");
+
+        assertSame(row, systemSettingsService.lockForArchive());
+
+        var order = inOrder(systemSettingsRepository);
+        order.verify(systemSettingsRepository).ensureSingletonExists();
+        order.verify(systemSettingsRepository).findSingletonForUpdate();
+        order.verify(systemSettingsRepository).findById(1L);
+        order.verify(systemSettingsRepository).save(row);
+        assertEquals(2026, row.getCurrentSeason());
+        assertFalse(row.isEmailsEnabled());
+    }
+
+    @Test
+    void lockForArchivePreservesAnExistingSeasonWithoutReinitializingIt() {
+        var row = new SystemSettings(1L, false, 2024);
+        when(systemSettingsRepository.findSingletonForUpdate()).thenReturn(Optional.of(row));
+        assertSame(row, systemSettingsService.lockForArchive());
+        verify(systemSettingsRepository, never()).findById(anyLong());
+        verifyNoInteractions(clock);
+    }
 }
