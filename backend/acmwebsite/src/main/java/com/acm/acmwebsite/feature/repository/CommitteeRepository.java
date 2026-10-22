@@ -12,9 +12,9 @@ public interface CommitteeRepository extends JpaRepository<Committee, Long> {
 
     boolean existsCommitteeByName(String name);
 
-    @Query("select distinct c from Committee c left join fetch c.messageForCalls left join fetch c.boardRoles")
+    @Query("select distinct c from Committee c left join fetch c.messageForCalls left join fetch c.boardRoles br left join fetch br.user")
     List<Committee> getAll();
 
-    @Query("select distinct c from Committee c left join fetch c.messageForCalls left join fetch c.boardRoles where c.id = :id")
+    @Query("select distinct c from Committee c left join fetch c.messageForCalls left join fetch c.boardRoles br left join fetch br.user where c.id = :id")
     Optional<Committee> findWithDetailsById(@Param("id") Long id);
 }

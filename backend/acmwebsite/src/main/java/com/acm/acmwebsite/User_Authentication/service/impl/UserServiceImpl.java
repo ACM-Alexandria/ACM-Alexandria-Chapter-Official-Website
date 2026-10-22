@@ -398,6 +398,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @Caching(evict = {
+      @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true),
+      @CacheEvict(value = CacheNames.CLUBS, allEntries = true),
+      @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
+  })
   public UserDTO updateUserRole(UUID userId, Role role) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
@@ -408,6 +413,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @Caching(evict = {
+      @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true),
+      @CacheEvict(value = CacheNames.CLUBS, allEntries = true),
+      @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
+  })
   public UserDTO assignCommitteeAndClubs(UUID userId, Long committeeId, Long clubId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
@@ -426,6 +436,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @Caching(evict = {
+      @CacheEvict(value = CacheNames.HIGH_BOARD, allEntries = true),
+      @CacheEvict(value = CacheNames.CLUBS, allEntries = true),
+      @CacheEvict(value = CacheNames.COMMITTEES, allEntries = true)
+  })
   public UserDTO assignUser(UUID userId, com.acm.acmwebsite.User_Authentication.dto.UserAssignmentDto dto) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
