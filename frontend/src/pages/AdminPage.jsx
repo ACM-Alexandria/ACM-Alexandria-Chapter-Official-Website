@@ -29,7 +29,10 @@ import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackT
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
-import { useNavigate } from "react-router-dom";
+import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageHeader";
+import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
+import ResourceToolbar from "../components/AdminPage/SharedComponents/ResourceToolbar";
+import { fieldClass, noticeClass, secondaryButtonClass } from "../components/AdminPage/SharedComponents/adminStyles";
 import {
   FiCalendar,
   FiAward,
@@ -54,11 +57,9 @@ import {
   FiMail,
   FiLock,
 } from "react-icons/fi";
-import { HiOutlineArrowLeft } from "react-icons/hi";
 
-/* ─── Brand ─── */
-const B = "#4B98C8";
-const BD = "#205E85";
+const pageButtonClass =
+  "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ADMIN PAGE
@@ -68,7 +69,6 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("insights");
-  const navigate = useNavigate();
 
   // ── Resource Management States ──
   const [mgmtTab, setMgmtTab] = useState("users");
@@ -1035,122 +1035,89 @@ const AdminPage = () => {
 
 
   const tabs = [
-    { id: "insights", label: "System Insights", icon: FiTrendingUp },
-    { id: "management", label: "Resource Management", icon: FiSliders },
-    { id: "email", label: "Email Center", icon: FiMail },
+    { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
+    { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
+    { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
   ];
+
+  // Paginated resources, keyed by tab
+  const pagedData = { events, clubs, programs, radio: seasons };
+  const pageInfo = pagedData[mgmtTab];
+
+  const sectionNames = {
+    highboard: "high board",
+    committeeBoard: "committee board",
+    radio: "radio seasons",
+    socialLinks: "social links",
+    exclusiveForms: "exclusive forms",
+  };
+  const sectionName = sectionNames[mgmtTab] || mgmtTab;
+
+  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback"].includes(mgmtTab);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
       <Navbar activeSection="" />
 
-      <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
-
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-        >
-          <HiOutlineArrowLeft className="w-4 h-4" /> Back
-        </button>
-
-        {/* ── Header ── */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
-          style={{ animation: "fadeIn 0.5s ease both" }}
-        >
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <FiActivity className="w-4 h-4" style={{ color: B }} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: B }}>
-                Administration
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-              Dashboard
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {isSuperAdmin && (
-              <button
-                type="button"
-                onClick={handleToggleEmailLock}
-                disabled={emailLockSaving}
-                title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
-                className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase text-slate-600 dark:text-slate-200 active:scale-95 transition-all disabled:opacity-40"
-              >
-                <FiLock className="w-3.5 h-3.5" style={{ color: emailsEnabled ? B : "#dc2626" }} />
-                Site Emails
-                <span
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${emailsEnabled ? "bg-[#4B98C8]" : "bg-red-500"
-                    }`}
+      <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
+        <AdminPageHeader
+          title="Dashboard"
+          description="Administration"
+          actions={
+            <>
+              {isSuperAdmin && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={emailsEnabled}
+                  onClick={handleToggleEmailLock}
+                  disabled={emailLockSaving}
+                  title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
+                  className={secondaryButtonClass}
                 >
+                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-[#4B98C8]" : "text-rose-600"}`} aria-hidden="true" />
+                  Site emails
                   <span
-                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${emailsEnabled ? "translate-x-4" : "translate-x-1"
-                      }`}
-                  />
-                </span>
-              </button>
-            )}
-            {activeTab === "insights" && (
-              <button
-                onClick={loadInsights}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
-              >
-                <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} style={{ color: B }} />
-                Refresh
-              </button>
-            )}
-          </div>
-        </div>
+                    aria-hidden="true"
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-[#4B98C8]" : "bg-rose-500"}`}
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${emailsEnabled ? "translate-x-4" : "translate-x-1"}`}
+                    />
+                  </span>
+                </button>
+              )}
+              {activeTab === "insights" && (
+                <button type="button" onClick={loadInsights} disabled={loading} className={secondaryButtonClass}>
+                  <FiRefreshCw className={`w-4 h-4 text-[#4B98C8] ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
+                  Refresh
+                </button>
+              )}
+            </>
+          }
+        />
 
-        {/* ── Email lock warning ── */}
+        {/* Email lock warning */}
         {!emailsEnabled && (
-          <div className="flex items-center gap-3 p-4 mb-8 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl">
-            <FiAlertTriangle className="w-5 h-5 shrink-0" />
-            <p className="text-xs font-bold">
+          <div role="alert" className={`flex items-start gap-2.5 ${noticeClass.error}`}>
+            <FiAlertTriangle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+            <p>
               All site emails are locked. No emails or notifications are sent (except password resets).
-              {isSuperAdmin ? " Use the Site Emails switch above to unlock." : " Only the super admin can unlock them."}
+              {isSuperAdmin ? " Use the Site emails switch above to unlock." : " Only the super admin can unlock them."}
             </p>
           </div>
         )}
 
-        {/* ── Tab Bar ── */}
-        <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-1 rounded-xl w-fit shadow-sm dark:shadow-slate-950/40 mb-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${activeTab === tab.id
-                ? "text-white shadow-md"
-                : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                }`}
-              style={activeTab === tab.id ? { background: `linear-gradient(135deg, ${B}, ${BD})` } : {}}
-            >
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <AdminTabs tabs={tabs} active={activeTab} onChange={setActiveTab} ariaLabel="Admin sections" />
 
-        {/* ━━━━ TAB 1: INSIGHTS ━━━━ */}
         {activeTab === "insights" && (
-          <SystemInsightsTab
-            insights={insights}
-            loading={loading}
-            error={error}
-            onRefresh={loadInsights}
-          />
+          <SystemInsightsTab insights={insights} loading={loading} error={error} onRefresh={loadInsights} />
         )}
 
-        {activeTab === "email" && (
-          <EmailCenterTab />
-        )}
+        {activeTab === "email" && <EmailCenterTab />}
 
-        {/* ━━━━ TAB 2: MANAGEMENT ━━━━ */}
         {activeTab === "management" && (
-          <div className="flex flex-col lg:flex-row gap-8 items-start animate-[fadeIn_0.4s_ease]">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
             <ManagementSidebar
               activeTab={mgmtTab}
               setActiveTab={setMgmtTab}
@@ -1158,73 +1125,40 @@ const AdminPage = () => {
               setSearchQuery={setMgmtSearchQuery}
             />
 
-            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
+            <div className="flex-1 w-full min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls — hidden for gallery/feedback/hrFeedback/users which render their own headers */}
-                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && mgmtTab !== "hrFeedback" && mgmtTab !== "users" && (
-                  <>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                      <div>
-                        <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
-                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab === "partners" ? "Partners" : mgmtTab}
-                        </h2>
-                        <p className="text-xs text-slate-400 dark:text-slate-300 font-medium">
-                          Add, edit, or delete items within this database category.
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={handleMgmtAddClick}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow active:scale-95 transition-all"
-                        style={{ backgroundColor: B }}
+                {!hasOwnHeader && (
+                  <ResourceToolbar
+                    title={`Manage ${sectionName}`}
+                    description="Add, edit or delete items in this section."
+                    onAdd={handleMgmtAddClick}
+                    search={mgmtSearchQuery}
+                    onSearchChange={setMgmtSearchQuery}
+                  >
+                    {/* Committee selector for committee board management */}
+                    {mgmtTab === "committeeBoard" && (
+                      <select
+                        aria-label="Committee"
+                        value={selectedCommitteeId}
+                        onChange={(e) => setSelectedCommitteeId(e.target.value)}
+                        className={`${fieldClass} sm:w-auto`}
                       >
-                        <FiPlus className="w-4 h-4" />
-                        Add New
-                      </button>
-                    </div>
-
-                    {/* Search Bar / Selector Row */}
-                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                      <div className="relative flex-1">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                          <FiSearch className="w-4 h-4" />
-                        </span>
-                        <input
-                          type="text"
-                          value={mgmtSearchQuery}
-                          onChange={(e) => setMgmtSearchQuery(e.target.value)}
-                          placeholder="Search by name or description..."
-                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                        />
-                      </div>
-
-                      {/* Committee Selector for Committee Board Management */}
-                      {mgmtTab === "committeeBoard" && (
-                        <select
-                          value={selectedCommitteeId}
-                          onChange={(e) => setSelectedCommitteeId(e.target.value)}
-                          className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                        >
-                          {committees.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </>
+                        {committees.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    )}
+                  </ResourceToolbar>
                 )}
 
-                {/* Error Alert */}
                 {mgmtError && (
-                  <div className="mb-6 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-4 flex items-center gap-3">
-                    <FiAlertTriangle className="w-5 h-5 shrink-0" />
-                    <p className="text-xs font-bold">{mgmtError}</p>
+                  <div role="alert" className={`mb-5 flex items-start gap-2.5 ${noticeClass.error}`}>
+                    <FiAlertTriangle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+                    <p>{mgmtError}</p>
                   </div>
                 )}
 
-                {/* Table Data — skipped for gallery/feedback/hrFeedback/users tabs which render their own UI */}
+                {/* Users, gallery and feedback render their own UI */}
                 {mgmtTab === "users" ? (
                   <UserManagementTab />
                 ) : mgmtTab === "gallery" ? (
@@ -1254,41 +1188,28 @@ const AdminPage = () => {
                 )}
               </div>
 
-              {/* Pagination controls for paginated resources */}
-              {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs" || mgmtTab === "radio") && (
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-5 mt-6">
-                  <span className="text-xs text-slate-400 dark:text-slate-300 font-bold">
-                    Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1} of{" "}
-                    {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : mgmtTab === "radio" ? seasons.totalPages : programs.totalPages}
+              {/* Pagination for paginated resources */}
+              {pageInfo && (
+                <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
+                  <button
+                    type="button"
+                    disabled={pageInfo.number === 0}
+                    onClick={() => loadMgmtTabData(mgmtTab, pageInfo.number - 1)}
+                    className={pageButtonClass}
+                  >
+                    <FiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
+                  </button>
+                  <span className="text-sm text-slate-600 dark:text-slate-400 tabular-nums">
+                    Page {pageInfo.number + 1} of {pageInfo.totalPages}
                   </span>
-                  <div className="flex gap-2">
-                    <button
-                      disabled={mgmtTab === "events" ? events.number === 0 : mgmtTab === "clubs" ? clubs.number === 0 : mgmtTab === "radio" ? seasons.number === 0 : programs.number === 0}
-                      onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) - 1)
-                      }
-                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
-                    >
-                      <FiChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      disabled={
-                        mgmtTab === "events"
-                          ? events.number >= events.totalPages - 1
-                          : mgmtTab === "clubs"
-                            ? clubs.number >= clubs.totalPages - 1
-                            : mgmtTab === "radio"
-                              ? seasons.number >= seasons.totalPages - 1
-                              : programs.number >= programs.totalPages - 1
-                      }
-                      onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1)
-                      }
-                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
-                    >
-                      <FiChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    disabled={pageInfo.number >= pageInfo.totalPages - 1}
+                    onClick={() => loadMgmtTabData(mgmtTab, pageInfo.number + 1)}
+                    className={pageButtonClass}
+                  >
+                    Next <FiChevronRight className="w-4 h-4" aria-hidden="true" />
+                  </button>
                 </div>
               )}
             </div>

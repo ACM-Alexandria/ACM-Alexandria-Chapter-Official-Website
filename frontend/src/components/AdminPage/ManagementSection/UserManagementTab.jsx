@@ -10,6 +10,7 @@ import { canShowPhoto } from "../../UserProfile/profileUtils";
 import MembersExportModal from "./MembersExportModal";
 import PointsLogModal from "../../UserProfile/PointsLogModal";
 import MemberProfilePanel from "../../UserProfile/MemberProfilePanel";
+import RowActions from "../SharedComponents/RowActions";
 
 const UserAvatar = ({ item }) => {
   const [imgError, setImgError] = useState(false);
@@ -54,13 +55,6 @@ const RoleTags = ({ user }) => (
 
 const fieldClass =
   "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
-
-const iconButtonBase =
-  "w-9 h-9 inline-flex items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40";
-
-const addPointsButtonClass = `${iconButtonBase} border-[#4B98C8]/40 bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/20`;
-
-const manageButtonClass = `${iconButtonBase} border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800`;
 
 const pageButtonClass =
   "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
@@ -365,15 +359,15 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden @container">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-separate border-spacing-0">
             <thead>
               <tr className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60">
                 <th scope="col" className="px-4 sm:px-5 py-3 font-medium">User</th>
-                <th scope="col" className="hidden md:table-cell px-5 py-3 font-medium">Role</th>
-                <th scope="col" className="w-20 sm:w-24 px-3 sm:px-5 py-3 font-medium text-right">Points</th>
-                <th scope="col" className="w-28 px-3 sm:px-5 py-3"><span className="sr-only">Actions</span></th>
+                <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">Role</th>
+                <th scope="col" className="hidden @min-[560px]:table-cell w-24 px-5 py-3 font-medium text-right">Points</th>
+                <th scope="col" className="px-3 sm:px-5 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
@@ -389,10 +383,10 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                         </div>
                       </div>
                     </td>
-                    <td className="hidden md:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <td className="hidden @min-[900px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
                       <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
                     </td>
-                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <td className="hidden @min-[560px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
                       <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-slate-800" />
                     </td>
                     <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800" />
@@ -412,64 +406,52 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                     onClick={() => viewProfile(u)}
                     className="group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <td className="px-4 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className="px-4 sm:px-5 py-4 w-full max-w-0 @min-[900px]:w-auto @min-[900px]:max-w-none border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
                       <div className="flex items-center gap-3 min-w-0">
                         <UserAvatar item={u} />
                         <div className="min-w-0">
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); viewProfile(u); }}
-                            className="block text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate max-w-[14rem] sm:max-w-xs rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+                            className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
                             title={`Open ${u.name || "user"}'s profile`}
                           >
                             {u.name || "Unknown User"}
                           </button>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[14rem] sm:max-w-xs" title={u.email}>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 truncate @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs" title={u.email}>
                             {u.email}
                           </p>
-                          <div className="md:hidden mt-1.5">
+                          {/* Phones: role tags and points move under the name */}
+                          <div className="@min-[900px]:hidden mt-1.5">
                             <RoleTags user={u} />
                           </div>
+                          <p className="@min-[560px]:hidden mt-1.5 inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                            <HiStar className="w-4 h-4 text-yellow-400" aria-hidden="true" />
+                            <span className="font-semibold tabular-nums text-slate-900 dark:text-slate-100">{u.season_points ?? u.seasonPoints ?? u.points ?? 0}</span>
+                            season points
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="hidden md:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className="hidden @min-[900px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
                       <RoleTags user={u} />
                     </td>
-                    <td className="px-3 sm:px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className="hidden @min-[560px]:table-cell px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
                       <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
                         <HiStar className="w-4 h-4 text-yellow-400" aria-hidden="true" />
                         {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
                       </span>
                     </td>
-                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
-                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                        {/* Fixed slots keep the icons aligned between rows */}
-                        <span className="w-9 h-9">
-                          {u.id !== user?.id && (
-                            <button
-                              onClick={() => setPointsTarget(u)}
-                              className={addPointsButtonClass}
-                              aria-label={`Add points to ${u.name || "user"}`}
-                              title="Add points"
-                            >
-                              <FiPlus className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                          )}
-                        </span>
-                        <span className="w-9 h-9">
-                          {!hideManageAccess && canManageUser(u) && (
-                            <button
-                              onClick={() => handleOpenModal(u)}
-                              className={manageButtonClass}
-                              aria-label={`Manage access for ${u.name || "user"}`}
-                              title="Manage access"
-                            >
-                              <FiShield className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                          )}
-                        </span>
-                      </div>
+                    <td className="px-3 sm:px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                      <RowActions
+                        from="compact"
+                        name={u.name || "user"}
+                        actions={[
+                          { key: "profile", label: "View profile", icon: FiUser, onClick: () => viewProfile(u), sheetOnly: true },
+                          { key: "points", label: "Add points", icon: FiPlus, onClick: () => setPointsTarget(u), hidden: u.id === user?.id, keepSpace: true },
+                          { key: "manage", label: "Manage access", icon: FiShield, onClick: () => handleOpenModal(u), hidden: hideManageAccess || !canManageUser(u), keepSpace: true },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))

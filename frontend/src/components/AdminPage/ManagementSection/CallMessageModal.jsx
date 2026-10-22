@@ -1,8 +1,13 @@
 import React from "react";
-import { FiX } from "react-icons/fi";
-
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
+import ModalShell from "../SharedComponents/ModalShell";
+import {
+  fieldClass,
+  hintClass,
+  labelClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  textareaClass,
+} from "../SharedComponents/adminStyles";
 
 const CallMessageModal = ({
   open,
@@ -14,82 +19,57 @@ const CallMessageModal = ({
   messageBody,
   setMessageBody,
   loading,
-}) => {
-  if (!open) return null;
+}) => (
+  <ModalShell
+    open={open}
+    onClose={onClose}
+    onSubmit={onSubmit}
+    title="Edit call email message"
+    subtitle={selectedCommittee?.name}
+    busy={loading}
+    footer={
+      <>
+        <button type="button" onClick={onClose} disabled={loading} className={secondaryButtonClass}>
+          Cancel
+        </button>
+        <button type="submit" disabled={loading} className={primaryButtonClass}>
+          {loading ? "Saving…" : "Save message"}
+        </button>
+      </>
+    }
+  >
+    <div className="flex flex-col gap-5">
+      <p className={hintClass}>
+        This email goes to active subscribers when a call for {selectedCommittee?.name || "this committee"} opens.
+      </p>
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-lg w-full p-6 animate-[scaleIn_0.25s_ease]">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6">
-          <div>
-            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-              Edit Call Email Message
-            </h3>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-              Set the email template sent automatically to active subscribers when opening calls for {selectedCommittee?.name}.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
-          >
-            <FiX className="w-4.5 h-4.5" />
-          </button>
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="call-subject" className={labelClass}>Subject</label>
+        <input
+          id="call-subject"
+          type="text"
+          required
+          value={messageSubject}
+          onChange={(e) => setMessageSubject(e.target.value)}
+          placeholder="e.g. Call for members is open"
+          className={fieldClass}
+        />
+      </div>
 
-        {/* Modal Form */}
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              Email Subject
-            </label>
-            <input
-              type="text"
-              required
-              value={messageSubject}
-              onChange={(e) => setMessageSubject(e.target.value)}
-              placeholder="e.g. Call for Members is Open!"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              Email Body
-            </label>
-            <textarea
-              required
-              value={messageBody}
-              onChange={(e) => setMessageBody(e.target.value)}
-              placeholder="Write the email content here..."
-              rows="6"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
-            />
-          </div>
-
-          {/* Actions row */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40"
-              style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
-            >
-              {loading ? "Saving..." : "Save Message"}
-            </button>
-          </div>
-        </form>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="call-body" className={labelClass}>Message</label>
+        <textarea
+          id="call-body"
+          required
+          value={messageBody}
+          onChange={(e) => setMessageBody(e.target.value)}
+          placeholder="Write the email content here"
+          rows="7"
+          className={`${textareaClass} resize-y`}
+        />
       </div>
     </div>
-  );
-};
+  </ModalShell>
+);
 
 export default CallMessageModal;

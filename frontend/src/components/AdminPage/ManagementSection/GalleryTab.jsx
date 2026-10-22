@@ -65,7 +65,7 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/88 backdrop-blur-md animate-[fadeIn_0.2s_ease]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/88 animate-[fadeIn_0.2s_ease]"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -79,20 +79,20 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
       {/* Close */}
       <button
         onClick={onClose}
-        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 hover:scale-105 active:scale-95 transition-all"
+        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 hover:scale-105 transition-all"
         aria-label="Close"
       >
         <FiX className="w-6 h-6" />
       </button>
 
       {/* Counter */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-1.5 rounded-full bg-slate-800/70 text-white text-[11px] font-bold tracking-wider">
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-1.5 rounded-full bg-slate-800/70 text-white text-xs font-medium">
         {current + 1} / {images.length}
       </div>
 
       {/* Caption */}
       {images[current]?.caption && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[110] px-5 py-2 rounded-2xl bg-slate-900/70 text-white text-xs font-semibold max-w-md text-center">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[110] px-5 py-2 rounded-lg bg-slate-900/70 text-white text-xs font-semibold max-w-md text-center">
           {images[current].caption}
         </div>
       )}
@@ -101,7 +101,7 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
       {images.length > 1 && (
         <button
           onClick={prev}
-          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 transition-all"
           aria-label="Previous"
         >
           <FiChevronLeft className="w-7 h-7" />
@@ -113,14 +113,14 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
         key={current}
         src={images[current]?.imageUrl}
         alt={images[current]?.caption || `Gallery ${current + 1}`}
-        className={`max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
+        className={`max-w-[90vw] max-h-[85vh] rounded-lg object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
       />
 
       {/* Next */}
       {images.length > 1 && (
         <button
           onClick={next}
-          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 transition-all"
           aria-label="Next"
         >
           <FiChevronRight className="w-7 h-7" />
@@ -239,15 +239,15 @@ const GalleryTab = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">ACM Gallery</h2>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">ACM Gallery</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">
               {images.length} image{images.length !== 1 ? "s" : ""} · Changes are saved immediately
             </p>
           </div>
           <button
             onClick={loadImages}
             disabled={loading || isUploading}
-            className="p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-xl transition-colors disabled:opacity-40"
+            className="p-2 hover:bg-slate-100 text-slate-600 dark:text-slate-400 hover:text-slate-600 rounded-lg transition-colors disabled:opacity-40"
             title="Refresh"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -256,7 +256,7 @@ const GalleryTab = () => {
 
         {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 flex items-center gap-2">
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 flex items-center gap-2">
             <span className="text-xs font-semibold">{error}</span>
           </div>
         )}
@@ -271,17 +271,17 @@ const GalleryTab = () => {
           <>
             {/* Image grid */}
             {images.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl text-center">
+              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-center">
                 <FiImage className="w-10 h-10 text-slate-300 mb-3" />
                 <p className="text-sm font-semibold text-slate-500">No images yet</p>
-                <p className="text-[11px] text-slate-400 mt-1">Upload images below to build the ACM gallery.</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Upload images below to build the ACM gallery.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                 {images.map((img, idx) => (
                   <div
                     key={img.id}
-                    className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm bg-slate-50 dark:bg-slate-800 cursor-pointer"
+                    className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer"
                     onClick={() => setLightboxIndex(idx)}
                   >
                     <img
@@ -298,7 +298,7 @@ const GalleryTab = () => {
                       type="button"
                       onClick={(e) => { e.stopPropagation(); handleDelete(img, idx); }}
                       disabled={deletingId === img.id || isUploading}
-                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md shadow transition-all active:scale-90 disabled:opacity-40"
+                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md transition-all active:scale-90 disabled:opacity-40"
                       title="Delete image"
                     >
                       {deletingId === img.id ? (
@@ -314,16 +314,16 @@ const GalleryTab = () => {
 
             {/* Upload progress bar */}
             {batchProgress !== null && (
-              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3">
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg px-4 py-3">
                 <div className="flex items-center justify-between mb-2 gap-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <span className="text-xs font-medium text-slate-500">
                     {isUploading
                       ? `Uploading… ${batchProgress.done}/${batchProgress.total}`
                       : batchProgress.failed > 0
                       ? `Done — ${batchProgress.failed} failed`
                       : `All ${batchProgress.total} uploaded ✓`}
                   </span>
-                  <span className={`text-[11px] font-extrabold shrink-0 ${
+                  <span className={`text-xs font-semibold shrink-0 ${
                     isUploading ? "text-[#4B98C8]" : batchProgress.failed > 0 ? "text-red-500" : "text-emerald-600"
                   }`}>
                     {batchProgress.percent}%
@@ -342,13 +342,13 @@ const GalleryTab = () => {
 
             {/* Drop zone */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Add Images
               </label>
               <div
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
                   isUploading
                     ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
                     : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
@@ -365,13 +365,13 @@ const GalleryTab = () => {
                 {isUploading ? (
                   <>
                     <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                    <p className="text-[11px] font-bold text-slate-600">Uploading…</p>
+                    <p className="text-xs font-medium text-slate-600">Uploading…</p>
                   </>
                 ) : (
                   <>
-                    <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                    <p className="text-[11px] font-bold text-slate-600">Click or drag & drop to upload</p>
-                    <p className="text-[9px] text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
+                    <FiUploadCloud className="w-8 h-8 text-slate-600 dark:text-slate-400 mb-2" />
+                    <p className="text-xs font-medium text-slate-600">Click or drag & drop to upload</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
                   </>
                 )}
               </div>

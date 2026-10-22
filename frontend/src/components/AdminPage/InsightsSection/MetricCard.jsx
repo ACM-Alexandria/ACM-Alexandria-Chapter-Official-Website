@@ -1,25 +1,19 @@
-import React from "react";
+import { createElement } from "react";
 
-const MetricCard = ({ label, value, subText, icon: Icon, color }) => (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 flex items-center gap-4 shadow-sm dark:shadow-slate-950/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default group">
+// One number on the insights dashboard. A single brand tint for every icon keeps the
+// page calm; the chart colors below carry the variety.
+const MetricCard = ({ label, value, subText, icon }) => (
+  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center min-w-0">
     <div
-      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
-      style={{ backgroundColor: `${color}14` }}
+      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]"
+      aria-hidden="true"
     >
-      <Icon className="w-5 h-5" style={{ color }} />
+      {createElement(icon, { className: "w-5 h-5" })}
     </div>
     <div className="min-w-0">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-        {label}
-      </p>
-      <p className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 leading-none tracking-tight">
-        {value}
-      </p>
-      {subText && (
-        <p className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
-          {subText}
-        </p>
-      )}
+      <p className="text-sm text-slate-600 dark:text-slate-400 leading-snug">{label}</p>
+      <p className="mt-0.5 text-2xl font-semibold text-slate-900 dark:text-slate-100 tabular-nums leading-none">{value}</p>
+      {subText && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 truncate">{subText}</p>}
     </div>
   </div>
 );

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { HiOutlineArrowLeft } from 'react-icons/hi';
 import { FiUsers, FiMail, FiSliders, FiLayers, FiCalendar, FiAward, FiBookOpen, FiFileText, FiAlertTriangle, FiLock, FiRefreshCw } from 'react-icons/fi';
 
 // Import Components
@@ -10,7 +9,10 @@ import ManagementSidebar from '../components/AdminPage/ManagementSection/Managem
 import UserManagementTab from '../components/AdminPage/ManagementSection/UserManagementTab';
 import ResourceTable from '../components/AdminPage/ManagementSection/ResourceTable';
 import EmailCenterTab from '../components/AdminPage/EmailCenterSection/EmailCenterTab';
-import HRFolderIcon from '../components/icons/HRFolderIcon';
+import AdminPageHeader from '../components/AdminPage/SharedComponents/AdminPageHeader';
+import AdminTabs from '../components/AdminPage/SharedComponents/AdminTabs';
+import ResourceToolbar from '../components/AdminPage/SharedComponents/ResourceToolbar';
+import { noticeClass } from '../components/AdminPage/SharedComponents/adminStyles';
 import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
 
@@ -24,16 +26,11 @@ import QuestionsManagementModal from '../components/AdminPage/ManagementSection/
 import RegistrationEmailsModal from '../components/AdminPage/ManagementSection/RegistrationEmailsModal';
 import CallMessageModal from '../components/AdminPage/ManagementSection/CallMessageModal';
 
-/* ─── Brand Colors ─── */
-const B = "#4B98C8";
-const BD = "#205E85";
 
 const HRDashboardPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { dialog, confirm, notify } = useThemedDialog();
-
-    const isSuperAdmin = user?.role === "SUPER_ADMIN";
+    const { dialog } = useThemedDialog();
 
     // Top-level tabs (Horizontal)
     const [activeTopTab, setActiveTopTab] = useState('resources');
@@ -44,8 +41,6 @@ const HRDashboardPage = () => {
 
     // --- EMAIL LOCK STATES ---
     const [emailsEnabled, setEmailsEnabled] = useState(true);
-    const [emailLockSaving, setEmailLockSaving] = useState(false);
-    const emailLockInFlight = useRef(false);
 
     // --- RESOURCE DATA STATES ---
     const [committees, setCommittees] = useState([]);
@@ -65,8 +60,8 @@ const HRDashboardPage = () => {
 
     // HR Dashboard Main Tabs
     const hrTabs = [
-        { id: 'resources', label: 'Resource Management', icon: <FiSliders className="w-4 h-4" /> },
-        { id: 'emails', label: 'Email Center', icon: <FiMail className="w-4 h-4" /> }
+        { id: 'resources', label: 'Resource Management', shortLabel: 'Resources', icon: FiSliders },
+        { id: 'emails', label: 'Email Center', shortLabel: 'Email', icon: FiMail }
     ];
 
     const RESOURCE_TABS = [
@@ -104,6 +99,37 @@ const HRDashboardPage = () => {
 
 
     // Fetch data from backend
+    // Call email message editor (same behaviour as the admin page)
+    const [messageSubject, setMessageSubject] = useState("");
+    const [messageBody, setMessageBody] = useState("");
+    const [messageSaving, setMessageSaving] = useState(false);
+    const [modalError, setModalError] = useState(null);
+
+    const handleEditMessageClick = (committee) => {
+        setSelectedResource(committee);
+        setMessageSubject(committee.callMessage?.subject || "");
+        setMessageBody(committee.callMessage?.body || "");
+        setModalError(null);
+        setIsCallMessageModalOpen(true);
+    };
+
+    const handleMessageSubmit = async (e) => {
+        e.preventDefault();
+        setMessageSaving(true);
+        setModalError(null);
+        try {
+            await adminService.changeCallMessage(selectedResource.id, { subject: messageSubject, body: messageBody });
+            setIsCallMessageModalOpen(false);
+            setSelectedResource(null);
+            await loadResourceData();
+        } catch (err) {
+            console.error(err);
+            setModalError(err.message || err.error || "Failed to update call message.");
+        } finally {
+            setMessageSaving(false);
+        }
+    };
+
     const loadResourceData = async () => {
         setIsLoadingResources(true);
         try {
@@ -172,7 +198,7 @@ const HRDashboardPage = () => {
                 onRegistrationClick={(item) => { setSelectedResource(item); setIsRegistrationModalOpen(true); }}
                 onQuestionsClick={(item) => { setSelectedResource(item); setIsQuestionsModalOpen(true); }}
                 onEmailsClick={(item) => { setSelectedResource(item); setIsEmailsModalOpen(true); }}
-                onEditMessageClick={(item) => { setSelectedResource(item); setIsCallMessageModalOpen(true); }}
+                onEditMessageClick={handleEditMessageClick}
 
                 // Ignored in HR mode (No permissions)
                 onEditClick={() => { }}
@@ -182,73 +208,29 @@ const HRDashboardPage = () => {
         );
     };
 
+    const activeSection = RESOURCE_TABS.find((tab) => tab.id === activeResourceTab);
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
             <Navbar activeSection="" />
 
-            {/* Exactly matches the sizing from AdminPage */}
-            <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
+            <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
+                <AdminPageHeader title="Dashboard" description="Human Resources" />
 
-                {/* 1. Back Button */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-                >
-                    <HiOutlineArrowLeft className="w-4 h-4" /> Back
-                </button>
-
-                {/* ── Header ── */}
-                <div
-                    className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
-                    style={{ animation: "fadeIn 0.5s ease both" }}
-                >
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <HRFolderIcon className="w-5 h-5" style={{ color: B }} />
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: B }}>
-                                Human Resources
-                            </span>
-                        </div>
-                        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-                            Dashboard
-                        </h1>
-                    </div>
-                </div>
-
-                {/* ── Email lock warning ── */}
                 {!emailsEnabled && (
-                    <div className="flex items-center gap-3 p-4 mb-8 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl">
-                        <FiAlertTriangle className="w-5 h-5 shrink-0" />
-                        <p className="text-xs font-bold">
+                    <div role="alert" className={`flex items-start gap-2.5 ${noticeClass.error}`}>
+                        <FiAlertTriangle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+                        <p>
                             All site emails are locked. No emails or notifications are sent (except password resets).
-                            {false ? " Use the Site Emails switch above to unlock." : " Please contact the HR Board to unlock them."}
+                            {" Please contact the HR Board to unlock them."}
                         </p>
                     </div>
                 )}
 
-                {/* 3. Horizontal Tab Switcher */}
-                <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-1 rounded-xl w-fit shadow-sm dark:shadow-slate-950/40 mb-8">
-                    {hrTabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTopTab(tab.id)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${activeTopTab === tab.id
-                                ? "text-white shadow-md"
-                                : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                }`}
-                            style={activeTopTab === tab.id ? { background: `linear-gradient(135deg, ${B}, ${BD})` } : {}}
-                        >
-                            {tab.icon}
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
+                <AdminTabs tabs={hrTabs} active={activeTopTab} onChange={setActiveTopTab} ariaLabel="HR sections" />
 
-                {/* 4. Tab Content Layout */}
                 {activeTopTab === 'resources' ? (
-                    /* The flex wrapper was fixed here to match AdminPage precisely! */
-                    <div className="flex flex-col lg:flex-row gap-8 items-start animate-[fadeIn_0.4s_ease]">
-                        {/* Left Sidebar Menu (Wrapper removed so it renders identically) */}
+                    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
                         <ManagementSidebar
                             activeTab={activeResourceTab}
                             setActiveTab={setActiveResourceTab}
@@ -257,16 +239,21 @@ const HRDashboardPage = () => {
                             isHRMode={HRMode}
                         />
 
-                        {/* Right Content Tables */}
-                        <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
+                        <div className="flex-1 w-full min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px]">
+                            {activeResourceTab !== 'users' && (
+                                <ResourceToolbar
+                                    title={activeSection?.label || 'Resources'}
+                                    description="Browse registrations, questions and emails for this section."
+                                    search={searchQuery}
+                                    onSearchChange={setSearchQuery}
+                                />
+                            )}
                             {renderResourceContent()}
                         </div>
                     </div>
                 ) : (
-                    /* No borders for EmailCenterTab, exactly like the AdminPage! */
                     <EmailCenterTab />
                 )}
-
             </main>
 
             {/* --- RENDER MODALS --- */}
@@ -300,14 +287,18 @@ const HRDashboardPage = () => {
                 />
             )}
 
-            {isCallMessageModalOpen && selectedResource && (
-                <CallMessageModal
-                    open={isCallMessageModalOpen}
-                    onClose={() => { setIsCallMessageModalOpen(false); setSelectedResource(null); }}
-                    committee={selectedResource}
-                    onSaveSuccess={loadResourceData}
-                />
-            )}
+            <CallMessageModal
+                open={isCallMessageModalOpen}
+                onClose={() => { setIsCallMessageModalOpen(false); setModalError(null); }}
+                onSubmit={handleMessageSubmit}
+                selectedCommittee={selectedResource}
+                messageSubject={messageSubject}
+                setMessageSubject={setMessageSubject}
+                messageBody={messageBody}
+                setMessageBody={setMessageBody}
+                loading={messageSaving}
+                error={modalError}
+            />
 
             {/* REQUIRED for the confirm/notify dialogs to render */}
             {dialog}

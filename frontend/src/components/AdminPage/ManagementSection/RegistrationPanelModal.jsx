@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FiX, FiExternalLink, FiRefreshCw, FiFileText, FiUsers, FiAward, FiBook, FiArrowLeft } from "react-icons/fi";
+import { FiExternalLink, FiRefreshCw, FiFileText, FiUsers, FiAward, FiBook, FiArrowLeft } from "react-icons/fi";
 import { fetchCommitteeCalls, fetchRegistrationAnalysis, syncRegistrationSheet } from "../../../services/adminService";
 import useThemedDialog from "../../../hooks/useThemedDialog";
 import { Highlight } from "../../ThemedDialog";
+import ModalShell from "../SharedComponents/ModalShell";
+import {
+  noticeClass,
+  secondaryButtonClass,
+} from "../SharedComponents/adminStyles";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
 
 const RegistrationPanelModal = ({
   open,
@@ -145,31 +148,26 @@ const RegistrationPanelModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl dark:shadow-slate-950/60 max-w-2xl w-full p-6 animate-[scaleIn_0.25s_ease] max-h-[90vh] flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
-          <div>
-            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-              {isCommittee ? `Committee Applications: ${resourceName}` : `Registration Panel: ${resourceName}`}
-            </h3>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider">
-              {resourceType === "event" ? "Event" : resourceType === "club" ? "Club" : resourceType === "program" ? "Program" : "Committee"} Registration Insights
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
-          >
-            <FiX className="w-4.5 h-4.5" />
+    <>
+      <ModalShell
+        open
+        onClose={onClose}
+        title={<>{isCommittee ? `Committee Applications: ${resourceName}` : `Registration Panel: ${resourceName}`}</>}
+        subtitle={<>{resourceType === "event" ? "Event" : resourceType === "club" ? "Club" : resourceType === "program" ? "Program" : "Committee"} Registration Insights</>}
+        size="lg"
+        footer={
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>
+            Close
           </button>
-        </div>
+        }
+      >
+
 
         {/* Scrollable Content Container */}
         <div className="overflow-y-auto py-5 space-y-5 flex-1 pr-1">
           {/* Error Banner */}
           {currentError && (
-            <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-bold shrink-0">
+            <div role="alert" className={noticeClass.error}>
               {currentError}
             </div>
           )}
@@ -178,7 +176,7 @@ const RegistrationPanelModal = ({
             // Committee Calls List View
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                   Open Calls History
                 </span>
                 <span className="text-xs font-semibold text-slate-500">
@@ -189,17 +187,17 @@ const RegistrationPanelModal = ({
               {callsLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loading calls...</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Loading calls...</p>
                 </div>
               ) : calls.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                  <p className="text-slate-400 text-xs font-medium">No open calls have been run for this committee yet.</p>
+                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+                  <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">No open calls have been run for this committee yet.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto border border-slate-150 rounded-2xl">
+                <div className="overflow-x-auto border border-slate-150 rounded-lg">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-50/70 dark:bg-slate-800/70 border-b border-slate-150 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                      <tr className="bg-slate-50/70 dark:bg-slate-800/70 border-b border-slate-150 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium">
                         <th className="p-3">Opened At</th>
                         <th className="p-3">Status</th>
                         <th className="p-3 text-center">Applicants</th>
@@ -209,21 +207,21 @@ const RegistrationPanelModal = ({
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {calls.map((call) => (
                         <tr key={call.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="p-3 font-bold text-slate-800 dark:text-slate-100">
+                          <td className="p-3 font-medium text-slate-800 dark:text-slate-100">
                             {formatDate(call.openedAt)}
                           </td>
                           <td className="p-3">
                             {call.closedAt ? (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700">
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700">
                                 Closed {call.closedAt.split("T")[0]}
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200/60 animate-pulse">
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-200/60 animate-pulse">
                                 Active Call
                               </span>
                             )}
                           </td>
-                          <td className="p-3 text-center font-bold text-slate-600 dark:text-slate-300">
+                          <td className="p-3 text-center font-medium text-slate-600 dark:text-slate-300">
                             {call.registrationsCount}
                           </td>
                           <td className="p-3 text-right space-x-2">
@@ -232,7 +230,7 @@ const RegistrationPanelModal = ({
                                 href={call.googleSheetUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex p-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 text-emerald-600 hover:text-emerald-700 rounded-xl transition-all shadow-sm"
+                                className="inline-flex p-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-emerald-600 hover:text-emerald-700 rounded-lg transition-all"
                                 title="Open Spreadsheet"
                               >
                                 <FiExternalLink className="w-3.5 h-3.5" />
@@ -240,7 +238,7 @@ const RegistrationPanelModal = ({
                             )}
                             <button
                               onClick={() => handleSelectCall(call)}
-                              className="px-3 py-1.5 bg-[#4B98C8]/10 hover:bg-[#4B98C8]/20 dark:hover:bg-[#4B98C8]/30 text-[#205E85] dark:text-[#4B98C8] rounded-xl font-bold uppercase tracking-wider text-[10px] active:scale-95 transition-all"
+                              className="px-3 py-1.5 bg-[#4B98C8]/10 hover:bg-[#4B98C8]/20 dark:hover:bg-[#4B98C8]/30 text-[#205E85] dark:text-[#4B98C8] rounded-lg font-medium text-xs transition-all"
                             >
                               Details
                             </button>
@@ -258,17 +256,17 @@ const RegistrationPanelModal = ({
               {isCommittee && (
                 <button
                   onClick={() => setSelectedCall(null)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#4B98C8] transition-colors pb-1 w-fit"
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#4B98C8] transition-colors pb-1 w-fit"
                 >
                   <FiArrowLeft className="w-4 h-4" /> Back to calls history
                 </button>
               )}
 
               {/* Google Sheets Integration Card */}
-              <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50/20 to-slate-50 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 hover:shadow-sm transition-all duration-300">
+              <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50/20 to-slate-50 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:shadow-sm transition-all duration-300">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200/50'} shrink-0 shadow-sm border`}>
+                    <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200/50'} shrink-0  border`}>
                       <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z" />
                       </svg>
@@ -276,16 +274,16 @@ const RegistrationPanelModal = ({
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                           Registration Sheet
                         </span>
                         {currentAnalysis?.googleSheetUrl ? (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/80 flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/80 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             Generated
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                             Not Exported
                           </span>
                         )}
@@ -294,17 +292,17 @@ const RegistrationPanelModal = ({
                       {currentAnalysis?.googleSheetUrl ? (
                         <div className="space-y-0.5">
                           {currentAnalysis?.sheetLastUpdatedAt && (
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                               Last sync: <span className="text-slate-700 dark:text-slate-300 font-semibold">{new Date(currentAnalysis.sheetLastUpdatedAt).toLocaleString()}</span>
                             </p>
                           )}
                         </div>
                       ) : (
                         <div className="space-y-0.5">
-                          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                          <h4 className="text-xs font-medium text-slate-800 dark:text-slate-100">
                             Export Registrations List
                           </h4>
-                          <p className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                             Export all registration columns and custom answers.
                           </p>
                         </div>
@@ -318,7 +316,7 @@ const RegistrationPanelModal = ({
                         href={currentAnalysis.googleSheetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95"
+                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
                       >
                         View Sheet <FiExternalLink className="w-3.5 h-3.5" />
                       </a>
@@ -327,7 +325,7 @@ const RegistrationPanelModal = ({
                     <button
                       onClick={currentSyncHandler}
                       disabled={currentSyncLoading}
-                      className="flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-50 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+                      className="flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
                     >
                       {currentSyncLoading ? (
                         <>
@@ -348,7 +346,7 @@ const RegistrationPanelModal = ({
               {currentLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider animate-pulse">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium animate-pulse">
                     Fetching Insights...
                   </p>
                 </div>
@@ -357,27 +355,27 @@ const RegistrationPanelModal = ({
                   {/* Stat Overview Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Total Registrations */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-sky-50 text-[#4B98C8]">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-sky-50 text-[#4B98C8]">
                         <FiUsers className="w-6 h-6" />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 block">
                           Total Applications
                         </span>
-                        <span className="text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight">
+                        <span className="text-2xl font-semibold text-slate-800 dark:text-slate-100 leading-tight">
                           {total}
                         </span>
                       </div>
                     </div>
 
                     {/* University Affiliation */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 hover:shadow-md transition-shadow flex flex-col justify-center">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:shadow-md transition-shadow flex flex-col justify-center">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                           University Classification
                         </span>
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
                           {alexCount} / {total} (Alex Eng)
                         </span>
                       </div>
@@ -395,13 +393,13 @@ const RegistrationPanelModal = ({
                               title={`Non-Alex: ${nonAlexPct}%`}
                             />
                           </div>
-                          <div className="flex justify-between text-[9px] font-extrabold uppercase tracking-wide">
+                          <div className="flex justify-between text-xs font-semibold">
                             <span className="text-[#4B98C8]">Alex Eng ({alexPct}%)</span>
-                            <span className="text-slate-400">Other ({nonAlexPct}%)</span>
+                            <span className="text-slate-600 dark:text-slate-400">Other ({nonAlexPct}%)</span>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-[11px] text-slate-400 italic">No application data available.</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 italic">No application data available.</p>
                       )}
                     </div>
                   </div>
@@ -409,10 +407,10 @@ const RegistrationPanelModal = ({
                   {/* Breakdowns Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                     {/* Department Distribution */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 space-y-4">
                       <div className="flex items-center gap-2 border-b border-slate-50 pb-2 mb-2">
                         <FiAward className="w-4 h-4 text-[#4B98C8]" />
-                        <h4 className="text-xs font-black dark:text-slate-300 text-slate-800 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold dark:text-slate-300 text-slate-800">
                           Department Breakdown
                         </h4>
                       </div>
@@ -423,8 +421,8 @@ const RegistrationPanelModal = ({
                             const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                             return (
                               <div key={dept} className="space-y-1">
-                                <div className="flex justify-between text-[11px] font-bold text-slate-600">
-                                  <span className="uppercase">{dept}</span>
+                                <div className="flex justify-between text-xs font-medium text-slate-600">
+                                  <span className="">{dept}</span>
                                   <span>
                                     {count} ({pct}%)
                                   </span>
@@ -434,7 +432,7 @@ const RegistrationPanelModal = ({
                                     className="h-full rounded-full transition-all"
                                     style={{
                                       width: `${pct}%`,
-                                      background: `linear-gradient(90deg, ${BRAND}, ${BRAND_DARK})`,
+                                      background: "#4B98C8",
                                     }}
                                   />
                                 </div>
@@ -442,16 +440,16 @@ const RegistrationPanelModal = ({
                             );
                           })
                         ) : (
-                          <p className="text-xs text-slate-400 italic py-2">No departments to display.</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 italic py-2">No departments to display.</p>
                         )}
                       </div>
                     </div>
 
                     {/* Batch Distribution */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 space-y-4">
                       <div className="flex items-center gap-2 border-b border-slate-50 pb-2 mb-2">
                         <FiBook className="w-4 h-4 text-[#4B98C8]" />
-                        <h4 className="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-100">
                           Batch Breakdown
                         </h4>
                       </div>
@@ -464,7 +462,7 @@ const RegistrationPanelModal = ({
                               const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                               return (
                                 <div key={batch} className="space-y-1">
-                                  <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                                  <div className="flex justify-between text-xs font-medium text-slate-600">
                                     <span>{batch}</span>
                                     <span>
                                       {count} ({pct}%)
@@ -480,7 +478,7 @@ const RegistrationPanelModal = ({
                               );
                             })
                         ) : (
-                          <p className="text-xs text-slate-400 italic py-2">No batches to display.</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 italic py-2">No batches to display.</p>
                         )}
                       </div>
                     </div>
@@ -490,20 +488,9 @@ const RegistrationPanelModal = ({
             </>
           )}
         </div>
-
-        {/* Footer */}
-        <div className="flex justify-end pt-4 border-t border-slate-100 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-              className="px-5 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
-          >
-            Close
-          </button>
-        </div>
-      </div>
+      </ModalShell>
       {dialog}
-    </div>
+    </>
   );
 };
 

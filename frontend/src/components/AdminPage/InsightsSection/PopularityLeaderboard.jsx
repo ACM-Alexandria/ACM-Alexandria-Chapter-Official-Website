@@ -17,29 +17,29 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
 
   const rankBadge = (i) => {
     if (i === 0) return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
-    if (i === 1) return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-200", border: "border-slate-200 dark:border-slate-600" };
+    if (i === 1) return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-200", border: "border-slate-200 dark:border-slate-700" };
     if (i === 2) return { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" };
-    return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-400 dark:text-slate-300", border: "border-slate-100 dark:border-slate-700" };
+    return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-300", border: "border-slate-100 dark:border-slate-700" };
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-sm dark:shadow-slate-950/40 hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-700 p-5 dark:shadow-slate-950/40 transition-shadow duration-300 flex flex-col h-full">
       <div className="flex items-center gap-3 mb-4">
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
+          className="w-9 h-9 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: `${accentColor}12` }}
         >
           <Icon className="w-[18px] h-[18px]" style={{ color: accentColor }} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</h3>
-          <p className="text-[11px] text-slate-400">Ranked by registrations</p>
+          <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">{title}</h3>
+          <p className="text-xs text-slate-600 dark:text-slate-400">Ranked by registrations</p>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col gap-3.5 justify-center">
         {data.length === 0 ? (
-          <p className="text-center text-slate-400 text-sm font-medium py-8">No registrations yet</p>
+          <p className="text-center text-slate-600 dark:text-slate-400 text-sm font-medium py-8">No registrations yet</p>
         ) : (
           data.slice(0, 5).map((item, i) => {
             const pct = (item.count / maxR) * 100;
@@ -48,14 +48,14 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
               <div key={item.id || i}>
                 <div className="flex items-center gap-2.5 mb-1">
                   <span
-                    className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-extrabold shrink-0 border ${badge.bg} ${badge.text} ${badge.border}`}
+                    className={`w-5 h-5 rounded-md flex items-center justify-center text-xs font-semibold shrink-0 border ${badge.bg} ${badge.text} ${badge.border}`}
                   >
                     {i + 1}
                   </span>
                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate flex-1">
                     {item.name}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-500 shrink-0">{item.count}</span>
+                  <span className="text-xs font-medium text-slate-500 shrink-0">{item.count}</span>
                 </div>
                 <div className="w-full h-[7px] bg-slate-100 rounded-full overflow-hidden">
                   <div

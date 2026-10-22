@@ -3,13 +3,13 @@ import { shimmerClass } from "./constants";
 
 /* ─── Skeleton building blocks ─── */
 const SkeletonCard = () => (
-  <div className={`bg-slate-100/80 dark:bg-slate-800 rounded-2xl h-[104px] ${shimmerClass}`} />
+  <div className={`bg-slate-100/80 dark:bg-slate-800 rounded-lg h-[104px] ${shimmerClass}`} />
 );
 
 const SkeletonChartWide = ({ h = "h-[340px]" }) => (
-  <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5 ${h}`}>
+  <div className={`bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-700 p-5 ${h}`}>
     <div className="flex items-center gap-3 mb-5">
-      <div className={`w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
+      <div className={`w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
       <div className="space-y-2 flex-1">
         <div className={`h-3.5 w-28 rounded bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
         <div className={`h-2.5 w-40 rounded bg-slate-50 dark:bg-slate-800 ${shimmerClass}`} />
@@ -28,9 +28,9 @@ const SkeletonChartWide = ({ h = "h-[340px]" }) => (
 );
 
 const SkeletonDonut = () => (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5 h-[380px]">
+  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-700 p-5 h-[380px]">
     <div className="flex items-center gap-3 mb-5">
-      <div className={`w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
+      <div className={`w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
       <div className="space-y-2 flex-1">
         <div className={`h-3.5 w-24 rounded bg-slate-100 dark:bg-slate-800 ${shimmerClass}`} />
         <div className={`h-2.5 w-36 rounded bg-slate-50 dark:bg-slate-800 ${shimmerClass}`} />
@@ -48,9 +48,9 @@ const SkeletonDonut = () => (
 );
 
 const SkeletonLeaderboard = () => (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5 h-[280px]">
+  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-700 p-5 h-[280px]">
     <div className="flex items-center gap-3 mb-5">
-      <div className={`w-9 h-9 rounded-xl bg-slate-100 ${shimmerClass}`} />
+      <div className={`w-9 h-9 rounded-lg bg-slate-100 ${shimmerClass}`} />
       <div className="space-y-2 flex-1">
         <div className={`h-3.5 w-24 rounded bg-slate-100 ${shimmerClass}`} />
         <div className={`h-2.5 w-32 rounded bg-slate-50 ${shimmerClass}`} />

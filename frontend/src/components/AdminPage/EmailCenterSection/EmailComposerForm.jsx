@@ -3,14 +3,15 @@ import { FiEye } from "react-icons/fi";
 import MembersFilter from "../SharedComponents/MembersFilter";
 import RichTextEditor from "../SharedComponents/RichTextEditor/RichTextEditor";
 import UserRecipientSearch from "./UserRecipientSearch";
+import { fieldClass, labelClass, primaryButtonClass } from "../SharedComponents/adminStyles";
 
 const EmailComposerForm = ({ composer, committees, clubs, targetsError }) => (
     <form className="max-w-4xl space-y-5" onSubmit={composer.openPreview}>
         <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Subject</span>
+            <span className={`${labelClass} mb-1.5 block`}>Subject</span>
             <input
                 autoComplete="off"
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className={fieldClass}
                 maxLength={200}
                 onChange={(event) => composer.setSubject(event.target.value)}
                 placeholder="Write a clear subject"
@@ -20,7 +21,7 @@ const EmailComposerForm = ({ composer, committees, clubs, targetsError }) => (
         </label>
 
         <div>
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Message</span>
+            <span className={`${labelClass} mb-1.5 block`}>Message</span>
             <RichTextEditor value={composer.body} onChange={composer.setBody} />
         </div>
 
@@ -40,12 +41,8 @@ const EmailComposerForm = ({ composer, committees, clubs, targetsError }) => (
         />
 
         <div className="flex justify-end">
-            <button
-                type="submit"
-                disabled={!composer.canPreview}
-                className="flex items-center gap-2 rounded-md bg-[#4B98C8] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-[#205E85] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-[#4B98C8] disabled:active:scale-100"
-            >
-                <FiEye className="h-4 w-4" /> Preview
+            <button type="submit" disabled={!composer.canPreview} className={`${primaryButtonClass} w-full sm:w-auto`}>
+                <FiEye className="h-4 w-4" aria-hidden="true" /> Preview
             </button>
         </div>
     </form>

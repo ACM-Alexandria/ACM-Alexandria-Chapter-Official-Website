@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiUploadCloud, FiLoader, FiExternalLink, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiUploadCloud, FiLoader, FiExternalLink, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import adminService from "../../../services/adminService";
 import useThemedDialog from "../../../hooks/useThemedDialog";
 import { Highlight } from "../../ThemedDialog";
+import ModalShell from "../SharedComponents/ModalShell";
+import {
+  fieldClass,
+  noticeClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from "../SharedComponents/adminStyles";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
 
 const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
   const { dialog, confirm } = useThemedDialog();
@@ -195,37 +200,29 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col justify-between">
-        
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6 shrink-0">
-          <div className="flex items-center gap-3">
-            {mode !== "list" && (
-              <button
-                onClick={() => setMode("list")}
-                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-slate-100 rounded-lg transition-colors"
-                title="Back to list"
-              >
-                <FiArrowLeft className="w-4 h-4" />
-              </button>
-            )}
-            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-              {mode === "list" ? `Manage Season ${seasonNumber} Episodes` : mode === "add" ? "Add Episode" : "Edit Episode"}
-            </h3>
-          </div>
+    <>
+      <ModalShell
+        open
+        onClose={onClose}
+        title={<>{mode === "list" ? `Manage Season ${seasonNumber} Episodes` : mode === "add" ? "Add Episode" : "Edit Episode"}</>}
+        size="xl" busy={saving || uploading}
+      >
+
+
+        {mode !== "list" && (
           <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
+            type="button"
+            onClick={() => setMode("list")}
+            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
           >
-            <FiX className="w-4.5 h-4.5" />
+            <FiArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to list
           </button>
-        </div>
+        )}
 
         {/* Modal Content */}
         <div className="flex-1 overflow-y-auto min-h-[300px]">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-xs font-bold">
+            <div role="alert" className={`mb-4 ${noticeClass.error}`}>
               {error}
             </div>
           )}
@@ -233,13 +230,13 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
           {mode === "list" ? (
             <>
               <div className="flex justify-between items-center mb-4">
-                <p className="text-xs text-slate-400 font-semibold">
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold">
                   Seasons list all episodes sorted by episode number.
                 </p>
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4B98C8] hover:bg-[#205E85] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4B98C8] hover:bg-[#205E85] text-white rounded-lg text-xs font-medium transition-colors"
                 >
                   <FiPlus className="w-3.5 h-3.5" />
                   Add Episode
@@ -251,14 +248,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                   <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin" />
                 </div>
               ) : episodesPage.content.length === 0 ? (
-                <div className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                  <p className="text-slate-400 text-xs font-bold">No episodes found in this season.</p>
+                <div className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+                  <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">No episodes found in this season.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                      <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium">
                         <th className="pb-2.5 pl-2 w-16">Number</th>
                         <th className="pb-2.5">Title</th>
                         <th className="pb-2.5">Host & Guest</th>
@@ -269,16 +266,16 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {episodesPage.content.map((ep) => (
                         <tr key={ep.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors">
-                          <td className="py-2.5 pl-2 text-slate-500 font-bold">Ep. {ep.episodeNumber}</td>
+                          <td className="py-2.5 pl-2 text-slate-500 font-medium">Ep. {ep.episodeNumber}</td>
                           <td className="py-2.5">
                             <div className="flex items-center gap-2">
-                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-slate-600 shrink-0" />
-                              <span className="font-extrabold text-slate-800 dark:text-slate-100 truncate max-w-[150px]">{ep.title}</span>
+                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-slate-700 shrink-0" />
+                              <span className="font-semibold text-slate-800 dark:text-slate-100 truncate max-w-[150px]">{ep.title}</span>
                             </div>
                           </td>
                           <td className="py-2.5 text-slate-500">
-                            <div>Host: <span className="text-slate-700 dark:text-slate-200 font-bold">{ep.host || "N/A"}</span></div>
-                            <div className="text-[10px] text-slate-400 mt-0.5">Guest: <span className="font-bold">{ep.guest || "N/A"}</span></div>
+                            <div>Host: <span className="text-slate-700 dark:text-slate-200 font-medium">{ep.host || "N/A"}</span></div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Guest: <span className="font-medium">{ep.guest || "N/A"}</span></div>
                           </td>
                           <td className="py-2.5">
                             <a href={ep.url} target="_blank" rel="noopener noreferrer" className="text-[#4B98C8] hover:underline inline-flex items-center gap-0.5">
@@ -312,21 +309,21 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
               {/* Pagination */}
               {episodesPage.totalPages > 1 && !loading && (
                 <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-4 mt-4">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                     Page {episodesPage.number + 1} of {episodesPage.totalPages}
                   </span>
                   <div className="flex gap-2">
                     <button
                       disabled={episodesPage.number === 0}
                       onClick={() => handlePageChange(episodesPage.number - 1)}
-                      className="p-1.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className={secondaryButtonClass}
                     >
                       <FiChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       disabled={episodesPage.number >= episodesPage.totalPages - 1}
                       onClick={() => handlePageChange(episodesPage.number + 1)}
-                      className="p-1.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
+                      className={secondaryButtonClass}
                     >
                       <FiChevronRight className="w-4 h-4" />
                     </button>
@@ -338,7 +335,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Episode Number *
                   </label>
                   <input
@@ -348,12 +345,12 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={episodeNumber}
                     onChange={(e) => setEpisodeNumber(e.target.value)}
                     placeholder="e.g. 1"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Episode Title *
                   </label>
                   <input
@@ -362,14 +359,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Intro to Web Development"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Host Name
                   </label>
                   <input
@@ -377,12 +374,12 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={host}
                     onChange={(e) => setHost(e.target.value)}
                     placeholder="e.g. John"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Guest Name
                   </label>
                   <input
@@ -390,13 +387,13 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={guest}
                     onChange={(e) => setGuest(e.target.value)}
                     placeholder="e.g. Dr. Ahmed"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Episode Link / URL *
                 </label>
                 <input
@@ -405,21 +402,21 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Episode Cover Image *
                 </label>
 
                 {imageUrl ? (
-                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl">
-                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200 dark:border-slate-600" />
+                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200 dark:border-slate-700" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">{imageUrl.split("/").pop()}</p>
-                      <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">Cloudinary Asset</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{imageUrl.split("/").pop()}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">Cloudinary Asset</p>
                     </div>
                     <button
                       type="button"
@@ -431,7 +428,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     </button>
                   </div>
                 ) : (
-                  <div className="relative border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl p-5 text-center flex flex-col items-center justify-center cursor-pointer">
+                  <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg p-5 text-center flex flex-col items-center justify-center cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
@@ -442,18 +439,18 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     {uploading ? (
                       <>
                         <FiLoader className="w-6 h-6 text-[#4B98C8] animate-spin mb-1" />
-                        <p className="text-[10px] font-bold text-slate-600 dark:text-slate-200">Uploading to Cloudinary...</p>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Uploading to Cloudinary...</p>
                       </>
                     ) : (
                       <>
-                        <FiUploadCloud className="w-6 h-6 text-slate-400 mb-1" />
-                        <p className="text-[10px] font-bold text-slate-600 dark:text-slate-200">Click to upload cover image</p>
+                        <FiUploadCloud className="w-6 h-6 text-slate-600 dark:text-slate-400 mb-1" />
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Click to upload cover image</p>
                       </>
                     )}
                   </div>
                 )}
                 {uploadError && (
-                  <p className="text-[10px] text-red-500 font-bold mt-1.5">{uploadError}</p>
+                  <p className="text-xs text-red-500 font-medium mt-1.5">{uploadError}</p>
                 )}
               </div>
 
@@ -461,15 +458,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 <button
                   type="button"
                   onClick={() => setMode("list")}
-                  className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+                  className={secondaryButtonClass}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving || uploading}
-                  className="px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40 flex items-center gap-1.5"
-                  style={{ backgroundColor: BRAND }}
+                  className={primaryButtonClass}
                 >
                   {saving ? (
                     <>
@@ -481,9 +477,9 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
             </form>
           )}
         </div>
-      </div>
+      </ModalShell>
       {dialog}
-    </div>
+    </>
   );
 };
 

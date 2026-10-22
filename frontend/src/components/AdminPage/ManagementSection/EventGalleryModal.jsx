@@ -12,9 +12,12 @@ import {
 import api from "../../../services/api";
 import adminService from "../../../services/adminService";
 import { fetchEventById } from "../../../services/homePageService";
+import ModalShell from "../SharedComponents/ModalShell";
+import {
+  primaryButtonClass,
+  secondaryButtonClass,
+} from "../SharedComponents/adminStyles";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
 
 /* ── upload one file; resolves with server response data ── */
 const uploadFile = (file) => {
@@ -66,7 +69,7 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-md animate-[fadeIn_0.2s_ease]"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 animate-[fadeIn_0.2s_ease]"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -80,14 +83,14 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
       {/* Close */}
       <button
         onClick={onClose}
-        className="absolute right-5 top-5 z-[210] w-11 h-11 flex items-center justify-center rounded-2xl bg-slate-800/90 text-white border border-slate-700/50 shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+        className="absolute right-5 top-5 z-[210] w-11 h-11 flex items-center justify-center rounded-lg bg-slate-800/90 text-white border border-slate-700/50 shadow-xl hover:bg-slate-800 hover:scale-105 transition-all"
         aria-label="Close"
       >
         <FiX className="w-5 h-5" />
       </button>
 
       {/* Counter */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-[210] px-3 py-1 rounded-full bg-slate-800/70 text-white text-[11px] font-bold tracking-wider">
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-[210] px-3 py-1 rounded-full bg-slate-800/70 text-white text-xs font-medium">
         {current + 1} / {images.length}
       </div>
 
@@ -95,7 +98,7 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
       {images.length > 1 && (
         <button
           onClick={prev}
-          className="absolute left-4 z-[210] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-800/80 text-white border border-slate-700/40 shadow-xl hover:bg-slate-700 hover:scale-105 active:scale-95 transition-all"
+          className="absolute left-4 z-[210] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-800/80 text-white border border-slate-700/40 shadow-xl hover:bg-slate-700 hover:scale-105 transition-all"
           aria-label="Previous"
         >
           <FiChevronLeft className="w-6 h-6" />
@@ -107,14 +110,14 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
         key={current}
         src={images[current]}
         alt={`Gallery ${current + 1}`}
-        className={`max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
+        className={`max-w-[90vw] max-h-[85vh] rounded-lg object-contain shadow-2xl ${direction === "next" ? "slide-next" : "slide-prev"}`}
       />
 
       {/* Next */}
       {images.length > 1 && (
         <button
           onClick={next}
-          className="absolute right-4 z-[210] w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-800/80 text-white border border-slate-700/40 shadow-xl hover:bg-slate-700 hover:scale-105 active:scale-95 transition-all"
+          className="absolute right-4 z-[210] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-800/80 text-white border border-slate-700/40 shadow-xl hover:bg-slate-700 hover:scale-105 transition-all"
           aria-label="Next"
         >
           <FiChevronRight className="w-6 h-6" />
@@ -124,10 +127,8 @@ const AdminLightbox = ({ images, startIndex, onClose }) => {
   );
 };
 
-/* ── Main Modal ── */
-const EventGalleryModal = ({ open, onClose, event, onSave }) => {
-  if (!open || !event) return null;
-
+/* ── Main Modal (hooks live in the inner form, mounted only while open) ── */
+const EventGalleryForm = ({ open, onClose, event, onSave }) => {
   const [attachedImages, setAttachedImages] = useState([]);
   const [loadingEvent, setLoadingEvent] = useState(false);
   // Single batch progress: null = no upload running/done yet
@@ -223,26 +224,36 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
-
-          {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6 shrink-0">
-            <div>
-              <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Manage Event Gallery</h3>
-              <p className="text-xs text-slate-400 font-semibold mt-0.5">Event: {event.name}</p>
-            </div>
+      <ModalShell
+        open
+        onClose={onClose}
+        title="Manage event gallery"
+        subtitle={event.name}
+        size="lg"
+        busy={isUploading || saving || loadingEvent}
+        footer={
+          <>
             <button
+              type="button"
               onClick={onClose}
               disabled={isUploading || saving || loadingEvent}
-              className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors disabled:opacity-40"
+              className={secondaryButtonClass}
             >
-              <FiX className="w-4.5 h-4.5" />
+              Cancel
             </button>
-          </div>
-
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isUploading || saving || loadingEvent}
+              className={primaryButtonClass}
+            >
+              {saving ? "Saving…" : "Save gallery"}
+            </button>
+          </>
+        }
+      >
           {/* Body */}
-          <div className="flex-1 overflow-y-auto min-h-0 space-y-6">
+          <div className="space-y-6">
             {loadingEvent ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
@@ -252,22 +263,22 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
               <>
                 {/* Gallery grid */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+                  <label className="block mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Gallery Images ({attachedImages.length})
                   </label>
 
                   {attachedImages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-center">
+                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-center">
                       <FiImage className="w-8 h-8 text-slate-300 mb-2" />
                       <p className="text-xs font-semibold text-slate-500">No images yet.</p>
-                      <p className="text-[10px] text-slate-400 mt-1">Upload images below to attach them to this event.</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Upload images below to attach them to this event.</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {attachedImages.map((url, idx) => (
                         <div
                           key={idx}
-                          className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm bg-slate-50 dark:bg-slate-800 cursor-pointer"
+                          className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer"
                           onClick={() => setLightboxIndex(idx)}
                         >
                           <img
@@ -284,7 +295,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
                             type="button"
                             onClick={(e) => { e.stopPropagation(); handleRemoveImage(idx); }}
                             disabled={isUploading || saving}
-                            className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md shadow transition-all active:scale-90 disabled:opacity-40"
+                            className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md transition-all active:scale-90 disabled:opacity-40"
                             title="Remove image"
                           >
                             <FiTrash2 className="w-3 h-3" />
@@ -297,16 +308,16 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
 
                 {/* Single batch progress bar */}
                 {batchProgress !== null && (
-                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg px-4 py-3">
                     <div className="flex items-center justify-between mb-2 gap-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      <span className="text-xs font-medium text-slate-500">
                         {isUploading
                           ? `Uploading… ${batchProgress.done}/${batchProgress.total}`
                           : batchProgress.failed > 0
                           ? `Done — ${batchProgress.failed} failed`
                           : `All ${batchProgress.total} uploaded ✓`}
                       </span>
-                      <span className={`text-[11px] font-extrabold shrink-0 ${
+                      <span className={`text-xs font-semibold shrink-0 ${
                         isUploading ? "text-[#4B98C8]" : batchProgress.failed > 0 ? "text-red-500" : "text-emerald-600"
                       }`}>
                         {batchProgress.percent}%
@@ -325,13 +336,13 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
 
                 {/* Drop zone */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <label className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Add New Images
                   </label>
                   <div
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    className={`relative border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
+                    className={`relative border-2 border-dashed rounded-lg p-8 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
                       isUploading
                         ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
                         : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
@@ -348,14 +359,14 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
                     {isUploading ? (
                       <>
                         <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">Uploading to Cloudinary…</p>
-                        <p className="text-[9px] text-slate-400 mt-1">Please wait.</p>
+                        <p className="text-xs font-medium text-slate-600">Uploading to Cloudinary…</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Please wait.</p>
                       </>
                     ) : (
                       <>
-                        <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600">Click or drag & drop to upload</p>
-                        <p className="text-[9px] text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
+                        <FiUploadCloud className="w-8 h-8 text-slate-600 dark:text-slate-400 mb-2" />
+                        <p className="text-xs font-medium text-slate-600">Click or drag & drop to upload</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">PNG, JPG, JPEG — up to 5 MB each</p>
                       </>
                     )}
                   </div>
@@ -364,34 +375,12 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3">
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3">
                 <span className="text-xs font-semibold">{error}</span>
               </div>
             )}
           </div>
-
-          {/* Footer */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6 shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isUploading || saving || loadingEvent}
-              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isUploading || saving || loadingEvent}
-              className="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40"
-              style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
-            >
-              {saving ? "Saving…" : "Save Gallery"}
-            </button>
-          </div>
-        </div>
-      </div>
+      </ModalShell>
 
       {/* Lightbox portal (above the modal) */}
       {lightboxIndex !== null && (
@@ -404,5 +393,7 @@ const EventGalleryModal = ({ open, onClose, event, onSave }) => {
     </>
   );
 };
+
+const EventGalleryModal = ({ open, ...props }) => (open && props.event ? <EventGalleryForm open={open} {...props} /> : null);
 
 export default EventGalleryModal;

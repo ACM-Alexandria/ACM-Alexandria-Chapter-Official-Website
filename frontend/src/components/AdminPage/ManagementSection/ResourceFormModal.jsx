@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FiX, FiUploadCloud, FiTrash2, FiLoader, FiPlus, FiMinus, FiType, FiCheckSquare, FiList, FiImage } from "react-icons/fi";
 import { uploadImage } from "../../../services/adminService";
+import ModalShell from "../SharedComponents/ModalShell";
+import ToggleRow from "../SharedComponents/ToggleRow";
+import {
+  fieldClass,
+  iconButtonDangerClass,
+  noticeClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  textareaClass,
+} from "../SharedComponents/adminStyles";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
-
-const ResourceFormModal = ({
-  open,
+const ResourceForm = ({
   onClose,
   onSubmit,
   formMode,
@@ -16,17 +22,8 @@ const ResourceFormModal = ({
   loading,
   error,
 }) => {
-  if (!open) return null;
-
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
-
-  useEffect(() => {
-    if (!open) {
-      setUploading(false);
-      setUploadError(null);
-    }
-  }, [open]);
 
   const isCommittee = activeTab === "committees";
   const currentValue = isCommittee ? formData.logoUrl : formData.imageUrl;
@@ -114,28 +111,29 @@ const ResourceFormModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-slate-950/60 max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease]">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 mb-6">
-          <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
-            {getTitle()}
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
-          >
-            <FiX className="w-4.5 h-4.5" />
+    <ModalShell
+      open
+      onClose={onClose}
+      onSubmit={onSubmit}
+      title={getTitle()}
+      busy={loading || uploading}
+      footer={
+        <>
+          <button type="button" onClick={onClose} disabled={loading || uploading} className={secondaryButtonClass}>
+            Cancel
           </button>
-        </div>
-
-        {/* Modal Form */}
-        <form onSubmit={onSubmit} className="space-y-4">
+          <button type="submit" disabled={loading || uploading} className={primaryButtonClass}>
+            {loading ? "Saving…" : uploading ? "Uploading…" : "Save"}
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-5">
           {/* Social Links Fields */}
           {activeTab === "socialLinks" && (
             <>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Platform Name
                 </label>
                 <input
@@ -144,11 +142,11 @@ const ResourceFormModal = ({
                   value={formData.platform || ""}
                   onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                   placeholder="e.g. Facebook, Instagram, LinkedIn, etc."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   URL
                 </label>
                 <input
@@ -157,7 +155,7 @@ const ResourceFormModal = ({
                   value={formData.url || ""}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://example.com/acm-alexandria"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
             </>
@@ -166,7 +164,7 @@ const ResourceFormModal = ({
           {/* Radio Season Fields */}
           {activeTab === "radio" && (
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Season Number
               </label>
               <input
@@ -176,7 +174,7 @@ const ResourceFormModal = ({
                 value={formData.seasonNumber ?? ""}
                 onChange={(e) => setFormData({ ...formData, seasonNumber: e.target.value ? parseInt(e.target.value) : "" })}
                 placeholder="e.g. 1"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                className={fieldClass}
               />
             </div>
           )}
@@ -186,7 +184,7 @@ const ResourceFormModal = ({
             <>
               {activeTab !== "radio" && (
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Name / Title
                   </label>
                   <input
@@ -198,37 +196,37 @@ const ResourceFormModal = ({
                       else setFormData({ ...formData, name: e.target.value });
                     }}
                     placeholder="e.g. John Doe"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               )}
 
               {/* Common Fields: Image/Logo Upload */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     {isCommittee ? "Logo" : "Image"}
                   </label>
 
                 {currentValue ? (
                   // Preview state
-                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl">
+                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg">
                     <img
                       src={currentValue}
                       alt="Preview"
-                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-600 shadow-sm"
+                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                         {currentValue.split("/").pop()}
                       </p>
-                      <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">
                         Uploaded to Cloudinary
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleRemove}
-                      className="p-2 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-lg transition-colors active:scale-95"
+                      className={iconButtonDangerClass}
                       title="Delete image"
                     >
                       <FiTrash2 className="w-4 h-4" />
@@ -239,10 +237,10 @@ const ResourceFormModal = ({
                   <div
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    className={`relative border-2 border-dashed rounded-xl p-6 transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
+                    className={`relative border-2 border-dashed rounded-lg p-6 transition-colors text-center flex flex-col items-center justify-center cursor-pointer ${
                       uploading
                         ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
-                        : "border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        : "border-slate-300 dark:border-slate-700 hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     }`}
                   >
                     <input
@@ -256,20 +254,20 @@ const ResourceFormModal = ({
                     {uploading ? (
                       <>
                         <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
                           Uploading image to Cloudinary...
                         </p>
-                        <p className="text-[9px] text-slate-400 mt-1">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                           Please wait, this may take a moment.
                         </p>
                       </>
                     ) : (
                       <>
                         <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
                           Click to upload or drag & drop
                         </p>
-                        <p className="text-[9px] text-slate-400 mt-1">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                           PNG, JPG, JPEG up to 10MB
                         </p>
                       </>
@@ -278,7 +276,7 @@ const ResourceFormModal = ({
                 )}
 
                 {uploadError && (
-                  <p className="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                  <p className="mt-1.5 text-xs font-medium text-rose-700 dark:text-rose-400 flex items-center gap-1">
                     <span className="inline-block w-1 h-1 rounded-full bg-red-500"></span>
                     {uploadError}
                   </p>
@@ -293,7 +291,7 @@ const ResourceFormModal = ({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Role
                   </label>
                   <input
@@ -302,11 +300,11 @@ const ResourceFormModal = ({
                     value={formData.role || ""}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     placeholder="e.g. Coordinator"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Order Index (Sorting)
                   </label>
                   <input
@@ -315,12 +313,12 @@ const ResourceFormModal = ({
                     value={formData.order ?? ""}
                     onChange={(e) => setFormData({ ...formData, order: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="e.g. 1 (Optional)"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   LinkedIn URL
                 </label>
                 <input
@@ -328,7 +326,7 @@ const ResourceFormModal = ({
                   value={formData.linkedinUrl || ""}
                   onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
             </>
@@ -340,32 +338,32 @@ const ResourceFormModal = ({
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Event Date & Time
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.eventTime || ""}
                     onChange={(e) => setFormData({ ...formData, eventTime: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Event End Date & Time
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.endTime || ""}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Location
                 </label>
                 <input
@@ -373,7 +371,7 @@ const ResourceFormModal = ({
                   value={formData.location || ""}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value || null })}
                   placeholder="e.g. Hall A / Zoom (Optional)"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
             </div>
@@ -386,30 +384,30 @@ const ResourceFormModal = ({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Start Date
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.startDate || ""}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     End Date
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.endDate || ""}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className={fieldClass}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Schedule Time
                 </label>
                 <input
@@ -417,32 +415,17 @@ const ResourceFormModal = ({
                   value={formData.time || ""}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value || "" })}
                   placeholder="e.g. Every Sunday 6:00 PM"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                  className={fieldClass}
                 />
               </div>
 
               {/* Registration Open Toggle */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
-                <div>
-                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                    Allow users to register for this program
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                    formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      formData.registrationOpen ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+  title="Registration Open"
+  description="Allow users to register for this program"
+  checked={formData.registrationOpen}
+  onChange={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
+/>
             </>
           )}
 
@@ -450,74 +433,29 @@ const ResourceFormModal = ({
           {/* External Club & Registration Open Toggles */}
           {activeTab === "clubs" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
-                <div>
-                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">External Club</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                    Allow user registrations (Internal clubs are restricted)
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, isExternal: !formData.isExternal })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                    formData.isExternal ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      formData.isExternal ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+  title="External Club"
+  description="Allow user registrations (Internal clubs are restricted)"
+  checked={formData.isExternal}
+  onChange={() => setFormData({ ...formData, isExternal: !formData.isExternal })}
+/>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
-                <div>
-                  <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                    Allow users to register for this club
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                    formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      formData.registrationOpen ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+  title="Registration Open"
+  description="Allow users to register for this club"
+  checked={formData.registrationOpen}
+  onChange={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
+/>
             </div>
           )}
 
           {activeTab === "events" && (
-            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
-              <div>
-                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Registration Open</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                  Allow users to register for this event
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                  formData.registrationOpen ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    formData.registrationOpen ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
+            <ToggleRow
+  title="Registration Open"
+  description="Allow users to register for this event"
+  checked={formData.registrationOpen}
+  onChange={() => setFormData({ ...formData, registrationOpen: !formData.registrationOpen })}
+/>
           )}
           {(activeTab === "clubs" ||
             activeTab === "events" ||
@@ -525,7 +463,7 @@ const ResourceFormModal = ({
             activeTab === "programs" ||
             activeTab === "exclusiveForms") && (
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Description
               </label>
               <textarea
@@ -533,18 +471,18 @@ const ResourceFormModal = ({
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Provide a detailed description..."
                 rows="3"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all resize-none"
+                className={`${textareaClass} resize-none`}
               />
             </div>
           )}
 
           {/* Inline Form Questions (Only on Add Mode for Events) */}
           {activeTab === "events" && formMode === "add" && (
-            <div className="mt-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50">
+            <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-950/40">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200">Form Questions (Optional)</h4>
-                  <p className="text-[10px] text-slate-400">Add questions now to prevent an empty registration form.</p>
+                  <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100">Form Questions (Optional)</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Add questions now to prevent an empty registration form.</p>
                 </div>
                 <button
                   type="button"
@@ -552,21 +490,21 @@ const ResourceFormModal = ({
                     const newQuestions = formData.questions || [];
                     setFormData({ ...formData, questions: [...newQuestions, { questionText: "", questionType: "TEXT", isRequired: false, options: [] }] });
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-xs font-bold text-[#4B98C8] hover:bg-[#4B98C8]/5 transition-all shadow-sm"
+                  className={secondaryButtonClass}
                 >
                   <FiPlus className="w-3.5 h-3.5" />
                   Add Question
                 </button>
               </div>
               
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+              <div className="space-y-3">
                 {(formData.questions || []).length === 0 ? (
-                  <div className="text-center py-6 text-slate-400 dark:text-slate-300 text-xs font-medium border border-dashed border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900">
+                  <div className="text-center py-6 px-4 text-sm text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
                     No questions added yet. The form will only collect default fields (Name, Email, etc.).
                   </div>
                 ) : (
                   (formData.questions || []).map((q, idx) => (
-                    <div key={idx} className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg shadow-sm relative group">
+                    <div key={idx} className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg relative group">
                       <button
                         type="button"
                         onClick={() => {
@@ -574,13 +512,13 @@ const ResourceFormModal = ({
                           newQ.splice(idx, 1);
                           setFormData({ ...formData, questions: newQ });
                         }}
-                        className="absolute top-2.5 right-2.5 text-slate-400 hover:text-red-500 transition-colors bg-white dark:bg-slate-900 rounded-md p-1 opacity-0 group-hover:opacity-100"
+                        className="absolute top-2 right-2 p-1.5 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                       >
                         <FiTrash2 className="w-3.5 h-3.5" />
                       </button>
                       
-                      <div className="grid grid-cols-12 gap-3 mb-2 pr-6">
-                        <div className="col-span-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3 pr-8">
+                        <div className="sm:col-span-8">
                           <input
                             type="text"
                             placeholder="Question text..."
@@ -591,10 +529,10 @@ const ResourceFormModal = ({
                               newQ[idx].questionText = e.target.value;
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8]"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
                           />
                         </div>
-                        <div className="col-span-4">
+                        <div className="sm:col-span-4">
                           <select
                             value={q.questionType}
                             onChange={(e) => {
@@ -605,7 +543,7 @@ const ResourceFormModal = ({
                               }
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-600 dark:text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4B98C8] bg-slate-50 dark:bg-slate-800 cursor-pointer"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors cursor-pointer"
                           >
                             <option value="TEXT">Text</option>
                             <option value="MULTIPLE_CHOICE">Multiple Choice</option>
@@ -615,7 +553,7 @@ const ResourceFormModal = ({
                         </div>
                       </div>
                       
-                      <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 cursor-pointer w-max mb-2">
+                      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer w-max mb-2">
                         <input
                           type="checkbox"
                           checked={q.isRequired}
@@ -644,7 +582,7 @@ const ResourceFormModal = ({
                                   newQ[idx].options[optIdx] = e.target.value;
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="flex-1 px-2 py-1 text-[11px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 rounded-md focus:outline-none focus:border-[#4B98C8]"
+                                className="flex-1 min-w-0 h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
                               />
                               <button
                                 type="button"
@@ -653,7 +591,7 @@ const ResourceFormModal = ({
                                   newQ[idx].options.splice(optIdx, 1);
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="text-slate-400 hover:text-red-500"
+                                className="p-1.5 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                               >
                                 <FiX className="w-3.5 h-3.5" />
                               </button>
@@ -666,7 +604,7 @@ const ResourceFormModal = ({
                               newQ[idx].options.push("");
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="text-[10px] font-bold text-[#4B98C8] hover:underline flex items-center gap-1"
+                            className="text-sm font-medium text-[#2C6F99] dark:text-[#7DBBE0] hover:underline flex items-center gap-1"
                           >
                             <FiPlus className="w-3 h-3" /> Add Option
                           </button>
@@ -681,33 +619,18 @@ const ResourceFormModal = ({
 
           {/* Exclusive Forms specific fields */}
           {activeTab === "exclusiveForms" && (
-            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 mt-4">
-              <div>
-                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Form Active Status</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                  Allow users to see and apply to this form
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                  formData.isActive ? "bg-[#4B98C8]" : "bg-slate-300"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    formData.isActive ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
+            <ToggleRow
+  title="Form Active Status"
+  description="Allow users to see and apply to this form"
+  checked={formData.isActive}
+  onChange={() => setFormData({ ...formData, isActive: !formData.isActive })}
+/>
           )}
 
           {/* Partners specific fields — website URL */}
           {activeTab === "partners" && (
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Website URL
               </label>
               <input
@@ -715,66 +638,32 @@ const ResourceFormModal = ({
                 value={formData.website || ""}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 placeholder="https://partner-website.com (Optional)"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                className={fieldClass}
               />
             </div>
           )}
 
           {/* Announcement toggle (Only on Add Mode for Events, Clubs and Programs) */}
           {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs") && formMode === "add" && (
-            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 mt-4">
-              <div>
-                <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">Email Subscribers</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">
-                  Send an announcement email to newsletter subscribers (you can send it later instead)
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, sendAnnouncement: formData.sendAnnouncement === false })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                  formData.sendAnnouncement !== false ? "bg-[#4B98C8]" : "bg-slate-300 dark:bg-slate-600"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    formData.sendAnnouncement !== false ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
+            <ToggleRow
+  title="Email Subscribers"
+  description="Send an announcement email to newsletter subscribers (you can send it later instead)"
+  checked={formData.sendAnnouncement !== false}
+  onChange={() => setFormData({ ...formData, sendAnnouncement: formData.sendAnnouncement === false })}
+/>
           )}
 
           {/* Error display */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-3 flex items-center gap-2 mb-4">
-              <span className="text-xs font-semibold">{error}</span>
+            <div role="alert" className={noticeClass.error}>
+              {error}
             </div>
           )}
-
-          {/* Actions row */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading || uploading}
-              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all disabled:opacity-40"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || uploading}
-              className="px-5 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40"
-              style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
-            >
-              {loading ? "Saving..." : uploading ? "Uploading..." : "Save Record"}
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </ModalShell>
   );
 };
+
+const ResourceFormModal = ({ open, ...props }) => (open ? <ResourceForm {...props} /> : null);
 
 export default ResourceFormModal;

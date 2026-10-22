@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HiX } from "react-icons/hi";
+import useScrollLock from "../../hooks/useScrollLock";
 
 // The presets and their default point values
 const PRESET_REASONS = {
@@ -14,6 +15,7 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
   const [reason, setReason] = useState(editingLog ? editingLog.reason : "");
   const [points, setPoints] = useState(editingLog ? editingLog.points : 10);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  useScrollLock(true);
 
   useEffect(() => {
     const handleKeyDown = (e) => {

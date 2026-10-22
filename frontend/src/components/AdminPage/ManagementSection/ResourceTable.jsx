@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createElement, useState } from "react";
 import {
   FiEdit2,
   FiTrash2,
@@ -18,42 +18,70 @@ import {
   FiFileText,
   FiGlobe,
   FiSend,
+  FiLock,
+  FiUnlock,
 } from "react-icons/fi";
 import { useUserProfile } from "../../../hooks/useUserProfile";
+import RowActions from "../SharedComponents/RowActions";
+import ModalShell from "../SharedComponents/ModalShell";
+import { secondaryButtonClass } from "../SharedComponents/adminStyles";
+import {
+  panelClass,
+  rowBorderClass,
+  tableHeadRowClass,
+  tagMutedClass,
+  tagSuccessClass,
+} from "../SharedComponents/adminStyles";
 
-const UserMediaCell = ({ item }) => {
-  const { profile, loading } = useUserProfile(item.userId);
-  const [imgError, setImgError] = useState(false);
-  
-  const name = profile?.name || (loading ? "Loading..." : "Unknown User");
-  const url = profile?.profile_image_url;
-  
-  return (
-    <div className="flex items-center gap-3.5">
-      {url && !imgError ? (
-        <img
-          src={url}
-          alt={name}
-          onError={() => setImgError(true)}
-          className="w-10 h-10 bg-slate-200 rounded-xl object-cover border border-slate-200 dark:border-slate-600 shrink-0"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
-          <FiUser className="w-5 h-5" />
-        </div>
-      )}
-      <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
-        <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">{name}</p>
-        <p className="text-[10px] text-slate-400 truncate mt-0.5">{profile?.email || ""}</p>
-      </div>
-    </div>
-  );
+const TAB_ICONS = {
+  committees: FiLayers,
+  events: FiCalendar,
+  clubs: FiAward,
+  programs: FiBookOpen,
+  socialLinks: FiShare2,
+  radio: FiRadio,
+  exclusiveForms: FiFileText,
+  partners: FiGlobe,
 };
 
-const ResourceTable = ({
+const BOARD_TABS = ["highboard", "committeeBoard"];
+const STATUS_TABS = ["committees", "programs", "exclusiveForms", "clubs", "events"];
+const REGISTRATION_TABS = ["events", "clubs", "programs", "exclusiveForms"];
+
+// Whether a call / registration / form is currently open for this item
+const isOpenFor = (tab, item) => {
+  if (tab === "committees") return Boolean(item.open || item.isOpen);
+  if (tab === "exclusiveForms") return Boolean(item.isActive);
+  return Boolean(item.registrationOpen || item.open || item.isOpen);
+};
+
+const getItemName = (tab, item) => {
+  if (tab === "socialLinks") return item.platform;
+  if (tab === "radio") return `Season ${item.seasonNumber}`;
+  if (tab === "exclusiveForms") return item.title;
+  return item.name;
+};
+
+const mediaBase = "w-10 h-10 shrink-0 object-cover border border-slate-200 dark:border-slate-700";
+
+const MediaIcon = ({ icon, round = false }) => (
+  <div
+    className={`w-10 h-10 shrink-0 flex items-center justify-center bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] ${round ? "rounded-full" : "rounded-lg"}`}
+    aria-hidden="true"
+  >
+    {createElement(icon, { className: "w-5 h-5" })}
+  </div>
+);
+
+const StatusTag = ({ open }) => <span className={open ? tagSuccessClass : tagMutedClass}>{open ? "Open" : "Closed"}</span>;
+
+// One table row. A component of its own so board rows can load the member's profile.
+const ResourceRow = ({
   activeTab,
-  filteredItems,
+  item,
   loading,
+  isHRMode,
+  announcingId,
   onEditClick,
   onDeleteClick,
   onToggleCall,
@@ -65,350 +93,282 @@ const ResourceTable = ({
   onEpisodesClick,
   onAnnounceClick,
   onEmailsClick,
-  announcingId,
-  isHRMode = false,
 }) => {
-  const [imgErrors, setImgErrors] = useState({});
+  const isBoard = BOARD_TABS.includes(activeTab);
+  const { profile, loading: profileLoading } = useUserProfile(isBoard ? item.userId : undefined);
+  const [imgError, setImgError] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
-  const handleImgError = (id) => {
-    setImgErrors((prev) => ({ ...prev, [`${activeTab}-${id}`]: true }));
-  };
+  const name = isBoard
+    ? profile?.name || (profileLoading ? "Loading…" : "Unknown user")
+    : getItemName(activeTab, item);
+  const imageUrl = isBoard ? profile?.profile_image_url : item.imageUrl || item.logoUrl;
+  const subtitle = isBoard ? profile?.email : item.description;
+  const hasStatus = STATUS_TABS.includes(activeTab);
+  const open = hasStatus && isOpenFor(activeTab, item);
 
-  const renderMedia = (item) => {
-    const url = item.imageUrl || item.logoUrl;
-    const hasError = imgErrors[`${activeTab}-${item.id}`] || !url;
+  // Details shown in their own column from md up, and under the name on phones
+  let detailPrimary = null;
+  let detailSecondary = null;
+  if (activeTab === "events") {
+    detailPrimary = item.location || "Online";
+    detailSecondary = item.eventTime ? new Date(item.eventTime).toLocaleString() : "No time set";
+  } else if (activeTab === "programs") {
+    detailPrimary = item.time || "No schedule set";
+    detailSecondary =
+      item.startDate && item.endDate
+        ? `${new Date(item.startDate).toLocaleDateString()} - ${new Date(item.endDate).toLocaleDateString()}`
+        : "No dates set";
+  } else if (isBoard) {
+    detailPrimary = item.role || "N/A";
+  }
 
-    if (hasError) {
-      let IconComponent = FiUser;
-      let bgColor = "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600";
+  const linkUrl = activeTab === "socialLinks" ? item.url : activeTab === "partners" ? item.website : null;
 
-      if (activeTab === "committees") {
-        IconComponent = FiLayers;
-        bgColor = "bg-sky-50 text-sky-500 border border-sky-100";
-      } else if (activeTab === "events") {
-        IconComponent = FiCalendar;
-        bgColor = "bg-orange-50 text-orange-500 border border-orange-100";
-      } else if (activeTab === "clubs") {
-        IconComponent = FiAward;
-        bgColor = "bg-teal-50 text-teal-500 border border-teal-100";
-      } else if (activeTab === "programs") {
-        IconComponent = FiBookOpen;
-        bgColor = "bg-indigo-50 text-indigo-500 border border-indigo-100";
-      } else if (activeTab === "socialLinks") {
-        IconComponent = FiShare2;
-        bgColor = "bg-rose-50 text-rose-500 border border-rose-100";
-      } else if (activeTab === "radio") {
-        IconComponent = FiRadio;
-        bgColor = "bg-purple-50 text-purple-500 border border-purple-100";
-      } else if (activeTab === "exclusiveForms") {
-        IconComponent = FiFileText;
-        bgColor = "bg-emerald-50 text-emerald-500 border border-emerald-100";
-      } else if (activeTab === "partners") {
-        IconComponent = FiGlobe;
-        bgColor = "bg-sky-50 text-sky-500 border border-sky-100";
-      }
+  const showLinkColumn = activeTab === "socialLinks" || activeTab === "partners";
+  // Everything about the item, shown in the detail panel (phones keep only the key line)
+  const detailRows = [
+    isBoard && { label: "Role", value: item.role },
+    isBoard && { label: "Order", value: item.order ?? 99 },
+    isBoard && { label: "Email", value: profile?.email },
+    activeTab === "events" && { label: "Location", value: item.location || "Online" },
+    (activeTab === "events" || activeTab === "programs") && { label: activeTab === "events" ? "Time" : "Schedule", value: detailSecondary || detailPrimary },
+    activeTab === "programs" && { label: "Duration", value: item.time },
+    hasStatus && { label: activeTab === "committees" ? "Call status" : activeTab === "exclusiveForms" ? "Status" : "Registration", value: open ? "Open" : "Closed" },
+    showLinkColumn && { label: "Link", value: linkUrl },
+    item.description && { label: "Description", value: item.description },
+  ].filter(Boolean);
 
-      return (
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bgColor} shrink-0`}>
-          <IconComponent className="w-5 h-5" />
+  // Every action for this row (all icons on desktop, one sheet on phones)
+  const actions = [
+    // Committee call tools stay available in HR mode
+    { key: "call-registrations", label: "Call history & registrations", icon: FiUsers, onClick: () => onRegistrationClick(item), hidden: activeTab !== "committees" },
+    { key: "call-questions", label: "Registration questions", icon: FiHelpCircle, onClick: () => onQuestionsClick(item), hidden: activeTab !== "committees" },
+    { key: "call-message", label: "Edit call email message", icon: FiMail, onClick: () => onEditMessageClick(item), hidden: activeTab !== "committees" },
+    {
+      key: "call-announce",
+      label: "Resend call email to subscribers",
+      icon: FiSend,
+      onClick: () => onAnnounceClick(item),
+      disabled: announcingId === item.id,
+      hidden: activeTab !== "committees" || !open,
+    },
+    { key: "registrations", label: "Registration panel", icon: FiUsers, onClick: () => onRegistrationClick(item), hidden: !REGISTRATION_TABS.includes(activeTab) },
+    { key: "questions", label: "Registration questions", icon: FiHelpCircle, onClick: () => onQuestionsClick(item), hidden: !REGISTRATION_TABS.includes(activeTab) },
+    {
+      key: "emails",
+      label: activeTab === "events" ? "Event announcements" : "Club announcements",
+      icon: FiSend,
+      onClick: () => onEmailsClick(item),
+      hidden: activeTab !== "events" && activeTab !== "clubs",
+    },
+    // The rest needs edit rights
+    {
+      key: "toggle",
+      label: open ? "Close form" : "Open form",
+      icon: open ? FiLock : FiUnlock,
+      onClick: () => onToggleCall(item),
+      disabled: loading,
+      sheetOnly: true,
+      hidden: isHRMode || !hasStatus,
+    },
+    {
+      key: "announce",
+      label: "Send announcement to subscribers",
+      icon: FiSend,
+      onClick: () => onAnnounceClick(item),
+      disabled: announcingId === item.id,
+      hidden: isHRMode || activeTab !== "programs",
+    },
+    { key: "gallery", label: "Event gallery", icon: FiImage, onClick: () => onGalleryClick(item), hidden: isHRMode || activeTab !== "events" },
+    { key: "socials", label: "Club social links", icon: FiShare2, onClick: () => onSocialsClick(item), hidden: isHRMode || activeTab !== "clubs" },
+    { key: "episodes", label: "Season episodes", icon: FiVolume2, onClick: () => onEpisodesClick(item), hidden: isHRMode || activeTab !== "radio" },
+    { key: "edit", label: "Edit", icon: FiEdit2, onClick: () => onEditClick(item), hidden: isHRMode },
+    { key: "delete", label: "Delete", icon: FiTrash2, onClick: () => onDeleteClick(item), disabled: loading, danger: true, hidden: isHRMode },
+  ];
+
+  const fallbackIcon = TAB_ICONS[activeTab] || FiUser;
+
+  return (
+    <>
+    <tr className="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+      {/* Details */}
+      <td className={`px-4 sm:px-5 py-4 w-full max-w-0 @min-[900px]:w-auto @min-[900px]:max-w-none ${rowBorderClass}`}>
+        <div className="flex items-center gap-3 min-w-0">
+          {imageUrl && !imgError ? (
+            <img
+              src={imageUrl}
+              alt=""
+              onError={() => setImgError(true)}
+              className={`${mediaBase} ${isBoard ? "rounded-full" : "rounded-lg"}`}
+            />
+          ) : (
+            <MediaIcon icon={isBoard ? FiUser : fallbackIcon} round={isBoard} />
+          )}
+          <div className="min-w-0">
+            <button
+              type="button"
+              onClick={() => setDetailOpen(true)}
+              className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs"
+              title={name}
+            >
+              {name}
+            </button>
+            {subtitle && (
+              <p className="text-xs text-slate-600 dark:text-slate-400 truncate @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs">{subtitle}</p>
+            )}
+            {/* Phones: the hidden columns move under the name */}
+            <div className="@min-[900px]:hidden mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+              {hasStatus && <StatusTag open={open} />}
+            </div>
+          </div>
         </div>
-      );
-    }
+      </td>
 
-    return (
-      <img
-        src={url}
-        alt={item.name}
-        onError={() => handleImgError(item.id)}
-        className="w-10 h-10 bg-slate-200 rounded-xl object-cover border border-slate-200 dark:border-slate-600 shrink-0"
-      />
-    );
-  };
+      {/* Role / time & location / schedule */}
+      {(activeTab === "events" || activeTab === "programs" || isBoard) && (
+        <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
+          <p className="text-sm text-slate-900 dark:text-slate-100">{detailPrimary}</p>
+          {detailSecondary && <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400 tabular-nums">{detailSecondary}</p>}
+        </td>
+      )}
+
+      {/* Status (call / registration / form) */}
+      {hasStatus && (
+        <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
+          <div className="flex items-center gap-2.5">
+            <StatusTag open={open} />
+            {!isHRMode && (
+              <button
+                type="button"
+                onClick={() => onToggleCall(item)}
+                disabled={loading}
+                className={`h-7 px-2.5 shrink-0 whitespace-nowrap rounded-md border text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${open
+                  ? "border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                  : "border-[#4B98C8]/40 text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/10"}`}
+              >
+                {open ? "Close form" : "Open form"}
+              </button>
+            )}
+          </div>
+        </td>
+      )}
+
+      {/* URL / website */}
+      {showLinkColumn && (
+        <td className={`hidden @min-[900px]:table-cell px-5 py-4 max-w-xs ${rowBorderClass}`}>
+          {linkUrl ? (
+            <a
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex max-w-full items-center gap-1 text-sm text-[#2C6F99] dark:text-[#7DBBE0] hover:underline underline-offset-2"
+            >
+              <span className="truncate">{linkUrl}</span>
+              <FiExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            </a>
+          ) : (
+            <span className="text-sm text-slate-500 dark:text-slate-400">No website</span>
+          )}
+        </td>
+      )}
+
+      {/* Sorting order */}
+      {isBoard && (
+        <td className={`hidden @min-[900px]:table-cell px-5 py-4 text-center text-sm text-slate-700 dark:text-slate-300 tabular-nums ${rowBorderClass}`}>
+          {item.order ?? 99}
+        </td>
+      )}
+
+      {/* Actions */}
+      <td className={`px-3 sm:px-5 py-4 text-right whitespace-nowrap ${rowBorderClass}`}>
+        <RowActions actions={actions} name={name} />
+      </td>
+    </tr>
+            <ModalShell
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          title={name}
+          size="md"
+          footer={
+            <button type="button" onClick={() => setDetailOpen(false)} className={secondaryButtonClass}>
+              Close
+            </button>
+          }
+        >
+          <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+            {detailRows.map((row) => (
+              <div key={row.label} className="py-3 grid grid-cols-1 sm:grid-cols-[9rem_1fr] gap-1 sm:gap-4">
+                <dt className="text-sm text-slate-600 dark:text-slate-400">{row.label}</dt>
+                <dd className="text-sm font-medium text-slate-900 dark:text-slate-100 break-words">{row.value || "Not set"}</dd>
+              </div>
+            ))}
+          </dl>
+        </ModalShell>    </>
+  );
+};
+
+
+const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ...handlers }) => {
+  const hasStatus = STATUS_TABS.includes(activeTab);
+  const isBoard = BOARD_TABS.includes(activeTab);
+  const detailHeader = activeTab === "events" ? "Time & location" : activeTab === "programs" ? "Duration & schedule" : isBoard ? "Role" : null;
+  const statusHeader = activeTab === "committees" ? "Call status" : activeTab === "exclusiveForms" ? "Status" : "Registration status";
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
+      <div className={`${panelClass} overflow-hidden`} aria-busy="true" aria-label="Loading">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="px-5 py-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 last:border-b-0 animate-pulse motion-reduce:animate-none">
+            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800" />
+            <div className="space-y-2">
+              <div className="h-3.5 w-40 rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="h-3 w-56 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (filteredItems.length === 0) {
     return (
-      <div className="text-center py-20 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-        <p className="text-slate-400 dark:text-slate-300 text-sm font-medium">No records found.</p>
+      <div className="py-14 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">No records found</p>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Try a different search, or add a new one.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-            <th className="pb-3 pl-2">Details</th>
-            {(activeTab === "highboard" || activeTab === "committeeBoard") && (
-              <th className="pb-3">Role</th>
-            )}
-            {(activeTab === "events" || activeTab === "programs") && (
-              <th className="pb-3">{activeTab === "events" ? "Time & Location" : "Duration & Schedule"}</th>
-            )}
-            {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms" || activeTab === "clubs" || activeTab === "events") && (
-              <th className="pb-3">{activeTab === "committees" ? "Call Status" : activeTab === "exclusiveForms" ? "Status" : "Registration Status"}</th>
-            )}
-            {activeTab === "socialLinks" && (
-              <th className="pb-3">URL</th>
-            )}
-            {activeTab === "partners" && (
-              <th className="pb-3">Website</th>
-            )}
-            {(activeTab === "highboard" || activeTab === "committeeBoard") && <th className="pb-3 text-center">Order</th>}
-            <th className="pb-3 pr-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-          {filteredItems.map((item) => (
-            <tr key={item.id} className="hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
-              {/* Details Column (Image + Title) */}
-              <td className="py-3.5 pl-2">
-                {(activeTab === "highboard" || activeTab === "committeeBoard") ? (
-                  <UserMediaCell item={item} activeTab={activeTab} />
-                ) : (
-                  <div className="flex items-center gap-3.5">
-                    {renderMedia(item)}
-                    <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
-                      <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">
-                        {activeTab === "socialLinks" ? item.platform : activeTab === "radio" ? `Season ${item.seasonNumber}` : activeTab === "exclusiveForms" ? item.title : item.name}
-                      </p>
-                      {item.description && (
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </td>
-
-              {/* Role Column */}
-              {(activeTab === "highboard" || activeTab === "committeeBoard") && (
-                <td className="py-3.5 text-slate-500 font-bold">{item.role || "N/A"}</td>
-              )}
-
-              {/* Event details column */}
-              {activeTab === "events" && (
-                <td className="py-3.5 text-slate-500">
-                  <p className="font-bold">{item.location || "Online"}</p>
-                  {item.eventTime ? (
-                    <p className="text-[10px] text-slate-400 mt-0.5 font-bold">
-                      {new Date(item.eventTime).toLocaleString()}
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 mt-0.5">No time set</p>
-                  )}
-                </td>
-              )}
-
-              {activeTab === "programs" && (
-                <td className="py-3.5 text-slate-500">
-                  <p className="font-bold">{item.time || "No schedule set"}</p>
-                  {item.startDate && item.endDate ? (
-                    <p className="text-[10px] text-slate-400 mt-0.5 font-bold">
-                      {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 mt-0.5">No dates set</p>
-                  )}
-                </td>
-              )}
-
-              {/* Committee Call Status, Program/Club/Event Registration Status, or Exclusive Form Status column */}
-              {(activeTab === "committees" || activeTab === "programs" || activeTab === "exclusiveForms" || activeTab === "clubs" || activeTab === "events") && (
-                <td className="py-3.5">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen))
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                          : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-600"
-                      }`}
-                    >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Open" : "Closed"}
-                    </span>
-                    {!isHRMode && (
-                    <button
-                      onClick={() => onToggleCall(item)}
-                      disabled={loading}
-                      className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-lg border transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${
-                        (activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen))
-                          ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
-                          : "bg-sky-50 text-[#4B98C8] border-sky-200 hover:bg-sky-100"
-                      }`}
-                    >
-                      {(activeTab === "committees" ? (item.open || item.isOpen) : activeTab === "exclusiveForms" ? item.isActive : Boolean(item.registrationOpen || item.open || item.isOpen)) ? "Close Form" : "Open Form"}
-                    </button>
-                    )}
-                  </div>
-                </td>
-              )}
-
-              {/* Sorting Order Column */}
-              {(activeTab === "highboard" || activeTab === "committeeBoard") && (
-                <td className="py-3.5 text-center text-slate-400 font-bold">{item.order ?? 99}</td>
-              )}
-
-              {activeTab === "socialLinks" && (
-                <td className="py-3.5 text-slate-500 max-w-[200px] sm:max-w-[300px] truncate">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline flex items-center gap-1 text-[#4B98C8]"
-                  >
-                    {item.url} <FiExternalLink className="w-3 h-3" />
-                  </a>
-                </td>
-              )}
-
-              {activeTab === "partners" && (
-                <td className="py-3.5 text-slate-500 max-w-[200px] sm:max-w-[300px] truncate">
-                  {item.website ? (
-                    <a
-                      href={item.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:underline flex items-center gap-1 text-[#4B98C8]"
-                    >
-                      {item.website} <FiExternalLink className="w-3 h-3" />
-                    </a>
-                  ) : (
-                    <span className="text-slate-300 italic text-[10px]">No website</span>
-                  )}
-                </td>
-              )}
-
-              {/* Action buttons */}
-              <td className="py-3.5 pr-2 text-right">
-                <div className="flex justify-end gap-2.5">
-                  {activeTab === "committees" && (
-                    <>
-                      <button
-                        onClick={() => onRegistrationClick(item)}
-                        title="View Call History & Registrations"
-                        className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-600 dark:text-slate-200 hover:text-emerald-600 rounded-lg transition-colors"
-                      >
-                        <FiUsers className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onQuestionsClick(item)}
-                        title="Manage Registration Questions"
-                        className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-600 dark:text-slate-200 hover:text-sky-600 rounded-lg transition-colors"
-                      >
-                        <FiHelpCircle className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onEditMessageClick(item)}
-                        title="Edit Call Email Message"
-                        className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-600 dark:text-slate-200 hover:text-indigo-600 rounded-lg transition-colors"
-                      >
-                        <FiMail className="w-3.5 h-3.5" />
-                      </button>
-                      {(item.open || item.isOpen) && (
-                        <button
-                          onClick={() => onAnnounceClick(item)}
-                          disabled={announcingId === item.id}
-                          title="Resend Call Email to Subscribers"
-                          className="p-2 disabled:opacity-40 bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-600 dark:text-slate-200 hover:text-amber-600 rounded-lg transition-colors"
-                        >
-                          <FiSend className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </>
-                  )}
-                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs" || activeTab === "exclusiveForms") && (
-                    <button
-                      onClick={() => onRegistrationClick(item)}
-                      title="View Registration Panel"
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-600 dark:text-slate-200 hover:text-emerald-600 rounded-lg transition-colors"
-                    >
-                      <FiUsers className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {(activeTab === "events" || activeTab === "clubs" || activeTab === "programs" || activeTab === "exclusiveForms") && (
-                    <button
-                      onClick={() => onQuestionsClick(item)}
-                      title="Manage Registration Questions"
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-600 dark:text-slate-200 hover:text-sky-600 rounded-lg transition-colors"
-                    >
-                      <FiHelpCircle className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {(activeTab === "events" || activeTab === "clubs") && (
-                    <button
-                      onClick={() => onEmailsClick(item)}
-                      title={activeTab === "events" ? "Manage Event Emails" : "Manage Club Emails"}
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-600 dark:text-slate-200 hover:text-indigo-600 rounded-lg transition-colors"
-                    >
-                      <FiMail className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {!isHRMode && (
-                    <>
-                  {activeTab === "programs" && (
-                    <button
-                      onClick={() => onAnnounceClick(item)}
-                      disabled={announcingId === item.id}
-                      title="Send Announcement to Subscribers"
-                      className="p-2 disabled:opacity-40 bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-600 dark:text-slate-200 hover:text-amber-600 rounded-lg transition-colors"
-                    >
-                      <FiSend className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {activeTab === "events" && (
-                    <button
-                      onClick={() => onGalleryClick(item)}
-                      title="Manage Event Gallery"
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-600 dark:text-slate-200 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      <FiImage className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {activeTab === "clubs" && (
-                    <button
-                      onClick={() => onSocialsClick(item)}
-                      title="Manage Club Social Links"
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-600 dark:text-slate-200 hover:text-rose-500 rounded-lg transition-colors"
-                    >
-                      <FiShare2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {activeTab === "radio" && (
-                    <button
-                      onClick={() => onEpisodesClick(item)}
-                      title="Manage Season Episodes"
-                      className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-600 dark:text-slate-200 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      <FiVolume2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => onEditClick(item)}
-                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-600 dark:text-slate-200 hover:text-sky-600 rounded-lg transition-colors"
-                  >
-                    <FiEdit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => onDeleteClick(item)}
-                    disabled={loading}
-                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-200 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-                  >
-                    <FiTrash2 className="w-3.5 h-3.5" />
-                  </button>
-                  </>
-                  )}
-                </div>
-              </td>
+    <div className={`${panelClass} overflow-hidden @container`}>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-separate border-spacing-0">
+          <thead>
+            <tr className={tableHeadRowClass}>
+              <th scope="col" className="px-4 sm:px-5 py-3 font-medium">Details</th>
+              {detailHeader && <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">{detailHeader}</th>}
+              {hasStatus && <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">{statusHeader}</th>}
+              {activeTab === "socialLinks" && <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">URL</th>}
+              {activeTab === "partners" && <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">Website</th>}
+              {isBoard && <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium text-center">Order</th>}
+              <th scope="col" className="px-3 sm:px-5 py-3"><span className="sr-only">Actions</span></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredItems.map((item) => (
+              <ResourceRow
+                key={item.id}
+                activeTab={activeTab}
+                item={item}
+                loading={loading}
+                isHRMode={isHRMode}
+                {...handlers}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

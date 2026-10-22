@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FiTrendingUp } from "react-icons/fi";
 import { BRAND, BRAND_DARK, buildSpline } from "./constants";
 
@@ -8,16 +8,30 @@ import { BRAND, BRAND_DARK, buildSpline } from "./constants";
  */
 const UserGrowthChart = ({ data = [] }) => {
   const svgRef = useRef(null);
+  const wrapRef = useRef(null);
   const [active, setActive] = useState(null);
+  // Draw at the real width so text stays the same size instead of scaling with the panel
+  const [W, setW] = useState(640);
+  const H = 290;
+  const hasData = data.length >= 2;
 
-  const W = 640, H = 290;
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return undefined;
+    const update = () => setW(Math.max(300, Math.round(el.clientWidth)));
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasData]);
+
   const pad = { t: 28, r: 24, b: 42, l: 50 };
   const iw = W - pad.l - pad.r;
   const ih = H - pad.t - pad.b;
 
   if (data.length<2) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-12 text-center text-slate-400 dark:text-slate-300 text-sm font-medium shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-700 p-12 text-center text-slate-600 dark:text-slate-300 text-sm font-medium">
         No growth data available
       </div>
     );
@@ -40,55 +54,54 @@ const UserGrowthChart = ({ data = [] }) => {
     y: H - pad.b - (i / ySteps) * ih,
   }));
 
-  const xStep = Math.max(1, Math.floor(pts.length / 6));
+  // About one label per 120px so dates never overlap
+  const maxLabels = Math.max(2, Math.floor(iw / 120));
+  const xStep = Math.max(1, Math.ceil(pts.length / maxLabels));
   const xLabels = pts.filter((_, i) => i % xStep === 0 || i === pts.length - 1);
 
-  const handleMove = useCallback(
-    (e) => {
-      const svg = svgRef.current;
-      if (!svg) return;
-      const rect = svg.getBoundingClientRect();
-      const mx = ((e.clientX - rect.left) / rect.width) * W;
-      let closest = pts[0],
-        minD = Infinity;
-      for (const p of pts) {
-        const d = Math.abs(p.x - mx);
-        if (d < minD) {
-          minD = d;
-          closest = p;
-        }
+  const handleMove = (e) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * W;
+    let closest = pts[0],
+      minD = Infinity;
+    for (const p of pts) {
+      const d = Math.abs(p.x - mx);
+      if (d < minD) {
+        minD = d;
+        closest = p;
       }
-      setActive(closest);
-    },
-    [pts],
-  );
+    }
+    setActive(closest);
+  };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-sm dark:shadow-slate-950/40 hover:shadow-md transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-700 p-5 dark:shadow-slate-950/40 transition-shadow duration-300">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            className="w-9 h-9 rounded-lg flex items-center justify-center"
             style={{ backgroundColor: `${BRAND}12` }}
           >
             <FiTrendingUp className="w-[18px] h-[18px]" style={{ color: BRAND }} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">User Growth</h3>
-            <p className="text-[11px] text-slate-400">Cumulative registrations over time</p>
+            <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">User Growth</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400">Cumulative registrations over time</p>
           </div>
         </div>
         {active && (
           <div className="text-right">
-            <p className="text-lg font-extrabold text-slate-800">{active.count}</p>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-lg font-semibold text-slate-800">{active.count}</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
               {active.date}
             </p>
           </div>
         )}
       </div>
 
-      <div className="relative">
+      <div className="relative" ref={wrapRef}>
         <svg
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
@@ -111,7 +124,7 @@ const UserGrowthChart = ({ data = [] }) => {
           {yTicks.map((t, i) => (
             <g key={i}>
               <line x1={pad.l} y1={t.y} x2={W - pad.r} y2={t.y} stroke="#e2e8f0" strokeWidth="1" />
-              <text x={pad.l - 10} y={t.y + 4} textAnchor="end" fill="#94a3b8" className="text-[10px]" style={{ fontWeight: 600 }}>
+              <text x={pad.l - 10} y={t.y + 4} textAnchor="end" fill="#94a3b8" className="text-xs" style={{ fontWeight: 600 }}>
                 {t.v}
               </text>
             </g>
@@ -133,7 +146,7 @@ const UserGrowthChart = ({ data = [] }) => {
 
           {/* X labels */}
           {xLabels.map((t, i) => (
-            <text key={i} x={t.x} y={H - 14} textAnchor="middle" fill="#94a3b8" className="text-[9px]" style={{ fontWeight: 600 }}>
+            <text key={i} x={t.x} y={H - 14} textAnchor="middle" fill="#94a3b8" className="text-xs" style={{ fontWeight: 600 }}>
               {t.date}
             </text>
           ))}

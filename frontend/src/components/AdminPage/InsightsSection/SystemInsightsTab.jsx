@@ -5,6 +5,7 @@ import UserGrowthChart from "./UserGrowthChart";
 import DepartmentChart from "./DepartmentChart";
 import BatchChart from "./BatchChart";
 import PopularityLeaderboard from "./PopularityLeaderboard";
+import { dangerButtonClass } from "../SharedComponents/adminStyles";
 import {
   FiUsers,
   FiFileText,
@@ -45,22 +46,19 @@ const SystemInsightsTab = ({ insights, loading, error, onRefresh }) => {
       {loading && !insights ? (
         <SkeletonBody />
       ) : error ? (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-red-200 dark:border-red-800 p-10 text-center max-w-md mx-auto shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-300 flex items-center justify-center mx-auto mb-4">
-            <FiAlertCircle className="w-6 h-6" />
+        <div role="alert" className="rounded-xl border border-rose-200 dark:border-rose-900 bg-white dark:bg-slate-900 p-8 text-center max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-4">
+            <FiAlertCircle className="w-6 h-6" aria-hidden="true" />
           </div>
-          <p className="text-red-700 dark:text-red-200 font-bold text-sm mb-4">{error}</p>
-          <button
-            onClick={onRefresh}
-            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow active:scale-95 transition-all"
-          >
-            Try Again
+          <p className="text-sm text-slate-800 dark:text-slate-200 mb-4">{error}</p>
+          <button type="button" onClick={onRefresh} className={dangerButtonClass}>
+            Try again
           </button>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Row 1: KPI Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3 sm:gap-4">
             {metrics.map((m, i) => (
               <MetricCard key={i} {...m} />
             ))}

@@ -28,12 +28,12 @@ const COMMITTEE_SCOPE_HINTS = scopeHints(COMMITTEE_SCOPED_ROLES);
 const CLUB_SCOPE_HINTS = scopeHints(CLUB_SCOPED_ROLES);
 
 const SectionLabel = ({ children }) => (
-    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{children}</span>
+    <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{children}</span>
 );
 
 const CheckboxTile = ({ checked, onChange, label, hint }) => (
     <label
-        className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all group/opt ${checked
+        className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all group/opt ${checked
             ? "border-[#4B98C8] bg-[#4B98C8]/5 dark:bg-[#4B98C8]/10"
             : "border-slate-200 dark:border-slate-700 hover:border-[#4B98C8]/50"
             }`}
@@ -41,7 +41,7 @@ const CheckboxTile = ({ checked, onChange, label, hint }) => (
         <div
             className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked
                 ? "bg-[#4B98C8] border-[#4B98C8]"
-                : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 group-hover/opt:border-[#4B98C8]/60"
+                : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 group-hover/opt:border-[#4B98C8]/60"
                 }`}
         >
             {checked && (
@@ -52,8 +52,8 @@ const CheckboxTile = ({ checked, onChange, label, hint }) => (
         </div>
         <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
         <div className="min-w-0">
-            <span className="block text-xs font-bold text-slate-700 dark:text-slate-200">{label}</span>
-            {hint && <span className="block text-[10px] text-slate-400 font-medium mt-0.5">{hint}</span>}
+            <span className="block text-xs font-medium text-slate-700 dark:text-slate-200">{label}</span>
+            {hint && <span className="block text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">{hint}</span>}
         </div>
     </label>
 );
@@ -63,9 +63,9 @@ const ToggleChip = ({ active, onClick, disabled = false, children }) => (
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${active
-            ? "bg-[#4B98C8] border-[#4B98C8] text-white shadow-md"
-            : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
+        className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all  disabled:cursor-not-allowed disabled:active:scale-100 ${active
+            ? "bg-[#4B98C8] border-[#4B98C8] text-white"
+            : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
             }`}
     >
         {children}
@@ -76,10 +76,10 @@ const AssociationPicker = ({ title, allLabel, emptyLabel, items, selectedIds, on
     <div className={`space-y-2.5 transition-opacity ${enabled ? "" : "opacity-50"}`}>
         <div className="flex items-center justify-between gap-2 flex-wrap">
             <SectionLabel>{title}</SectionLabel>
-            <span className="text-[10px] text-slate-400 font-medium">{enabled ? hints.enabled : hints.disabled}</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{enabled ? hints.enabled : hints.disabled}</span>
         </div>
         {items.length === 0 ? (
-            <p className="text-[11px] text-slate-400 italic">{emptyLabel}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 italic">{emptyLabel}</p>
         ) : (
             <div className="flex flex-wrap gap-2">
                 <ToggleChip active={selectedIds.length === 0} disabled={!enabled} onClick={() => onChange([])}>
@@ -145,7 +145,7 @@ const MembersFilter = ({
                 <SectionLabel>Roles</SectionLabel>
                 {ROLE_GROUPS.map((group) => (
                     <div key={group.key} className="space-y-1.5">
-                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{group.label}</span>
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{group.label}</span>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             {ROLE_OPTIONS.filter((role) => role.group === group.key).map((role) => (
                                 <CheckboxTile
@@ -160,7 +160,7 @@ const MembersFilter = ({
                     </div>
                 ))}
                 {selectedRoles.length === 0 && (
-                    <p className="text-[11px] font-bold text-rose-500">{emptyRoleMessage}</p>
+                    <p className="text-xs font-medium text-rose-500">{emptyRoleMessage}</p>
                 )}
             </div>
 

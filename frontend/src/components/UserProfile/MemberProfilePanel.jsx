@@ -1,20 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import { HiX } from "react-icons/hi";
 import MemberProfileView from "./MemberProfileView";
+import useScrollLock from "../../hooks/useScrollLock";
 
 // Slide-over panel with a member's profile, so admins don't have to leave the list.
 const MemberProfilePanel = ({ userId, onClose, onChanged }) => {
   const closeButtonRef = useRef(null);
+  useScrollLock(true);
 
   useEffect(() => {
     const previouslyFocused = document.activeElement;
-    // Lock the page behind the panel. Locking <body> alone isn't enough here: the site sets
-    // overflow-x: clip on <html>, so the body's overflow never reaches the real scroll area.
-    const html = document.documentElement;
-    const previousHtmlOverflow = html.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    html.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (e) => {
@@ -27,8 +22,6 @@ const MemberProfilePanel = ({ userId, onClose, onChanged }) => {
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      html.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
   }, [onClose]);
