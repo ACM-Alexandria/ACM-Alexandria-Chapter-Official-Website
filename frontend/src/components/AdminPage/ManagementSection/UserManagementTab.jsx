@@ -1,43 +1,72 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser, FiFileText, FiLoader } from "react-icons/fi";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiX, FiCheck, FiUser, FiFileText, FiLoader, FiPlus } from "react-icons/fi";
+import { HiStar } from "react-icons/hi";
 import { searchUsers, assignUser } from "../../../services/adminService";
+import { addUserPointsLog } from "../../../services/pointsLogService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
 import { useAuth } from "../../../contexts/AuthContext";
-import { ROLE_OPTIONS } from "../../../constants/roles";
+import { ROLE_OPTIONS, ROLE_LABELS } from "../../../constants/roles";
+import { canShowPhoto } from "../../UserProfile/profileUtils";
 import MembersExportModal from "./MembersExportModal";
-import { useNavigate } from "react-router-dom";
+import PointsLogModal from "../../UserProfile/PointsLogModal";
+import MemberProfilePanel from "../../UserProfile/MemberProfilePanel";
 
-const UserMediaCell = ({ item }) => {
+const UserAvatar = ({ item }) => {
   const [imgError, setImgError] = useState(false);
 
   const name = item.name || "Unknown User";
   const url = item.profile_image_url;
 
+  if (url && !imgError && canShowPhoto(item.role)) {
+    return (
+      <img
+        src={url}
+        alt=""
+        onError={() => setImgError(true)}
+        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+      />
+    );
+  }
+
   return (
-    <div className="flex items-center gap-3.5">
-      {url && !imgError ? (
-        <img
-          src={url}
-          alt={name}
-          onError={() => setImgError(true)}
-          className="w-10 h-10 bg-slate-200 rounded-xl object-cover border border-slate-200 dark:border-slate-600 shrink-0"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
-          <FiUser className="w-5 h-5" />
-        </div>
-      )}
-      <div className="min-w-0 max-w-[200px] sm:max-w-[300px]">
-        <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">{name}</p>
-        <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.email}</p>
-      </div>
+    <div
+      aria-hidden="true"
+      className="w-10 h-10 rounded-full bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] text-base font-semibold flex items-center justify-center shrink-0"
+    >
+      {name[0].toUpperCase()}
     </div>
   );
 };
 
+// Brand-tinted tag, same look as the role/committee tags on the profile page
+const Tag = ({ children }) => (
+  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#4B98C8]/10 border border-[#4B98C8]/30 text-[#2C6F99] dark:text-[#7DBBE0] text-xs font-semibold whitespace-nowrap">
+    {children}
+  </span>
+);
+
+const RoleTags = ({ user }) => (
+  <div className="flex flex-wrap items-center gap-1.5">
+    <Tag>{ROLE_LABELS[user.role] || user.role}</Tag>
+    {user.association_name && <Tag>{user.association_name}</Tag>}
+  </div>
+);
+
+const fieldClass =
+  "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
+
+const iconButtonBase =
+  "w-9 h-9 inline-flex items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40";
+
+const addPointsButtonClass = `${iconButtonBase} border-[#4B98C8]/40 bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/20`;
+
+const manageButtonClass = `${iconButtonBase} border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800`;
+
+const pageButtonClass =
+  "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+
 const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -48,6 +77,14 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const assignInFlight = useRef(false);
+
+  // Member profile side panel
+  const [profileUserId, setProfileUserId] = useState(null);
+  const closeProfilePanel = useCallback(() => setProfileUserId(null), []);
+
+  // Add points (from the table row)
+  const [pointsTarget, setPointsTarget] = useState(null);
+  const [notice, setNotice] = useState(null); // { type: "success" | "error", text }
 
   // Modals
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -88,6 +125,28 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 4000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const handleAddPoints = async ({ reason, points }) => {
+    const target = pointsTarget;
+    try {
+      await addUserPointsLog({ member: target.id, assigner: user.id, reason, points });
+      setPointsTarget(null);
+      setNotice({ type: "success", text: `${points > 0 ? "+" : ""}${points} points given to ${target.name || "the member"}.` });
+      loadUsers();
+    } catch (err) {
+      console.error("Failed to add points:", err);
+      setPointsTarget(null);
+      setNotice({ type: "error", text: "Couldn't add the points. Please try again." });
+    }
+  };
+
+  const viewProfile = (u) => setProfileUserId(u.id);
 
   const canManageUser = (targetUser) => {
     if (!user || !user.role) return false;
@@ -226,34 +285,47 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
   return (
     <div className="flex flex-col h-full animate-[fadeIn_0.3s_ease]">
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
         <div>
-          <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">User Management</h2>
-          <p className="text-xs text-slate-400 dark:text-slate-300 font-medium">Manage user roles and board assignments.</p>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-tight">User Management</h2>
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Manage user roles and board assignments.</p>
         </div>
         <button
           onClick={() => setExportModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow-md hover:shadow-lg transition-all active:scale-95"
+          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-md bg-[#4B98C8] hover:bg-[#3d7da6] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
         >
-          <FiFileText className="w-4 h-4" /> Export
+          <FiFileText className="w-4 h-4" aria-hidden="true" /> Export
         </button>
       </div>
 
+      {notice && (
+        <div
+          role={notice.type === "success" ? "status" : "alert"}
+          className={`mb-5 rounded-lg border px-4 py-3 text-sm ${notice.type === "success"
+            ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200"
+            : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200"}`}
+        >
+          {notice.text}
+        </div>
+      )}
+
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <FiSearch className="w-4 h-4" />
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <FiSearch className="w-4 h-4" aria-hidden="true" />
           </span>
           <input
             type="text"
-            placeholder="Search by name or email..."
+            aria-label="Search users"
+            placeholder="Search by name or email"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setPage(0); }}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+            className={`${fieldClass} w-full pl-9`}
           />
         </div>
         <select
+          aria-label="Filter by role"
           value={roleFilter}
           onChange={(e) => {
             setRoleFilter(e.target.value);
@@ -261,108 +333,142 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             setClubFilter("");
             setPage(0);
           }}
-          className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+          className={fieldClass}
         >
-          <option value="">All Roles</option>
+          <option value="">All roles</option>
           {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
         </select>
 
         {["ACM_COMMITTEE_BOARD", "ACM_MEMBER"].includes(roleFilter) && (
           <select
+            aria-label="Filter by committee"
             value={committeeFilter}
             onChange={(e) => { setCommitteeFilter(e.target.value); setPage(0); }}
-            className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+            className={fieldClass}
           >
-            <option value="">All Committees</option>
+            <option value="">All committees</option>
             {committeesList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         )}
 
         {roleFilter === "ACM_CLUB_BOARD" && (
           <select
+            aria-label="Filter by club"
             value={clubFilter}
             onChange={(e) => { setClubFilter(e.target.value); setPage(0); }}
-            className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+            className={fieldClass}
           >
-            <option value="">All Clubs</option>
+            <option value="">All clubs</option>
             {clubsList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         )}
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-separate border-spacing-0">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                <th className="pb-3 pl-4 pt-3">User</th>
-                <th className="pb-3 pt-3">Role</th>
-                <th className="pb-3 pt-3 -translate-x-[12px]">Points</th>
-                <th className="pb-3 pr-4 pt-3 text-right w-[260px]">Actions</th>
+              <tr className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60">
+                <th scope="col" className="px-4 sm:px-5 py-3 font-medium">User</th>
+                <th scope="col" className="hidden md:table-cell px-5 py-3 font-medium">Role</th>
+                <th scope="col" className="w-20 sm:w-24 px-3 sm:px-5 py-3 font-medium text-right">Points</th>
+                <th scope="col" className="w-28 px-3 sm:px-5 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
+            <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan="4" className="p-8">
-                    <div className="flex items-center justify-center">
-                      <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
-                    </div>
-                  </td>
-                </tr>
+                [0, 1, 2, 3, 4].map((i) => (
+                  <tr key={i} className="animate-pulse motion-reduce:animate-none" aria-hidden="true">
+                    <td className="px-4 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800" />
+                        <div className="space-y-2">
+                          <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
+                          <div className="h-3 w-44 rounded bg-slate-200 dark:bg-slate-800" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="hidden md:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                      <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
+                    </td>
+                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                      <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-slate-800" />
+                    </td>
+                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800" />
+                  </tr>
+                ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-slate-400 dark:text-slate-300 font-medium">
-                    No users found.
+                  <td colSpan="4" className="px-5 py-12 text-center">
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">No users found</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Try a different search or role filter.</p>
                   </td>
                 </tr>
               ) : (
                 users.map(u => (
-                  <tr key={u.id} className="group hover:bg-slate-50/55 dark:hover:bg-slate-800/60 transition-colors">
-                    <td className="py-3.5 pl-4">
-                      <UserMediaCell item={u} />
-                    </td>
-                    <td className="py-3.5">
-                      <div className="flex flex-col items-start gap-1">
-                        <span className="inline-flex items-center px-2.5 py-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg text-[10px] font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                          {u.role}
-                        </span>
-                        {u.association_name && (
-                          <span className="text-[11px] font-bold text-[#4B98C8] dark:text-[#60a5fa] pl-0.5">
-                            {u.association_name}
-                          </span>
-                        )}
+                  <tr
+                    key={u.id}
+                    onClick={() => viewProfile(u)}
+                    className="group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                  >
+                    <td className="px-4 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <UserAvatar item={u} />
+                        <div className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); viewProfile(u); }}
+                            className="block text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate max-w-[14rem] sm:max-w-xs rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+                            title={`Open ${u.name || "user"}'s profile`}
+                          >
+                            {u.name || "Unknown User"}
+                          </button>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[14rem] sm:max-w-xs" title={u.email}>
+                            {u.email}
+                          </p>
+                          <div className="md:hidden mt-1.5">
+                            <RoleTags user={u} />
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td className="py-3.5 font-extrabold text-slate-700 dark:text-slate-200">
-                      {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
+                    <td className="hidden md:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                      <RoleTags user={u} />
                     </td>
-                    <td className="py-3.5 pr-4 text-right w-[260px]">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => navigate(`/admin/user-profile`, { state: { targetUserId: u.id } })}
-                          className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-[#4B98C8] dark:hover:text-[#60a5fa] hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
-                          title="View Profile"
-                        >
-                          <FiUser className="w-3.5 h-3.5 shrink-0" />
-                          <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
-                            Profile
-                          </span>
-                        </button>
-
-                        {!hideManageAccess && canManageUser(u) && (
-                          <button
-                            onClick={() => handleOpenModal(u)}
-                            className="group inline-flex items-center justify-center p-2 hover:px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 rounded-xl text-xs font-bold tracking-wide active:scale-95 transition-all duration-500 ease-in-out"
-                            title="Manage Access"
-                          >
-                            <FiShield className="w-3.5 h-3.5 shrink-0" />
-                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-1.5 whitespace-nowrap transition-all duration-500 ease-in-out">
-                              Manage Access
-                            </span>
-                          </button>
-                        )}
+                    <td className="px-3 sm:px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                      <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                        <HiStar className="w-4 h-4 text-yellow-400" aria-hidden="true" />
+                        {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                        {/* Fixed slots keep the icons aligned between rows */}
+                        <span className="w-9 h-9">
+                          {u.id !== user?.id && (
+                            <button
+                              onClick={() => setPointsTarget(u)}
+                              className={addPointsButtonClass}
+                              aria-label={`Add points to ${u.name || "user"}`}
+                              title="Add points"
+                            >
+                              <FiPlus className="w-4 h-4" aria-hidden="true" />
+                            </button>
+                          )}
+                        </span>
+                        <span className="w-9 h-9">
+                          {!hideManageAccess && canManageUser(u) && (
+                            <button
+                              onClick={() => handleOpenModal(u)}
+                              className={manageButtonClass}
+                              aria-label={`Manage access for ${u.name || "user"}`}
+                              title="Manage access"
+                            >
+                              <FiShield className="w-4 h-4" aria-hidden="true" />
+                            </button>
+                          )}
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -371,32 +477,34 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-6">
-          <span className="text-xs font-medium text-slate-500">
-            Page {page + 1} of {totalPages}
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
-            >
-              <FiChevronLeft className="w-4 h-4" />
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+            <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className={pageButtonClass}>
+              <FiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
             </button>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-              disabled={page === totalPages - 1}
-              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
-            >
-              <FiChevronRight className="w-4 h-4" />
+            <span className="text-sm text-slate-600 dark:text-slate-400 tabular-nums">
+              Page {page + 1} of {totalPages}
+            </span>
+            <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className={pageButtonClass}>
+              Next <FiChevronRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        )}
+      </div>
+
+      {profileUserId && (
+        <MemberProfilePanel userId={profileUserId} onClose={closeProfilePanel} onChanged={loadUsers} />
       )}
+
+      <PointsLogModal
+        isOpen={!!pointsTarget}
+        onClose={() => setPointsTarget(null)}
+        onSubmit={handleAddPoints}
+        editingLog={null}
+        memberName={pointsTarget?.name}
+      />
 
       {exportModalOpen && (
         <MembersExportModal
