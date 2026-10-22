@@ -18,6 +18,7 @@ import DeleteConfirmModal from "../ManagementSection/DeleteConfirmModal";
 import PastResourceForm from "./PastResourceForm";
 import PastResourceTable from "./PastResourceTable";
 import PastSeasonPicker from "./PastSeasonPicker";
+import ArchiveSeasonSection from "./ArchiveSeasonSection";
 import { pastBoardResources } from "./pastBoardResources";
 
 const messageOf = (error) => error.response?.data?.message || error.message || "Unable to complete the request.";
@@ -35,6 +36,7 @@ const PastBoardsTab = () => {
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [formError, setFormError] = useState("");
   const generation = useRef(0);
   const mutationInFlight = useRef(false);
@@ -142,7 +144,21 @@ const PastBoardsTab = () => {
         )}
       </div>
 
-      <PastSeasonPicker currentSeason={currentSeason} seasons={seasons} season={season} disabled={loading || saving} onSelect={selectSeason} />
+      <ArchiveSeasonSection
+        currentSeason={currentSeason}
+        disabled={loading || Boolean(loadError) || saving || Boolean(editing) || Boolean(deleting)}
+        onBusyChange={(value) => {
+          mutationInFlight.current = value;
+          setArchiving(value);
+        }}
+        onArchived={(result) => {
+          setNotice("");
+          return load(result.archivedSeason);
+        }}
+        onConflict={() => load(season)}
+      />
+
+      <PastSeasonPicker currentSeason={currentSeason} seasons={seasons} season={season} disabled={loading || saving || archiving} onSelect={selectSeason} />
 
       <StatusAlert type="success" message={!loading && !loadError ? notice : ""} />
 
@@ -151,7 +167,7 @@ const PastBoardsTab = () => {
           <p className="font-bold">Couldn’t load past boards</p>
           {notice && <p role="status" className="mt-2 font-semibold">{notice}</p>}
           <p className="mt-1">{loadError}</p>
-          <button type="button" disabled={saving} onClick={async () => { if (await load(season)) setNotice(""); }} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 font-bold disabled:opacity-50 dark:border-red-800 dark:bg-slate-900"><FiRefreshCw aria-hidden="true" />Retry</button>
+          <button type="button" disabled={saving || archiving} onClick={async () => { if (await load(season)) setNotice(""); }} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 font-bold disabled:opacity-50 dark:border-red-800 dark:bg-slate-900"><FiRefreshCw aria-hidden="true" />Retry</button>
         </div>
       ) : loading ? (
         <p role="status" className="flex items-center justify-center gap-3 py-16 text-sm font-semibold text-slate-500 dark:text-slate-300"><SpinnerIcon aria-hidden="true" className="h-4 w-4 animate-spin text-[#4B98C8]" />Loading past boards…</p>
@@ -171,12 +187,12 @@ const PastBoardsTab = () => {
                     <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100">{resource.label}</h3>
                     <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold tabular-nums text-slate-500 dark:bg-slate-800 dark:text-slate-300" aria-label={`${data[resource.path].length} records`}>{data[resource.path].length}</span>
                   </div>
-                  <button type="button" disabled={saving || needsParent} onClick={() => startEditing(resource)} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#205E85] px-3 py-2.5 text-xs font-bold text-white transition hover:bg-[#4B98C8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4">
+                  <button type="button" disabled={saving || archiving || needsParent} onClick={() => startEditing(resource)} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#205E85] px-3 py-2.5 text-xs font-bold text-white transition hover:bg-[#4B98C8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4">
                     <FiPlus aria-hidden="true" />Add {resource.member ? "member" : resource.path === "clubs" ? "club" : "committee"}
                   </button>
                 </div>
                 {needsParent && <p className="mb-3 text-xs text-slate-500 dark:text-slate-300">Add {resource.parent === "clubs" ? "a club" : "a committee"} for this season first to enable board members.</p>}
-                <PastResourceTable resource={resource} items={data[resource.path]} parents={data[resource.parent] || []} busy={saving} onEdit={(item) => startEditing(resource, item)} onDelete={(item) => { setNotice(""); setDeleting({ resource, item }); }} />
+                <PastResourceTable resource={resource} items={data[resource.path]} parents={data[resource.parent] || []} busy={saving || archiving} onEdit={(item) => startEditing(resource, item)} onDelete={(item) => { setNotice(""); setDeleting({ resource, item }); }} />
               </section>
             );
           })}

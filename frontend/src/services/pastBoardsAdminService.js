@@ -12,3 +12,7 @@ export const updatePastResource = async (resource, id, data) =>
   (await api.put(`${base}/past/${resource}/${id}`, data)).data;
 export const deletePastResource = async (resource, id) =>
   api.delete(`${base}/past/${resource}/${id}`);
+
+// Copying a full board can take longer than the default API timeout.
+export const archiveCurrentSeason = async (season) =>
+  (await api.post(`${base}/archive`, { season }, { timeout: 60000 })).data;
