@@ -40,6 +40,11 @@ public class RegistrationExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", "Invalid or missing request value"));
     }
 
+    @ExceptionHandler(BoardArchiveConflictException.class)
+    public ResponseEntity<Map<String, String>> handleBoardArchiveConflict(BoardArchiveConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+    }
+
     @ExceptionHandler(DuplicateRegistrationException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateRegistration(DuplicateRegistrationException ex) {
         Map<String, String> response = new HashMap<>();

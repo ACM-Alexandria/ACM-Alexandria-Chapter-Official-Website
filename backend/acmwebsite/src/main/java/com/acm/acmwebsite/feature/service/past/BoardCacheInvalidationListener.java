@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.service.past;
 
 import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.event.PastBoardsChangedEvent;
+import com.acm.acmwebsite.feature.event.CurrentBoardsArchivedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -19,5 +20,12 @@ public class BoardCacheInvalidationListener {
     public void onPastBoardsChanged(PastBoardsChangedEvent event) {
         Objects.requireNonNull(cacheManager.getCache(CacheNames.BOARD_SEASONS)).clear();
         Objects.requireNonNull(cacheManager.getCache(CacheNames.PAST_BOARDS)).clear();
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCurrentBoardsArchived(CurrentBoardsArchivedEvent event) {
+        Objects.requireNonNull(cacheManager.getCache(CacheNames.HIGH_BOARD)).clear();
+        Objects.requireNonNull(cacheManager.getCache(CacheNames.COMMITTEES)).clear();
+        Objects.requireNonNull(cacheManager.getCache(CacheNames.CLUBS)).clear();
     }
 }

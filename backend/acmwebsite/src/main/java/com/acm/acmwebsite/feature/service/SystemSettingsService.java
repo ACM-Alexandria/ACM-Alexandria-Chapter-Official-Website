@@ -5,6 +5,8 @@ import com.acm.acmwebsite.feature.exception.EmailsLockedException;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -58,6 +60,17 @@ public class SystemSettingsService {
             systemSettingsRepository.save(settings);
         }
         return settings.getCurrentSeason();
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public SystemSettings lockForArchive() {
+        systemSettingsRepository.ensureSingletonExists();
+        SystemSettings settings = systemSettingsRepository.findSingletonForUpdate()
+                .orElseThrow(() -> new IllegalStateException("System settings could not be initialized"));
+        if (settings.getCurrentSeason() == null) {
+            getCurrentSeason();
+        }
+        return settings;
     }
 
     // Archive supplies the settings row locked by its transaction.
