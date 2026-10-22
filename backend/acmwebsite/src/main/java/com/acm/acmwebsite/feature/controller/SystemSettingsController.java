@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-// /api/admin/** is limited to admin roles in SecurityConfig
+// /api/admin/** is limited to admin roles in SecurityConfig, except GET /email-lock (see below)
 @RestController
 @RequestMapping("/api/admin/settings")
 public class SystemSettingsController {
@@ -16,8 +16,10 @@ public class SystemSettingsController {
         this.systemSettingsService = systemSettingsService;
     }
 
-    // Any admin can read it, so the admin page can warn when emails are locked
+    // Any admin, and HR Committee members, can read it so the dashboards can warn when emails are locked
     @GetMapping("/email-lock")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+            + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<EmailLockDto> getEmailLock() {
         return ResponseEntity.ok(new EmailLockDto(systemSettingsService.isEmailsEnabled()));
     }

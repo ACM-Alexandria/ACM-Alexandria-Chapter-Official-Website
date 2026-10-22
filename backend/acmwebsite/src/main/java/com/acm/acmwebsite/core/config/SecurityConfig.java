@@ -45,6 +45,9 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                 .authorizeHttpRequests(auth -> auth
                         // Allow CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Email-lock status is readable by HR Committee members too; the role check
+                        // for it lives in SystemSettingsController (must come before /api/admin/**)
+                        .requestMatchers(HttpMethod.GET, "/api/admin/settings/email-lock").authenticated()
                         // Secure admin endpoints
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")

@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.User_Authentication.repository;
 
+import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -32,6 +33,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);
+
+  boolean existsByEmailAndRoleAndCommitteeNameIgnoreCase(String email, Role role, String committeeName);
 
   void deleteByEmail(String email);
   Optional<User> findByResetPasswordToken(String resetPasswordToken);

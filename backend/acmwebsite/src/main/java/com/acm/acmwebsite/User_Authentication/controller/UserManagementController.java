@@ -28,7 +28,8 @@ public class UserManagementController {
   private final MemberExportService memberExportService;
 
   @GetMapping
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
   public ResponseEntity<Page<UserDTO>> searchUsers(
       @RequestParam(required = false) String query,
       @RequestParam(required = false) Role role,
