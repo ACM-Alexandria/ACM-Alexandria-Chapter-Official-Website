@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { HiOutlineX } from "react-icons/hi";
 
 // The presets and their default point values
@@ -9,62 +9,30 @@ const PRESET_REASONS = {
   "Penalty": -10, // I made this negative logically, but it can be manually edited to anything!
 };
 
-const PointsLogModal = ({ isOpen, onClose, onSubmit, editingLog }) => {
-  const [reason, setReason] = useState("Event Attendance");
-  const [customReason, setCustomReason] = useState("");
-  const [points, setPoints] = useState(10);
+// Mounted only while the modal is open, so each open starts from fresh state
+const PointsLogForm = ({ onClose, onSubmit, editingLog }) => {
+  const [reason, setReason] = useState(editingLog ? editingLog.reason : "");
+  const [points, setPoints] = useState(editingLog ? editingLog.points : 10);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // When the modal opens or the log being edited changes, reset the form
-  useEffect(() => {
-    if (isOpen) {
-      if (editingLog) {
-        // If editing, figure out if the reason is a preset or a custom one
-        const isPreset = Object.keys(PRESET_REASONS).includes(editingLog.reason);
-        if (isPreset) {
-          setReason(editingLog.reason);
-          setCustomReason("");
-        } else {
-          setReason("Custom");
-          setCustomReason(editingLog.reason);
-        }
-        setPoints(editingLog.points);
-      } else {
-        // If adding new, reset to defaults
-        setReason("Event Attendance");
-        setCustomReason("");
-        setPoints(10);
-      }
-      setIsSubmitting(false);
-    }
-  }, [isOpen, editingLog]);
-
-  const handleReasonChange = (e) => {
-    const selectedReason = e.target.value;
-    setReason(selectedReason);
-    
-    // Automatically update the points input to the default value for the selected preset
-    if (selectedReason !== "Custom") {
-      setPoints(PRESET_REASONS[selectedReason]);
-    }
+  // Clicking a preset fills the text box (still editable) and its default points
+  const applyPreset = (preset) => {
+    setReason(preset);
+    setPoints(PRESET_REASONS[preset]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    const finalReason = reason === "Custom" ? customReason : reason;
-    
+
     // Send data back to the parent page
-    await onSubmit({ 
-      reason: finalReason, 
-      points: Number(points) 
+    await onSubmit({
+      reason: reason.trim(),
+      points: Number(points)
     });
-    
+
     setIsSubmitting(false);
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
@@ -87,39 +55,35 @@ const PointsLogModal = ({ isOpen, onClose, onSubmit, editingLog }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Reason Selection */}
+          {/* Reason: free text, with presets that fill it in */}
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            <label htmlFor="points-reason" className="text-sm font-bold text-slate-700 dark:text-slate-300">
               Reason for Points
             </label>
-            <select
+            <input
+              id="points-reason"
+              type="text"
+              required
+              autoFocus
               value={reason}
-              onChange={handleReasonChange}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#4B98C8] focus:border-transparent outline-none transition-all"
-            >
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g., Won a hackathon"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-[#4B98C8] focus:border-transparent outline-none transition-all"
+            />
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs text-slate-600 dark:text-slate-400">Quick fill:</span>
               {Object.keys(PRESET_REASONS).map((preset) => (
-                <option key={preset} value={preset}>{preset}</option>
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className="px-3 py-1 rounded-full border border-[#4B98C8]/30 bg-[#4B98C8]/10 text-xs font-semibold text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50"
+                >
+                  {preset}
+                </button>
               ))}
-              <option value="Custom">Other (Custom Reason)</option>
-            </select>
-          </div>
-
-          {/* Custom Reason Input (Only shows if "Custom" is selected) */}
-          {reason === "Custom" && (
-            <div className="space-y-2 animate-[fadeIn_0.2s_ease-out]">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                Specify Custom Reason
-              </label>
-              <input
-                type="text"
-                required
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="e.g., Won a hackathon"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#4B98C8] outline-none"
-              />
             </div>
-          )}
+          </div>
 
           {/* Points Input */}
           <div className="space-y-2">
@@ -155,6 +119,18 @@ const PointsLogModal = ({ isOpen, onClose, onSubmit, editingLog }) => {
         </form>
       </div>
     </div>
+  );
+};
+
+const PointsLogModal = ({ isOpen, onClose, onSubmit, editingLog }) => {
+  if (!isOpen) return null;
+  return (
+    <PointsLogForm
+      key={editingLog ? editingLog.id : "new"}
+      onClose={onClose}
+      onSubmit={onSubmit}
+      editingLog={editingLog}
+    />
   );
 };
 
