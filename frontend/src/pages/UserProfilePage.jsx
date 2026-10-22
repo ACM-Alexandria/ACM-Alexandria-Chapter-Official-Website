@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
 import { fetchUserPointsLogs } from "../services/pointsLogService";
 import Navbar from "../components/HomePage/Navbar";
-import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
+import { ProfileHeader, ProfileDetails, Panel } from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
 import PointsLogSection from "../components/UserProfile/PointsLogSection";
 
@@ -12,8 +12,25 @@ import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
   HiOutlineArrowLeft,
-  HiOutlinePencilAlt
+  HiOutlinePencil
 } from "react-icons/hi";
+
+const Alert = ({ tone, children }) => {
+  const success = tone === "success";
+  const Icon = success ? HiOutlineCheckCircle : HiOutlineExclamationCircle;
+  return (
+    <div
+      role={success ? "status" : "alert"}
+      className={`flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm ${success
+        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200"
+        : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200"
+        }`}
+    >
+      <Icon className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+      <p>{children}</p>
+    </div>
+  );
+};
 
 const UserProfilePage = () => {
   const { user } = useAuth();
@@ -164,6 +181,13 @@ const UserProfilePage = () => {
       return;
     }
 
+    const linkedinRegex = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|pub)\/[A-Za-z0-9_%.-]+\/?([?#].*)?$/;
+    if (profile.linkedinUrl && !linkedinRegex.test(profile.linkedinUrl.trim())) {
+      setProfileError("Invalid LinkedIn URL: Use your profile link, like https://linkedin.com/in/username.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (profile.isAlexEngStudent === true) {
       if (!profile.batch) {
         setProfileError("Validation Error: Please select your Academic Batch.");
@@ -180,13 +204,6 @@ const UserProfilePage = () => {
     setSubmitting(true);
     setProfileError(null);
     setProfileSuccess(false);
-
-    const linkedinRegex = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|pub)\/[A-Za-z0-9_%.-]+\/?([?#].*)?$/;
-    if (profile.linkedinUrl && !linkedinRegex.test(profile.linkedinUrl.trim())) {
-      setProfileError("Invalid LinkedIn URL: Use your profile link, like https://linkedin.com/in/username.");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
 
     const payload = {
       name: profile.name,
@@ -212,127 +229,85 @@ const UserProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-[#4B98C8]/20">
       <Navbar />
 
-      <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
+      <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-8">
         <button
           onClick={() => navigate(-1)}
-          className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+          className="w-fit -ml-1 inline-flex items-center gap-1.5 px-1 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
         >
-          <HiOutlineArrowLeft className="w-4 h-4" /> Back
+          <HiOutlineArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
         </button>
 
-        {/* Page Header Section */}
-        <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-start sm:items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-lg shadow-blue-200/50 flex items-center justify-center text-white text-2xl font-black tracking-wider shrink-0">
-                {user?.email?.[0].toUpperCase() || "U"}
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Account Profile</h1>
-                <p className="text-slate-500 dark:text-slate-300 font-medium text-sm mt-1">
-                  Manage your official registration details and contact preferences.
-                </p>
+        {loading ? (
+          <div className="flex flex-col gap-8 animate-pulse motion-reduce:animate-none" aria-busy="true" aria-label="Loading profile">
+            <div className="flex items-start gap-5">
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0" />
+              <div className="flex-1 space-y-3 pt-1">
+                <div className="h-7 w-48 rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-slate-800" />
               </div>
             </div>
-
-            {!loading && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="px-6 py-3 flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm text-slate-700 dark:text-slate-100 font-bold text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <HiOutlinePencilAlt className="w-5 h-5 text-[#4B98C8]" />
-                Edit Information
-              </button>
-            )}
+            <div className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
           </div>
-        </div>
-
-        {/* Profile Notification Alerts */}
-        {profileSuccess && (
-          <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-            <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
-            <p className="font-bold text-sm">Profile saved successfully! Your information is now fully updated.</p>
-          </div>
-        )}
-
-        {profileError && (
-          <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-            <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-            <p className="font-bold text-sm">{profileError}</p>
-          </div>
-        )}
-
-        {/* Master Profile Display Card */}
-        <div
-          className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500"
-          style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
-        >
-          {loading ? (
-            /* Skeleton Placeholders */
-            <div className="p-8 md:p-12 space-y-8 animate-pulse">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
-                    <div className="h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
-                  </div>
-                ))}
-              </div>
-              <div className="h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full md:w-40 ml-auto mt-8" />
-            </div>
-          ) : !isEditing ? (
-            <ProfileViewCard user={user} profile={profile} />
-          ) : (
-            <ProfileEditForm
+        ) : (
+          <>
+            <ProfileHeader
               user={user}
               profile={profile}
-              handleInputChange={handleInputChange}
-              handleToggleAlexEng={handleToggleAlexEng}
-              handleCancelEdit={handleCancelEdit}
-              handleSubmit={handleSubmit}
-              submitting={submitting}
-              onImageUpload={async (file) => {
-                const res = await uploadProfileImage(user.id, file);
-                const imageUrl = res.profile_image_url || res;
-                setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                return imageUrl;
-              }}
-            />
-          )}
-        </div>
-
-        {/* Points Log Section */}
-        {!isEditing && !loading && profile.role !== "USER" && (
-          <div className="space-y-4">
-
-            <div className="translate-y-[16px]">
-              {pointsSuccess && (
-                <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                  <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
-                  <p className="font-bold text-sm">Points updated successfully!</p>
-                </div>
+              actions={!isEditing && (
+                <button
+                  onClick={handleStartEdit}
+                  className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+                >
+                  <HiOutlinePencil className="w-4 h-4" aria-hidden="true" />
+                  Edit profile
+                </button>
               )}
-
-              {pointsError && (
-                <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                  <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                  <p className="font-bold text-sm">{pointsError}</p>
-                </div>
-              )}
-            </div>
-
-            <PointsLogSection
-              logs={pointsLogs}
-              isAdmin={false}
-              page={pointsPage}
-              totalPages={totalPages}
-              onPageChange={(newPage) => setPointsPage(newPage)}
             />
-          </div>
+
+            {profileSuccess && <Alert tone="success">Profile saved.</Alert>}
+            {profileError && <Alert tone="error">{profileError}</Alert>}
+
+            <Panel title={isEditing ? "Edit details" : "Details"}>
+              {isEditing ? (
+                <ProfileEditForm
+                  user={user}
+                  profile={profile}
+                  handleInputChange={handleInputChange}
+                  handleToggleAlexEng={handleToggleAlexEng}
+                  handleCancelEdit={handleCancelEdit}
+                  handleSubmit={handleSubmit}
+                  submitting={submitting}
+                  onImageUpload={async (file) => {
+                    const res = await uploadProfileImage(user.id, file);
+                    const imageUrl = res.profile_image_url || res;
+                    setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                    setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                    return imageUrl;
+                  }}
+                />
+              ) : (
+                <ProfileDetails profile={profile} />
+              )}
+            </Panel>
+
+            {!isEditing && profile.role !== "USER" && (
+              <div className="flex flex-col gap-3">
+                {pointsSuccess && <Alert tone="success">Points updated.</Alert>}
+                {pointsError && <Alert tone="error">{pointsError}</Alert>}
+                <PointsLogSection
+                  logs={pointsLogs}
+                  isAdmin={false}
+                  page={pointsPage}
+                  totalPages={totalPages}
+                  onPageChange={(newPage) => setPointsPage(newPage)}
+                />
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

@@ -1,180 +1,188 @@
-import React from "react";
+import React, { createElement } from "react";
 import {
-  HiOutlineUser,
+  HiStar,
+  HiOutlineExternalLink,
   HiOutlinePhone,
   HiOutlineAcademicCap,
-  HiOutlineBriefcase,
-  HiOutlineLibrary,
-  HiOutlineLink,
-  HiOutlineStar
+  HiOutlineCalendar,
+  HiOutlineLibrary
 } from "react-icons/hi";
-import { FiLayers } from "react-icons/fi";
+import { FaLinkedinIn } from "react-icons/fa";
+import logo from "../../assets/logo/acm-logo-no-bg.png";
+import { DEPARTMENT_LABELS, getRoleLabel, canShowPhoto } from "./profileUtils";
 
-const getRoleDisplay = (role) => {
-  switch (role) {
-    case "SUPER_ADMIN":
-      return { label: "System Administrator" };
-    case "ACM_HIGH_BOARD":
-      return { label: "High Board" };
-    case "ACM_COMMITTEE_BOARD":
-      return { label: "Committee Board" };
-    case "ACM_CLUB_BOARD":
-      return { label: "Club Board" };
-    case "ACM_MEMBER":
-      return { label: "ACM Member" };
-    default:
-      return { label: "User" };
-  }
+// Strip protocol, "www." and LinkedIn tracking params so only the readable part shows.
+const displayUrl = (url) => url.replace(/^https?:\/\/(www\.)?/, "").split(/[?#]/)[0].replace(/\/$/, "");
+
+const AVATAR_SIZES = {
+  sm: "w-12 h-12 text-lg",
+  lg: "w-20 h-20 text-2xl",
+  xl: "w-24 h-24 sm:w-28 sm:h-28 text-3xl ring-4 ring-white dark:ring-slate-900",
 };
 
-const ProfileViewCard = ({ user, profile }) => {
-  const roleDisplay = getRoleDisplay(profile.role);
+export const ProfileAvatar = ({ profile, email, size = "lg" }) => {
+  const sizeClass = AVATAR_SIZES[size];
+  const initial = (profile.name || email || "U")[0].toUpperCase();
+
+  if (profile.profileImageUrl && canShowPhoto(profile.role)) {
+    return (
+      <img
+        src={profile.profileImageUrl}
+        alt=""
+        className={`${sizeClass} rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0`}
+      />
+    );
+  }
 
   return (
-    <div className="p-6 md:p-12 flex flex-col gap-8 md:gap-10 bg-white dark:bg-slate-900">
-
-      {/* Header Banner - Clean and Minimal */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 md:pb-8">
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 w-full md:w-auto">
-          {/* Avatar */}
-          {profile.profileImageUrl && profile.role !== "USER" && profile.role !== "ACM_MEMBER" ? (
-            <img src={profile.profileImageUrl} alt="Profile" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
-          ) : (
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#4B98C8] text-3xl font-semibold border border-slate-200 dark:border-slate-700">
-              {user?.email?.[0].toUpperCase() || "U"}
-            </div>
-          )}
-
-          {/* User Details & Points */}
-          <div className="flex flex-col items-start gap-1 w-full sm:w-auto">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words">
-              {profile.name || "User"}
-            </h2>
-            <span className="text-sm text-slate-500 dark:text-slate-400 break-all">
-              {user?.email}
-            </span>
-
-            {/* Points (Centered under email) */}
-            {profile.role !== "USER" && (
-              <div className="w-fit flex items-center justify-center gap-1.5 text-slate-500 dark:text-slate-400 mt-1.5">
-                <HiOutlineStar className="w-[18px] h-[18px]" />
-                <span className="text-sm font-semibold">
-                  {profile.seasonPoints || 0} Season Points
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Badges Container (Right Side) */}
-        <div className="flex flex-row items-center justify-center gap-2 self-start md:self-auto mt-2 md:mt-0">
-
-          {/* Role Badge */}
-          <div className="w-fit flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-900/30 border border-blue-800">
-            <span className="font-semibold text-sm text-blue-400 text-center">
-              {roleDisplay.label}
-            </span>
-          </div>
-
-          {/* Committee Badge */}
-          {profile.committeeName && (
-            <div className="w-fit flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-900/30 border border-blue-800">
-              <span className="font-semibold text-sm text-blue-400 text-center">
-                {profile.committeeName}
-              </span>
-            </div>
-          )}
-
-        </div>
-
-      </div>
-
-      {/* Information Grid - Clean Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        {/* Phone Panel */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
-          <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
-            <HiOutlinePhone className="w-5 h-5 md:w-6 md:h-6" />
-          </div>
-          <div className="overflow-hidden w-full">
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Phone Number</span>
-            <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base break-all">
-              {profile.phoneNumber || <span className="text-slate-400 italic">Not provided</span>}
-            </span>
-          </div>
-        </div>
-
-        {/* LinkedIn Panel */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
-          <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
-            <HiOutlineLink className="w-5 h-5 md:w-6 md:h-6" />
-          </div>
-          <div className="overflow-hidden w-full">
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Professional Network</span>
-            {profile.linkedinUrl ? (
-              <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="font-medium text-[#4B98C8] hover:underline truncate block text-sm md:text-base">
-                {profile.linkedinUrl}
-              </a>
-            ) : (
-              <span className="font-medium text-slate-900 dark:text-slate-200 text-base block">
-                <span className="text-slate-400 italic">Not connected</span>
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Alexandria University Status */}
-        {profile.isAlexEngStudent !== null && (
-          <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4 col-span-1 md:col-span-2">
-            <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
-              <HiOutlineLibrary className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <div className="overflow-hidden w-full">
-              <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Alexandria University, Faculty of Engineering</span>
-              <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block">
-                {profile.isAlexEngStudent ? "Registered Student" : "Not a student"}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Dynamic Academic Details */}
-        {profile.isAlexEngStudent === true && (
-          <>
-            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
-              <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
-                <HiOutlineAcademicCap className="w-5 h-5 md:w-6 md:h-6" />
-              </div>
-              <div className="overflow-hidden w-full">
-                <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Academic Batch</span>
-                <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block break-words">
-                  {profile.batch || <span className="text-slate-400 italic">Not provided</span>}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 md:p-6 flex items-start gap-3 md:gap-4">
-              <div className="text-slate-400 dark:text-slate-500 mt-1 shrink-0">
-                <HiOutlineBriefcase className="w-5 h-5 md:w-6 md:h-6" />
-              </div>
-              <div className="overflow-hidden w-full">
-                <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Department</span>
-                <span className="font-medium text-slate-900 dark:text-slate-200 text-sm md:text-base block break-words">
-                  {profile.department === "CSED" ? "Computer & Systems" :
-                    profile.department === "CCE" ? "Computer & Comms" :
-                      profile.department === "OTHER" ? "Other" :
-                        <span className="text-slate-400 italic">Not provided</span>}
-                </span>
-              </div>
-            </div>
-          </>
-        )}
-
-      </div>
+    <div
+      aria-hidden="true"
+      className={`${sizeClass} rounded-full bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] font-semibold flex items-center justify-center shrink-0`}
+    >
+      {initial}
     </div>
   );
 };
+
+// Brand blue in light mode is darkened slightly so tag text keeps AA contrast.
+const Tag = ({ children }) => (
+  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#4B98C8]/10 border border-[#4B98C8]/30 text-[#2C6F99] dark:text-[#7DBBE0] text-xs font-semibold">
+    {children}
+  </span>
+);
+
+export const ProfileHeader = ({ user, profile, actions }) => (
+  <header className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+    {/* Cover: soft brand tint with the chapter logo as a watermark */}
+    <div className="relative h-24 sm:h-28 overflow-hidden bg-[#EAF3FA] dark:bg-[#132C3E] border-b border-[#4B98C8]/15">
+      <img
+        src={logo}
+        alt=""
+        aria-hidden="true"
+        className="absolute -right-4 -top-6 h-40 sm:h-48 w-auto opacity-[0.12] dark:opacity-[0.15] select-none pointer-events-none"
+      />
+    </div>
+
+    <div className="px-5 sm:px-6 pb-6">
+      <div className="relative flex items-end justify-between gap-4 -mt-12 sm:-mt-14">
+        <ProfileAvatar profile={profile} email={user?.email} size="xl" />
+        {actions && <div className="flex items-center gap-2 pb-1">{actions}</div>}
+      </div>
+
+      <h1 className="mt-4 text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words [text-wrap:balance]">
+        {profile.name || "Unnamed member"}
+      </h1>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 break-all">{user?.email}</p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Tag>{getRoleLabel(profile.role)}</Tag>
+        {profile.committeeName && <Tag>{profile.committeeName}</Tag>}
+      </div>
+
+      {profile.role !== "USER" && (
+        <p className="mt-3 flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+          <HiStar className="w-[18px] h-[18px] text-yellow-400" aria-hidden="true" />
+          <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+            {profile.seasonPoints || 0}
+          </span>
+          season points
+        </p>
+      )}
+    </div>
+  </header>
+);
+
+const DetailTile = ({ icon, label, children }) => (
+  <div
+    className={`flex items-start gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-4`}
+  >
+    <span className="w-10 h-10 shrink-0 rounded-lg bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0] flex items-center justify-center">
+      {createElement(icon, { className: "w-5 h-5", "aria-hidden": true })}
+    </span>
+    <div className="min-w-0 flex-1 pt-0.5">
+      <dt className="text-xs text-slate-600 dark:text-slate-400">{label}</dt>
+      <dd className="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100 break-words">{children}</dd>
+    </div>
+  </div>
+);
+
+const Missing = ({ children = "Not added" }) => (
+  <span className="font-normal text-slate-500 dark:text-slate-400">{children}</span>
+);
+
+export const ProfileDetails = ({ profile }) => {
+  const isStudent = profile.isAlexEngStudent === true;
+
+  return (
+    <dl className="p-4 sm:p-5 flex flex-col gap-3">
+      {/* Row 1: contact */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <DetailTile icon={HiOutlinePhone} label="Phone number">
+          {profile.phoneNumber ? <span className="tabular-nums">{profile.phoneNumber}</span> : <Missing />}
+        </DetailTile>
+
+        <DetailTile icon={FaLinkedinIn} label="LinkedIn">
+          {profile.linkedinUrl ? (
+            <a
+              href={profile.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              title={profile.linkedinUrl}
+              className="flex max-w-full items-center gap-1 text-[#4B98C8] hover:underline underline-offset-2"
+            >
+              <span className="truncate">{displayUrl(profile.linkedinUrl)}</span>
+              <HiOutlineExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
+            </a>
+          ) : (
+            <Missing />
+          )}
+        </DetailTile>
+      </div>
+
+      {/* Row 2: university */}
+      <div className={`grid grid-cols-1 gap-3 ${isStudent ? "md:grid-cols-3" : ""}`}>
+        <DetailTile icon={HiOutlineAcademicCap} label="Alexandria Engineering">
+          {profile.isAlexEngStudent === null || profile.isAlexEngStudent === undefined ? (
+            <Missing>Not specified</Missing>
+          ) : isStudent ? (
+            "Student"
+          ) : (
+            "Not a student"
+          )}
+        </DetailTile>
+
+        {isStudent && (
+          <>
+            <DetailTile icon={HiOutlineCalendar} label="Batch">{profile.batch || <Missing />}</DetailTile>
+            <DetailTile icon={HiOutlineLibrary} label="Department">
+              {DEPARTMENT_LABELS[profile.department] || <Missing />}
+            </DetailTile>
+          </>
+        )}
+      </div>
+    </dl>
+  );
+};
+
+export const Panel = ({ title, aside, children }) => (
+  <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+    {(title || aside) && (
+      <div className="px-5 py-4 flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+        {aside}
+      </div>
+    )}
+    {children}
+  </section>
+);
+
+const ProfileViewCard = ({ user, profile, actions }) => (
+  <div className="flex flex-col gap-8">
+    <ProfileHeader user={user} profile={profile} actions={actions} />
+    <Panel title="Details">
+      <ProfileDetails profile={profile} />
+    </Panel>
+  </div>
+);
 
 export default ProfileViewCard;

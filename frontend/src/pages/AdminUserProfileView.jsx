@@ -216,72 +216,47 @@ const AdminUserProfileView = () => {
     if (!targetUserId) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-[#4B98C8]/20">
             <Navbar />
 
-            <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
+            <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-8">
                 <button
                     onClick={() => navigate(-1)}
-                    className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                    className="w-fit -ml-1 inline-flex items-center gap-1.5 px-1 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
                 >
-                    <HiOutlineArrowLeft className="w-4 h-4" /> Back
+                    <HiOutlineArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
                 </button>
 
-                <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                        <div className="flex items-start sm:items-center gap-4">
-
-                            {/* <-- UPDATED AVATAR TO DISPLAY THE IMAGE IF IT EXISTS --> */}
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-lg shadow-blue-200/50 flex items-center justify-center text-white text-2xl font-black tracking-wider shrink-0 overflow-hidden">
-                                {
-                                    profile.name?.[0]?.toUpperCase() || "U"
-                                }
-                            </div>
-
-                            <div>
-                                <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">User Profile View</h1>
-                                <p className="text-slate-500 dark:text-slate-300 font-medium text-sm mt-1">
-                                    Managing profile and points for {profile.name || "User"}
-                                </p>
+                {loading ? (
+                    <div className="flex flex-col gap-8 animate-pulse motion-reduce:animate-none" aria-busy="true" aria-label="Loading profile">
+                        <div className="flex items-start gap-5">
+                            <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0" />
+                            <div className="flex-1 space-y-3 pt-1">
+                                <div className="h-7 w-48 rounded bg-slate-200 dark:bg-slate-800" />
+                                <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+                                <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-slate-800" />
                             </div>
                         </div>
+                        <div className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
                     </div>
-                </div>
-
-                <div
-                    className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500 mb-8"
-                    style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
-                >
-                    {loading ? (
-                        <div className="p-8 md:p-12 space-y-8 animate-pulse">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="space-y-2">
-                                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
-                                        <div className="h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <ProfileViewCard user={profile} profile={profile} />
-                    )}
-                </div>
+                ) : (
+                    <ProfileViewCard user={profile} profile={profile} />
+                )}
 
                 {!loading && (
-                    <div className="space-y-4">
-                        <div className="translate-y-[0px]">
+                    <div className="flex flex-col gap-3">
+                        <div>
                             {success && (
-                                <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                                    <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
+                                <div className="flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200">
+                                    <HiOutlineCheckCircle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
                                     {/* <-- UPDATED TO SHOW DYNAMIC MESSAGE --> */}
-                                    <p className="font-bold text-sm">{successMsg}</p>
+                                    <p>{successMsg}</p>
                                 </div>
                             )}
                             {error && (
-                                <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-                                    <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                                    <p className="font-bold text-sm">{error}</p>
+                                <div className="flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200">
+                                    <HiOutlineExclamationCircle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+                                    <p>{error}</p>
                                 </div>
                             )}
                         </div>
