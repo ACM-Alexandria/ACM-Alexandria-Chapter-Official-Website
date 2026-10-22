@@ -35,6 +35,7 @@ const AdminUserProfileView = () => {
         batch: "",
         linkedinUrl: "",
         profileImageUrl: "",
+        committeeName: "",
         role: "USER",
         seasonPoints: 0,
     });
@@ -77,6 +78,7 @@ const AdminUserProfileView = () => {
                     batch: data.batch || "",
                     linkedinUrl: data.linkedin_url || "",
                     profileImageUrl: data.profile_image_url || "",
+                    committeeName: data.committee_name || "",
                     role: data.role || "USER",
                     seasonPoints: data.season_points ?? 0
                 };
