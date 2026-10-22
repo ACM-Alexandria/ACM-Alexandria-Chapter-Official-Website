@@ -130,8 +130,10 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle standard 401/403 cleanup if the refresh failed or wasn't possible
-    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint && window.location.pathname !== "/login") {
+    // A 401 that survives a token refresh means the session is really gone, so sign out.
+    // A 403 that survives a refresh is a genuine "not allowed" for this user: reject that
+    // one request and leave the session alone.
+    if (error.response?.status === 401 && !isAuthEndpoint && window.location.pathname !== "/login") {
       await tokenService.clearAllTokens();
       window.dispatchEvent(new Event("auth:logout"));
     }
