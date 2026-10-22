@@ -1,9 +1,9 @@
 /* ─── Brand Palette ─── */
 export const BRAND = "#4B98C8";
-export const BRAND_DARK = "#205E85";
+export const BRAND_DARK = "#2C6F99";
 
 export const CHART_COLORS = [
-  "#4B98C8", "#205E85", "#2CBFA1", "#7C5CDB",
+  "#4B98C8", "#2C6F99", "#2CBFA1", "#7C5CDB",
   "#E8724A", "#F5A623", "#D94F7B", "#5A9BD5",
 ];
 

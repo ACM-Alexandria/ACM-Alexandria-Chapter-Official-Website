@@ -79,7 +79,7 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
       {/* Close */}
       <button
         onClick={onClose}
-        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 hover:scale-105 transition-all"
+        className="absolute right-6 top-6 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/80 text-white border border-slate-700/50 shadow-xl hover:bg-slate-900 transition-all"
         aria-label="Close"
       >
         <FiX className="w-6 h-6" />
@@ -101,7 +101,7 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
       {images.length > 1 && (
         <button
           onClick={prev}
-          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 transition-all"
+          className="absolute left-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 transition-all"
           aria-label="Previous"
         >
           <FiChevronLeft className="w-7 h-7" />
@@ -120,7 +120,7 @@ const GalleryLightbox = ({ images, startIndex, onClose }) => {
       {images.length > 1 && (
         <button
           onClick={next}
-          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 hover:scale-105 transition-all"
+          className="absolute right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-lg bg-slate-900/70 text-white border border-slate-700/40 shadow-xl hover:bg-slate-800 transition-all"
           aria-label="Next"
         >
           <FiChevronRight className="w-7 h-7" />
@@ -263,17 +263,14 @@ const GalleryTab = () => {
 
         {/* Loading skeleton */}
         {loading && images.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-            <p className="text-xs font-semibold text-slate-500">Loading gallery...</p>
-          </div>
+          <div aria-busy="true" aria-label="Loading gallery" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : (
           <>
             {/* Image grid */}
             {images.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-center">
                 <FiImage className="w-10 h-10 text-slate-300 mb-3" />
-                <p className="text-sm font-semibold text-slate-500">No images yet</p>
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No images yet</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Upload images below to build the ACM gallery.</p>
               </div>
             ) : (
@@ -287,7 +284,7 @@ const GalleryTab = () => {
                     <img
                       src={img.imageUrl}
                       alt={img.caption || `Gallery ${idx + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:opacity-90"
                     />
                     {/* Hover overlay */}
                     <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -316,7 +313,7 @@ const GalleryTab = () => {
             {batchProgress !== null && (
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg px-4 py-3">
                 <div className="flex items-center justify-between mb-2 gap-2">
-                  <span className="text-xs font-medium text-slate-500">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                     {isUploading
                       ? `Uploading… ${batchProgress.done}/${batchProgress.total}`
                       : batchProgress.failed > 0

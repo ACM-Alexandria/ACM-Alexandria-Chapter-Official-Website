@@ -19,7 +19,7 @@ const AdminTabs = ({ tabs, active, onChange, ariaLabel = "Sections" }) => (
           aria-selected={selected}
           onClick={() => onChange(tab.id)}
           className={`flex-1 sm:flex-none min-w-0 h-9 px-2.5 sm:px-4 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50 ${selected
-            ? "bg-white dark:bg-slate-950 text-[#2C6F99] dark:text-[#7DBBE0] shadow-sm"
+            ? "bg-white dark:bg-slate-950 text-[#2C6F99] dark:text-[#7DBBE0]"
             : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100"}`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}

@@ -127,7 +127,7 @@ const PointsLogSection = ({
                     )}
 
                     <td
-                      className={`px-3 sm:px-5 py-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${rowBorder} ${positive ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
+                      className={`px-3 sm:px-5 py-4 text-right text-base font-semibold tabular-nums whitespace-nowrap ${rowBorder} ${positive ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
                     >
                       {log.points > 0 ? `+${log.points}` : log.points}
                     </td>
@@ -137,7 +137,7 @@ const PointsLogSection = ({
                         <div className="flex items-center justify-end">
                           <button
                             onClick={() => onEditClick(log)}
-                            className="p-1.5 sm:p-2 rounded-md text-slate-500 hover:text-[#2C6F99] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 sm:p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-[#2C6F99] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             aria-label={`Edit "${log.reason}"`}
                             title="Edit"
                           >
@@ -145,7 +145,7 @@ const PointsLogSection = ({
                           </button>
                           <button
                             onClick={() => onDeleteClick(log)}
-                            className="p-1.5 sm:p-2 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                            className="p-1.5 sm:p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                             aria-label={`Delete "${log.reason}"`}
                             title="Delete"
                           >

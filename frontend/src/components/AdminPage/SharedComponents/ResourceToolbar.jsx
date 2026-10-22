@@ -21,7 +21,7 @@ const ResourceToolbar = ({ title, description, onAdd, addLabel = "Add new", sear
     {onSearchChange && (
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-600 dark:text-slate-400">
             <FiSearch className="w-4 h-4" aria-hidden="true" />
           </span>
           <input

@@ -76,7 +76,7 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
             onClick={onClose}
             aria-label="Close"
             title="Close"
-            className="-mr-1.5 -mt-1 w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="-mr-1.5 -mt-1 w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
           >
             <HiX className="w-5 h-5" aria-hidden="true" />
           </button>

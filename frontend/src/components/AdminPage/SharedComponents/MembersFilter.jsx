@@ -63,7 +63,7 @@ const ToggleChip = ({ active, onClick, disabled = false, children }) => (
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all  disabled:cursor-not-allowed disabled:active:scale-100 ${active
+        className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all  disabled:cursor-not-allowed disabled: ${active
             ? "bg-[#4B98C8] border-[#4B98C8] text-white"
             : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
             }`}
@@ -189,7 +189,7 @@ const MembersFilter = ({
             {showRecipientCount && (
                 <div aria-live="polite" className="border-t border-slate-200 pt-3 text-sm dark:border-slate-700">
                     {previewLoading ? (
-                        <span className="text-slate-500 dark:text-slate-400">Estimating recipients...</span>
+                        <span className="text-slate-500 dark:text-slate-400">Estimating recipients…</span>
                     ) : previewError ? (
                         <span className="text-amber-700 dark:text-amber-300">Recipient estimate unavailable: {previewError}</span>
                     ) : (

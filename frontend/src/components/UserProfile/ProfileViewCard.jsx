@@ -54,7 +54,7 @@ const Tag = ({ children }) => (
 export const ProfileHeader = ({ user, profile, actions }) => (
   <header className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
     {/* Cover: soft brand tint with the chapter logo as a watermark */}
-    <div className="relative h-24 sm:h-28 overflow-hidden bg-[#EAF3FA] dark:bg-[#132C3E] border-b border-[#4B98C8]/15">
+    <div className="relative h-24 sm:h-28 overflow-hidden bg-[#E8F2F9] dark:bg-[#16364C] border-b border-[#4B98C8]/15">
       <img
         src={logo}
         alt=""
@@ -69,7 +69,7 @@ export const ProfileHeader = ({ user, profile, actions }) => (
         {actions && <div className="flex items-center gap-2 pb-1">{actions}</div>}
       </div>
 
-      <h1 className="mt-4 text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight break-words [text-wrap:balance]">
+      <h1 className="mt-4 text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight break-words [text-wrap:balance]">
         {profile.name || "Unnamed member"}
       </h1>
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 break-all">{user?.email}</p>

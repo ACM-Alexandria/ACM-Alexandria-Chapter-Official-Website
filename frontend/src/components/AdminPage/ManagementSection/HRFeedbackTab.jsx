@@ -4,6 +4,8 @@ import { getAllHRFeedback } from "../../../services/hrFeedbackService";
 import {
   fieldClass,
   noticeClass,
+  tagBrandClass,
+  tagWarnClass,
 } from "../SharedComponents/adminStyles";
 
 const HRFeedbackTab = () => {
@@ -85,7 +87,7 @@ const HRFeedbackTab = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by content or reporter..."
+              placeholder="Search by content or reporter…"
               className={`${fieldClass} pl-9`}
             />
           </div>
@@ -112,15 +114,10 @@ const HRFeedbackTab = () => {
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <FiLoader className="w-10 h-10 text-[#4B98C8] animate-spin" />
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-              Loading HR Feedback…
-            </p>
-          </div>
+          <div aria-busy="true" aria-label="Loading HR feedback" className="flex flex-col gap-4">{[0, 1, 2].map((i) => (<div key={i} className="h-28 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50">
-            <p className="text-sm font-medium text-slate-500">No feedback items match your criteria.</p>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">No feedback items match your criteria.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
@@ -130,21 +127,17 @@ const HRFeedbackTab = () => {
               return (
                 <div
                   key={item.id}
-                  className={`border rounded-lg p-6 transition-all bg-white dark:bg-slate-900 relative overflow-hidden ${
+                  className={`border rounded-xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
                     isSuggestion
-                      ? "border-blue-100 hover:shadow-md hover:border-blue-200"
-                      : "border-orange-100 hover:shadow-md hover:border-orange-200"
+                      ? "border-slate-200 dark:border-slate-800"
+                      : "border-slate-200 dark:border-slate-800"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <span
-                      className={`text-xs font-semibold   px-2.5 py-1 rounded-full ${
-                        isSuggestion
-                          ? "bg-blue-50 text-blue-600 border border-blue-100"
-                          : "bg-orange-50 text-orange-600 border border-orange-100"
-                      }`}
+                      className={isSuggestion ? tagBrandClass : tagWarnClass}
                     >
-                      {isSuggestion ?" Suggestion" :" Complaint"}
+                      {isSuggestion ? "Suggestion" : "Complaint"}
                     </span>
                     <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                       {formatDate(item.createdAt)}

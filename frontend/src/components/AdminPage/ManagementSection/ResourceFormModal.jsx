@@ -469,7 +469,7 @@ const ResourceForm = ({
               <textarea
                 value={formData.description || ""}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Provide a detailed description..."
+                placeholder="Provide a detailed description…"
                 rows="3"
                 className={`${textareaClass} resize-none`}
               />
@@ -512,7 +512,7 @@ const ResourceForm = ({
                           newQ.splice(idx, 1);
                           setFormData({ ...formData, questions: newQ });
                         }}
-                        className="absolute top-2 right-2 p-1.5 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                        className="absolute top-2 right-2 p-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                       >
                         <FiTrash2 className="w-3.5 h-3.5" />
                       </button>
@@ -521,7 +521,7 @@ const ResourceForm = ({
                         <div className="sm:col-span-8">
                           <input
                             type="text"
-                            placeholder="Question text..."
+                            placeholder="Question text…"
                             required
                             value={q.questionText}
                             onChange={(e) => {
@@ -591,7 +591,7 @@ const ResourceForm = ({
                                   newQ[idx].options.splice(optIdx, 1);
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="p-1.5 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                className="p-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                               >
                                 <FiX className="w-3.5 h-3.5" />
                               </button>

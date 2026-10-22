@@ -21,7 +21,7 @@ import {
 } from "react-icons/fi";
 
 const B = "#4B98C8";
-const BD = "#205E85";
+const BD = "#2C6F99";
 
 const SystemInsightsTab = ({ insights, loading, error, onRefresh }) => {
   const metrics = insights

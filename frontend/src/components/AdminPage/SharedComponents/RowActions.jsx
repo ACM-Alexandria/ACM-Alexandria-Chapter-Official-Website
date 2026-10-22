@@ -54,13 +54,16 @@ const RowActions = ({ actions, name, subtitle, from = "wide" }) => {
         <FiMoreHorizontal className="w-5 h-5" aria-hidden="true" />
       </button>
 
-      <ActionSheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        title={name}
-        subtitle={subtitle}
-        actions={visible}
-      />
+      {/* The sheet renders inside the row, so keep its clicks from reaching the row's own click handler */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <ActionSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          title={name}
+          subtitle={subtitle}
+          actions={visible}
+        />
+      </div>
     </>
   );
 };

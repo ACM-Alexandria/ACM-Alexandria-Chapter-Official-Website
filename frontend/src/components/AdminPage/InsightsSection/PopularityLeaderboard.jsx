@@ -52,10 +52,10 @@ const PopularityLeaderboard = ({ title, icon: Icon, data = [], accentColor = BRA
                   >
                     {i + 1}
                   </span>
-                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate flex-1">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate flex-1">
                     {item.name}
                   </span>
-                  <span className="text-xs font-medium text-slate-500 shrink-0">{item.count}</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0">{item.count}</span>
                 </div>
                 <div className="w-full h-[7px] bg-slate-100 rounded-full overflow-hidden">
                   <div

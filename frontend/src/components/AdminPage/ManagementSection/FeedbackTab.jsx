@@ -20,10 +20,14 @@ import {
 import {
   fieldClass,
   noticeClass,
+  tagDangerClass,
+  tagMutedClass,
+  tagSuccessClass,
+  tagWarnClass,
 } from "../SharedComponents/adminStyles";
 
 const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
+const BRAND_DARK = "#2C6F99";
 
 const FeedbackTab = () => {
   const [items, setItems] = useState([]);
@@ -195,7 +199,7 @@ const FeedbackTab = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, description, or reporter..."
+              placeholder="Search by title, description, or reporter…"
               className={`${fieldClass} pl-9`}
             />
           </div>
@@ -249,7 +253,7 @@ const FeedbackTab = () => {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50">
-            <p className="text-sm font-medium text-slate-500">No feedback items match your criteria.</p>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">No feedback items match your criteria.</p>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Try relaxing filters or search terms.</p>
           </div>
         ) : (
@@ -262,12 +266,12 @@ const FeedbackTab = () => {
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className={`border rounded-lg p-6 transition-all bg-white dark:bg-slate-900 relative overflow-hidden ${
+                  className={`border rounded-xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
                     isDone
                       ? "border-slate-150 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/30 opacity-75"
                       : isFeature
-                      ? "border-emerald-100 hover:shadow-md hover:border-emerald-200"
-                      : "border-rose-100 hover:shadow-md hover:border-rose-200"
+                      ? "border-slate-200 dark:border-slate-800"
+                      : "border-slate-200 dark:border-slate-800"
                   }`}
                 >
                   {/* Status & Type Badges Row */}
@@ -275,22 +279,14 @@ const FeedbackTab = () => {
                     <div className="flex items-center gap-2.5">
                       {/* Type Badge */}
                       <span
-                        className={`text-xs font-semibold   px-2.5 py-1 rounded-full ${
-                          isFeature
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                            : "bg-rose-50 text-rose-600 border border-rose-100"
-                        }`}
+                        className={isFeature ? tagSuccessClass : tagDangerClass}
                       >
-                        {isFeature ?" Feature" :" Bug"}
+                        {isFeature ? "Feature" : "Bug"}
                       </span>
 
                       {/* Status Badge */}
                       <span
-                        className={`text-xs font-semibold   px-2.5 py-1 rounded-full ${
-                          isDone
-                            ? "bg-slate-100 text-slate-500 border border-slate-200"
-                            : "bg-amber-50 text-amber-600 border border-amber-200 animate-pulse"
-                        }`}
+                        className={isDone ? tagMutedClass : tagWarnClass}
                       >
                         {isDone ? "Done" : "New"}
                       </span>
@@ -307,7 +303,7 @@ const FeedbackTab = () => {
                     <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">
                       {item.name}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed whitespace-pre-wrap">
                       {item.description}
                     </p>
                   </div>
@@ -331,7 +327,7 @@ const FeedbackTab = () => {
                             <img
                               src={url}
                               alt="Attached Bug screenshot"
-                              className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                              className="w-full h-full object-cover transition-transform group-hover:opacity-90"
                             />
                             <div className="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
                               <FiEye className="w-3.5 h-3.5 text-white" />

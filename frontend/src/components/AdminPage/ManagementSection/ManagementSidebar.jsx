@@ -51,7 +51,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
             {CurrentIcon && <CurrentIcon className="w-4 h-4 shrink-0 text-[#2C6F99] dark:text-[#7DBBE0]" aria-hidden="true" />}
             <span className="truncate">{current?.label}</span>
           </span>
-          <FiChevronDown className={`w-4 h-4 shrink-0 text-slate-500 transition-transform ${pickerOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+          <FiChevronDown className={`w-4 h-4 shrink-0 text-slate-600 dark:text-slate-400 transition-transform ${pickerOpen ? "rotate-180" : ""}`} aria-hidden="true" />
         </button>
 
         {pickerOpen && (

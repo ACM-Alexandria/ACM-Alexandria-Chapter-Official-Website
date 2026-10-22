@@ -179,7 +179,7 @@ const RegistrationPanelModal = ({
                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                   Open Calls History
                 </span>
-                <span className="text-xs font-semibold text-slate-500">
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {calls.length} cycles recorded
                 </span>
               </div>
@@ -187,7 +187,7 @@ const RegistrationPanelModal = ({
               {callsLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
-                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Loading calls...</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Loading calls…</p>
                 </div>
               ) : calls.length === 0 ? (
                 <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
@@ -238,7 +238,7 @@ const RegistrationPanelModal = ({
                             )}
                             <button
                               onClick={() => handleSelectCall(call)}
-                              className="px-3 py-1.5 bg-[#4B98C8]/10 hover:bg-[#4B98C8]/20 dark:hover:bg-[#4B98C8]/30 text-[#205E85] dark:text-[#4B98C8] rounded-lg font-medium text-xs transition-all"
+                              className="px-3 py-1.5 bg-[#4B98C8]/10 hover:bg-[#4B98C8]/20 dark:hover:bg-[#4B98C8]/30 text-[#2C6F99] dark:text-[#4B98C8] rounded-lg font-medium text-xs transition-all"
                             >
                               Details
                             </button>
@@ -256,17 +256,17 @@ const RegistrationPanelModal = ({
               {isCommittee && (
                 <button
                   onClick={() => setSelectedCall(null)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#4B98C8] transition-colors pb-1 w-fit"
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#4B98C8] transition-colors pb-1 w-fit"
                 >
                   <FiArrowLeft className="w-4 h-4" /> Back to calls history
                 </button>
               )}
 
               {/* Google Sheets Integration Card */}
-              <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50/20 to-slate-50 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:shadow-sm transition-all duration-300">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200/50'} shrink-0  border`}>
+                    <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'} shrink-0  border`}>
                       <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z" />
                       </svg>
@@ -325,7 +325,7 @@ const RegistrationPanelModal = ({
                     <button
                       onClick={currentSyncHandler}
                       disabled={currentSyncLoading}
-                      className="flex-1 sm:flex-initial px-5 py-2.5 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+                      className="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium text-white bg-[#4B98C8] hover:bg-[#3d7da6] transition-colors"
                     >
                       {currentSyncLoading ? (
                         <>
@@ -355,8 +355,8 @@ const RegistrationPanelModal = ({
                   {/* Stat Overview Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Total Registrations */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-sky-50 text-[#4B98C8]">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]">
                         <FiUsers className="w-6 h-6" />
                       </div>
                       <div>
@@ -370,7 +370,7 @@ const RegistrationPanelModal = ({
                     </div>
 
                     {/* University Affiliation */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 hover:shadow-md transition-shadow flex flex-col justify-center">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex flex-col justify-center">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                           University Classification

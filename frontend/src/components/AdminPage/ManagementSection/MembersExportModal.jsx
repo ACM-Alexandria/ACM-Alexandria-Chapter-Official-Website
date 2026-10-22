@@ -161,7 +161,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
           <div className="relative overflow-hidden bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg p-5 space-y-4">
             <div className="flex items-start gap-4">
               <div
-                className={`p-3 rounded-lg ${lastExport ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200/50"} shrink-0  border`}
+                className={`p-3 rounded-lg ${lastExport ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700"} shrink-0  border`}
               >
                 <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z" />
@@ -256,7 +256,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                     {associationCounts.map(([name, count]) => (
                       <span
                         key={name}
-                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#4B98C8]/10 text-[#205E85] dark:text-[#4B98C8]"
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#4B98C8]"
                       >
                         {name}
                         <span className="text-slate-500 dark:text-slate-400">{count}</span>
@@ -289,7 +289,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                 className={`${primaryButtonClass} flex-1 sm:flex-initial ${exporting ? "cursor-wait" : ""}`}
               >
                 <FiRefreshCw className={`w-4 h-4 ${exporting ? "animate-spin" : ""}`} aria-hidden="true" />
-                {exporting ? "Generating Sheet..." : "Export to Sheets"}
+                {exporting ? "Generating sheet…" : "Export to Sheets"}
               </button>
             </div>
           </div>

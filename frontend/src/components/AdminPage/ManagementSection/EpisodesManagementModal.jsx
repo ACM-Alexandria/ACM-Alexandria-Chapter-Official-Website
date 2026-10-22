@@ -236,7 +236,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4B98C8] hover:bg-[#205E85] text-white rounded-lg text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4B98C8] hover:bg-[#2C6F99] text-white rounded-lg text-xs font-medium transition-colors"
                 >
                   <FiPlus className="w-3.5 h-3.5" />
                   Add Episode
@@ -266,14 +266,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {episodesPage.content.map((ep) => (
                         <tr key={ep.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors">
-                          <td className="py-2.5 pl-2 text-slate-500 font-medium">Ep. {ep.episodeNumber}</td>
+                          <td className="py-2.5 pl-2 text-slate-600 dark:text-slate-400 font-medium">Ep. {ep.episodeNumber}</td>
                           <td className="py-2.5">
                             <div className="flex items-center gap-2">
                               <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-slate-700 shrink-0" />
                               <span className="font-semibold text-slate-800 dark:text-slate-100 truncate max-w-[150px]">{ep.title}</span>
                             </div>
                           </td>
-                          <td className="py-2.5 text-slate-500">
+                          <td className="py-2.5 text-slate-600 dark:text-slate-400">
                             <div>Host: <span className="text-slate-700 dark:text-slate-200 font-medium">{ep.host || "N/A"}</span></div>
                             <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Guest: <span className="font-medium">{ep.guest || "N/A"}</span></div>
                           </td>
@@ -439,7 +439,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     {uploading ? (
                       <>
                         <FiLoader className="w-6 h-6 text-[#4B98C8] animate-spin mb-1" />
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Uploading to Cloudinary...</p>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Uploading to Cloudinary…</p>
                       </>
                     ) : (
                       <>
