@@ -167,6 +167,20 @@ class HrCommitteeReadAccessIntegrationTest {
     }
 
     @Test
+    @DisplayName("HR member can read a member profile")
+    void hrMemberCanReadMemberProfile() throws Exception {
+        mockMvc.perform(get("/api/v1/users/admin/" + hrMember.getId()).header("Authorization", "Bearer " + hrMemberToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Member of another committee cannot read member profiles")
+    void otherCommitteeMemberCannotReadMemberProfile() throws Exception {
+        mockMvc.perform(get("/api/v1/users/admin/" + hrMember.getId()).header("Authorization", "Bearer " + otherCommitteeMemberToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("Unauthenticated requests are still rejected")
     void unauthenticatedIsRejected() throws Exception {
         mockMvc.perform(get("/api/v1/admin/users")).andExpect(status().isForbidden());
