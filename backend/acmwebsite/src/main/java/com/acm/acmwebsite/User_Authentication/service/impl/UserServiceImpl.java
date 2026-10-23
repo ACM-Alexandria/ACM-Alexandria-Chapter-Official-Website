@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Map<String, Object> getUserAuthDetails(String email) {
     User user = userRepository.findByEmail(email.trim().toLowerCase())
         .orElseThrow(() -> new UserNotFoundException("User session invalid"));

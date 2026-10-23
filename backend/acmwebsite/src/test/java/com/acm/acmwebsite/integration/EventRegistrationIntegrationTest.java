@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -164,13 +163,12 @@ class EventRegistrationIntegrationTest {
                     .build();
 
             // 1. REGISTRATION CLOSED GUARD
-            assertThatThrownBy(() ->
-                    mockMvc.perform(post("/api/events/" + eventId + "/register")
+            mockMvc.perform(post("/api/events/" + eventId + "/register")
                             .header("Authorization", "Bearer " + attendeeToken)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(registrationDto))))
-                    .hasRootCauseInstanceOf(IllegalArgumentException.class)
-                    .hasRootCauseMessage("Registration is closed for this event.");
+                            .content(objectMapper.writeValueAsString(registrationDto)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("Registration is closed for this event."));
 
             assertFalse(eventRegistrationRepository.existsByUserIdAndEventId(userId, eventId));
 

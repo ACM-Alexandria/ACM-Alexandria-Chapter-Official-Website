@@ -49,8 +49,9 @@ export const loginWithGoogle = async (credential) => {
 
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const serverMessage = error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error("Google Sign-In failed. Please try again.");
   }
@@ -66,8 +67,9 @@ export const register = async (userData) => {
     const response = await api.post("/api/v1/auth/register", userData);
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const serverMessage = error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error("An error occurred during registration. Please try again.");
   }
@@ -108,8 +110,9 @@ export const forgotPassword = async (email) => {
     const response = await api.post("/api/v1/auth/forgot-password", { email });
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const serverMessage = error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error(
       "An error occurred while sending reset link. Please try again.",
@@ -130,8 +133,9 @@ export const resetPassword = async (data) => {
     });
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const serverMessage = error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error(
       "An error occurred while resetting password. Please try again.",
@@ -149,7 +153,8 @@ export const confirmEmail = async (token) => {
     return response.data;
   } catch (error) {
     const confirmationError = new Error(
-      error.response?.data?.error ||
+      error.response?.data?.message ||
+        error.response?.data?.error ||
         "Email confirmation failed. The link may be invalid or expired.",
     );
 
@@ -167,8 +172,9 @@ export const resendConfirmationEmail = async (email) => {
     const response = await api.post("/api/v1/auth/resend-confirmation-email", { email });
     return response.data;
   } catch (error) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
+    const serverMessage = error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      throw new Error(serverMessage);
     }
     throw new Error(
       "An error occurred while sending confirmation email. Please try again.",

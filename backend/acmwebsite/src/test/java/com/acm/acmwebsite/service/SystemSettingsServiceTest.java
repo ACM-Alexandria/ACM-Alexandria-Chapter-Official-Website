@@ -61,7 +61,7 @@ public class SystemSettingsServiceTest {
 
     @Test
     void setEmailsEnabled_whenRowAlreadyExists_shouldUpdateExisting() {
-        SystemSettings existing = new SystemSettings(SystemSettings.SINGLETON_ID, false);
+        SystemSettings existing = new SystemSettings(SystemSettings.SINGLETON_ID, false, null);
         when(systemSettingsRepository.findById(SystemSettings.SINGLETON_ID)).thenReturn(Optional.of(existing));
 
         assertTrue(systemSettingsService.setEmailsEnabled(true));
