@@ -23,13 +23,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BoardArchiveController.class)
@@ -44,17 +46,18 @@ class BoardArchiveControllerTest {
 
     @Test
     void anonymousRequestsUseTheExistingForbiddenResponse() throws Exception {
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content("{\"season\":2026}"))
-                .andExpect(status().isForbidden());
+        for (var request : adminRequests()) {
+            mvc.perform(request).andExpect(status().isForbidden());
+        }
         verifyNoInteractions(service);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ACM_MEMBER", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
     void rejectsEveryNonSuperAdminRole(String role) throws Exception {
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content("{\"season\":2026}")
-                        .with(user("visitor").roles(role)))
-                .andExpect(status().isForbidden());
+        for (var request : adminRequests()) {
+            mvc.perform(request.with(user("visitor").roles(role))).andExpect(status().isForbidden());
+        }
         verifyNoInteractions(service);
     }
 
@@ -102,5 +105,19 @@ class BoardArchiveControllerTest {
         } finally {
             SecurityContextHolder.clearContext();
         }
+    }
+    private List<MockHttpServletRequestBuilder> adminRequests() {
+        List<MockHttpServletRequestBuilder> requests = new ArrayList<>();
+        requests.add(post(URL).contentType(MediaType.APPLICATION_JSON).content("{\"season\":2026}"));
+        requests.add(get("/api/admin/boards/current-season"));
+        requests.add(get("/api/admin/boards/past/seasons"));
+        for (String resource : List.of("high-board", "committees", "committee-board", "clubs", "club-board")) {
+            String path = "/api/admin/boards/past/" + resource;
+            requests.add(get(path).param("season", "2025"));
+            requests.add(post(path).contentType(MediaType.APPLICATION_JSON).content("{}"));
+            requests.add(put(path + "/1").contentType(MediaType.APPLICATION_JSON).content("{}"));
+            requests.add(delete(path + "/1"));
+        }
+        return requests;
     }
 }
