@@ -322,7 +322,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && q.options && q.options.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
-                              <span key={oIdx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-md">
+                              <span key={oIdx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-lg">
                                 {opt}
                               </span>
                             ))}

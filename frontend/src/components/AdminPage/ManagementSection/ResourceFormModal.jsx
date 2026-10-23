@@ -512,7 +512,7 @@ const ResourceForm = ({
                           newQ.splice(idx, 1);
                           setFormData({ ...formData, questions: newQ });
                         }}
-                        className="absolute top-2 right-2 p-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                        className="absolute top-2 right-2 p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                       >
                         <FiTrash2 className="w-3.5 h-3.5" />
                       </button>
@@ -529,7 +529,7 @@ const ResourceForm = ({
                               newQ[idx].questionText = e.target.value;
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
                           />
                         </div>
                         <div className="sm:col-span-4">
@@ -543,7 +543,7 @@ const ResourceForm = ({
                               }
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors cursor-pointer"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors cursor-pointer"
                           >
                             <option value="TEXT">Text</option>
                             <option value="MULTIPLE_CHOICE">Multiple Choice</option>
@@ -582,7 +582,7 @@ const ResourceForm = ({
                                   newQ[idx].options[optIdx] = e.target.value;
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="flex-1 min-w-0 h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-md focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
+                                className="flex-1 min-w-0 h-9 px-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
                               />
                               <button
                                 type="button"
@@ -591,7 +591,7 @@ const ResourceForm = ({
                                   newQ[idx].options.splice(optIdx, 1);
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="p-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                               >
                                 <FiX className="w-3.5 h-3.5" />
                               </button>

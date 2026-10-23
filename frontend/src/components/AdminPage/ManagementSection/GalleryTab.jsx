@@ -263,7 +263,7 @@ const GalleryTab = () => {
 
         {/* Loading skeleton */}
         {loading && images.length === 0 ? (
-          <div aria-busy="true" aria-label="Loading gallery" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
+          <div aria-busy="true" aria-label="Loading gallery" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : (
           <>
             {/* Image grid */}
@@ -295,7 +295,7 @@ const GalleryTab = () => {
                       type="button"
                       onClick={(e) => { e.stopPropagation(); handleDelete(img, idx); }}
                       disabled={deletingId === img.id || isUploading}
-                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md transition-all active:scale-90 disabled:opacity-40"
+                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-lg transition-all active:scale-90 disabled:opacity-40"
                       title="Delete image"
                     >
                       {deletingId === img.id ? (

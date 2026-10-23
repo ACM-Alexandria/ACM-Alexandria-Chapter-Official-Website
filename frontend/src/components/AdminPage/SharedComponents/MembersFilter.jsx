@@ -39,7 +39,7 @@ const CheckboxTile = ({ checked, onChange, label, hint }) => (
             }`}
     >
         <div
-            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked
+            className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${checked
                 ? "bg-[#4B98C8] border-[#4B98C8]"
                 : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 group-hover/opt:border-[#4B98C8]/60"
                 }`}

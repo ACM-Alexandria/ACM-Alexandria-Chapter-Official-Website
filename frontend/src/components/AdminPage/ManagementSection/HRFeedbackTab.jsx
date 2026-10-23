@@ -114,7 +114,7 @@ const HRFeedbackTab = () => {
         )}
 
         {loading ? (
-          <div aria-busy="true" aria-label="Loading HR feedback" className="flex flex-col gap-4">{[0, 1, 2].map((i) => (<div key={i} className="h-28 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 animate-pulse motion-reduce:animate-none" />))}</div>
+          <div aria-busy="true" aria-label="Loading HR feedback" className="flex flex-col gap-4">{[0, 1, 2].map((i) => (<div key={i} className="h-28 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50">
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">No feedback items match your criteria.</p>
@@ -127,7 +127,7 @@ const HRFeedbackTab = () => {
               return (
                 <div
                   key={item.id}
-                  className={`border rounded-xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
+                  className={`border rounded-2xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
                     isSuggestion
                       ? "border-slate-200 dark:border-slate-800"
                       : "border-slate-200 dark:border-slate-800"

@@ -42,7 +42,7 @@ const ActionSheet = ({ open, onClose, title, subtitle, actions }) => {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-md text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
           >
             <FiX className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -65,7 +65,7 @@ const ActionSheet = ({ open, onClose, title, subtitle, actions }) => {
                     : "text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
                 >
                   <span
-                    className={`w-9 h-9 shrink-0 rounded-md flex items-center justify-center ${action.danger
+                    className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center ${action.danger
                       ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400"
                       : "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]"}`}
                   >

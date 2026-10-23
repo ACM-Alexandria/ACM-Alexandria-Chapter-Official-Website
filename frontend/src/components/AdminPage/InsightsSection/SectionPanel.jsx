@@ -19,10 +19,10 @@ const STATUS_TONES = {
   neutral: "bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700",
 };
 
-const cardClass = "rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
+const cardClass = "rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
 
 const Tile = ({ kpi, tone, index }) => (
-  <div className={`${tone.tile} rounded-xl p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>
+  <div className={`${tone.tile} rounded-2xl p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>
     <span className={`text-sm font-medium truncate ${tone.label}`}>{kpi.label}</span>
     <span className={`text-3xl font-semibold tabular-nums ${tone.value}`}><AnimatedNumber value={kpi.value} /></span>
     {kpi.inPeriod !== null && kpi.inPeriod !== undefined && (
@@ -42,7 +42,7 @@ const RankList = ({ ranking, index }) => {
         <ol className="flex flex-col gap-3">
           {ranking.items.map((item, i) => (
             <li key={`${item.label}-${i}`} className="flex items-center gap-3">
-              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
                 {i + 1}
               </span>
               <span className="min-w-0 flex-1 flex flex-col gap-1">

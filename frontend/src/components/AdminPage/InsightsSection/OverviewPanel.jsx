@@ -6,7 +6,7 @@ import AnimatedNumber from "./AnimatedNumber";
 const OPEN_ICONS = { committeeCall: FiLayers, club: FiAward, program: FiBookOpen, event: FiCalendar };
 const OPEN_PREVIEW = 6;
 
-const cardClass = "rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
+const cardClass = "rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
 
 const KpiCard = ({ kpi, index }) => (
   <div className={`${cardClass} p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>

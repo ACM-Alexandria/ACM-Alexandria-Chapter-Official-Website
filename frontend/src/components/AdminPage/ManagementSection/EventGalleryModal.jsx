@@ -255,7 +255,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
           {/* Body */}
           <div className="space-y-6">
             {loadingEvent ? (
-              <div aria-busy="true" aria-label="Loading gallery images" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
+              <div aria-busy="true" aria-label="Loading gallery images" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
             ) : (
               <>
                 {/* Gallery grid */}
@@ -292,7 +292,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
                             type="button"
                             onClick={(e) => { e.stopPropagation(); handleRemoveImage(idx); }}
                             disabled={isUploading || saving}
-                            className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-md transition-all active:scale-90 disabled:opacity-40"
+                            className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-red-600/90 hover:bg-red-700 text-white rounded-lg transition-all active:scale-90 disabled:opacity-40"
                             title="Remove image"
                           >
                             <FiTrash2 className="w-3 h-3" />

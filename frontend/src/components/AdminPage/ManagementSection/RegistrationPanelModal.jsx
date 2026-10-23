@@ -263,7 +263,7 @@ const RegistrationPanelModal = ({
               )}
 
               {/* Google Sheets Integration Card */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'} shrink-0  border`}>
@@ -325,7 +325,7 @@ const RegistrationPanelModal = ({
                     <button
                       onClick={currentSyncHandler}
                       disabled={currentSyncLoading}
-                      className="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium text-white bg-[#4B98C8] hover:bg-[#3d7da6] transition-colors"
+                      className="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-white bg-[#2A7AB0] hover:bg-[#23699A] transition-colors"
                     >
                       {currentSyncLoading ? (
                         <>
@@ -355,7 +355,7 @@ const RegistrationPanelModal = ({
                   {/* Stat Overview Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Total Registrations */}
-                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-center gap-4">
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]">
                         <FiUsers className="w-6 h-6" />
                       </div>
@@ -370,7 +370,7 @@ const RegistrationPanelModal = ({
                     </div>
 
                     {/* University Affiliation */}
-                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex flex-col justify-center">
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex flex-col justify-center">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                           University Classification

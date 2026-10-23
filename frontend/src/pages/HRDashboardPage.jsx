@@ -106,10 +106,10 @@ const HRDashboardPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
+        <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
             <Navbar activeSection="" />
 
-            <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
+            <main className="admin-ui pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
                 <AdminPageHeader title="Dashboard" description="Human Resources" />
 
                 {!emailsEnabled && (
@@ -134,7 +134,7 @@ const HRDashboardPage = () => {
                             isHRMode={HRMode}
                         />
 
-                        <div className="flex-1 w-full min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px]">
+                        <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px]">
                             {activeResourceTab !== 'users' && (
                                 <ResourceToolbar
                                     title={activeSection?.label || 'Resources'}
@@ -151,7 +151,7 @@ const HRDashboardPage = () => {
                 )}
             </main>
 
-            <ResourceDialogs dialogs={dialogs} />
+            <div className="admin-ui"><ResourceDialogs dialogs={dialogs} /></div>
         </div>
     );
 };

@@ -45,7 +45,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
           onClick={() => setPickerOpen((open) => !open)}
           aria-haspopup="listbox"
           aria-expanded={pickerOpen}
-          className="w-full h-11 px-3 flex items-center justify-between gap-3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+          className="w-full h-11 px-3 flex items-center justify-between gap-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
         >
           <span className="flex items-center gap-2.5 min-w-0">
             {CurrentIcon && <CurrentIcon className="w-4 h-4 shrink-0 text-[#2C6F99] dark:text-[#7DBBE0]" aria-hidden="true" />}
@@ -82,7 +82,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
       </div>
 
       {/* Desktop: vertical list */}
-      <ul className="hidden lg:flex flex-col gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2">
+      <ul className="hidden lg:flex flex-col gap-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2">
         {visibleTabs.map((tab) => {
           const Icon = tab.icon;
           const selected = tab.id === current?.id;
@@ -92,8 +92,8 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
                 type="button"
                 onClick={() => select(tab.id)}
                 aria-current={selected ? "page" : undefined}
-                className={`w-full h-10 px-3 flex items-center gap-3 rounded-md text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 ${selected
-                  ? "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]"
+                className={`w-full h-10 px-3 flex items-center gap-3 rounded-lg text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 ${selected
+                  ? "bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0]"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
               >
                 {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}

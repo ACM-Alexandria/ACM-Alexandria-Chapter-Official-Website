@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FiSearch, FiChevronLeft, FiChevronRight, FiShield, FiCheck, FiUser, FiFileText, FiLoader, FiPlus } from "react-icons/fi";
 import { HiStar } from "react-icons/hi";
 import ModalShell from "../SharedComponents/ModalShell";
-import { labelClass, hintClass, primaryButtonClass, secondaryButtonClass, noticeClass } from "../SharedComponents/adminStyles";
+import { labelClass, hintClass, primaryButtonClass, secondaryButtonClass, noticeClass, tableClass, tableFrameClass, tableHeadRowClass, rowBorderClass } from "../SharedComponents/adminStyles";
 import { searchUsers, assignUser } from "../../../services/adminService";
 import { addUserPointsLog } from "../../../services/pointsLogService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
@@ -43,7 +43,7 @@ const UserAvatar = ({ item }) => {
 
 // Brand-tinted tag, same look as the role/committee tags on the profile page
 const Tag = ({ children }) => (
-  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#4B98C8]/10 border border-[#4B98C8]/30 text-[#2C6F99] dark:text-[#7DBBE0] text-xs font-semibold whitespace-nowrap">
+  <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0] text-xs font-semibold whitespace-nowrap">
     {children}
   </span>
 );
@@ -56,10 +56,10 @@ const RoleTags = ({ user }) => (
 );
 
 const fieldClass =
-  "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
+  "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
 
 const pageButtonClass =
-  "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
@@ -288,7 +288,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
         </div>
         <button
           onClick={() => setExportModalOpen(true)}
-          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-md bg-[#4B98C8] hover:bg-[#3d7da6] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
+          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2A7AB0] hover:bg-[#23699A] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
         >
           <FiFileText className="w-4 h-4" aria-hidden="true" /> Export
         </button>
@@ -361,11 +361,11 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden @container">
+      <div className={tableFrameClass}>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-0">
+          <table className={tableClass}>
             <thead>
-              <tr className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60">
+              <tr className={tableHeadRowClass}>
                 <th scope="col" className="px-4 sm:px-5 py-3 font-medium">User</th>
                 <th scope="col" className="hidden @min-[900px]:table-cell px-5 py-3 font-medium">Role</th>
                 <th scope="col" className="hidden @min-[560px]:table-cell w-24 px-5 py-3 font-medium text-right">Points</th>
@@ -375,8 +375,8 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             <tbody>
               {loading ? (
                 [0, 1, 2, 3, 4].map((i) => (
-                  <tr key={i} className="animate-pulse motion-reduce:animate-none" aria-hidden="true">
-                    <td className="px-4 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                  <tr key={i} className="group animate-pulse motion-reduce:animate-none" aria-hidden="true">
+                    <td className={`px-4 sm:px-5 py-4 ${rowBorderClass}`}>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800" />
                         <div className="space-y-2">
@@ -385,13 +385,13 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                         </div>
                       </div>
                     </td>
-                    <td className="hidden @min-[900px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
                       <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
                     </td>
-                    <td className="hidden @min-[560px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <td className={`hidden @min-[560px]:table-cell px-5 py-4 ${rowBorderClass}`}>
                       <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-slate-800" />
                     </td>
-                    <td className="px-3 sm:px-5 py-4 border-b border-slate-200 dark:border-slate-800" />
+                    <td className={`px-3 sm:px-5 py-4 ${rowBorderClass}`} />
                   </tr>
                 ))
               ) : users.length === 0 ? (
@@ -406,9 +406,9 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                   <tr
                     key={u.id}
                     onClick={() => viewProfile(u)}
-                    className="group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                    className="group cursor-pointer"
                   >
-                    <td className="px-4 sm:px-5 py-4 w-full max-w-0 @min-[900px]:w-auto @min-[900px]:max-w-none border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className={`px-4 sm:px-5 py-4 w-full max-w-0 @min-[900px]:w-auto @min-[900px]:max-w-none ${rowBorderClass}`}>
                       <div className="flex items-center gap-3 min-w-0">
                         <UserAvatar item={u} />
                         <div className="min-w-0">
@@ -435,16 +435,16 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                         </div>
                       </div>
                     </td>
-                    <td className="hidden @min-[900px]:table-cell px-5 py-4 border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
                       <RoleTags user={u} />
                     </td>
-                    <td className="hidden @min-[560px]:table-cell px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className={`hidden @min-[560px]:table-cell px-5 py-4 text-right whitespace-nowrap ${rowBorderClass}`}>
                       <span className="inline-flex items-center justify-end gap-1 text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
                         <HiStar className="w-4 h-4 text-yellow-400" aria-hidden="true" />
                         {u.season_points ?? u.seasonPoints ?? u.points ?? 0}
                       </span>
                     </td>
-                    <td className="px-3 sm:px-5 py-4 text-right whitespace-nowrap border-b border-slate-200 dark:border-slate-800 group-last:border-b-0">
+                    <td className={`px-3 sm:px-5 py-4 text-right whitespace-nowrap ${rowBorderClass}`}>
                       <RowActions
                         from="compact"
                         name={u.name || "user"}
@@ -548,7 +548,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
           </div>
         )}
 
-        <div className="mb-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
           <p className={hintClass}>Target user</p>
           <p className="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100 break-words">{selectedUser?.name}</p>
           <p className={`${hintClass} break-all`}>{selectedUser?.email}</p>
@@ -654,7 +654,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
             {renderConfirmationSummary()}
           </div>
         )}

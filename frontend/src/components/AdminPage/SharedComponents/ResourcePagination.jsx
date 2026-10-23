@@ -2,7 +2,7 @@ import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const pageButtonClass =
-  "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 // Previous / next controls for a Spring page ({ number, totalPages }). Renders nothing for lists without paging.
 const ResourcePagination = ({ pageInfo, onPageChange }) => {

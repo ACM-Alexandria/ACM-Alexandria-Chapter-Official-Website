@@ -99,7 +99,7 @@ const EmailPreviewModal = ({ composer }) => {
                         title={`Email preview: ${subject}`}
                         srcDoc={emailHtml}
                         sandbox=""
-                        className="h-[420px] sm:h-[620px] w-full rounded-md border border-slate-200 bg-white dark:border-slate-700"
+                        className="h-[420px] sm:h-[620px] w-full rounded-lg border border-slate-200 bg-white dark:border-slate-700"
                     />
                 </div>
             </ModalShell>

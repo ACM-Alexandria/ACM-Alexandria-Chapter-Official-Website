@@ -56,7 +56,7 @@ const ModalShell = ({
         aria-modal="true"
         aria-labelledby={titleId}
         onSubmit={onSubmit}
-        className={`w-full ${SIZES[size] || SIZES.md} max-h-[92dvh] sm:max-h-[90vh] flex flex-col rounded-t-2xl sm:rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[sheetUp_0.25s_ease-out] sm:animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none`}
+        className={`w-full ${SIZES[size] || SIZES.md} max-h-[92dvh] sm:max-h-[90vh] flex flex-col rounded-t-2xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[sheetUp_0.25s_ease-out] sm:animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none`}
       >
         <div className="px-5 py-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
           <div className="min-w-0">
@@ -69,7 +69,7 @@ const ModalShell = ({
             disabled={busy}
             aria-label="Close"
             title="Close"
-            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
           >
             <FiX className="w-5 h-5" aria-hidden="true" />
           </button>

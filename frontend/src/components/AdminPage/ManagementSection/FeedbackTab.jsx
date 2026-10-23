@@ -266,7 +266,7 @@ const FeedbackTab = () => {
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className={`border rounded-xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
+                  className={`border rounded-2xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
                     isDone
                       ? "border-slate-150 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/30 opacity-75"
                       : isFeature

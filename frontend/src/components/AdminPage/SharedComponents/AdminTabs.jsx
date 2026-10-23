@@ -1,12 +1,13 @@
 import React from "react";
 
-// Segmented tab bar. Icons plus short labels on phones so the tabs always fit.
+// Full-width segmented track: one grey track holding equal segments; the selected segment lifts up white.
+// Icons plus short labels on phones so the segments always fit.
 // tabs: [{ id, label, shortLabel?, icon }]
 const AdminTabs = ({ tabs, active, onChange, ariaLabel = "Sections" }) => (
   <div
     role="tablist"
     aria-label={ariaLabel}
-    className="flex w-full sm:w-fit gap-1 p-1 rounded-lg bg-slate-200/70 dark:bg-slate-800/70"
+    className="flex w-full gap-1 p-1 rounded-xl bg-[#E4ECF4] dark:bg-slate-800/70"
   >
     {tabs.map((tab) => {
       const Icon = tab.icon;
@@ -18,9 +19,9 @@ const AdminTabs = ({ tabs, active, onChange, ariaLabel = "Sections" }) => (
           role="tab"
           aria-selected={selected}
           onClick={() => onChange(tab.id)}
-          className={`flex-1 sm:flex-none min-w-0 h-9 px-2.5 sm:px-4 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50 ${selected
-            ? "bg-white dark:bg-slate-950 text-[#2C6F99] dark:text-[#7DBBE0]"
-            : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100"}`}
+          className={`flex-1 min-w-0 h-10 px-2.5 sm:px-4 inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50 ${selected
+            ? "bg-white dark:bg-slate-900 text-[#1D6A9C] dark:text-[#7DBBE0] shadow-sm"
+            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"}`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
           <span className="truncate hidden sm:inline">{tab.label}</span>

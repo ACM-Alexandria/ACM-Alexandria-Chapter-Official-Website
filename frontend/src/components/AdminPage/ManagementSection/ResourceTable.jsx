@@ -27,6 +27,8 @@ import ModalShell from "../SharedComponents/ModalShell";
 import { secondaryButtonClass } from "../SharedComponents/adminStyles";
 import {
   panelClass,
+  tableClass,
+  tableFrameClass,
   rowBorderClass,
   tableHeadRowClass,
   tagMutedClass,
@@ -191,7 +193,7 @@ const ResourceRow = ({
 
   return (
     <>
-    <tr className="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+    <tr className="group">
       {/* Details */}
       <td className={`px-4 sm:px-5 py-4 w-full max-w-0 @min-[900px]:w-auto @min-[900px]:max-w-none ${rowBorderClass}`}>
         <div className="flex items-center gap-3 min-w-0">
@@ -243,7 +245,7 @@ const ResourceRow = ({
                 type="button"
                 onClick={() => onToggleCall(item)}
                 disabled={loading}
-                className={`h-7 px-2.5 shrink-0 whitespace-nowrap rounded-md border text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${open
+                className={`h-7 px-2.5 shrink-0 whitespace-nowrap rounded-lg border text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${open
                   ? "border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                   : "border-[#4B98C8]/40 text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/10"}`}
               >
@@ -333,7 +335,7 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
 
   if (filteredItems.length === 0) {
     return (
-      <div className="py-14 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+      <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
         <p className="text-sm font-medium text-slate-900 dark:text-slate-100">No records found</p>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Try a different search, or add a new one.</p>
       </div>
@@ -341,9 +343,9 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
   }
 
   return (
-    <div className={`${panelClass} overflow-hidden @container`}>
+    <div className={tableFrameClass}>
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-0">
+        <table className={tableClass}>
           <thead>
             <tr className={tableHeadRowClass}>
               <th scope="col" className="px-4 sm:px-5 py-3 font-medium">Details</th>
