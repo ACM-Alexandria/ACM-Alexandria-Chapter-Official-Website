@@ -5,14 +5,13 @@ import useThemedDialog from "../../../hooks/useThemedDialog";
 import { Highlight } from "../../ThemedDialog";
 import ModalShell from "../SharedComponents/ModalShell";
 import { primaryButtonClass, secondaryButtonClass } from "../SharedComponents/adminStyles";
+import { RESOURCE_TYPES } from "../../../constants/resourceTypes";
 
 const errorMessage = (err, fallback) =>
   err?.message || err?.error || (typeof err === "string" ? err : null) || fallback;
 
-const RESOURCE_LABELS = { events: "Event", clubs: "Club" };
-
 const RegistrationEmailsModal = ({ open, onClose, resource, resourceType }) => {
-  const label = RESOURCE_LABELS[resourceType] || "Resource";
+  const label = RESOURCE_TYPES[resourceType]?.label || "Resource";
   const [announcementSentAt, setAnnouncementSentAt] = useState(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(null); // 'announce'

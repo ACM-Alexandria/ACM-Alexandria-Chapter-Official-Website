@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -177,6 +178,39 @@ class HrCommitteeReadAccessIntegrationTest {
     @DisplayName("Member of another committee cannot read member profiles")
     void otherCommitteeMemberCannotReadMemberProfile() throws Exception {
         mockMvc.perform(get("/api/v1/users/admin/" + hrMember.getId()).header("Authorization", "Bearer " + otherCommitteeMemberToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("HR member can read a committee's call list")
+    void hrMemberCanReadCommitteeCalls() throws Exception {
+        mockMvc.perform(get("/api/committee/" + hrMember.getCommittee().getId() + "/calls")
+                        .header("Authorization", "Bearer " + hrMemberToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("HR member can open registration analysis (not forbidden)")
+    void hrMemberCanOpenRegistrationAnalysis() throws Exception {
+        mockMvc.perform(get("/api/events/999999/registrations/analysis")
+                        .header("Authorization", "Bearer " + hrMemberToken))
+                .andExpect(result -> org.junit.jupiter.api.Assertions.assertNotEquals(
+                        403, result.getResponse().getStatus()));
+    }
+
+    @Test
+    @DisplayName("HR member cannot sync registration sheets (write stays with the board)")
+    void hrMemberCannotSyncRegistrationSheet() throws Exception {
+        mockMvc.perform(post("/api/events/999999/registrations/sheet")
+                        .header("Authorization", "Bearer " + hrMemberToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Member of another committee cannot read committee calls")
+    void otherCommitteeMemberCannotReadCommitteeCalls() throws Exception {
+        mockMvc.perform(get("/api/committee/" + hrMember.getCommittee().getId() + "/calls")
+                        .header("Authorization", "Bearer " + otherCommitteeMemberToken))
                 .andExpect(status().isForbidden());
     }
 

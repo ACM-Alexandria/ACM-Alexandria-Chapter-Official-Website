@@ -237,13 +237,15 @@ public class CommitteeController {
     // --- Admin Call History & Google Sheets Sync Endpoints ---
 
     @GetMapping("/{id}/calls")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<List<CommitteeCallResponseDto>> getCommitteeCalls(@PathVariable("id") Long committeeId) {
         return ResponseEntity.ok(committeeRegistrationService.getCallsForCommittee(committeeId));
     }
 
     @GetMapping("/calls/{callId}/registrations/analysis")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<RegistrationAnalysisDto> getCallRegistrationAnalysis(@PathVariable Long callId) {
         return ResponseEntity.ok(committeeRegistrationService.getRegistrationAnalysis(callId));
     }

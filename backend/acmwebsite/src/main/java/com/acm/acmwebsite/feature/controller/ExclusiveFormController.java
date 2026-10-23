@@ -189,7 +189,8 @@ public class ExclusiveFormController {
     // --- Analytics and Sync ---
 
     @GetMapping("/{id}/registrations/analysis")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<RegistrationAnalysisDto> getFormRegistrationAnalysis(@PathVariable("id") Long formId) {
         return ResponseEntity.ok(registrationService.getRegistrationAnalysis(formId));
     }

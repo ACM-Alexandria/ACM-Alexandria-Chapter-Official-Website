@@ -1,4 +1,5 @@
 import api from "./api";
+import { RESOURCE_TYPES } from "../constants/resourceTypes";
 
 // Fetch admin dashboard analytics insights
 export const fetchInsights = async () => {
@@ -454,21 +455,26 @@ export const deleteExclusiveForm = async (id) => {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    6.6. EMAIL NOTIFICATIONS (manual announcements & site-wide lock)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const RESOURCE_PATHS = {
-  events: "/api/events",
-  clubs: "/api/clubs",
-  programs: "/api/program",
+// Base path of a resource type, for its questions and its announcements
+const apiPathOf = (resourceType) => {
+  const config = RESOURCE_TYPES[resourceType];
+  if (!config) throw new Error(`Unknown resource type ${resourceType}.`);
+  return config.apiPath;
 };
 
-const resourcePath = (resourceType) => {
-  const basePath = RESOURCE_PATHS[resourceType];
-  if (!basePath) throw new Error(`Email actions are not supported for ${resourceType}.`);
-  return basePath;
+// Committee registrations are reached through their calls, not the committee itself
+const registrationsPathOf = (resourceType) =>
+  resourceType === "committee" || resourceType === "committeeCall" ? "/api/committee/calls" : apiPathOf(resourceType);
+
+// Only events, clubs and programs can send announcements
+const emailPathOf = (resourceType) => {
+  if (!RESOURCE_TYPES[resourceType]?.emails) throw new Error(`Email actions are not supported for ${resourceType}.`);
+  return apiPathOf(resourceType);
 };
 
 // Pass force = true to resend an announcement that was already sent
 export const sendAnnouncement = async (resourceType, id, force = false) => {
-  const basePath = resourcePath(resourceType);
+  const basePath = emailPathOf(resourceType);
   try {
     const response = await api.post(`${basePath}/${id}/announce`, null, { params: { force } });
     return response.data;
@@ -501,7 +507,7 @@ export const sendWithResendPrompt = async (send, confirm) => {
 
 // Announcement status (events and clubs)
 export const fetchEmailSettings = async (resourceType, id) => {
-  const basePath = resourcePath(resourceType);
+  const basePath = emailPathOf(resourceType);
   try {
     const response = await api.get(`${basePath}/${id}/email-settings`);
     return response.data;
@@ -537,13 +543,8 @@ export const updateEmailLock = async (emailsEnabled) => {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchRegistrationAnalysis = async (resourceType, id) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee/calls";
-    const response = await api.get(`/api/${resourcePath}/${id}/registrations/analysis`);
+    const basePath = registrationsPathOf(resourceType);
+    const response = await api.get(`${basePath}/${id}/registrations/analysis`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching ${resourceType} registration analysis:`, error);
@@ -553,13 +554,8 @@ export const fetchRegistrationAnalysis = async (resourceType, id) => {
 
 export const syncRegistrationSheet = async (resourceType, id) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee/calls";
-    const response = await api.post(`/api/${resourcePath}/${id}/registrations/sheet`);
+    const basePath = registrationsPathOf(resourceType);
+    const response = await api.post(`${basePath}/${id}/registrations/sheet`);
     return response.data;
   } catch (error) {
     console.error(`Error syncing ${resourceType} registration sheet:`, error);
@@ -572,13 +568,8 @@ export const syncRegistrationSheet = async (resourceType, id) => {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const fetchQuestions = async (resourceType, resourceId) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee";
-    const response = await api.get(`/api/${resourcePath}/${resourceId}/questions`);
+    const basePath = apiPathOf(resourceType);
+    const response = await api.get(`${basePath}/${resourceId}/questions`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching ${resourceType} questions:`, error);
@@ -588,13 +579,8 @@ export const fetchQuestions = async (resourceType, resourceId) => {
 
 export const createQuestion = async (resourceType, resourceId, questionData) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee";
-    const response = await api.post(`/api/${resourcePath}/${resourceId}/questions`, questionData);
+    const basePath = apiPathOf(resourceType);
+    const response = await api.post(`${basePath}/${resourceId}/questions`, questionData);
     return response.data;
   } catch (error) {
     console.error(`Error creating ${resourceType} question:`, error);
@@ -604,13 +590,8 @@ export const createQuestion = async (resourceType, resourceId, questionData) => 
 
 export const updateQuestion = async (resourceType, resourceId, questionId, questionData) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee";
-    const response = await api.put(`/api/${resourcePath}/${resourceId}/questions/${questionId}`, questionData);
+    const basePath = apiPathOf(resourceType);
+    const response = await api.put(`${basePath}/${resourceId}/questions/${questionId}`, questionData);
     return response.data;
   } catch (error) {
     console.error(`Error updating ${resourceType} question:`, error);
@@ -620,13 +601,8 @@ export const updateQuestion = async (resourceType, resourceId, questionId, quest
 
 export const deleteQuestion = async (resourceType, resourceId, questionId) => {
   try {
-    const resourcePath =
-      resourceType === "event" ? "events" :
-        resourceType === "club" ? "clubs" :
-          resourceType === "program" ? "program" :
-            resourceType === "exclusive-form" ? "exclusive-forms" :
-              "committee";
-    const response = await api.delete(`/api/${resourcePath}/${resourceId}/questions/${questionId}`);
+    const basePath = apiPathOf(resourceType);
+    const response = await api.delete(`${basePath}/${resourceId}/questions/${questionId}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting ${resourceType} question:`, error);

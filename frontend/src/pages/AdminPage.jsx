@@ -4,23 +4,15 @@ import adminService, { fetchInsights } from "../services/adminService";
 import { useAuth } from "../contexts/AuthContext";
 import {
   fetchHighBoard,
-  fetchCommittee,
-  fetchEvents,
-  fetchClubs,
-  fetchPrograms,
   fetchSeasons,
 } from "../services/homePageService";
 import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemInsightsTab";
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
 import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTable";
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
-import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
-import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
-import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
-import RegistrationEmailsModal from "../components/AdminPage/ManagementSection/RegistrationEmailsModal";
 import OpenCallConfirmModal from "../components/AdminPage/ManagementSection/OpenCallConfirmModal";
 import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
@@ -33,6 +25,12 @@ import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageH
 import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
 import ResourceToolbar from "../components/AdminPage/SharedComponents/ResourceToolbar";
 import { fieldClass, noticeClass, secondaryButtonClass } from "../components/AdminPage/SharedComponents/adminStyles";
+import ResourceDialogs from "../components/AdminPage/ManagementSection/ResourceDialogs";
+import ResourcePagination from "../components/AdminPage/SharedComponents/ResourcePagination";
+import useResourceDialogs from "../hooks/useResourceDialogs";
+import useEmailLock from "../hooks/useEmailLock";
+import { loadResourceList } from "../hooks/useResourceList";
+import { SHARED_RESOURCE_TABS, resourceTypeForTab } from "../constants/resourceTypes";
 import {
   FiCalendar,
   FiAward,
@@ -57,9 +55,6 @@ import {
   FiMail,
   FiLock,
 } from "react-icons/fi";
-
-const pageButtonClass =
-  "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ADMIN PAGE
@@ -95,11 +90,6 @@ const AdminPage = () => {
   const [socialsModalOpen, setSocialsModalOpen] = useState(false);
   const [selectedClubForSocials, setSelectedClubForSocials] = useState(null);
 
-  // Form Questions modal states
-  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
-  const [selectedResourceForQuestions, setSelectedResourceForQuestions] = useState(null);
-  const [questionsResourceType, setQuestionsResourceType] = useState("event");
-
   // Committee Board Member Specifics
   const [selectedCommitteeId, setSelectedCommitteeId] = useState("");
 
@@ -109,28 +99,11 @@ const AdminPage = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
 
-  // Message Modal states
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
-  const [selectedCommittee, setSelectedCommittee] = useState(null);
-  const [messageSubject, setMessageSubject] = useState("");
-  const [messageBody, setMessageBody] = useState("");
   const [modalError, setModalError] = useState(null);
-
-  // Registration Panel States
-  const [regModalOpen, setRegModalOpen] = useState(false);
-  const [selectedResourceForAnalysis, setSelectedResourceForAnalysis] = useState(null);
-  const [regAnalysisData, setRegAnalysisData] = useState(null);
-  const [regAnalysisLoading, setRegAnalysisLoading] = useState(false);
-  const [regSyncLoading, setRegSyncLoading] = useState(false);
-  const [regModalError, setRegModalError] = useState(null);
 
   // Event Gallery modal states
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
-
-  // Registration Emails modal states (events & clubs)
-  const [emailsModalOpen, setEmailsModalOpen] = useState(false);
-  const [selectedResourceForEmails, setSelectedResourceForEmails] = useState(null);
 
   // Committee open-call confirm states
   const [openCallCommittee, setOpenCallCommittee] = useState(null);
@@ -145,7 +118,7 @@ const AdminPage = () => {
   // Themed confirmations, errors and hints for the email actions (same look as the unsubscribe dialog)
   const { dialog, confirm, notify } = useThemedDialog();
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
-  const [emailsEnabled, setEmailsEnabled] = useState(true);
+  const [emailsEnabled, setEmailsEnabled] = useEmailLock();
   const [emailLockSaving, setEmailLockSaving] = useState(false);
 
   // HR Feedback is visible to the super admin and to the HR Committee board only
@@ -153,13 +126,9 @@ const AdminPage = () => {
     isSuperAdmin || (user?.role === "ACM_COMMITTEE_BOARD" && user?.committeeName === "HR Committee");
 
   const mgmtTabs = [
-    { id: "users", label: "Users", icon: FiUserCheck },
-    { id: "committees", label: "Committees", icon: FiLayers },
-    { id: "events", label: "Events", icon: FiCalendar },
-    { id: "clubs", label: "Clubs", icon: FiAward },
-    { id: "programs", label: "Programs", icon: FiBookOpen },
+    ...SHARED_RESOURCE_TABS.slice(0, 5),
     { id: "radio", label: "Radio", icon: FiRadio },
-    { id: "exclusiveForms", label: "Exclusive Forms", icon: FiFileText },
+    ...SHARED_RESOURCE_TABS.slice(5),
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
     { id: "partners", label: "Partners", icon: FiGlobe },
@@ -178,36 +147,18 @@ const AdminPage = () => {
         setHighBoard(data.sort((a, b) => (a.order || 99) - (b.order || 99)));
 
       } else if (tab === "committees" || tab === "committeeBoard") {
-        const data = await fetchCommittee();
-        // Ensure boardRoles are sorted by order within each committee
-        const sortedData = data.map((c) => ({
-          ...c,
-          boardRoles: (c.boardRoles || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
-        }));
+        const sortedData = await loadResourceList("committees");
         setCommittees(sortedData);
         if (sortedData.length > 0 && !selectedCommitteeId) {
           setSelectedCommitteeId(sortedData[0].id.toString());
         }
 
       } else if (tab === "events") {
-        const data = await fetchEvents(page);
-        // Sort events by eventTime descending (latest first)
-        const sorted = {
-          ...data,
-          content: data.content.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime)),
-        };
-        setEvents(sorted);
+        setEvents(await loadResourceList("events", page));
       } else if (tab === "clubs") {
-        const data = await fetchClubs(page);
-        // Sort clubs alphabetically by name
-        const sorted = {
-          ...data,
-          content: data.content.sort((a, b) => a.name.localeCompare(b.name)),
-        };
-        setClubs(sorted);
+        setClubs(await loadResourceList("clubs", page));
       } else if (tab === "programs") {
-        const data = await fetchPrograms(page);
-        setPrograms(data);
+        setPrograms(await loadResourceList("programs", page));
       } else if (tab === "radio") {
         const data = await fetchSeasons(page);
         const sorted = {
@@ -216,8 +167,7 @@ const AdminPage = () => {
         };
         setSeasons(sorted);
       } else if (tab === "exclusiveForms") {
-        const data = await adminService.fetchExclusiveForms();
-        setExclusiveForms(data || []);
+        setExclusiveForms(await loadResourceList("exclusiveForms"));
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
@@ -236,6 +186,8 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
+
+  const dialogs = useResourceDialogs({ onChanged: () => loadMgmtTabData(mgmtTab) });
 
   useEffect(() => {
     if (activeTab === "management") {
@@ -638,7 +590,6 @@ const AdminPage = () => {
   };
 
   const toggleInFlight = useRef(false);
-  const syncSheetInFlight = useRef(false);
   const deleteInFlight = useRef(false);
 
   const handleToggleCall = async (item) => {
@@ -805,7 +756,7 @@ const AdminPage = () => {
         (force) =>
           isCommittee
             ? adminService.announceCommitteeCall(item.id, force)
-            : adminService.sendAnnouncement(mgmtTab, item.id, force),
+            : adminService.sendAnnouncement(resourceTypeForTab(mgmtTab), item.id, force),
         confirm
       );
       if (sent) {
@@ -824,17 +775,6 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
-
-  const handleEmailsClick = (item) => {
-    setSelectedResourceForEmails({ item, type: mgmtTab });
-    setEmailsModalOpen(true);
-  };
-
-  useEffect(() => {
-    adminService.fetchEmailLock()
-      .then((data) => setEmailsEnabled(data?.emailsEnabled !== false))
-      .catch((err) => console.error("Failed to load email lock status", err));
-  }, []);
 
   const emailLockInFlight = useRef(false);
 
@@ -878,75 +818,6 @@ const AdminPage = () => {
     }
   };
 
-  const handleEditMessageClick = (committee) => {
-    setSelectedCommittee(committee);
-    setMessageSubject(committee.callMessage?.subject || "");
-    setMessageBody(committee.callMessage?.body || "");
-    setMgmtError(null);
-    setModalError(null);
-    setMessageModalOpen(true);
-  };
-
-  const handleMessageSubmit = async (e) => {
-    e.preventDefault();
-    setMgmtLoading(true);
-    setMgmtError(null);
-    setModalError(null);
-    try {
-      await adminService.changeCallMessage(selectedCommittee.id, {
-        subject: messageSubject,
-        body: messageBody,
-      });
-      setMessageModalOpen(false);
-      await loadMgmtTabData(mgmtTab);
-    } catch (err) {
-      console.error(err);
-      const msg = err.message || err.error || (typeof err === "string" ? err : null) || "Failed to update call message.";
-      setModalError(msg);
-    } finally {
-      setMgmtLoading(false);
-    }
-  };
-
-  const handleRegistrationClick = async (item) => {
-    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : mgmtTab === "programs" ? "program" : mgmtTab === "exclusiveForms" ? "exclusive-form" : "committee";
-    setSelectedResourceForAnalysis({
-      id: item.id,
-      name: item.name || item.title,
-      type: resourceType,
-    });
-    setRegModalOpen(true);
-    setRegAnalysisLoading(true);
-    setRegModalError(null);
-    setRegAnalysisData(null);
-
-    if (resourceType !== "committee") {
-      try {
-        const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
-        setRegAnalysisData(data);
-      } catch (err) {
-        console.error(err);
-        setRegModalError(err.message || err.error || "Failed to load registration analytics.");
-      } finally {
-        setRegAnalysisLoading(false);
-      }
-    } else {
-      setRegAnalysisLoading(false);
-    }
-  };
-
-  const handleQuestionsClick = (item) => {
-    setSelectedResourceForQuestions(item);
-    setQuestionsResourceType(
-      mgmtTab === "events" ? "event" :
-        mgmtTab === "clubs" ? "club" :
-          mgmtTab === "programs" ? "program" :
-            mgmtTab === "exclusiveForms" ? "exclusive-form" :
-              "committee"
-    );
-    setQuestionsModalOpen(true);
-  };
-
   const handleSocialsClick = (item) => {
     setSelectedClubForSocials(item);
     setSocialsModalOpen(true);
@@ -955,63 +826,6 @@ const AdminPage = () => {
   const handleGalleryClick = (item) => {
     setSelectedEventForGallery(item);
     setGalleryModalOpen(true);
-  };
-
-  const handleSyncRegistrationSheet = async () => {
-    if (!selectedResourceForAnalysis) return;
-    if (syncSheetInFlight.current) return;
-    syncSheetInFlight.current = true;
-
-    try {
-      const resourceName = selectedResourceForAnalysis.name || "this resource";
-
-      const confirmed = await confirm({
-        tone: "danger",
-        title: "Overwrite Google Sheet?",
-        description: (
-          <>
-            This will replace the existing spreadsheet contents for <Highlight>{resourceName}</Highlight> with the latest registration data from the website. Any manual notes, formulas, or other changes currently in the Google Sheet may be permanently erased.
-          </>
-        ),
-        confirmLabel: "Yes, Overwrite Sheet",
-        cancelLabel: "Cancel",
-      });
-
-      if (!confirmed) return;
-
-      const { id, type } = selectedResourceForAnalysis;
-      setRegSyncLoading(true);
-      setRegModalError(null);
-      try {
-        const updatedData = await adminService.syncRegistrationSheet(type, id);
-        setRegAnalysisData(updatedData);
-
-        // Update local state list so URL and timestamp are updated in the main table data
-        if (type === "event") {
-          setEvents(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        } else if (type === "club") {
-          setClubs(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        } else if (type === "program") {
-          setPrograms(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        }
-      } catch (err) {
-        console.error(err);
-        setRegModalError(err.message || err.error || "Failed to synchronize spreadsheet.");
-      } finally {
-        setRegSyncLoading(false);
-      }
-    } finally {
-      syncSheetInFlight.current = false;
-    }
   };
 
   const loadInsights = async () => {
@@ -1175,43 +989,20 @@ const AdminPage = () => {
                     onEditClick={handleMgmtEditClick}
                     onDeleteClick={handleMgmtDeleteClick}
                     onToggleCall={handleToggleCall}
-                    onEditMessageClick={handleEditMessageClick}
-                    onRegistrationClick={handleRegistrationClick}
-                    onQuestionsClick={handleQuestionsClick}
+                    onEditMessageClick={dialogs.openCallMessage}
+                    onRegistrationClick={(item) => dialogs.openRegistration(item, resourceTypeForTab(mgmtTab) ?? "committee")}
+                    onQuestionsClick={(item) => dialogs.openQuestions(item, resourceTypeForTab(mgmtTab) ?? "committee")}
                     onSocialsClick={handleSocialsClick}
                     onGalleryClick={handleGalleryClick}
                     onEpisodesClick={handleEpisodesClick}
                     onAnnounceClick={handleAnnounceClick}
                     announcingId={announcingId}
-                    onEmailsClick={handleEmailsClick}
+                    onEmailsClick={(item) => dialogs.openEmails(item, resourceTypeForTab(mgmtTab))}
                   />
                 )}
               </div>
 
-              {/* Pagination for paginated resources */}
-              {pageInfo && (
-                <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
-                  <button
-                    type="button"
-                    disabled={pageInfo.number === 0}
-                    onClick={() => loadMgmtTabData(mgmtTab, pageInfo.number - 1)}
-                    className={pageButtonClass}
-                  >
-                    <FiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
-                  </button>
-                  <span className="text-sm text-slate-600 dark:text-slate-400 tabular-nums">
-                    Page {pageInfo.number + 1} of {pageInfo.totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={pageInfo.number >= pageInfo.totalPages - 1}
-                    onClick={() => loadMgmtTabData(mgmtTab, pageInfo.number + 1)}
-                    className={pageButtonClass}
-                  >
-                    Next <FiChevronRight className="w-4 h-4" aria-hidden="true" />
-                  </button>
-                </div>
-              )}
+              <ResourcePagination pageInfo={pageInfo} onPageChange={(page) => loadMgmtTabData(mgmtTab, page)} />
             </div>
 
             {/* Modals */}
@@ -1227,31 +1018,8 @@ const AdminPage = () => {
               error={modalError}
             />
 
-            <CallMessageModal
-              open={messageModalOpen}
-              onClose={() => { setMessageModalOpen(false); setModalError(null); }}
-              onSubmit={handleMessageSubmit}
-              selectedCommittee={selectedCommittee}
-              messageSubject={messageSubject}
-              setMessageSubject={setMessageSubject}
-              messageBody={messageBody}
-              setMessageBody={setMessageBody}
-              loading={mgmtLoading}
-              error={modalError}
-            />
+            <ResourceDialogs dialogs={dialogs} />
 
-            <RegistrationPanelModal
-              open={regModalOpen}
-              onClose={() => { setRegModalOpen(false); setRegModalError(null); }}
-              resourceId={selectedResourceForAnalysis?.id}
-              resourceName={selectedResourceForAnalysis?.name || ""}
-              resourceType={selectedResourceForAnalysis?.type || ""}
-              analysis={regAnalysisData}
-              loading={regAnalysisLoading}
-              syncLoading={regSyncLoading}
-              onSyncSheet={handleSyncRegistrationSheet}
-              error={regModalError}
-            />
 
             <ClubSocialsModal
               open={socialsModalOpen}
@@ -1260,13 +1028,6 @@ const AdminPage = () => {
               onSaved={() => loadMgmtTabData(mgmtTab)}
             />
 
-            <QuestionsManagementModal
-              open={questionsModalOpen}
-              onClose={() => { setQuestionsModalOpen(false); setModalError(null); }}
-              resourceId={selectedResourceForQuestions?.id}
-              resourceName={selectedResourceForQuestions?.name}
-              resourceType={questionsResourceType}
-            />
 
             <EpisodesManagementModal
               open={episodesModalOpen}
@@ -1282,12 +1043,6 @@ const AdminPage = () => {
               onSave={() => loadMgmtTabData(mgmtTab)}
             />
 
-            <RegistrationEmailsModal
-              open={emailsModalOpen}
-              onClose={() => { setEmailsModalOpen(false); setSelectedResourceForEmails(null); }}
-              resource={selectedResourceForEmails?.item}
-              resourceType={selectedResourceForEmails?.type}
-            />
 
             <OpenCallConfirmModal
               open={Boolean(openCallCommittee)}
