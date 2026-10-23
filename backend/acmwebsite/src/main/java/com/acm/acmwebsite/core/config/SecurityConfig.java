@@ -76,6 +76,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         .requestMatchers(HttpMethod.DELETE, "/api/socialLinks/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        // Public board browsing; writes retain their existing authorization.
+                        .requestMatchers(HttpMethod.GET, "/api/boards/seasons", "/api/boards/past/*").permitAll()
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",

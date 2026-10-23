@@ -11,10 +11,14 @@ import java.util.Objects;
 public class PastSeasonPolicy {
     private final SystemSettingsService systemSettingsService;
 
-    public void validate(Integer season) {
+    public void validateStartingYear(Integer season) {
         if (season == null || season < 2000) {
             throw new IllegalArgumentException("Season must be a starting year of at least 2000");
         }
+    }
+
+    public void validate(Integer season) {
+        validateStartingYear(season);
         if (season >= systemSettingsService.getCurrentSeason()) {
             throw new IllegalArgumentException("Past season must be earlier than the current season");
         }

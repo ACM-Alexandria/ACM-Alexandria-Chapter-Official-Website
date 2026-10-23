@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.dto.past;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class PastCommitteeResponse {
@@ -9,4 +10,5 @@ public class PastCommitteeResponse {
     private String name;
     private String description;
     private String logoUrl;
+    private List<PastCommitteeBoardResponse> boardRoles = List.of();
 }

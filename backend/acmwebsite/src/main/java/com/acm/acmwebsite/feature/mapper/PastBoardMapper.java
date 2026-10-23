@@ -18,6 +18,7 @@ public interface PastBoardMapper {
     @Mapping(target = "season", ignore = true)
     void update(PastHighBoardRequest request, @MappingTarget PastHighBoard entity);
 
+    @Mapping(target = "boardRoles", ignore = true)
     PastCommitteeResponse toResponse(PastCommittee entity);
 
     @Mapping(target = "id", ignore = true)
@@ -27,6 +28,7 @@ public interface PastBoardMapper {
     @Mapping(target = "season", ignore = true)
     void update(PastCommitteeRequest request, @MappingTarget PastCommittee entity);
 
+    @Mapping(target = "boardRoles", ignore = true)
     PastClubResponse toResponse(PastClub entity);
 
     @Mapping(target = "id", ignore = true)
