@@ -2,13 +2,14 @@ import api from "./api";
 import { RESOURCE_TYPES } from "../constants/resourceTypes";
 
 // Fetch admin dashboard analytics insights
-export const fetchInsights = async () => {
+// Insights tab. path is "overview" or a section ("committees", "events", ...); range is 7d, 30d, 90d or all.
+export const fetchInsights = async (path, range) => {
   try {
-    const response = await api.get("/api/admin/insights");
+    const response = await api.get(`/api/admin/insights/${path}`, { params: { range } });
     return response.data;
   } catch (error) {
     console.error("Error fetching admin insights:", error);
-    throw error.response?.data || new Error("Unable to load admin insights.");
+    throw error.response?.data || new Error("Unable to load insights.");
   }
 };
 

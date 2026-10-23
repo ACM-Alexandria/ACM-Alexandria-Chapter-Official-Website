@@ -109,6 +109,22 @@ h1, h2, h3, h4, h5, h6 {
   from { opacity: 0; transform: translateX(28px); }
   to   { opacity: 1; transform: translateX(0);    }
 }
+
+/* Insights dashboard entrance: lines draw in, bars grow, cards rise. Plays once each time a panel mounts. */
+@keyframes insightsDraw  { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes insightsGrowY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes insightsGrowX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes insightsRise  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.insights-draw  { stroke-dasharray: 1; stroke-dashoffset: 0; animation: insightsDraw 1100ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.insights-fill  { animation: fadeIn 800ms ease-out 350ms both; }
+.insights-bar   { transform-box: fill-box; transform-origin: bottom; animation: insightsGrowY 650ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.insights-bar-x { transform-origin: left; animation: insightsGrowX 800ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.insights-rise  { animation: insightsRise 500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .insights-draw, .insights-fill, .insights-bar, .insights-bar-x, .insights-rise { animation: none; }
+}
 html,
 body,
 #root {

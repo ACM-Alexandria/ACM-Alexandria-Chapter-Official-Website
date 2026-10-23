@@ -14,13 +14,11 @@ import com.acm.acmwebsite.EmailServer.exception.GlobalExceptionHandler;
 import com.acm.acmwebsite.core.ratelimit.RateLimitInterceptor;
 import com.acm.acmwebsite.core.util.JwtUtil;
 import com.acm.acmwebsite.feature.controller.AdminController;
-import com.acm.acmwebsite.feature.dto.AdminInsightsDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailPreviewDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailPreviewRequestDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailRequestDto;
 import com.acm.acmwebsite.feature.dto.CustomEmailResultDto;
 import com.acm.acmwebsite.feature.service.AdminEmailService;
-import com.acm.acmwebsite.feature.service.AdminInsightsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,9 +45,6 @@ class AdminControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private AdminInsightsService adminInsightsService;
-
-    @MockitoBean
     private AdminEmailService adminEmailService;
 
     @MockitoBean
@@ -61,31 +56,6 @@ class AdminControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
-    }
-
-    @Nested
-    @DisplayName("GET /api/admin/insights")
-    class GetInsightsTests {
-
-        @Test
-        @DisplayName("should return 200 OK with aggregated admin insights")
-        void shouldReturnInsights() throws Exception {
-            AdminInsightsDto insights = AdminInsightsDto.builder()
-                    .totalUsers(100L)
-                    .totalEvents(15L)
-                    .totalClubs(5L)
-                    .build();
-
-            when(adminInsightsService.getInsights()).thenReturn(insights);
-
-            mockMvc.perform(get("/api/admin/insights"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.totalUsers", equalTo(100)))
-                    .andExpect(jsonPath("$.totalEvents", equalTo(15)))
-                    .andExpect(jsonPath("$.totalClubs", equalTo(5)));
-
-            verify(adminInsightsService).getInsights();
-        }
     }
 
     @Nested

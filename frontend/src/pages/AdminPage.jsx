@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/HomePage/Navbar";
-import adminService, { fetchInsights } from "../services/adminService";
+import adminService from "../services/adminService";
 import { useAuth } from "../contexts/AuthContext";
 import {
   fetchHighBoard,
   fetchSeasons,
 } from "../services/homePageService";
-import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemInsightsTab";
+import InsightsTab from "../components/AdminPage/InsightsSection/InsightsTab";
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
 import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTable";
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
@@ -60,9 +60,6 @@ import {
    ADMIN PAGE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const AdminPage = () => {
-  const [insights, setInsights] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("insights");
 
   // ── Resource Management States ──
@@ -828,24 +825,6 @@ const AdminPage = () => {
     setGalleryModalOpen(true);
   };
 
-  const loadInsights = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchInsights();
-      setInsights(data);
-    } catch (err) {
-      console.error("Error loading admin insights:", err);
-      setError(err.message || "Failed to load dashboard insights.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadInsights();
-  }, []);
-
 
 
   const tabs = [
@@ -901,12 +880,6 @@ const AdminPage = () => {
                   </span>
                 </button>
               )}
-              {activeTab === "insights" && (
-                <button type="button" onClick={loadInsights} disabled={loading} className={secondaryButtonClass}>
-                  <FiRefreshCw className={`w-4 h-4 text-[#4B98C8] ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
-                  Refresh
-                </button>
-              )}
             </>
           }
         />
@@ -925,7 +898,7 @@ const AdminPage = () => {
         <AdminTabs tabs={tabs} active={activeTab} onChange={setActiveTab} ariaLabel="Admin sections" />
 
         {activeTab === "insights" && (
-          <SystemInsightsTab insights={insights} loading={loading} error={error} onRefresh={loadInsights} />
+          <InsightsTab />
         )}
 
         {activeTab === "email" && <EmailCenterTab />}
