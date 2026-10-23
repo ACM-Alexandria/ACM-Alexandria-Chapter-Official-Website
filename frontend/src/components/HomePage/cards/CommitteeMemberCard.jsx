@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 const CommitteeMemberCard = ({ member }) => {
+  const [failedImage, setFailedImage] = useState(null);
   const name = member.userName || "Member";
   const imageUrl = member.profileImageUrl || null;
   const linkedinUrl = member.linkedinUrl || null;
@@ -6,10 +9,11 @@ const CommitteeMemberCard = ({ member }) => {
   return (
     <div className="bg-white dark:bg-slate-800 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-950/40 transition-all duration-300 border border-slate-100 dark:border-slate-700 text-center group mx-auto w-[105px] min-[375px]:w-[120px] min-[425px]:w-[135px] sm:w-40 md:w-48 lg:w-64 p-2.5 min-[375px]:p-3 min-[425px]:p-3.5 sm:p-4 md:p-5 lg:p-6 rounded-2xl sm:rounded-3xl">
       <div className="relative mx-auto rounded-full overflow-hidden bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 flex items-center justify-center w-12 h-12 min-[375px]:w-14 min-[375px]:h-14 min-[425px]:w-16 min-[425px]:h-16 sm:w-16 sm:h-16 lg:w-20 lg:h-20">
-        {imageUrl ? (
+        {imageUrl && imageUrl !== failedImage ? (
           <img
             src={imageUrl}
             alt={name}
+            onError={() => setFailedImage(imageUrl)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
@@ -25,7 +29,7 @@ const CommitteeMemberCard = ({ member }) => {
         )}
 
         {linkedinUrl && (
-          <div className="hidden lg:flex absolute bottom-2 left-0 right-0 z-20 justify-center translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="hidden lg:flex absolute bottom-2 left-0 right-0 z-20 justify-center translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 transition-all duration-300">
             <a 
               href={linkedinUrl}
               target="_blank"
