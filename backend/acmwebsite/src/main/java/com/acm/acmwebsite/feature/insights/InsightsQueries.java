@@ -120,11 +120,10 @@ public class InsightsQueries {
         return count("SELECT COUNT(c) FROM CommitteeCall c WHERE c.closedAt IS NULL", Map.of());
     }
 
-    /** Committee calls by registrations in the period: {committee name, opened at, registrations}. */
-    public List<Object[]> topCalls(LocalDateTime since, int limit) {
-        return rows("SELECT r.committeeCall.committee.name, r.committeeCall.openedAt, COUNT(r) FROM CommitteeRegistration r "
-                + "WHERE r.registeredAt >= :since GROUP BY r.committeeCall.id, r.committeeCall.committee.name, r.committeeCall.openedAt "
-                + "ORDER BY COUNT(r) DESC", Map.of("since", since), limit);
+    /** Members per committee, largest first: {committee name, members}. */
+    public List<Object[]> membersPerCommittee(int limit) {
+        return rows("SELECT u.committee.name, COUNT(u) FROM User u WHERE u.committee IS NOT NULL "
+                + "GROUP BY u.committee.id, u.committee.name ORDER BY COUNT(u) DESC", Map.of(), limit);
     }
 
     // ---- events -----------------------------------------------------------------------------

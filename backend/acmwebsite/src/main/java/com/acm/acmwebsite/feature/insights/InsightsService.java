@@ -113,11 +113,11 @@ public class InsightsService {
                 kpi("committees", "Committees", q.total("Committee")),
                 kpi("open", "Open committees", q.openCommittees()),
                 kpi("activeCalls", "Active calls", q.activeCalls()));
-        List<RankItem> top = q.topCalls(since, TOP).stream()
-                .map(r -> new RankItem((String) r[0], "Opened " + date(r[1]), toLong(r[2])))
+        List<RankItem> members = q.membersPerCommittee(TOP).stream()
+                .map(r -> new RankItem((String) r[0], null, toLong(r[1])))
                 .toList();
         return new Section("committees", range.name(), kpis, List.of(),
-                List.of(new Ranking("topCalls", "Top calls by registrations", top)), List.of());
+                List.of(new Ranking("membersPerCommittee", "Members per committee", members)), List.of());
     }
 
     private Section events(InsightsRange range, LocalDateTime now, LocalDateTime since) {
@@ -143,14 +143,10 @@ public class InsightsService {
                 kpi("internal", "Internal", total - external),
                 kpi("external", "External", external),
                 kpi("open", "Open for registration", q.clubsOpen()));
-        List<LocalDateTime> registrations = q.clubRegistrationTimes(since);
-        InsightsAxis axis = InsightsAxis.of(range, now, registrations);
         List<RankItem> top = q.topClubs(since, TOP).stream()
                 .map(r -> new RankItem((String) r[0], null, toLong(r[1])))
                 .toList();
-        return new Section("clubs", range.name(), kpis,
-                List.of(new Chart("registrations", "Club registrations", "area",
-                        List.of(new Series("registrations", "Registrations", axis.count(registrations))))),
+        return new Section("clubs", range.name(), kpis, List.of(),
                 List.of(new Ranking("topClubs", "Top clubs by registrations", top)), List.of());
     }
 
