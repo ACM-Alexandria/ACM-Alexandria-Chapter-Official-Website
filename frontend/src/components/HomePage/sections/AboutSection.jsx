@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
 import HighBoardCard from "../cards/HighBoardCard";
 import ActiveFormsSection from "./ActiveFormsSection";
 import { getEnv } from "../../../utils/env";
@@ -89,6 +91,12 @@ const AboutSection = ({
                 </p>
               </div>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-600 hidden md:block mx-8 opacity-50" />
+              <div className="text-center md:text-right">
+                <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">Care to explore our past?</p>
+                <Link to="/boards" className="inline-flex items-center gap-2 rounded-xl bg-[#205E85] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4B98C8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900">
+                  Meet the boards through the years <FiArrowRight aria-hidden="true" />
+                </Link>
+              </div>
             </div>
 
             {loading ? (
