@@ -13,6 +13,7 @@ import SpinnerIcon from "../components/icons/SpinnerIcon";
 import { fetchBoardSeasons, fetchPastBoards } from "../services/pastBoardsService";
 import { fetchHighBoard, fetchCommittee, fetchAllClubs } from "../services/homePageService";
 import { formatBoardSeason } from "../utils/boardSeasons";
+import { fieldClass, hintClass, labelClass, noticeClass, secondaryButtonClass, tagBrandClass } from "../components/AdminPage/SharedComponents/adminStyles";
 
 const BoardsPage = () => {
   const [params, setParams] = useSearchParams();
@@ -79,57 +80,63 @@ const BoardsPage = () => {
   const validSelection = availableSeasons.includes(selected) && (requested === null || /^\d{4}$/.test(requested));
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-800 transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex min-h-screen flex-col bg-[#F3F7FB] text-slate-800 dark:bg-[#0B1520] dark:text-slate-100">
       <Navbar activeSection="" />
-      <main className="flex-1 px-4 pb-16 pt-28 sm:px-6">
-        <div className="mx-auto max-w-7xl space-y-12">
-          <header className="space-y-6">
-            <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-[#205E85] hover:underline dark:text-sky-300"><FiArrowLeft aria-hidden="true" />Back to home</Link>
-            <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#4B98C8]">Our chapter, through the years</p>
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Meet our boards</h1>
-              <p className="mt-4 max-w-2xl text-slate-500 dark:text-slate-300">Get to know the people who lead our chapter today and those who helped shape its past.</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <label htmlFor="board-season" className="text-sm font-bold">Academic season</label>
-              <select
-                id="board-season"
-                value={validSelection ? String(selected) : ""}
-                disabled={!seasons}
-                onChange={(event) => setParams((previous) => {
-                  const next = new URLSearchParams(previous);
-                  next.set("season", event.target.value);
-                  return next;
-                })}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/30 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
-              >
-                {!validSelection && <option value="" disabled>{seasons ? "Choose a season" : "Loading seasons…"}</option>}
-                {availableSeasons.map((season) => <option key={season} value={season}>{formatBoardSeason(season)}{season === seasons.currentSeason ? " · Current" : ""}</option>)}
-              </select>
+      <main className="admin-ui flex-1 px-4 pb-16 pt-[106px] sm:px-6 md:px-12 max-w-[1600px] mx-auto w-full">
+        <div className="flex flex-col gap-8">
+          <header className="flex flex-col gap-4">
+            <Link to="/" className="w-fit -ml-1 inline-flex items-center gap-1.5 rounded px-1 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 dark:text-slate-400 dark:hover:text-slate-100">
+              <FiArrowLeft aria-hidden="true" className="h-4 w-4" />Back to home
+            </Link>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">Meet our boards</h1>
+                <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">Get to know the people who lead our chapter today and those who helped shape its past.</p>
+              </div>
+              <div className="flex flex-col gap-1.5 sm:w-64">
+                <label htmlFor="board-season" className={labelClass}>Season</label>
+                <select
+                  id="board-season"
+                  value={validSelection ? String(selected) : ""}
+                  disabled={!seasons}
+                  onChange={(event) => setParams((previous) => {
+                    const next = new URLSearchParams(previous);
+                    next.set("season", event.target.value);
+                    return next;
+                  })}
+                  className={fieldClass}
+                >
+                  {!validSelection && <option value="" disabled>{seasons ? "Choose a season" : "Loading seasons…"}</option>}
+                  {availableSeasons.map((season) => <option key={season} value={season}>{formatBoardSeason(season)}{season === seasons.currentSeason ? " · Current" : ""}</option>)}
+                </select>
+              </div>
             </div>
           </header>
 
           <div aria-busy={loading}>
             {loading ? (
-              <p role="status" className="flex items-center justify-center gap-3 py-16 text-sm font-semibold text-slate-500 dark:text-slate-300"><SpinnerIcon aria-hidden="true" className="h-5 w-5 animate-spin text-[#4B98C8]" />Loading boards…</p>
+              <p role="status" className="flex items-center justify-center gap-3 py-16 text-sm font-medium text-slate-600 dark:text-slate-400"><SpinnerIcon aria-hidden="true" className="h-5 w-5 animate-spin text-[#4B98C8]" />Loading boards…</p>
             ) : error ? (
-              <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/20 dark:text-red-300">
+              <div role="alert" className={`flex flex-col items-start gap-3 ${noticeClass.error}`}>
                 <p>{error}</p>
-                <button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2 text-sm font-bold dark:border-red-800"><FiRefreshCw aria-hidden="true" />Retry</button>
+                <button type="button" onClick={() => setRetry((value) => value + 1)} className={secondaryButtonClass}><FiRefreshCw aria-hidden="true" className="h-4 w-4" />Retry</button>
               </div>
             ) : boards && (
-              <div key={selected} className="space-y-14">
-                <section aria-labelledby="high-board-heading">
-                  <h2 id="high-board-heading" className="mb-6 text-2xl font-extrabold">High board · {formatBoardSeason(selected)}</h2>
+              <div key={selected} className="flex flex-col gap-12">
+                <section aria-labelledby="high-board-heading" className="flex flex-col gap-6">
+                  <div className="flex items-center gap-3">
+                    <h2 id="high-board-heading" className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">High board</h2>
+                    <span className={tagBrandClass}>{formatBoardSeason(selected)}</span>
+                  </div>
                   {boards.highBoard.length ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                       {boards.highBoard.map((member, index) => <HighBoardCard key={member.id} member={member} index={index} />)}
                     </div>
-                  ) : <p className="text-sm text-slate-500 dark:text-slate-400">No high board members listed for this season.</p>}
+                  ) : <EmptyBoard text="No high board members listed for this season." />}
                 </section>
                 {[ ["Committees", boards.committees], ["Clubs", boards.clubs] ].map(([label, groups]) => (
-                  <section key={label} aria-label={label}>
-                    <h2 className="mb-6 text-2xl font-extrabold">{label}</h2>
+                  <section key={label} aria-label={label} className="flex flex-col gap-6">
+                    <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">{label}</h2>
                     {groups.length ? (
                       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                         {groups.map((group) => (
@@ -140,7 +147,7 @@ const BoardsPage = () => {
                           </div>
                         ))}
                       </div>
-                    ) : <p className="text-sm text-slate-500 dark:text-slate-400">No {label.toLowerCase()} listed for this season.</p>}
+                    ) : <EmptyBoard text={`No ${label.toLowerCase()} listed for this season.`} />}
                   </section>
                 ))}
               </div>
@@ -152,5 +159,11 @@ const BoardsPage = () => {
     </div>
   );
 };
+
+const EmptyBoard = ({ text }) => (
+  <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-10 text-center dark:border-slate-700">
+    <p className={hintClass}>{text}</p>
+  </div>
+);
 
 export default BoardsPage;
