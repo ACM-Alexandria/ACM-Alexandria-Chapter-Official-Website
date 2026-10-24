@@ -1,7 +1,7 @@
 package com.acm.acmwebsite.feature.mapper;
 
-import com.acm.acmwebsite.feature.dto.past.*;
-import com.acm.acmwebsite.feature.entity.past.*;
+import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.*;
+import com.acm.acmwebsite.feature.entity.*;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)

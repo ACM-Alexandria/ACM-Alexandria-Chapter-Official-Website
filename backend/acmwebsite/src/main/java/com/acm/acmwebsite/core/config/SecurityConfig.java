@@ -48,8 +48,9 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Email-lock status is readable by HR Committee members too; the role check
                         // for it lives in SystemSettingsController (must come before /api/admin/**)
                         .requestMatchers(HttpMethod.GET, "/api/admin/settings/email-lock").authenticated()
-                        // Board administration is restricted before the broader admin matcher.
-                        .requestMatchers("/api/admin/boards/**").hasRole("SUPER_ADMIN")
+                        // Archiving the current season is super-admin only; the other past-board
+                        // management endpoints fall through to the broader admin matcher below.
+                        .requestMatchers(HttpMethod.POST, "/api/admin/boards/archive").hasRole("SUPER_ADMIN")
                         // Secure admin endpoints
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")

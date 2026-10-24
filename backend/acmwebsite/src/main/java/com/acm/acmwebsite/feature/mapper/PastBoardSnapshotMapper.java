@@ -1,7 +1,7 @@
 package com.acm.acmwebsite.feature.mapper;
 
 import com.acm.acmwebsite.feature.entity.*;
-import com.acm.acmwebsite.feature.entity.past.*;
+import com.acm.acmwebsite.feature.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
