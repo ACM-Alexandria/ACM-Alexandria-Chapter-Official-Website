@@ -35,6 +35,7 @@ import com.acm.acmwebsite.feature.repository.PastClubRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
+import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
 import com.acm.acmwebsite.feature.service.SystemSettingsService;
@@ -109,6 +110,7 @@ class PastSeasonsArchiveIntegrationTest {
     @Autowired private CommitteeRepository committees;
     @Autowired private ClubRepository clubs;
     @Autowired private PastHighBoardRepository pastHigh;
+    @Autowired private PastSeasonRepository pastSeasons;
     @Autowired private PastCommitteeBoardRepository pastCommitteeBoard;
     @Autowired private PastClubBoardRepository pastClubBoard;
     @Autowired private PastCommitteeRepository pastCommittees;
@@ -139,6 +141,7 @@ class PastSeasonsArchiveIntegrationTest {
         pastClubBoard.deleteAllInBatch();
         pastCommittees.deleteAllInBatch();
         pastClubs.deleteAllInBatch();
+        pastSeasons.deleteAllInBatch();
         users.deleteAllInBatch();
         committees.deleteAllInBatch();
         clubs.deleteAllInBatch();

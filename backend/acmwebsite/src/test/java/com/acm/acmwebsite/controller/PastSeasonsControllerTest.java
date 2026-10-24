@@ -200,6 +200,38 @@ class PastSeasonsControllerTest {
         verifyNoInteractions(service);
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
+    void boardRolesCanDeleteASeason(String role) throws Exception {
+        mvc.perform(delete("/api/admin/boards/past/seasons/2025").with(user("board").roles(role)))
+                .andExpect(status().isOk());
+        verify(service).deleteSeason(2025);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
+    void boardRolesCanChangeASeasonYear(String role) throws Exception {
+        mvc.perform(put("/api/admin/boards/past/seasons/2025").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"season\":2024}").with(user("board").roles(role)))
+                .andExpect(status().isOk());
+        verify(service).updateSeason(2025, 2024);
+    }
+
+    @Test
+    void superAdminChangesASeasonYear() throws Exception {
+        mvc.perform(put("/api/admin/boards/past/seasons/2025").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"season\":2024}").with(user("admin").roles("SUPER_ADMIN")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.season").value(2024));
+        verify(service).updateSeason(2025, 2024);
+    }
+
+    @Test
+    void superAdminDeletesASeason() throws Exception {
+        mvc.perform(delete("/api/admin/boards/past/seasons/2025").with(user("admin").roles("SUPER_ADMIN")))
+                .andExpect(status().isOk());
+        verify(service).deleteSeason(2025);
+    }
+
     private List<MockHttpServletRequestBuilder> allAdminRequests() {
         List<MockHttpServletRequestBuilder> requests = new ArrayList<>(managementRequests());
         requests.add(post(ARCHIVE_URL).contentType(MediaType.APPLICATION_JSON).content("{\"season\":2026}"));
@@ -210,6 +242,7 @@ class PastSeasonsControllerTest {
         List<MockHttpServletRequestBuilder> requests = new ArrayList<>();
         requests.add(get("/api/admin/boards/current-season"));
         requests.add(get("/api/admin/boards/past/seasons"));
+        requests.add(post("/api/admin/boards/past/seasons").contentType(MediaType.APPLICATION_JSON).content("{\"season\":2025}"));
         for (String resource : List.of("high-board", "committees", "committee-board", "clubs", "club-board")) {
             String path = "/api/admin/boards/past/" + resource;
             requests.add(get(path).param("season", "2025"));

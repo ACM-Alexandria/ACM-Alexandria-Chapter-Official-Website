@@ -21,6 +21,13 @@ public final class PastSeasonsDtos {
     }
 
     @Data
+    public static class PastSeasonRequest {
+        @NotNull
+        @Min(2000)
+        private Integer season;
+    }
+
+    @Data
     @Builder
     public static class BoardArchiveSummary {
         private Integer archivedSeason;

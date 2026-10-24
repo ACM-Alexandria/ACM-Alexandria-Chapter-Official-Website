@@ -1,5 +1,6 @@
 import { useId, useRef, useState } from "react";
 import { FiArchive, FiCheckCircle } from "react-icons/fi";
+import { fieldClass, hintClass, labelClass, panelClass, primaryButtonClass } from "../SharedComponents/adminStyles";
 import { archiveCurrentSeason } from "../../../services/pastBoardsAdminService";
 import { formatBoardSeason } from "../../../utils/boardSeasons";
 import ThemedDialog from "../../ThemedDialog";
@@ -65,11 +66,11 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
   ] : [];
 
   return (
-    <section aria-label="Archive current season" className="space-y-4 rounded-2xl border border-amber-200 bg-amber-50/50 p-5 dark:border-amber-900 dark:bg-amber-950/10 sm:p-6">
+    <section aria-label="Archive current season" className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900 dark:bg-amber-950/20 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100">Finish the current season</h3>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Finish the current season</h3>
+          <p className={`mt-1 max-w-xl ${hintClass}`}>
             Archive {currentSeason ? formatBoardSeason(currentSeason) : "the current season"} and prepare the live boards for next year.
             This always applies to the current season, even while you browse an older board.
           </p>
@@ -83,21 +84,21 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
             setError("");
             setNeedsReview(false);
           }}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-3 text-xs font-bold text-amber-900 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-amber-800 dark:bg-slate-900 dark:text-amber-200 dark:hover:bg-amber-950/30"
+          className={`${primaryButtonClass} w-full sm:w-auto`}
         >
-          {busy ? <SpinnerIcon aria-hidden="true" className="h-4 w-4 animate-spin" /> : <FiArchive aria-hidden="true" />}
+          {busy ? <SpinnerIcon aria-hidden="true" className="h-4 w-4 animate-spin" /> : <FiArchive aria-hidden="true" className="h-4 w-4" />}
           {busy ? "Archiving…" : "Archive current season"}
         </button>
       </div>
 
       {summary && (
-        <div role="status" className="rounded-xl border border-emerald-200 bg-white p-4 dark:border-emerald-900 dark:bg-slate-900">
-          <p className="flex items-center gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300"><FiCheckCircle aria-hidden="true" />Archived {formatBoardSeason(summary.archivedSeason)}</p>
-          <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">Current season is now {formatBoardSeason(summary.newCurrentSeason)}.</p>
+        <div role="status" className={`${panelClass} p-4`}>
+          <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300"><FiCheckCircle aria-hidden="true" />Archived {formatBoardSeason(summary.archivedSeason)}</p>
+          <p className={`mt-2 ${hintClass}`}>Current season is now {formatBoardSeason(summary.newCurrentSeason)}.</p>
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {counts.map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500 dark:text-slate-400">{label}</dt><dd className="mt-1 text-lg font-bold tabular-nums text-slate-800 dark:text-slate-100">{value}</dd></div>)}
+            {counts.map(([label, value]) => <div key={label}><dt className={hintClass}>{label}</dt><dd className="mt-1 text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">{value}</dd></div>)}
           </dl>
-          {refreshFailed && <p className="mt-3 text-xs font-semibold text-amber-800 dark:text-amber-300">The archive completed, but the lists could not refresh. Reload the page before archiving again.</p>}
+          {refreshFailed && <p className="mt-3 text-xs font-medium text-amber-900 dark:text-amber-300">The archive completed, but the lists could not refresh. Reload the page before archiving again.</p>}
         </div>
       )}
 
@@ -120,8 +121,8 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
               <li>Keep the live committees and clubs, and advance the current season to {confirmingSeason ? formatBoardSeason(confirmingSeason + 1) : "next year"}.</li>
             </ul>
             <p>Pause live-board edits in other sessions until archiving finishes.</p>
-            <p className="font-extrabold text-red-700 dark:text-red-300">This cannot be undone. Back up the database before continuing.</p>
-            <label htmlFor={`${id}-confirmation`} className="block font-bold text-slate-700 dark:text-slate-200">Type {confirmingSeason} to confirm</label>
+            <p className="font-semibold text-rose-700 dark:text-rose-400">This cannot be undone. Back up the database before continuing.</p>
+            <label htmlFor={`${id}-confirmation`} className={`block ${labelClass}`}>Type {confirmingSeason} to confirm</label>
             <input
               id={`${id}-confirmation`}
               type="text"
@@ -130,9 +131,9 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
               disabled={busy || needsReview}
               value={confirmation}
               onChange={(event) => setConfirmation(event.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-bold tabular-nums text-slate-900 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              className={fieldClass}
             />
-            {error && <p role="alert" className="text-red-700 dark:text-red-300">{error}{needsReview && " Close this dialog and review the refreshed current season before confirming again."}</p>}
+            {error && <p role="alert" className="text-rose-700 dark:text-rose-400">{error}{needsReview && " Close this dialog and review the refreshed current season before confirming again."}</p>}
           </div>
         )}
       />

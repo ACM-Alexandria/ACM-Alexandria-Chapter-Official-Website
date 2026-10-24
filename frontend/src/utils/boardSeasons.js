@@ -1,1 +1,1 @@
-export const formatBoardSeason = (season) => `${season}/${Number(season) + 1}`;
+export const formatBoardSeason = (season) => `${season}`;

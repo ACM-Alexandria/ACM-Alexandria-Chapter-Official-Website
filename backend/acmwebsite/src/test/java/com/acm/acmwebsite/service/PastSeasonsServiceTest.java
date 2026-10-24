@@ -20,6 +20,7 @@ import com.acm.acmwebsite.feature.entity.PastClubBoard;
 import com.acm.acmwebsite.feature.entity.PastCommittee;
 import com.acm.acmwebsite.feature.entity.PastCommitteeBoard;
 import com.acm.acmwebsite.feature.entity.PastHighBoard;
+import com.acm.acmwebsite.feature.entity.PastSeason;
 import com.acm.acmwebsite.feature.entity.SystemSettings;
 import com.acm.acmwebsite.feature.event.CurrentBoardsArchivedEvent;
 import com.acm.acmwebsite.feature.event.PastBoardsChangedEvent;
@@ -37,6 +38,7 @@ import com.acm.acmwebsite.feature.repository.PastClubRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
+import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
 import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import jakarta.persistence.EntityManager;
@@ -65,6 +67,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PastSeasonsServiceTest {
     @Mock private PastHighBoardRepository pastHighBoards;
+    @Mock private PastSeasonRepository pastSeasons;
     @Mock private PastCommitteeRepository pastCommittees;
     @Mock private PastCommitteeBoardRepository pastCommitteeBoards;
     @Mock private PastClubRepository pastClubs;
@@ -174,6 +177,98 @@ class PastSeasonsServiceTest {
         lenient().when(settings.getCurrentSeason()).thenReturn(2026);
         when(pastCommitteeBoards.findBySeasonOrdered(2025)).thenThrow(new IllegalStateException("Database unavailable"));
         assertThrows(IllegalStateException.class, () -> service.getBySeason(2025));
+    }
+
+    // ----- adding a past season -----
+
+    @Test
+    void addPastSeasonRejectsASeasonThatAlreadyExists() {
+        lenient().when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2025);
+        var error = assertThrows(BoardArchiveConflictException.class, () -> service.addPastSeason(2025));
+        assertEquals("Season 2025 already exists.", error.getMessage());
+    }
+
+    @Test
+    void addPastSeasonSavesANewSeasonEvenBeforeItHasRecords() {
+        when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2024);
+        assertDoesNotThrow(() -> service.addPastSeason(2025));
+        verify(pastSeasons).save(any(PastSeason.class));
+        verify(events).publishEvent(any(PastBoardsChangedEvent.class));
+    }
+
+    @Test
+    void deleteSeasonRemovesEveryRecordOfTheSeasonInDependencyOrder() {
+        stubSeasons(2025);
+        service.deleteSeason(2025);
+        var order = inOrder(pastClubBoards, pastCommitteeBoards, pastHighBoards, pastClubs, pastCommittees, pastSeasons);
+        order.verify(pastClubBoards).deleteBySeason(2025);
+        order.verify(pastCommitteeBoards).deleteBySeason(2025);
+        order.verify(pastHighBoards).deleteBySeason(2025);
+        order.verify(pastClubs).deleteBySeason(2025);
+        order.verify(pastCommittees).deleteBySeason(2025);
+        order.verify(pastSeasons).deleteBySeason(2025);
+        verify(events).publishEvent(any(PastBoardsChangedEvent.class));
+    }
+
+    @Test
+    void deleteSeasonRejectsSeasonsThatDoNotExist() {
+        stubSeasons(2025);
+        assertThrows(ResourceNotFoundException.class, () -> service.deleteSeason(2024));
+        verify(pastClubs, never()).deleteBySeason(any());
+        verify(pastSeasons, never()).deleteBySeason(any());
+        verifyNoInteractions(events);
+    }
+
+    @Test
+    void addPastSeasonRejectsTheCurrentSeason() {
+        when(settings.getCurrentSeason()).thenReturn(2026);
+        assertThrows(IllegalArgumentException.class, () -> service.addPastSeason(2026));
+    }
+
+    // ----- changing a season's year -----
+
+    @Test
+    void updateSeasonMovesEveryRecordAndTheSeasonToTheNewYear() {
+        lenient().when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2025);
+        service.updateSeason(2025, 2024);
+        var order = inOrder(pastClubs, pastClubBoards, pastCommittees, pastCommitteeBoards, pastHighBoards, pastSeasons);
+        order.verify(pastClubs).moveToSeason(2025, 2024);
+        order.verify(pastClubBoards).moveToSeason(2025, 2024);
+        order.verify(pastCommittees).moveToSeason(2025, 2024);
+        order.verify(pastCommitteeBoards).moveToSeason(2025, 2024);
+        order.verify(pastHighBoards).moveToSeason(2025, 2024);
+        order.verify(pastSeasons).deleteBySeason(2025);
+        order.verify(pastSeasons).save(any(PastSeason.class));
+        verify(events).publishEvent(any(PastBoardsChangedEvent.class));
+    }
+
+    @Test
+    void updateSeasonRejectsAYearThatAlreadyExists() {
+        lenient().when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2024, 2025);
+        var error = assertThrows(BoardArchiveConflictException.class, () -> service.updateSeason(2025, 2024));
+        assertEquals("Season 2024 already exists.", error.getMessage());
+        verify(pastClubs, never()).moveToSeason(any(), any());
+        verifyNoInteractions(events);
+    }
+
+    @Test
+    void updateSeasonRejectsTheCurrentYear() {
+        lenient().when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2025);
+        assertThrows(IllegalArgumentException.class, () -> service.updateSeason(2025, 2026));
+        verify(pastClubs, never()).moveToSeason(any(), any());
+    }
+
+    @Test
+    void updateSeasonRejectsSeasonsThatDoNotExist() {
+        lenient().when(settings.getCurrentSeason()).thenReturn(2026);
+        stubSeasons(2025);
+        assertThrows(ResourceNotFoundException.class, () -> service.updateSeason(2023, 2022));
+        verify(pastClubs, never()).moveToSeason(any(), any());
     }
 
     // ----- archiving -----

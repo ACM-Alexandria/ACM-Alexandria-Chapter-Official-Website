@@ -116,6 +116,8 @@ const AdminPage = () => {
   // Themed confirmations, errors and hints for the email actions (same look as the unsubscribe dialog)
   const { dialog, confirm, notify } = useThemedDialog();
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  // Past boards can be managed by every board role; only archiving the season stays super-admin only
+  const canManagePastBoards = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"].includes(user?.role);
   const [emailsEnabled, setEmailsEnabled] = useEmailLock();
   const [emailLockSaving, setEmailLockSaving] = useState(false);
 
@@ -132,6 +134,7 @@ const AdminPage = () => {
     { id: "partners", label: "Partners", icon: FiGlobe },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
     { id: "hrFeedback", label: "HR Feedback", icon: FiMessageSquare },
+    ...(canManagePastBoards ? [{ id: "pastBoards", label: "Past Boards", icon: FiLayers }] : []),
   ].filter((tab) => tab.id !== "hrFeedback" || canSeeHRFeedback);
 
   const loadMgmtTabData = async (tab, page = 0) => {
@@ -831,7 +834,6 @@ const AdminPage = () => {
   const tabs = [
     { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
     { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
-    ...(isSuperAdmin ? [{ id: "pastBoards", label: "Past Boards", shortLabel: "Past Boards", icon: FiLayers }] : []),
     { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
   ];
 
@@ -848,7 +850,7 @@ const AdminPage = () => {
   };
   const sectionName = sectionNames[mgmtTab] || mgmtTab;
 
-  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback"].includes(mgmtTab);
+  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards"].includes(mgmtTab);
 
   return (
     <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
@@ -903,8 +905,6 @@ const AdminPage = () => {
           <InsightsTab />
         )}
 
-        {activeTab === "pastBoards" && isSuperAdmin && <PastBoardsTab />}
-
         {activeTab === "email" && <EmailCenterTab />}
 
         {activeTab === "management" && (
@@ -949,8 +949,10 @@ const AdminPage = () => {
                   </div>
                 )}
 
-                {/* Users, gallery and feedback render their own UI */}
-                {mgmtTab === "users" ? (
+                {/* Users, gallery, feedback and past boards render their own UI */}
+                {mgmtTab === "pastBoards" ? (
+                  <PastBoardsTab />
+                ) : mgmtTab === "users" ? (
                   <UserManagementTab />
                 ) : mgmtTab === "gallery" ? (
                   <GalleryTab />

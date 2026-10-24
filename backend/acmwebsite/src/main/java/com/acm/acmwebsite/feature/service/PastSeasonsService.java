@@ -22,6 +22,7 @@ import com.acm.acmwebsite.feature.entity.PastClubBoard;
 import com.acm.acmwebsite.feature.entity.PastCommittee;
 import com.acm.acmwebsite.feature.entity.PastCommitteeBoard;
 import com.acm.acmwebsite.feature.entity.PastHighBoard;
+import com.acm.acmwebsite.feature.entity.PastSeason;
 import com.acm.acmwebsite.feature.event.CurrentBoardsArchivedEvent;
 import com.acm.acmwebsite.feature.event.PastBoardsChangedEvent;
 import com.acm.acmwebsite.feature.exception.BoardArchiveConflictException;
@@ -38,6 +39,7 @@ import com.acm.acmwebsite.feature.repository.PastClubRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
+import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -61,6 +63,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class PastSeasonsService {
     private final PastHighBoardRepository pastHighBoardRepository;
+    private final PastSeasonRepository pastSeasonRepository;
     private final PastCommitteeRepository pastCommitteeRepository;
     private final PastCommitteeBoardRepository pastCommitteeBoardRepository;
     private final PastClubRepository pastClubRepository;
@@ -80,12 +83,13 @@ public class PastSeasonsService {
 
     // ----- seasons and public board view -----
 
+    // Saved seasons plus any season that only exists through its board records.
     @Cacheable(CacheNames.BOARD_SEASONS)
     @Transactional(readOnly = true)
     public List<Integer> getSeasons() {
-        return Stream.of(pastHighBoardRepository.findDistinctSeasons(), pastCommitteeRepository.findDistinctSeasons(),
-                        pastCommitteeBoardRepository.findDistinctSeasons(), pastClubRepository.findDistinctSeasons(),
-                        pastClubBoardRepository.findDistinctSeasons())
+        return Stream.of(pastSeasonRepository.findAllSeasons(), pastHighBoardRepository.findDistinctSeasons(),
+                        pastCommitteeRepository.findDistinctSeasons(), pastCommitteeBoardRepository.findDistinctSeasons(),
+                        pastClubRepository.findDistinctSeasons(), pastClubBoardRepository.findDistinctSeasons())
                 .flatMap(List::stream).distinct().sorted(Comparator.reverseOrder()).toList();
     }
 
@@ -115,6 +119,56 @@ public class PastSeasonsService {
                 .committees(pastCommittees).clubs(pastClubs).build();
     }
 
+    @Transactional
+    public void addPastSeason(Integer season) {
+        validate(season);
+        if (getSeasons().contains(season)) {
+            throw new BoardArchiveConflictException("Season " + season + " already exists.");
+        }
+        pastSeasonRepository.save(new PastSeason(season));
+        events.publishEvent(new PastBoardsChangedEvent());
+    }
+
+    // Moves every record of a season to a new year. The new year must be valid and not already in use.
+    @Transactional
+    public void updateSeason(Integer season, Integer newSeason) {
+        if (!getSeasons().contains(season)) {
+            throw new ResourceNotFoundException("Past season not found: " + season);
+        }
+        if (Objects.equals(season, newSeason)) {
+            return;
+        }
+        validate(newSeason);
+        if (getSeasons().contains(newSeason)) {
+            throw new BoardArchiveConflictException("Season " + newSeason + " already exists.");
+        }
+        pastClubRepository.moveToSeason(season, newSeason);
+        pastClubBoardRepository.moveToSeason(season, newSeason);
+        pastCommitteeRepository.moveToSeason(season, newSeason);
+        pastCommitteeBoardRepository.moveToSeason(season, newSeason);
+        pastHighBoardRepository.moveToSeason(season, newSeason);
+        pastSeasonRepository.deleteBySeason(season);
+        if (!pastSeasonRepository.existsBySeason(newSeason)) {
+            pastSeasonRepository.save(new PastSeason(newSeason));
+        }
+        events.publishEvent(new PastBoardsChangedEvent());
+    }
+
+    // Removes the season and every board record and member that belongs to it.
+    @Transactional
+    public void deleteSeason(Integer season) {
+        if (!getSeasons().contains(season)) {
+            throw new ResourceNotFoundException("Past season not found: " + season);
+        }
+        pastClubBoardRepository.deleteBySeason(season);
+        pastCommitteeBoardRepository.deleteBySeason(season);
+        pastHighBoardRepository.deleteBySeason(season);
+        pastClubRepository.deleteBySeason(season);
+        pastCommitteeRepository.deleteBySeason(season);
+        pastSeasonRepository.deleteBySeason(season);
+        events.publishEvent(new PastBoardsChangedEvent());
+    }
+
     // ----- archiving the current board -----
 
     @Transactional
@@ -140,6 +194,10 @@ public class PastSeasonsService {
                 || pastCommitteeBoardRepository.existsBySeason(season) || pastClubRepository.existsBySeason(season)
                 || pastClubBoardRepository.existsBySeason(season)) {
             throw new BoardArchiveConflictException("Season " + season + " already contains past board data. Nothing was archived.");
+        }
+
+        if (!pastSeasonRepository.existsBySeason(season)) {
+            pastSeasonRepository.save(new PastSeason(season));
         }
 
         Map<Long, PastCommittee> committees = new HashMap<>();

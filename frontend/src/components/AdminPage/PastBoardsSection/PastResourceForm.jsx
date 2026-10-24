@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ImageUploadField from "../SharedComponents/ImageUploadField";
 import ModalShell from "../SharedComponents/ModalShell";
-import { fieldClass, textareaClass, primaryButtonClass, secondaryButtonClass } from "../SharedComponents/adminStyles";
+import { fieldClass, labelClass, noticeClass, textareaClass, primaryButtonClass, secondaryButtonClass } from "../SharedComponents/adminStyles";
 import { isHttpUrl, isNotEmpty } from "../../../utils/validation";
 import { formatBoardSeason } from "../../../utils/boardSeasons";
 
@@ -76,7 +76,7 @@ const PastResourceForm = ({ resource, item, parents, season, saving, onSave, onC
   };
 
   const field = (label, key, type = "text", required = false) => (
-    <label className="block text-xs font-bold text-slate-600 dark:text-slate-300" key={key}>
+    <label className={`block ${labelClass}`} key={key}>
       {label}
       <input
         className={inputClass}
@@ -137,7 +137,7 @@ const PastResourceForm = ({ resource, item, parents, season, saving, onSave, onC
             </>
           ) : (
             <>
-              <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">Description (optional)
+              <label className={`block ${labelClass}`}>Description (optional)
                 <textarea className={`mt-1.5 ${textareaClass}`} rows={3} value={form.description} onChange={(event) => change("description", event.target.value)} />
               </label>
             </>
@@ -151,7 +151,7 @@ const PastResourceForm = ({ resource, item, parents, season, saving, onSave, onC
             onUploadingChange={setUploading}
           />
           {resource.parent && (
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">{resource.parent === "clubs" ? "Club" : "Committee"}
+            <label className={`block ${labelClass}`}>{resource.parent === "clubs" ? "Club" : "Committee"}
               <select required className={inputClass} value={form[resource.relation]} onChange={(event) => change(resource.relation, event.target.value)}>
                 <option value="">Select a parent from this season</option>
                 {parents.map((parent) => <option key={parent.id} value={parent.id}>{parent.name}</option>)}
@@ -159,7 +159,7 @@ const PastResourceForm = ({ resource, item, parents, season, saving, onSave, onC
             </label>
           )}
         </fieldset>
-        {(error || serverError) && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-300">{error || serverError}</p>}
+        {(error || serverError) && <p role="alert" className={`mt-4 ${noticeClass.error}`}>{error || serverError}</p>}
       </ModalShell>
     </div>
   );

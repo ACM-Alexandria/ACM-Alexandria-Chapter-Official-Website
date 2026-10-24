@@ -14,6 +14,7 @@ import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastCommitteeRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastCommitteeResponse;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardResponse;
+import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastSeasonRequest;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
 import com.acm.acmwebsite.feature.service.SystemSettingsService;
 import jakarta.validation.Valid;
@@ -56,6 +57,26 @@ public class PastSeasonsController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public List<Integer> listPastSeasons() {
         return service.getSeasons();
+    }
+
+    @PostMapping("/api/admin/boards/past/seasons")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public Map<String, Integer> addPastSeason(@Valid @RequestBody PastSeasonRequest request) {
+        service.addPastSeason(request.getSeason());
+        return Map.of("season", request.getSeason());
+    }
+
+    @PutMapping("/api/admin/boards/past/seasons/{season}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public Map<String, Integer> updatePastSeason(@PathVariable Integer season, @Valid @RequestBody PastSeasonRequest request) {
+        service.updateSeason(season, request.getSeason());
+        return Map.of("season", request.getSeason());
+    }
+
+    @DeleteMapping("/api/admin/boards/past/seasons/{season}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    public void deletePastSeason(@PathVariable Integer season) {
+        service.deleteSeason(season);
     }
 
     @GetMapping("/api/admin/boards/current-season")

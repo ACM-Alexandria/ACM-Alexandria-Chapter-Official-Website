@@ -17,6 +17,7 @@ import com.acm.acmwebsite.feature.repository.PastClubRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
+import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
 import com.acm.acmwebsite.feature.service.SystemSettingsService;
@@ -53,6 +54,7 @@ class PastSeasonsIntegrationTest {
     @Autowired private PastCommitteeRepository committeeRepository;
     @Autowired private PastClubRepository clubRepository;
     @Autowired private PastHighBoardRepository highRepository;
+    @Autowired private PastSeasonRepository seasonRepository;
     @Autowired private SystemSettingsRepository settingsRepository;
     @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private CacheManager caches;
@@ -66,6 +68,7 @@ class PastSeasonsIntegrationTest {
         committeeRepository.deleteAllInBatch();
         clubRepository.deleteAllInBatch();
         highRepository.deleteAllInBatch();
+        seasonRepository.deleteAllInBatch();
         settingsRepository.saveAndFlush(new SystemSettings(1L, true, 2026));
         caches.getCache(CacheNames.BOARD_SEASONS).clear();
         caches.getCache(CacheNames.PAST_BOARDS).clear();
@@ -151,6 +154,31 @@ class PastSeasonsIntegrationTest {
         assertEquals("committed", caches.getCache(CacheNames.PAST_BOARDS).get(2025, String.class));
         assertEquals(List.of(2025), service.getSeasons());
         assertEquals(1, highRepository.count());
+    }
+
+    @Test
+    void emptySeasonIsSavedAndDeletingItRemovesItsRecords() {
+        service.addPastSeason(2025);
+        assertEquals(List.of(2025), service.getSeasons());
+        service.createPastHighBoard(member("Chair", null));
+        var committee = new PastCommitteeRequest();
+        committee.setSeason(2025);
+        committee.setName("Committee");
+        Long committeeId = service.createPastCommittee(committee).getId();
+        var member = new PastCommitteeBoardRequest();
+        member.setSeason(2025);
+        member.setName("Member");
+        member.setRole("Chair");
+        member.setPastCommitteeId(committeeId);
+        service.createPastCommitteeBoard(member);
+
+        service.deleteSeason(2025);
+
+        assertEquals(List.of(), service.getSeasons());
+        assertEquals(0, highRepository.count());
+        assertEquals(0, committeeBoardRepository.count());
+        assertEquals(0, committeeRepository.count());
+        assertEquals(0, seasonRepository.count());
     }
 
     @Test
