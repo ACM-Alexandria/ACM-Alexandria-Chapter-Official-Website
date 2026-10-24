@@ -7,9 +7,11 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 // Site-wide settings stored as a single row (id = 1)
 @Entity
+@DynamicUpdate
 @Table(name = "system_settings")
 @Data
 @NoArgsConstructor
@@ -23,4 +25,8 @@ public class SystemSettings {
     // Master email switch: when false, the site sends no emails except password resets
     @Column(name = "emails_enabled", nullable = false)
     private boolean emailsEnabled = true;
+
+    // Starting year of the academic season; initialized on first season read when null.
+    @Column(name = "current_season")
+    private Integer currentSeason;
 }

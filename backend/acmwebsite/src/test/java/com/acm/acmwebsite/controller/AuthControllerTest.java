@@ -214,7 +214,7 @@ class AuthControllerTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(invalidRequest)))
           .andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.error").isNotEmpty());
+          .andExpect(jsonPath("$.message").value("email: Invalid Email Format"));
 
       verify(registerService, never()).createUser(any());
     }

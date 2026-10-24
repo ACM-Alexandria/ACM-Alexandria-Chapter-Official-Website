@@ -1,5 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
+import useScrollLock from "../hooks/useScrollLock";
 import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSend } from "react-icons/fi";
 
 const TONES = {
@@ -42,15 +43,49 @@ const ThemedDialog = ({
   cancelLabel,
   onConfirm,
   onCancel,
+  confirmDisabled = false,
+  busy = false,
 }) => {
-  const dismiss = onCancel || onConfirm;
+  const dismiss = busy ? undefined : onCancel || onConfirm;
+  const dialogRef = React.useRef(null);
+  const id = React.useId();
+  useScrollLock(open);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    return () => {
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [open]);
 
   React.useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e) => {
+      const overlays = document.querySelectorAll("[data-modal-overlay]");
+      if (overlays[overlays.length - 1] !== dialogRef.current?.closest("[data-modal-overlay]")) return;
       if (e.key === "Escape") {
         e.preventDefault();
         if (dismiss) dismiss();
+      }
+      if (e.key === "Tab") {
+        const elements = [...dialogRef.current.querySelectorAll(
+          "input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href]"
+        )];
+        const first = elements[0];
+        const last = elements.at(-1);
+        if (!first) {
+          e.preventDefault();
+        } else if (!dialogRef.current.contains(document.activeElement)) {
+          e.preventDefault();
+          first.focus();
+        } else if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -70,35 +105,42 @@ const ThemedDialog = ({
       className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
     >
       <div
+        ref={dialogRef}
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
-        aria-labelledby="themed-dialog-title"
-        className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none"
+        aria-labelledby={`${id}-title`}
+        aria-describedby={content ? `${id}-content` : undefined}
+        aria-busy={busy}
+        className="flex max-h-[90dvh] w-full max-w-sm flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none"
       >
-        <div className="p-5 flex gap-4">
+        <div className="min-h-0 overflow-y-auto p-5 flex gap-4">
           <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${theme.iconClass}`}>
             <Icon className="w-5 h-5" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h3 id="themed-dialog-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
-            {content && <div className="mt-1.5 text-sm text-slate-700 dark:text-slate-300 break-words">{content}</div>}
+            <h3 id={`${id}-title`} className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+            {content && <div id={`${id}-content`} className="mt-1.5 text-sm text-slate-700 dark:text-slate-300 break-words">{content}</div>}
           </div>
         </div>
-        <div className="px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+        <div className="shrink-0 px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
           {cancelLabel && (
             <button
+              type="button"
               onClick={onCancel}
+              disabled={busy}
               autoFocus={tone === "danger"}
-              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
             >
               {cancelLabel}
             </button>
           )}
           <button
+            type="button"
             onClick={onConfirm}
+            disabled={confirmDisabled || busy}
             autoFocus={tone !== "danger" || !cancelLabel}
-            className={`h-9 px-4 rounded-md text-sm font-medium text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900 ${theme.buttonClass}`}
+            className={`h-9 px-4 rounded-md text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900 ${theme.buttonClass}`}
           >
             {confirmLabel}
           </button>

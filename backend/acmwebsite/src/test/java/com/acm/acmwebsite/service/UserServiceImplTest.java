@@ -36,6 +36,7 @@ import com.acm.acmwebsite.feature.service.ImageUploadService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -1534,5 +1535,33 @@ class UserServiceImplTest {
             assertThatThrownBy(() -> userService.loginWithGoogle("invalid.token.here"))
                     .isInstanceOf(IllegalArgumentException.class);
         }
+    }
+
+    @Test
+    void downgradesBoardUsersClearsAssociationsAndLeavesSuperAdminsUntouched() {
+        var committee = new Committee();
+        var member = new User();
+        member.setRole(Role.ACM_CLUB_BOARD);
+        member.setCommittee(committee);
+        var regular = new User();
+        regular.setRole(Role.USER);
+        regular.setCommittee(committee);
+        var admin = new User();
+        admin.setRole(Role.SUPER_ADMIN);
+        admin.setCommittee(committee);
+        when(userRepository.findCurrentBoardMembers()).thenReturn(List.of(member, regular, admin));
+
+        assertThat(userService.demoteBoardMembers()).isEqualTo(1);
+        assertThat(member.getRole()).isEqualTo(Role.USER);
+        assertThat(member.getCommittee()).isNull();
+        assertThat(regular.getRole()).isEqualTo(Role.USER);
+        assertThat(regular.getCommittee()).isNull();
+        assertThat(admin.getRole()).isEqualTo(Role.SUPER_ADMIN);
+        assertThat(admin.getCommittee()).isSameAs(committee);
+    }
+
+    @Test
+    void emptyBoardsChangeNoUsers() {
+        assertThat(userService.demoteBoardMembers()).isZero();
     }
 }

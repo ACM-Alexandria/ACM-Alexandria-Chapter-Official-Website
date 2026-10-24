@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+import { hintClass } from "../../AdminPage/SharedComponents/adminStyles";
+import { Link } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
+import { fetchBoardSeasons } from "../../../services/pastBoardsService";
+import { formatBoardSeason } from "../../../utils/boardSeasons";
 import HighBoardCard from "../cards/HighBoardCard";
 import ActiveFormsSection from "./ActiveFormsSection";
 import { getEnv } from "../../../utils/env";
@@ -10,6 +16,15 @@ const AboutSection = ({
   onShowExclusiveFormDetails
 }) => {
   const isEnabled = (envVal) => envVal !== "false";
+  const [currentSeason, setCurrentSeason] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchBoardSeasons()
+      .then((seasons) => { if (active) setCurrentSeason(seasons.currentSeason); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   const orderedHighBoard = [...highBoard].sort((a, b) => {
     const firstOrder = a?.order ?? Number.MAX_SAFE_INTEGER;
@@ -76,6 +91,16 @@ const AboutSection = ({
         {/* High Board Section */}
         {isEnabled(getEnv("VITE_ENABLE_HIGHBOARD")) && (
           <div className="mt-24">
+            <div className="mb-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:justify-start">
+              {currentSeason && (
+                <p className="inline-flex items-center rounded-lg bg-[#E2F0FA] px-3.5 py-2 text-base font-semibold whitespace-nowrap text-[#1D6A9C] dark:bg-[#16364C] dark:text-[#7DBBE0]">
+                  Current season <span className="ml-1.5 tabular-nums">{formatBoardSeason(currentSeason)}</span>
+                </p>
+              )}
+              <Link to="/boards" className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-[#2C6F99] transition-colors hover:text-[#205E85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] focus-visible:ring-offset-2 dark:text-[#7DBBE0] dark:hover:text-sky-200 dark:focus-visible:ring-offset-slate-900">
+                See past boards <FiArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
             <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
               <div className="text-center md:text-left">
                 <h3
@@ -88,7 +113,6 @@ const AboutSection = ({
                   The visionary leadership behind our chapter
                 </p>
               </div>
-              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-600 hidden md:block mx-8 opacity-50" />
             </div>
 
             {loading ? (
@@ -104,10 +128,8 @@ const AboutSection = ({
                 ))}
               </div>
             ) : (
-              <div className="py-12 text-center bg-white dark:bg-slate-800 rounded-3xl border border-dashed border-slate-300 dark:border-slate-600">
-                <p className="text-slate-400 font-medium">
-                  No high board members available at the moment.
-                </p>
+              <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-10 text-center dark:border-slate-700">
+                <p className={hintClass}>No high board members available at the moment.</p>
               </div>
             )}
           </div>

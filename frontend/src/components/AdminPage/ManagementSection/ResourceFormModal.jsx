@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { FiX, FiUploadCloud, FiTrash2, FiLoader, FiPlus, FiMinus, FiType, FiCheckSquare, FiList, FiImage } from "react-icons/fi";
-import { uploadImage } from "../../../services/adminService";
+import { FiX, FiTrash2, FiPlus, FiMinus, FiType, FiCheckSquare, FiList, FiImage } from "react-icons/fi";
+import ImageUploadField from "../SharedComponents/ImageUploadField";
 import ModalShell from "../SharedComponents/ModalShell";
 import ToggleRow from "../SharedComponents/ToggleRow";
 import {
   fieldClass,
-  iconButtonDangerClass,
   noticeClass,
   primaryButtonClass,
   secondaryButtonClass,
@@ -23,81 +22,8 @@ const ResourceForm = ({
   error,
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
-
   const isCommittee = activeTab === "committees";
-  const currentValue = isCommittee ? formData.logoUrl : formData.imageUrl;
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError("File size exceeds 10MB limit.");
-      return;
-    }
-
-    setUploading(true);
-    setUploadError(null);
-
-    try {
-      const data = await uploadImage(file);
-      const url = data.url;
-      setFormData(
-        isCommittee
-          ? { ...formData, logoUrl: url }
-          : { ...formData, imageUrl: url }
-      );
-    } catch (err) {
-      console.error("Upload failed:", err);
-      setUploadError(err.message || "Failed to upload image. Please try again.");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError("File size exceeds 10MB limit.");
-      return;
-    }
-
-    setUploading(true);
-    setUploadError(null);
-
-    try {
-      const data = await uploadImage(file);
-      const url = data.url;
-      setFormData(
-        isCommittee
-          ? { ...formData, logoUrl: url }
-          : { ...formData, imageUrl: url }
-      );
-    } catch (err) {
-      console.error("Upload failed:", err);
-      setUploadError(err.message || "Failed to upload image. Please try again.");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleRemove = () => {
-    setFormData(
-      isCommittee
-        ? { ...formData, logoUrl: "" }
-        : { ...formData, imageUrl: "" }
-    );
-    setUploadError(null);
-  };
-
+  const imageKey = isCommittee ? "logoUrl" : "imageUrl";
 
   const getTitle = () => {
     const modeStr = formMode === "add" ? "Create New" : "Edit";
@@ -201,87 +127,14 @@ const ResourceForm = ({
                 </div>
               )}
 
-              {/* Common Fields: Image/Logo Upload */}
-              <div>
-                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {isCommittee ? "Logo" : "Image"}
-                  </label>
-
-                {currentValue ? (
-                  // Preview state
-                  <div className="relative flex items-center gap-4 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg">
-                    <img
-                      src={currentValue}
-                      alt="Preview"
-                      className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {currentValue.split("/").pop()}
-                      </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">
-                        Uploaded to Cloudinary
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleRemove}
-                      className={iconButtonDangerClass}
-                      title="Delete image"
-                    >
-                      <FiTrash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  // Upload drop zone
-                  <div
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    className={`relative border-2 border-dashed rounded-lg p-6 transition-colors text-center flex flex-col items-center justify-center cursor-pointer ${
-                      uploading
-                        ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
-                        : "border-slate-300 dark:border-slate-700 hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      id="image-file-input"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      disabled={uploading}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    {uploading ? (
-                      <>
-                        <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                          Uploading image to Cloudinary...
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                          Please wait, this may take a moment.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <FiUploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                          Click to upload or drag & drop
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                          PNG, JPG, JPEG up to 10MB
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {uploadError && (
-                  <p className="mt-1.5 text-xs font-medium text-rose-700 dark:text-rose-400 flex items-center gap-1">
-                    <span className="inline-block w-1 h-1 rounded-full bg-red-500"></span>
-                    {uploadError}
-                  </p>
-                )}
-              </div>
+              <ImageUploadField
+                label={isCommittee ? "Logo" : "Image"}
+                value={formData[imageKey]}
+                onChange={(url) => setFormData((previous) => ({ ...previous, [imageKey]: url }))}
+                disabled={loading}
+                uploading={uploading}
+                onUploadingChange={setUploading}
+              />
 
             </>
           )}

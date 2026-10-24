@@ -14,7 +14,7 @@ import { cancelCommitteeRegistration } from "../../../services/registrationServi
 import CommitteeMemberCard from "./CommitteeMemberCard";
 import RegistrationCancellationModal from "../../registration/RegistrationCancellationModal";
 
-const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegistrationModalOpen }) => {
+const CommitteeCard = ({ committee, isMyCommittee = false, readOnly = false, onApplyClick, isRegistrationModalOpen }) => {
   const [imageError, setImageError] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
 
   useEffect(() => {
     const checkRegStatus = async () => {
-      if (!isAuthenticated || !committee?.id || !(committee?.open || committee?.isOpen) || !user?.id) {
+      if (readOnly || !isAuthenticated || !committee?.id || !(committee?.open || committee?.isOpen) || !user?.id) {
         setIsRegistered(false);
         return;
       }
@@ -46,11 +46,11 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
     if (!isRegistrationModalOpen) {
       checkRegStatus();
     }
-  }, [isAuthenticated, committee?.id, committee?.open, committee?.isOpen, user?.id, isRegistrationModalOpen]);
+  }, [readOnly, isAuthenticated, committee?.id, committee?.open, committee?.isOpen, user?.id, isRegistrationModalOpen]);
 
   useEffect(() => {
     const checkStatus = async () => {
-      if (!isAuthenticated || !committee.id) return;
+      if (readOnly || !isAuthenticated || !committee.id) return;
       try {
         const data = await fetchCommitteeSubscriptionStatus(committee.id);
         setSubscribed(data.subscribed);
@@ -59,7 +59,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
       }
     };
     checkStatus();
-  }, [isAuthenticated, committee.id]);
+  }, [readOnly, isAuthenticated, committee.id]);
 
   const handleToggleSubscribe = async (e) => {
     e.preventDefault();
@@ -105,16 +105,16 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
   };
 
   const orderedBoardRoles = [...(committee?.boardRoles || [])].sort((a, b) => {
-    const firstOrder = Number.isFinite(Number(a?.order))
+    const firstOrder = a?.order != null && Number.isFinite(Number(a.order))
       ? Number(a.order)
       : Number.MAX_SAFE_INTEGER;
-    const secondOrder = Number.isFinite(Number(b?.order))
+    const secondOrder = b?.order != null && Number.isFinite(Number(b.order))
       ? Number(b.order)
       : Number.MAX_SAFE_INTEGER;
     return firstOrder - secondOrder;
   });
 
-  const isOpen = committee.open || committee.isOpen;
+  const isOpen = !readOnly && (committee.open || committee.isOpen);
 
   const rootLabel = (
     <div
@@ -124,7 +124,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
             : "border-slate-100 dark:border-slate-700 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/40 hover:border-slate-200 dark:hover:border-slate-600"
       }`}
     >
-      <button
+      {!readOnly && <button
         onClick={handleToggleSubscribe}
         disabled={loading}
         title={subscribed ? "Unsubscribe from notifications" : "Subscribe to notifications"}
@@ -142,7 +142,7 @@ const CommitteeCard = ({ committee, isMyCommittee = false, onApplyClick, isRegis
         ) : (
           <FiBell className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />
         )}
-      </button>
+      </button>}
 
       <div className="bg-slate-100 dark:bg-slate-700 h-32 min-[375px]:h-36 min-[425px]:h-40 sm:h-48 md:h-56 lg:h-64 flex items-center justify-center overflow-hidden relative rounded-t-3xl sm:rounded-t-[2.5rem]">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#4B98C8]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />

@@ -2,7 +2,7 @@ import React from "react";
 import ModalShell from "../SharedComponents/ModalShell";
 import { dangerButtonClass, secondaryButtonClass } from "../SharedComponents/adminStyles";
 
-const DeleteConfirmModal = ({ open, onClose, onConfirm, deletingItem, loading }) => (
+const DeleteConfirmModal = ({ open, onClose, onConfirm, deletingItem, loading, warning }) => (
   <ModalShell
     open={open}
     onClose={onClose}
@@ -27,6 +27,7 @@ const DeleteConfirmModal = ({ open, onClose, onConfirm, deletingItem, loading })
       </span>
       ? This is permanent and can't be undone.
     </p>
+    {warning && <p className="mt-3 text-sm font-semibold text-rose-700 dark:text-rose-300">{warning}</p>}
   </ModalShell>
 );
 

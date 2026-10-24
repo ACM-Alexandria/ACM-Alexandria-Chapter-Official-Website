@@ -30,6 +30,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("SELECT u FROM User u LEFT JOIN FETCH u.committee WHERE u.role IN :roles")
   List<User> findAllByRoleInWithCommittee(@Param("roles") Collection<com.acm.acmwebsite.User_Authentication.enums.Role> roles);
 
+  @Query("SELECT DISTINCT u FROM User u WHERE EXISTS (SELECT h.id FROM HighBoard h WHERE h.user = u) "
+      + "OR EXISTS (SELECT cb.id FROM CommitteeBoard cb WHERE cb.user = u) "
+      + "OR EXISTS (SELECT clb.id FROM ClubBoard clb WHERE clb.user = u)")
+  List<User> findCurrentBoardMembers();
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);
