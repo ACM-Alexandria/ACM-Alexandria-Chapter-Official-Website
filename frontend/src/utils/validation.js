@@ -48,16 +48,6 @@ export const PASSWORD_RULES = [
 ];
 
 /**
- * Returns per-rule results: [{ label, passed }]
- * Useful for rendering individual requirement badges in the UI.
- */
-export const getPasswordRules = (password) =>
-  PASSWORD_RULES.map((rule) => ({
-    label: rule.label,
-    passed: rule.test(password),
-  }));
-
-/**
  * Validate password strength — matches backend RegisterDTO rules:
  *   >= 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special character.
  */
