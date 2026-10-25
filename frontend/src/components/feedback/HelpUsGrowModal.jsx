@@ -10,7 +10,7 @@ import {
   FiAlertTriangle,
   FiImage,
 } from "react-icons/fi";
-import { submitFeature, submitBug, uploadScreenshot } from "../../../services/feedbackService";
+import { submitFeature, submitBug, uploadScreenshot } from "../../services/feedbackService";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";
