@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import logo from "../../../assets/logo/acm-logo-no-bg.png";
@@ -8,9 +8,10 @@ import NightSky from "../../ui/NightSky";
 import CommitteeOrbit from "./CommitteeOrbit";
 import PharosFinale from "./PharosFinale";
 import { pharosFrameClass, pharosLight } from "./pharosGeometry";
-import { joinCta } from "../homeContent";
+import { meetCta } from "../homeContent";
 import { shortName } from "../../../utils/format";
-import { clamp01, prefersReducedMotion } from "../../../hooks/useScrollFrame";
+import { clamp01 } from "../../../hooks/useScrollFrame";
+import { useStaticScene } from "../../../hooks/useStaticScene";
 import TeamLogo from "../../ui/TeamLogo";
 
 const words = "Alexandria lit the way for the ancient world. We light the way into computing.".split(" ");
@@ -81,8 +82,8 @@ const BrokenRing = ({ radius, pieces, dashed = false, delay }) => (
 // to rest on the join button.
 // One animation loop reads the clock (for the orbit) and the scroll position (for everything else),
 // so a planet always falls from exactly where it is in its orbit.
-const HeroPharos = ({ committees, clubs, stats, cta = joinCta }) => {
-  const [reduced] = useState(prefersReducedMotion);
+const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
+  const reduced = useStaticScene();
   const stageRef = useRef(null);
   const sceneRef = useRef(null);
   const orbitRef = useRef(null);
@@ -186,11 +187,11 @@ const HeroPharos = ({ committees, clubs, stats, cta = joinCta }) => {
       <>
         <section id="top" className="relative overflow-hidden bg-[#0F3A5A] text-white dark:bg-[#081826]">
           <div className="relative mx-auto grid max-w-[1280px] items-center gap-14 px-5 pb-20 pt-32 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-40">
-            <div><HeroIntro stats={stats} /></div>
-            <CommitteeOrbit committees={committees} clubs={clubs} className="mx-auto max-w-[560px]" />
+            <div><HeroIntro stats={stats} signedIn={signedIn} /></div>
+            <div className="mx-auto w-[84%] max-w-[560px] sm:w-[80%] lg:w-full"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
           </div>
         </section>
-        <PharosFinale chips={planets} cta={cta} />
+        <PharosFinale chips={planets} still />
       </>
     );
   }
@@ -245,16 +246,15 @@ const HeroPharos = ({ committees, clubs, stats, cta = joinCta }) => {
             ))}
           </p>
           <div ref={ctaRef} className="pointer-events-none mt-6 flex max-w-[62%] flex-wrap items-center gap-3 sm:mt-10 sm:gap-4 lg:max-w-none" style={{ opacity: "var(--cta)", transform: "translateY(calc((1 - var(--cta)) * 24px))" }}>
-            <Link to={cta.to} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#FFE7A3] px-5 text-sm sm:h-12 sm:px-7 font-semibold text-[#06121D] shadow-[0_0_40px_rgba(255,220,130,0.45)] transition-transform hover:-translate-y-px">
-              {cta.label} <FiArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <span className="text-xs text-[#BFE0F5] sm:text-sm">{cta.note}</span>
+            <a href={meetCta.href} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#FFE7A3] px-5 text-sm sm:h-12 sm:px-7 font-semibold text-[#06121D] shadow-[0_0_40px_rgba(255,220,130,0.45)] transition-transform hover:-translate-y-px">
+              {meetCta.label} <FiArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
           </div>
         </div>
 
         <div className="relative mx-auto grid h-full max-w-[1280px] content-center items-center gap-8 px-5 pt-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-16">
           <div ref={introRef} style={{ opacity: "calc(1 - var(--out))", transform: "translateY(calc(var(--out) * -90px))" }}>
-            <HeroIntro stats={stats} />
+            <HeroIntro stats={stats} signedIn={signedIn} />
           </div>
           <div ref={orbitRef} className="relative mx-auto aspect-square w-full max-w-[min(560px,86vw,calc(100svh-590px))] lg:max-w-[min(560px,58vh)]" aria-hidden="true">
             <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full overflow-visible" style={{ animation: "hp-ring 1s ease-out 0.2s both" }}>
