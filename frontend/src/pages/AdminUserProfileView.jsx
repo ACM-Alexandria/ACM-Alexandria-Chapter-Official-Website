@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Navbar from "../components/Layout/Navbar";
+import IslandNav from "../components/Layout/IslandNav";
+import { siteSections } from "../components/Layout/siteSections";
 import MemberProfileView from "../components/UserProfile/MemberProfileView";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 
@@ -20,7 +21,7 @@ const AdminUserProfileView = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-[#4B98C8]/20">
-            <Navbar />
+            <IslandNav links={siteSections} home={false} solid />
 
             <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-8">
                 <button

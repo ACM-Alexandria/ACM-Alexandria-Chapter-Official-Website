@@ -25,8 +25,9 @@ const NavItem = ({ href, className, activeClassName = "", onClick, children }) =
 // Full-width and transparent over the hero; once the page has scrolled half a screen it shrinks into a
 // floating, rounded bar (the acmuobd.com navbar). Every change is a 300ms transition. It also carries the
 // theme switch and the account menu, and below `lg` a menu button opens a panel with the links and actions.
-// `links` are [href, label] pairs; on pages other than home the logo links back home.
-const IslandNav = ({ links, home = true }) => {
+// `links` are [href, label] pairs; on pages other than home the logo links back home. `solid` keeps the floating
+// bar from the start, for pages that begin on a light background instead of a PageHero.
+const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -35,7 +36,7 @@ const IslandNav = ({ links, home = true }) => {
   const headerRef = useRef(null);
   const navigate = useNavigate();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
-  const solid = scrolled || menuOpen;
+  const solid = alwaysSolid || scrolled || menuOpen;
 
   const showAdminLink = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"].includes(user?.role);
   const showHRLink = user?.role === "ACM_MEMBER" && user?.committeeName === "HR Committee";

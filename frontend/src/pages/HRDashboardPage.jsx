@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import { FiMail, FiSliders, FiAlertTriangle } from 'react-icons/fi';
 
-import Navbar from '../components/Layout/Navbar';
+import IslandNav from "../components/Layout/IslandNav";
+import { siteSections } from "../components/Layout/siteSections";
 import ManagementSidebar from '../components/AdminPage/ManagementSection/ManagementSidebar';
 import UserManagementTab from '../components/AdminPage/ManagementSection/UserManagementTab';
 import ResourceTable from '../components/AdminPage/ManagementSection/ResourceTable';
@@ -107,7 +108,7 @@ const HRDashboardPage = () => {
 
     return (
         <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
-            <Navbar activeSection="" />
+            <IslandNav links={siteSections} home={false} solid />
 
             <main className="admin-ui pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
                 <AdminPageHeader title="Dashboard" description="Human Resources" />
