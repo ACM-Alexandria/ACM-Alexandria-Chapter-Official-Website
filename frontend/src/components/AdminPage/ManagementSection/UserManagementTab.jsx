@@ -6,7 +6,7 @@ import { labelClass, hintClass, primaryButtonClass, secondaryButtonClass, notice
 import { searchUsers, assignUser } from "../../../services/adminService";
 import { addUserPointsLog } from "../../../services/pointsLogService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/useAuth";
 import { ROLE_OPTIONS, ROLE_LABELS } from "../../../constants/roles";
 import { canShowPhoto } from "../../UserProfile/profileUtils";
 import MembersExportModal from "./MembersExportModal";

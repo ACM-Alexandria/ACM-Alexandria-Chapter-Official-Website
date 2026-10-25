@@ -1,11 +1,10 @@
 import {
-  createContext,
-  useContext,
   useState,
   useEffect,
   useCallback,
 } from "react";
 import tokenService from "../services/tokenService";
+import { AuthContext } from "./AuthContext";
 import {
   login as apiLogin,
   logout as apiLogout,
@@ -15,16 +14,6 @@ import {
   loginWithGoogle as apiLoginWithGoogle,
 } from "../services/authService";
 
-const AuthContext = createContext({
-  isAuthenticated: false,
-  isLoading: true,
-  user: null,
-  login: async () => {},
-  loginWithGoogle: async () => {},
-  logout: async () => {},
-  register: async () => {},
-  updateUser: () => {},
-});
 
 /**
  * AuthProvider — single source of truth for authentication state.
@@ -176,17 +165,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-/**
- * Hook to access authentication state and methods.
- * Must be used within an AuthProvider.
- */
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-export default useAuth;

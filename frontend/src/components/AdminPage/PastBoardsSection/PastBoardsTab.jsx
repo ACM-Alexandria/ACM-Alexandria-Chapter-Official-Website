@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiArchive, FiCalendar, FiEdit2, FiPlus, FiRefreshCw, FiTrash2 } from "react-icons/fi";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/useAuth";
 import {
   fetchCurrentBoardSeason,
   fetchPastSeasons,
