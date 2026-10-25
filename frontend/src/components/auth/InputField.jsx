@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ErrorExclamationIcon } from "../icons";
+import { ErrorExclamationIcon } from "../icons/index";
 
 const InputField = ({
   label,
@@ -19,14 +19,14 @@ const InputField = ({
 
   return (
     <div className="mb-5">
-      <label htmlFor={name} className="block text-[13px] font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1.5 ml-1">
+      <label htmlFor={name} className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-100">
         {label}
         {required && <span className="text-red-500 ml-1 font-bold">*</span>}
       </label>
 
       <div className="relative">
         {Icon && (
-          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 ${isFocused ? "text-[#4B98C8]" : "text-gray-400"}`}>
+          <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${isFocused ? "text-[#2A7AB0] dark:text-[#7DBBE0]" : "text-slate-400"}`}>
             <Icon />
           </div>
         )}
@@ -46,14 +46,14 @@ const InputField = ({
           autoComplete={autoComplete}
           maxLength={maxLength}
           className={`
-            w-full py-2.5 pr-4 ${Icon ? "pl-10" : "pl-4"}
-            bg-gray-50 dark:bg-slate-800 border rounded-xl text-gray-800 dark:text-gray-100 text-sm placeholder-gray-300 dark:placeholder-gray-500
-            outline-none transition-all duration-200
+            w-full pr-4 ${Icon ? "pl-11" : "pl-4"}
+            h-12 rounded-xl bg-white text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-shadow duration-200
+            dark:bg-[#0A1724] dark:text-slate-100 dark:placeholder:text-slate-500
             ${error
-              ? "border-red-400 bg-red-50 dark:bg-red-950/40 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/40"
+              ? "ring-2 ring-red-400 dark:ring-red-500/70"
               : isFocused
-                ? "border-[#4B98C8] bg-white dark:bg-slate-700 ring-2 ring-[#4B98C8]/20"
-                : "border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 focus:border-[#4B98C8] focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-[#4B98C8]/20"
+                ? "ring-2 ring-[#4B98C8]"
+                : "ring-1 ring-[#D6E6F2] hover:ring-[#9CC5E0] dark:ring-white/15 dark:hover:ring-white/25"
             }
           `}
           aria-invalid={error ? "true" : "false"}
@@ -64,7 +64,7 @@ const InputField = ({
       {error && (
         <p
           id={`${name}-error`}
-          className="mt-1.5 text-xs text-red-500 flex items-center gap-1"
+          className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400"
           role="alert"
           style={{ animation: "fadeIn 0.2s ease both" }}
         >
