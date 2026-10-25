@@ -16,13 +16,14 @@ npm run build
 | --- | --- |
 | `pages/` | One component per route (see `App.jsx`). |
 | `components/Home/` | The home page: the hero and lighthouse scene (`scene/`), its sections (`sections/`) and cards (`cards/`), the data loader (`homeData.js`) and wording (`homeContent.js`). |
-| `components/Layout/` | Site frame: `SiteLayout` (navbar, footer, smooth scrolling for public pages), `PageHero`, `IslandNav`, `SiteFooter`, and the `Navbar` used by the admin, HR and profile pages. |
+| `components/Layout/` | Site frame: `SiteLayout` (navbar, footer, smooth scrolling for public pages), `PageHero`, `IslandNav`, `SiteFooter`, and `siteSections` (the navbar links). |
 | `components/ui/` | Shared building blocks in the site design: `Dialog`, `ConfirmDialog`, `SidePanel`, `RegistrationAction`, `MediaCard`, `Pagination`, `EmptyState`, `Marquee`, `OrgTree`, `Portrait`, `Reveal`, `CountUp`, and the class tokens in `uiStyles.js`. |
 | `components/details/` | The event, club, program and exclusive form details panels. |
 | `components/registration/` | The registration flow: profile check, quick confirm, questions, success. |
 | `components/feedback/` | "Help us grow" and suggestions and complaints dialogs. |
 | `components/auth/` | Sign in, sign up and the auth page layout. |
-| `components/AdminPage/`, `components/UserProfile/` | Admin dashboard and profile pages. |
+| `components/profile/` | Your own profile page: side card, tabs, details, edit form, points. |
+| `components/AdminPage/`, `components/UserProfile/` | Admin dashboard and the member profile views admins open. |
 | `contexts/` | `AuthProvider` and the `useAuth` hook. |
 | `hooks/` | Shared hooks: smooth scrolling, overlays and scroll lock, paged lists, details loading, registration status. |
 | `services/` | API calls (axios instance in `api.js`). |

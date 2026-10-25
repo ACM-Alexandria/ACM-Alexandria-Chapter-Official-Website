@@ -18,6 +18,7 @@
 @keyframes hp-wave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes hp-sweep { 0% { transform: translateX(-150%) skewX(-14deg); } 45%, 100% { transform: translateX(520%) skewX(-14deg); } }
 @keyframes hp-bar { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+@keyframes hp-star-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 @keyframes hp-ring { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
