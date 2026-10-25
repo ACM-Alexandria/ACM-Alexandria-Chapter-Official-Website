@@ -1,19 +1,6 @@
 import React from "react";
 import { EXPORT_PRESETS, ROLE_GROUPS, ROLE_OPTIONS } from "../../../constants/roles";
-
-export const COMMITTEE_SCOPED_ROLES = ROLE_OPTIONS
-    .filter((role) => role.scope === "committee")
-    .map((role) => role.value);
-export const CLUB_SCOPED_ROLES = ROLE_OPTIONS
-    .filter((role) => role.scope === "club")
-    .map((role) => role.value);
-export const DEFAULT_MEMBERS_ROLES = [...EXPORT_PRESETS[0].roles];
-
-export const buildMembersFilters = (roles, committeeIds, clubIds) => ({
-    roles,
-    committeeIds: roles.some((role) => COMMITTEE_SCOPED_ROLES.includes(role)) ? committeeIds : [],
-    clubIds: roles.some((role) => CLUB_SCOPED_ROLES.includes(role)) ? clubIds : [],
-});
+import { CLUB_SCOPED_ROLES, COMMITTEE_SCOPED_ROLES } from "./membersFilters";
 
 const toggleValue = (values, value) => values.includes(value)
     ? values.filter((item) => item !== value)

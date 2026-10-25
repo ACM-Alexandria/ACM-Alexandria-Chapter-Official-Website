@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import DOMPurify from "dompurify";
 import { previewCustomEmail, sendCustomEmail } from "../services/adminService";
-import { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../components/AdminPage/SharedComponents/MembersFilter";
+import { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../components/AdminPage/SharedComponents/membersFilters";
 import { useUserRecipientSearch } from "./useUserRecipientSearch";
 
 export const useEmailComposer = ({ committees, clubs }) => {
