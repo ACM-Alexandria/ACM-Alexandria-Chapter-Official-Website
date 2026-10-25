@@ -38,6 +38,12 @@ export const emptyHomeData = {
   counts: { events: 0, programs: 0, radio: 0 },
 };
 
+// The season's newest episode (highest number), for the radio section's player.
+const latestEpisode = (episodes = []) => {
+  const [episode] = [...episodes].sort((a, b) => (b.episodeNumber ?? 0) - (a.episodeNumber ?? 0));
+  return episode ? { number: episode.episodeNumber, title: episode.title, guest: episode.guest, url: episode.url } : null;
+};
+
 export const toHomeData = ({ committees, clubs, highBoard, events, programs, seasons, gallery, social, boardSeasons, stats }) => ({
   committees: items(committees).map((c) => ({
     id: c.id,
@@ -69,7 +75,7 @@ export const toHomeData = ({ committees, clubs, highBoard, events, programs, sea
     time: p.time,
     open: Boolean(p.registrationOpen),
   })),
-  radio: items(seasons).map((r) => ({ id: r.id, season: r.seasonNumber, imageUrl: r.imageUrl, episodes: (r.episodes || []).length })),
+  radio: items(seasons).map((r) => ({ id: r.id, season: r.seasonNumber, imageUrl: r.imageUrl, episodes: (r.episodes || []).length, latest: latestEpisode(r.episodes) })),
   gallery: items(gallery).map((g) => g.imageUrl).filter(Boolean),
   social: items(social).map((s) => ({ platform: s.platform, url: s.url })),
   currentSeason: boardSeasons?.currentSeason ?? null,

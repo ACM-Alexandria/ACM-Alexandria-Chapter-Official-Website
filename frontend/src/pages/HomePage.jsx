@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { FiBookOpen, FiCalendar, FiClock, FiMapPin, FiRadio } from "react-icons/fi";
+import { useSearchParams } from "react-router-dom";
+import { FiClock } from "react-icons/fi";
 import { useAuth } from "../contexts/useAuth";
 import { fetchActiveExclusiveForms, fetchPartners } from "../services/homePageService";
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
@@ -10,26 +10,22 @@ import HeroPharos from "../components/Home/scene/HeroPharos";
 import GallerySection from "../components/Home/sections/GallerySection";
 import ExclusiveFormsSection from "../components/Home/sections/ExclusiveFormsSection";
 import PeopleSection from "../components/Home/sections/PeopleSection";
-import ActivitySection from "../components/Home/sections/ActivitySection";
+import EventsSection from "../components/Home/sections/EventsSection";
+import ProgramsSection from "../components/Home/sections/ProgramsSection";
+import RadioSection from "../components/Home/sections/RadioSection";
 import PartnersSection from "../components/Home/sections/PartnersSection";
-import FeatureCard from "../components/Home/cards/FeatureCard";
-import SmallCard from "../components/Home/cards/SmallCard";
 import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/details/ClubDetailsSidebar";
 import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
 import ExclusiveFormDetailsSidebar from "../components/details/ExclusiveFormDetailsSidebar";
 import RegistrationModal from "../components/registration/RegistrationModal";
 import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
-import { joinCta, profileCta } from "../components/Home/homeContent";
-import { eventDate, summary } from "../utils/format";
-import { muted } from "../components/ui/uiStyles";
 
 // The public home page: the hero and lighthouse scene, the gallery, the chapter's people, then events,
 // programs, and ACM Radio, with the exclusive forms and partners when there are any. A section without content
 // is left out. Design: docs/home-page-redesign/DESIGN.md.
 const HomePage = () => {
   const { isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState(emptyHomeData);
   const [loading, setLoading] = useState(true);
@@ -115,16 +111,11 @@ const HomePage = () => {
     has("radio") && ["#radio", "Radio"],
   ].filter(Boolean);
 
-  const [featuredEvent, ...otherEvents] = data.events;
-  const [featuredProgram, ...otherPrograms] = data.programs;
-  const [featuredSeason, ...otherSeasons] = data.radio;
-  const episodes = data.radio.reduce((total, season) => total + season.episodes, 0);
-
   return (
     <div className="hp admin-ui min-h-screen bg-[#F3F7FB] text-slate-800 dark:bg-[#0A1724] dark:text-slate-100">
       <IslandNav links={links} />
 
-      <HeroPharos committees={committees} clubs={clubs} stats={data.stats} cta={isAuthenticated ? profileCta : joinCta} />
+      <HeroPharos committees={committees} clubs={clubs} stats={data.stats} signedIn={isAuthenticated} />
 
       {data.gallery.length > 0 && <GallerySection images={data.gallery} />}
 
@@ -143,36 +134,11 @@ const HomePage = () => {
           isRegistrationModalOpen={panel === "apply"}
         />
 
-        {has("events") && (
-          <ActivitySection id="events" icon={FiCalendar} label="Events" count={data.counts.events} countLabel={data.counts.events === 1 ? "event this year" : "events this year"} text="Workshops, talks, and competitions open to every student." to="/events" cta={`See all ${data.counts.events} events`} tone="white" loading={loading}
-            featured={featuredEvent && (
-              <FeatureCard image={featuredEvent.imageUrl} badge="Latest" title={featuredEvent.name} meta={eventDate(featuredEvent.time).full} text={summary(featuredEvent.description, 190)} onClick={() => openEvent(featuredEvent.id)}>
-                {featuredEvent.location && <p className={`mt-4 flex items-center gap-1.5 text-sm font-medium ${muted}`}><FiMapPin className="h-4 w-4" aria-hidden="true" />Room {featuredEvent.location}</p>}
-              </FeatureCard>
-            )}
-            more={otherEvents.slice(0, 3).map((e, i) => <SmallCard key={e.id} image={e.imageUrl} title={e.name} meta={eventDate(e.time).full} onClick={() => openEvent(e.id)} index={i} />)}
-          />
-        )}
+        {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} onShowEvent={openEvent} />}
 
-        {has("programs") && (
-          <ActivitySection id="programs" icon={FiBookOpen} label="Programs" count={data.counts.programs} countLabel={data.counts.programs === 1 ? "training program" : "training programs"} text="Longer tracks that meet every week and build real skills." to="/programs" cta="See all programs" flip loading={loading}
-            featured={featuredProgram && (
-              <FeatureCard image={featuredProgram.imageUrl} badge={featuredProgram.open ? "Registration open" : "Registration closed"} title={featuredProgram.name} meta={featuredProgram.time} text={summary(featuredProgram.description, 190)} onClick={() => openProgram(featuredProgram.id)}>
-                {featuredProgram.startDate && <p className={`mt-4 text-sm font-medium ${muted}`}>{eventDate(featuredProgram.startDate).day} {eventDate(featuredProgram.startDate).month} to {eventDate(featuredProgram.endDate).day} {eventDate(featuredProgram.endDate).month}</p>}
-              </FeatureCard>
-            )}
-            more={otherPrograms.slice(0, 3).map((p, i) => <SmallCard key={p.id} image={p.imageUrl} title={p.name} meta={p.time} onClick={() => openProgram(p.id)} index={i} />)}
-          />
-        )}
+        {has("programs") && <ProgramsSection loading={loading} programs={data.programs} count={data.counts.programs} onShowProgram={openProgram} />}
 
-        {has("radio") && (
-          <ActivitySection id="radio" icon={FiRadio} label="ACM Radio" count={data.counts.radio} countLabel={`seasons, ${episodes} episodes`} text="Conversations with members, guests, and alumni about tech and student life." to="/radio" cta="Listen to ACM Radio" tone="white" loading={loading}
-            featured={featuredSeason && (
-              <FeatureCard image={featuredSeason.imageUrl} badge="Newest season" title={`Season ${featuredSeason.season}`} meta={`${featuredSeason.episodes} ${featuredSeason.episodes === 1 ? "episode" : "episodes"} so far`} text="The latest season of ACM Radio, recorded by the chapter's own members." onClick={() => navigate(`/radio/seasons/${featuredSeason.id}`)} />
-            )}
-            more={otherSeasons.slice(0, 3).map((r, i) => <SmallCard square key={r.id} image={r.imageUrl} title={`Season ${r.season}`} meta={`${r.episodes} episodes`} to={`/radio/seasons/${r.id}`} index={i} />)}
-          />
-        )}
+        {has("radio") && <RadioSection loading={loading} seasons={data.radio} count={data.counts.radio} />}
 
         {(partnersLoading || partners.length > 0) && <PartnersSection loading={partnersLoading} partners={partners} />}
       </main>

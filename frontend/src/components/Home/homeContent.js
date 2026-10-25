@@ -2,9 +2,8 @@
 export const tagline = "Discover the world of technology, innovation, and community";
 export const contactEmail = "alexandria.acm.chapter@gmail.com";
 
-// The closing call to action of the lighthouse scene: join for visitors, the profile for signed-in members.
-export const joinCta = { to: "/register", label: "Join ACM Alexandria", note: "Create an account, then apply when a committee call opens." };
-export const profileCta = { to: "/profile", label: "Go to your profile", note: "See your committees, points, and registrations." };
+// The closing call to action of the lighthouse scene: it scrolls to the chapter's people.
+export const meetCta = { href: "#people", label: "Meet the chapter" };
 
 // The hero's three totals from /api/stats, each rounded down to the nearest ten and shown with a "+"
 // (exact below ten): every user account, ACM members (members and the three boards), and event plus

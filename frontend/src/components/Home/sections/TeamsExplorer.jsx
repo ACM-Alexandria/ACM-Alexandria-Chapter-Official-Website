@@ -48,7 +48,7 @@ const TeamsExplorer = ({ groups, myCommitteeId = null, onApply, onShowClub, isRe
       </div>
 
       <div key={`${tab}-${team.id}`} className="grid gap-10 p-6 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) both" }}>
+        <div style={{ animation: "hp-rise 0.35s cubic-bezier(0.22,1,0.36,1) both" }}>
           <TeamLogo src={team.image} name={team.name} className="h-24 w-24 rounded-3xl !text-2xl shadow-[0_20px_40px_-20px_rgba(32,94,133,0.6)]" />
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <h3 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">{team.name}</h3>
