@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiX, FiLoader, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import hrFeedbackService from "../../../services/hrFeedbackService";
+import hrFeedbackService from "../../services/hrFeedbackService";
 
 const BRAND = "#4B98C8";
 const BRAND_DARK = "#205E85";

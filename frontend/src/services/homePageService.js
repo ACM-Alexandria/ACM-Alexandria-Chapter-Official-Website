@@ -99,35 +99,6 @@ export const fetchProgramById = async (id) => {
   }
 };
 
-// Fetch all home page data on load
-export const fetchHomePageData = async () => {
-  const results = await Promise.allSettled([
-    fetchClubs(0).catch(() => ({ content: [] })),
-    fetchCommittee().catch(() => []),
-    fetchHighBoard().catch(() => []),
-    fetchEvents(0).catch(() => ({ content: [] })),
-    fetchPrograms(0).catch(() => ({ content: [] })),
-    fetchSeasons().catch(() => []),
-  ]);
-
-  const extractContent = (result) => {
-    if (result.status !== "fulfilled") return [];
-    const val = result.value;
-    if (Array.isArray(val)) return val;
-    if (val && Array.isArray(val.content)) return val.content;
-    return [];
-  };
-
-  return {
-    clubs: extractContent(results[0]),
-    committee: results[1].status === "fulfilled" ? results[1].value : [],
-    highBoard: results[2].status === "fulfilled" ? results[2].value : [],
-    events: extractContent(results[3]),
-    programs: extractContent(results[4]),
-    seasons: extractContent(results[5]),
-  };
-};
-
 // Fetch social links
 export const fetchSocialLinks = async () => {
   try {
@@ -239,4 +210,10 @@ export const fetchPartners = async () => {
     console.error("Error fetching partners:", error);
     throw error;
   }
+};
+
+// Fetch the public chapter totals: users, members, and event and program registrations
+export const fetchStats = async () => {
+  const response = await api.get("/api/stats");
+  return response.data; // { users, members, eventRegistrations, programRegistrations }
 };
