@@ -5,6 +5,8 @@ const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    // The home page scrolls to its own sections once their content has loaded.
+    if (hash && pathname === "/") return;
     if (hash) {
       const sectionId = decodeURIComponent(hash.replace("#", ""));
       const target = document.getElementById(sectionId);
