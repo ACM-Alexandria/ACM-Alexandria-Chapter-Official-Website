@@ -2,21 +2,20 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import acmLogo from "../../assets/logo/acm-logo-no-bg.png";
-import Pharos from "../Home/scene/Pharos";
 import NightSky from "../ui/NightSky";
 
 const stars = Array.from({ length: 40 }, (_, i) => ({ x: (i * 41.3) % 100, y: (i * 23.7) % 70, size: i % 6 === 0 ? 2.5 : 1.5, delay: (i % 5) * 0.8 }));
 
 /**
- * Shared layout for the auth pages, in the site's design: the night sky with the chapter's lit lighthouse on
+ * Shared layout for the auth pages, in the site's design: the night sky with the chapter's tagline on
  * one side (from `md` up) and the form on the other.
  *
  * Props:
  *  - title        : string — form heading
  *  - subtitle     : string — small description below heading
- *  - panelTagline : node   — the line on the lighthouse panel
- *  - panelSub     : string — supporting text on the lighthouse panel
- *  - isReversed   : bool   — put the lighthouse panel on the right (sign up)
+ *  - panelTagline : node   — the line on the night-sky panel
+ *  - panelSub     : string — supporting text on the night-sky panel
+ *  - isReversed   : bool   — put the night-sky panel on the right (sign up)
  *  - children     : node   — form content
  */
 const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = false, children }) => {
@@ -39,27 +38,12 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
           ))}
         </div>
         <NightSky />
-        <div className="absolute bottom-0 right-[6%] h-[min(45%,540px)]" style={{ aspectRatio: "1 / 2" }}>
-          <div
-            className="pointer-events-none absolute h-[106vmax] w-[150vmax] origin-left"
-            style={{
-              left: "50%",
-              top: "15.5%",
-              marginTop: "-53vmax",
-              transform: "rotate(200deg)",
-              opacity: 0.8,
-              clipPath: "polygon(0 49.4%, 100% 32%, 100% 68%, 0 50.6%)",
-              background: "linear-gradient(90deg, rgba(255,236,170,0.7) 0%, rgba(255,226,140,0.25) 35%, rgba(255,226,140,0) 80%)",
-            }}
-          />
-          <Pharos build={1} light={1} className="relative h-full w-full" />
-        </div>
         <div className="relative z-10 flex h-full flex-col p-10 lg:p-12">
           <Link to="/" tabIndex={-1} className="flex items-center gap-3 text-white">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white"><img src={acmLogo} alt="" className="h-8 w-8 object-contain" /></span>
             <span className="text-base font-semibold">ACM Alexandria</span>
           </Link>
-          <div className="mt-12 max-w-sm lg:mt-20">
+          <div className="my-auto max-w-sm pb-12">
             <p className="text-3xl font-semibold leading-tight tracking-tight text-[#FFF4CC]" style={{ animation: "hp-rise 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>{panelTagline}</p>
             {panelSub && <p className="mt-4 text-base leading-relaxed text-[#CFE6F5]" style={{ animation: "hp-rise 0.7s ease-out 0.2s both" }}>{panelSub}</p>}
           </div>
