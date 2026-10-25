@@ -1,93 +1,26 @@
-import { 
-  HiOutlineX, 
-  HiOutlineExclamationCircle, 
-  HiOutlineQuestionMarkCircle,
-  HiOutlineCheck
-} from "react-icons/hi";
+import { FiAlertCircle, FiHelpCircle } from "react-icons/fi";
+import SuccessView from "./SuccessView";
+import { registrationCopy } from "./registrationCopy";
+import { errorBox, muted, primaryButton, secondaryButton } from "../ui/uiStyles";
 
-const SimpleConfirmModal = ({ isVisible, onClose, type, entityName, onSubmit, submitting, error, success }) => {
-  
-  // Receives visual transition tracker from parent Orchestrator
+// Registration with no questions: one confirmation, then the success view.
+const SimpleConfirmModal = ({ onClose, type, entityName, onSubmit, submitting, error, success }) => {
+  const words = registrationCopy(type);
+  if (success) return <SuccessView title={words.done} entityName={entityName} onClose={onClose} />;
   return (
-    <div className={`relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl dark:shadow-slate-950/60 border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-      isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-12 scale-95 opacity-0"
-    }`}>
-      
-      {/* Close Button */}
-      {!submitting && !success && (
-        <button
-          onClick={onClose}
-          className="absolute right-6 top-6 w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 flex items-center justify-center transition-all hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-100 active:scale-95 z-10"
-        >
-          <HiOutlineX className="w-5 h-5" />
-        </button>
-      )}
-
-      <div className="p-8 md:p-10 flex flex-col items-center text-center">
-        {success ? (
-          /* Success View */
-          <div className="space-y-6 py-4 animate-[fadeInUp_0.4s_ease] w-full">
-            <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-500 dark:text-emerald-300 mx-auto shadow-inner animate-[bounce_1s_ease_infinite_alternate]">
-              <HiOutlineCheck className="w-10 h-10" strokeWidth={3} />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-xl font-black text-slate-900 dark:text-slate-100">Registration Saved!</h4>
-              <p className="text-slate-500 dark:text-slate-300 font-medium text-sm leading-relaxed">
-                You have successfully registered for <span className="text-slate-800 dark:text-slate-100 font-bold">"{entityName}"</span>. 
-                Please check your inbox for a <span className="text-[#4B98C8] font-bold">confirmation email</span> soon!
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-full mt-4 px-6 py-3.5 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-2xl text-sm transition-all hover:bg-slate-800 dark:hover:bg-slate-600 hover:shadow-lg active:scale-95"
-            >
-              Done
-            </button>
-          </div>
-        ) : (
-          /* Active Question Prompt View */
-          <form onSubmit={onSubmit} className="w-full space-y-6 pt-4">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#4B98C8] flex items-center justify-center mx-auto mb-2">
-              <HiOutlineQuestionMarkCircle className="w-10 h-10" />
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-slate-400 uppercase tracking-widest leading-none">
-                {type === "event" ? "Event Signup" : "Club Application"}
-              </h3>
-              <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 leading-snug px-2">
-                Are you sure you want to {type === "event" ? "register to" : "join"} "{entityName}"?
-              </h2>
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-4 py-3.5 text-left text-xs font-bold animate-[fadeIn_0.3s_ease]">
-                <HiOutlineExclamationCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="flex gap-3 w-full pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={submitting}
-                className="flex-1 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 rounded-2xl font-bold text-[15px] hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-all disabled:opacity-50"
-              >
-                No, Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 py-4 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white rounded-2xl font-bold text-[15px] shadow-lg shadow-blue-100 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-70"
-              >
-                {submitting ? "Processing..." : "Yes, Confirm"}
-              </button>
-            </div>
-          </form>
-        )}
+    <form onSubmit={onSubmit} className="px-6 pb-6 pt-8 text-center sm:px-8">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#7DBBE0]"><FiHelpCircle className="h-6 w-6" aria-hidden="true" /></span>
+      <p className="mt-5 text-xs font-semibold text-[#2A7AB0] dark:text-[#7DBBE0]">{words.eyebrow}</p>
+      <h2 id="registration-title" className="mt-1 text-xl font-semibold tracking-tight text-slate-900 dark:text-white" style={{ textWrap: "balance" }}>
+        {words.verb[0].toUpperCase() + words.verb.slice(1)} {entityName}?
+      </h2>
+      <p className={`mt-2 text-sm ${muted}`}>We'll use the details in your profile.</p>
+      {error && <p className={`mt-5 text-left ${errorBox}`}><FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{error}</p>}
+      <div className="mt-7 grid grid-cols-2 gap-3">
+        <button type="button" onClick={onClose} disabled={submitting} className={secondaryButton}>Not now</button>
+        <button type="submit" disabled={submitting} className={primaryButton}>{submitting ? "Sending…" : "Yes, confirm"}</button>
       </div>
-    </div>
+    </form>
   );
 };
 
