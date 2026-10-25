@@ -165,16 +165,19 @@ const RichTextToolbar = ({ editor }) => {
             </ToolbarGroup>
 
             <ToolbarGroup>
-                {ALIGNMENTS.map(([alignment, title, Icon]) => (
-                    <ToolbarButton
-                        key={alignment}
-                        title={title}
-                        active={state.textAlign === alignment}
-                        onClick={() => editor.chain().focus().setTextAlign(alignment).run()}
-                    >
-                        <Icon {...ICON} />
-                    </ToolbarButton>
-                ))}
+                {ALIGNMENTS.map((entry) => {
+                    const [alignment, title, AlignIcon] = entry;
+                    return (
+                        <ToolbarButton
+                            key={alignment}
+                            title={title}
+                            active={state.textAlign === alignment}
+                            onClick={() => editor.chain().focus().setTextAlign(alignment).run()}
+                        >
+                            <AlignIcon {...ICON} />
+                        </ToolbarButton>
+                    );
+                })}
             </ToolbarGroup>
 
             <LinkEditor editor={editor} active={state.link} />

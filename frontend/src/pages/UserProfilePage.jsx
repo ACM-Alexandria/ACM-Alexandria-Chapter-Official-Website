@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
 import { fetchUserPointsLogs } from "../services/pointsLogService";
-import Navbar from "../components/HomePage/Navbar";
+import Navbar from "../components/Layout/Navbar";
 import { ProfileHeader, ProfileDetails, Panel } from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
 import PointsLogSection from "../components/UserProfile/PointsLogSection";
@@ -125,10 +125,12 @@ const UserProfilePage = () => {
     const loadPointsLogs = async () => {
       try {
         const data = await fetchUserPointsLogs(user.id, pointsPage);
+        setPointsError(null);
         setPointsLogs(data.content || []);
         setTotalPages(data.totalPages || 0);
       } catch (err) {
         console.error("Failed to load points logs:", err);
+        setPointsError("We couldn't load your points history. Please try again later.");
       }
     };
 

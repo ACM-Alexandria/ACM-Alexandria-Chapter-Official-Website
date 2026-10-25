@@ -1,11 +1,10 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo/acm-logo-no-bg.png";
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser, HiOutlineShieldCheck } from "react-icons/hi2";
-import { getEnv } from "../../utils/env";
-import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
+import { ThemeToggleButton } from "./ThemeToggleButton";
 import HRFolderIcon from '../icons/HRFolderIcon';
 
 const Navbar = ({ activeSection }) => {
@@ -16,7 +15,6 @@ const Navbar = ({ activeSection }) => {
   const navListRef = useRef(null);
   const profileMenuRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
 
   // Admin Tools: super admin, high board, committee board and club board
@@ -25,38 +23,20 @@ const Navbar = ({ activeSection }) => {
   // HR Dashboard: only ACM members who belong to the HR Committee
   const showHRLink = user?.role === 'ACM_MEMBER' && user?.committeeName === 'HR Committee';
 
-  const isEnabled = (envVal) => envVal !== "false";
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) return savedTheme === "dark";
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+  // The home page's sections; the home page scrolls to the section once it has loaded.
   const navItems = [
-    isEnabled(getEnv("VITE_ENABLE_ABOUT")) && { id: "about", label: "About Us" },
-    isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && { id: "committees", label: "Committees" },
-    isEnabled(getEnv("VITE_ENABLE_CLUBS")) && { id: "clubs", label: "Clubs" },
-    isEnabled(getEnv("VITE_ENABLE_EVENTS")) && { id: "events", label: "Events" },
-    isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && { id: "programs", label: "Programs" },
-    isEnabled(getEnv("VITE_ENABLE_RADIO")) && { id: "radio", label: "Radio" },
-    isEnabled(getEnv("VITE_ENABLE_SERVICES")) && { id: "services", label: "Services" },
-  ].filter(Boolean);
+    { id: "people", label: "People" },
+    { id: "events", label: "Events" },
+    { id: "programs", label: "Programs" },
+    { id: "radio", label: "Radio" },
+  ];
 
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const handleSectionNavigation = (sectionId) => {
-    if (location.pathname !== "/") {
-      navigate("/");
-      setTimeout(() => scrollToSection(sectionId), 120);
-      return;
-    }
-
-    scrollToSection(sectionId);
-  };
+  const handleSectionNavigation = (sectionId) => navigate(`/#${sectionId}`);
 
   // Update indicator position when active section changes
   useEffect(() => {

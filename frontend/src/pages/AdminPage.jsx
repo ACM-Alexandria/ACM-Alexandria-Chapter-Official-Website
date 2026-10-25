@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/HomePage/Navbar";
+import Navbar from "../components/Layout/Navbar";
 import adminService from "../services/adminService";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import {
   fetchHighBoard,
   fetchSeasons,

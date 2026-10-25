@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { FiMail, FiSliders, FiAlertTriangle } from 'react-icons/fi';
 
-import Navbar from '../components/HomePage/Navbar';
+import Navbar from '../components/Layout/Navbar';
 import ManagementSidebar from '../components/AdminPage/ManagementSection/ManagementSidebar';
 import UserManagementTab from '../components/AdminPage/ManagementSection/UserManagementTab';
 import ResourceTable from '../components/AdminPage/ManagementSection/ResourceTable';

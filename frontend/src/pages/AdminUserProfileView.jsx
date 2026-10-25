@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Navbar from "../components/HomePage/Navbar";
+import Navbar from "../components/Layout/Navbar";
 import MemberProfileView from "../components/UserProfile/MemberProfileView";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 

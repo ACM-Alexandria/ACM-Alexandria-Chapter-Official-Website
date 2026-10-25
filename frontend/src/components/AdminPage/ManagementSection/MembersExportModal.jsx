@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FiExternalLink, FiRefreshCw, FiRotateCcw, FiUsers } from "react-icons/fi";
 import { previewMembersExport, exportMembersSheet } from "../../../services/adminService";
-import MembersFilter, { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../SharedComponents/MembersFilter";
+import MembersFilter from "../SharedComponents/MembersFilter";
+import { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../SharedComponents/membersFilters";
 import { ROLE_OPTIONS, ROLE_GROUPS, EXPORT_PRESETS } from "../../../constants/roles";
 import ModalShell from "../SharedComponents/ModalShell";
 import {

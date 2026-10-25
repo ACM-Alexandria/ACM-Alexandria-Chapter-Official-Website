@@ -11,20 +11,17 @@ const STYLES = {
     },
 };
 
+// Shows a message, then hides it after `duration`; a new message shows again.
 const StatusAlert = ({ type, message, duration = 3000 }) => {
-    const [visible, setVisible] = useState(false);
+    const [dismissed, setDismissed] = useState(null);
 
     useEffect(() => {
-        if (!message) {
-            setVisible(false);
-            return;
-        }
-        setVisible(true);
-        const timer = setTimeout(() => setVisible(false), duration);
+        if (!message) return undefined;
+        const timer = setTimeout(() => setDismissed(message), duration);
         return () => clearTimeout(timer);
     }, [message, duration]);
 
-    if (!message || !visible) return null;
+    if (!message || dismissed === message) return null;
     const { role, className } = STYLES[type];
     return (
         <div className={`mb-4 rounded-lg border px-4 py-3 text-sm ${className}`} role={role}>
