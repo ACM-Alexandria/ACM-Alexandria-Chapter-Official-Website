@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "../services/authService";
 import { validateEmail } from "../utils/validation";
-import { EnvelopeIcon } from "../components/icons";
+import { EnvelopeIcon } from "../components/icons/index";
 import InputField from "../components/auth/InputField";
 import Toast from "../components/Toast";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -102,22 +102,13 @@ const ForgotPassword = () => {
             disabled={isLoading}
             aria-busy={isLoading}
             className={`
-              relative w-full mt-2 py-3 px-6 flex items-center justify-center gap-2
-              bg-gradient-to-r from-[#4B98C8] to-[#205E85]
-              text-white font-bold text-sm rounded-xl
-              shadow-md overflow-hidden transition-all duration-300
-              ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-lg hover:from-[#5aa3d0] hover:to-[#256b96]"}
+              relative w-full mt-2 h-12 px-6 flex items-center justify-center gap-2
+              bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+              text-white font-semibold text-sm rounded-xl
+               overflow-hidden transition-all duration-300
+              ${isLoading ? "opacity-70 cursor-not-allowed" : ""}
             `}
           >
-            <span
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 2.8s linear infinite",
-              }}
-            />
             {isLoading ? (
               <>
                 <span
@@ -133,15 +124,15 @@ const ForgotPassword = () => {
           </button>
 
           <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-300">
+            <p className="text-sm text-slate-500 dark:text-slate-300">
               Remember your password?{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
                 Sign In
               </Link>
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />
@@ -159,28 +150,28 @@ const ForgotPassword = () => {
           style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <div
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+            className="w-16 h-16 rounded-full bg-[#205E85] dark:bg-[#4B98C8] dark:text-[#081826] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
             style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
           >
             ✓
           </div>
-          <h2 className="text-xl font-extrabold text-gray-800 dark:text-gray-100 mb-2 tracking-tight">Email sent!</h2>
-          <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-6">
+          <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Email sent!</h2>
+          <p className="text-slate-500 dark:text-slate-300 text-sm leading-relaxed mb-6">
             If an account with this email exists, a password reset link has been sent.
             <br />
             Please check your inbox and spam folder.
           </p>
 
           <div className="flex flex-col items-center gap-2.5 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-300">
+            <p className="text-sm text-slate-500 dark:text-slate-300">
               Return to{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
                 Sign In
               </Link>
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />
