@@ -1,9 +1,7 @@
 import IslandNav from "./IslandNav";
 import SiteFooter from "./SiteFooter";
 import { useSmoothScroll } from "../../hooks/useSmoothScroll";
-
-// The same sections as the home page's navbar; each opens the home page at that section.
-const sections = [["/#people", "People"], ["/#events", "Events"], ["/#programs", "Programs"], ["/#radio", "Radio"]];
+import { siteSections as sections } from "./siteSections";
 
 // The frame of every public page other than home: the island navbar, smooth scrolling, the page, and the footer.
 // Pages start with a PageHero so the transparent navbar sits on deep blue, as it does over the home hero.
