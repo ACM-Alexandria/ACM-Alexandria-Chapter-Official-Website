@@ -1,0 +1,23 @@
+/* Motion for the home page. Calm, purposeful, and switched off for reduced motion. */
+@keyframes hp-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes hp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hp-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes hp-orbit { to { transform: rotate(360deg); } }
+@keyframes hp-counter { to { transform: rotate(-360deg); } }
+@keyframes hp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes hp-marquee-set { from { transform: translateX(0); } to { transform: translateX(var(--marquee-shift)); } }
+@keyframes hp-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes hp-shoot {
+  0%, 88% { opacity: 0; transform: translate(0, 0) rotate(-24deg); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-340px, 150px) rotate(-24deg); }
+}
+@keyframes hp-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes hp-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hp-flicker { 0%, 100% { scale: 1; } 40% { scale: 1.04 0.97; } 70% { scale: 0.97 1.03; } }
+@keyframes hp-wave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes hp-ring { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hp *, .hp *::before, .hp *::after { animation: none !important; transition: none !important; }
+}
