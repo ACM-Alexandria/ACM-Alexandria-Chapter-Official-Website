@@ -7,6 +7,9 @@ import { shortName } from "../../../utils/format";
 import { useScrollFrame, clamp01 } from "../../../hooks/useScrollFrame";
 import TeamLogo from "../../ui/TeamLogo";
 
+// The lighthouse in the still scene is sized from its own screen, which is shorter than the viewport.
+const stillFrameClass = "absolute bottom-[13%] right-[-4%] h-[64%] sm:right-[4%] sm:h-[66%]";
+
 const sentence = "Alexandria lit the way for the ancient world. We light the way into computing.";
 const words = sentence.split(" ");
 const stars = Array.from({ length: 60 }, (_, i) => ({ x: (i * 41.3) % 100, y: (i * 23.7) % 62, size: i % 6 === 0 ? 2.5 : 1.5, delay: (i % 5) * 0.8 }));
@@ -40,7 +43,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
   useScrollFrame(onFrame);
 
   return (
-    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-[#0F3A5A] dark:bg-[#081826] ${still ? "h-[min(100svh,34rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
+    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-[#0F3A5A] dark:bg-[#081826] ${still ? "h-[min(100svh,34rem)] sm:h-[min(100svh,40rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
       <div className={`sticky top-0 overflow-hidden ${still ? "h-full" : "h-screen"} bg-[linear-gradient(180deg,#0F3A5A_0%,#0A2740_20%,#06121D_48%,#0B2236_78%,#0F3A5A_100%)] dark:bg-[linear-gradient(180deg,#081826_0%,#06121D_42%,#0B2236_78%,#0F3A5A_100%)]`}>
         <div aria-hidden="true" className="absolute inset-0">
           {stars.map((s, i) => (
@@ -69,7 +72,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
           ))}
         </ul>}
 
-        <div className={pharosFrameClass} style={{ aspectRatio: "1 / 2" }}>
+        <div className={still ? stillFrameClass : pharosFrameClass} style={{ aspectRatio: "1 / 2" }}>
           <div
             aria-hidden="true"
             className="pointer-events-none absolute h-[106vmax] w-[150vmax] origin-left"
