@@ -52,4 +52,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   @Query("SELECT u.createdAt FROM User u ORDER BY u.createdAt ASC")
   List<java.time.LocalDateTime> findAllCreatedTimes();
+
+  /** Users holding any of these roles, for the public chapter totals. */
+  long countByRoleIn(Collection<Role> roles);
 }
