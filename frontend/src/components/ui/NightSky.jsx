@@ -1,4 +1,4 @@
-// Twinkling stars and a rare shooting star. Shown only in dark mode, behind the hero content.
+// Twinkling stars and a rare shooting star, behind a section's content. Shown only in dark mode unless `always`.
 const stars = Array.from({ length: 110 }, (_, i) => ({
   x: (i * 37.7) % 100,
   y: (i * 61.3) % 100,
@@ -6,8 +6,8 @@ const stars = Array.from({ length: 110 }, (_, i) => ({
   delay: (i % 7) * 0.65,
 }));
 
-const NightSky = () => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden dark:block">
+const NightSky = ({ always = false }) => (
+  <div aria-hidden="true" className={`pointer-events-none absolute inset-0 overflow-hidden ${always ? "" : "hidden dark:block"}`}>
     {stars.map((s, i) => (
       <span
         key={i}
