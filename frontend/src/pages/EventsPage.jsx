@@ -1,192 +1,64 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import Navbar from "../components/HomePage/Navbar";
-import Footer from "../components/HomePage/Footer";
-import EventCard from "../components/HomePage/cards/EventCard";
-import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
-import Pagination from "../components/HomePage/Pagination";
+import { useCallback, useState } from "react";
+import { FiAlertCircle, FiCalendar } from "react-icons/fi";
+import SiteLayout from "../components/Layout/SiteLayout";
+import PageHero from "../components/Layout/PageHero";
+import MediaCard, { StateTag } from "../components/ui/MediaCard";
+import Pagination from "../components/ui/Pagination";
+import EmptyState from "../components/ui/EmptyState";
+import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
 import { fetchEvents } from "../services/homePageService";
+import usePagedList from "../hooks/usePagedList";
+import useOpenFromQuery from "../hooks/useOpenFromQuery";
+import { eventDate, summary } from "../utils/format";
+import { skeleton } from "../components/ui/uiStyles";
 
+// Every chapter event, newest first, twelve to a page. A card opens the event's details and registration.
 const EventsPage = () => {
-    const [events, setEvents] = useState([]);
-    const [totalPages, setTotalPages] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [showPageContent, setShowPageContent] = useState(false);
-    const [selectedEventId, setSelectedEventId] = useState(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const list = usePagedList(fetchEvents, "We couldn't load the events. Please try again later.");
+  const [eventId, setEventId] = useState(null);
+  const [open, setOpen] = useState(false);
+  const show = useCallback((id) => { setEventId(id); setOpen(true); }, []);
+  useOpenFromQuery("openEventId", show);
+  const now = new Date();
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
-    const urlPage = Number(searchParams.get("page") || 1);
-    const currentPage = Math.max(0, urlPage - 1);
-
-    const handleShowEventDetails = (eventId) => {
-        setSelectedEventId(eventId);
-        setIsSidebarOpen(true);
-    };
-
-    const handleCloseSidebar = () => {
-        setIsSidebarOpen(false);
-    };
-
-
-    // Recovers sidebar visible configuration if user returns via login redirect pipelines
-    useEffect(() => {
-        const openEventId = searchParams.get("openEventId");
-        if (openEventId) {
-            handleShowEventDetails(Number(openEventId));
-            const newParams = new URLSearchParams(searchParams);
-            newParams.delete("openEventId");
-            setSearchParams(newParams, { replace: true });
-        }
-    }, [searchParams]);
-
-    useEffect(() => {
-        AOS.init({ duration: 800, once: true, offset: 80 });
-    }, []);
-
-    useEffect(() => {
-        const load = async () => {
-            setLoading(true);
-            setShowPageContent(false);
-            setError(null);
-            try {
-                const data = await fetchEvents(currentPage);
-                if (data && data.content !== undefined) {
-                    setEvents(data.content);
-                    setTotalPages(data.totalPages ?? 1);
-                } else if (Array.isArray(data)) {
-                    setEvents(data);
-                    setTotalPages(1);
-                }
-            } catch (err) {
-                console.error("Failed to load events:", err);
-                setError("Failed to load events. Please try again later.");
-            } finally {
-                setLoading(false);
-                requestAnimationFrame(() => setShowPageContent(true));
-            }
-        };
-        load();
-    }, [currentPage]);
-
-    const handlePageChange = (pageIndex) => {
-        if (pageIndex === currentPage) return;
-        window.location.href = `/events?page=${pageIndex + 1}`;
-    };
-
-    return (
-        <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
-            <Navbar />
-
-            <main className="flex-1 pt-[74px]">
-                {/* Page Header */}
-                <div className="relative py-24 px-6 overflow-hidden bg-white dark:bg-slate-900">
-                    {/* Back to Home Button */}
-                    <div className="absolute top-6 left-6 z-20">
-                        <Link 
-                            to="/" 
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 dark:hover:shadow-slate-950/40 transition-all duration-300 font-bold text-sm group"
-                        >
-                            <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                            Back to Home
-                        </Link>
-                    </div>
-
-                    {/* Background Blobs */}
-                    <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />
-                    
-                    <div className="relative z-10 max-w-4xl mx-auto text-center">
-                        <h2
-                            className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-4"
-                            style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) both" }}
-                        >
-                            Our Events
-                        </h2>
-                        <h1
-                            className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]"
-                            style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
-                        >
-                            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Excellence</span> in Computing
-                        </h1>
-                        <p
-                            className="text-xl text-slate-500 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed"
-                            style={{ animation: "fadeIn 1s ease 0.6s both" }}
-                        >
-                            Stay updated with our latest workshops, technical sessions, and community events. 
-                            Where learning meets innovation.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="max-w-7xl mx-auto px-6 py-20">
-                    {loading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 overflow-hidden border border-slate-100 dark:border-slate-700 animate-pulse"
-                                >
-                                    <div className="bg-slate-100 dark:bg-slate-800 h-64" />
-                                    <div className="p-8 space-y-4">
-                                        <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4 mx-auto" />
-                                        <div className="h-10 bg-slate-100 dark:bg-slate-800 rounded-full w-12 mx-auto" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div
-                            className={`transition-all duration-700 ease-out ${showPageContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                        >
-                            {error ? (
-                                <div className="text-center py-24 bg-red-50 dark:bg-red-950/40 rounded-[3rem] border border-red-100 dark:border-red-800">
-                                    <p className="text-red-500 dark:text-red-300 font-bold text-lg">{error}</p>
-                                </div>
-                            ) : events.length === 0 ? (
-                                <div className="text-center py-24 bg-slate-50 dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-700">
-                                    <p className="text-slate-400 dark:text-slate-300 font-medium text-lg">No events available yet.</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                                        {events.map((event, index) => (
-                                            <EventCard
-                                                key={event.id}
-                                                event={event}
-                                                index={index}
-                                                onShowDetails={handleShowEventDetails}
-                                            />
-                                        ))}
-                                    </div>
-
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={handlePageChange}
-                                    />
-                                </>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </main>
-
-            <Footer />
-
-            <EventDetailsSidebar
-                eventId={selectedEventId}
-                isOpen={isSidebarOpen}
-                onClose={handleCloseSidebar}
-            />
-        </div>
-    );
+  return (
+    <SiteLayout>
+      <PageHero eyebrow="Events" title="Workshops, talks, and competitions" text="Everything the chapter runs during the year, open to every student. Pick an event to see the details and register." />
+      <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8 sm:py-20">
+        {list.loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }, (_, i) => <div key={i} className={`aspect-[4/5] rounded-3xl ${skeleton}`} />)}
+          </div>
+        ) : list.error ? (
+          <EmptyState icon={FiAlertCircle} tone="error" title="Something went wrong" text={list.error} />
+        ) : list.items.length === 0 ? (
+          <EmptyState icon={FiCalendar} title="No events yet" text="New events will show up here as soon as they're announced." />
+        ) : (
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {list.items.map((event, i) => {
+                const past = event.eventTime && new Date(event.eventTime) < now;
+                return (
+                  <MediaCard
+                    key={event.id}
+                    index={i}
+                    image={event.imageUrl}
+                    meta={event.eventTime ? eventDate(event.eventTime).full : "Date to be announced"}
+                    title={event.name}
+                    text={summary(event.description, 120)}
+                    tag={past ? <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">Ended</span> : <StateTag open={event.registrationOpen} openLabel="Registration open" closedLabel="Registration closed" />}
+                    onClick={() => show(event.id)}
+                  />
+                );
+              })}
+            </div>
+            <Pagination page={list.page} totalPages={list.totalPages} onChange={list.setPage} />
+          </>
+        )}
+      </div>
+      <EventDetailsSidebar eventId={eventId} isOpen={open} onClose={() => setOpen(false)} />
+    </SiteLayout>
+  );
 };
 
 export default EventsPage;
