@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 import { adminFetchUserProfile } from "../../services/userService";
 import { fetchUserPointsLogs, addUserPointsLog, updateUserPointsLog, deleteUserPointsLog } from "../../services/pointsLogService";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
