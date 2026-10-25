@@ -1,191 +1,72 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import Navbar from "../components/HomePage/Navbar";
-import Footer from "../components/HomePage/Footer";
+import { Link, useParams } from "react-router-dom";
+import { FiAlertCircle, FiArrowLeft, FiMic, FiPlay, FiUser } from "react-icons/fi";
+import SiteLayout from "../components/Layout/SiteLayout";
+import PageHero from "../components/Layout/PageHero";
+import EmptyState from "../components/ui/EmptyState";
+import Reveal from "../components/ui/Reveal";
 import { fetchSeasonById } from "../services/homePageService";
-import { FiArrowLeft, FiPlay, FiMic, FiUser, FiExternalLink, FiLoader } from "react-icons/fi";
+import useDetails from "../hooks/useDetails";
+import { card, muted, secondaryButton, skeleton } from "../components/ui/uiStyles";
 
+const backLink = "inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-white/10";
+
+// One episode: the thumbnail opens it (on YouTube or wherever it's published), with its number, host, and guest.
+const EpisodeCard = ({ episode, index }) => (
+  <Reveal delay={(index % 4) * 70} className="h-full">
+    <a href={episode.url} target="_blank" rel="noopener noreferrer" className={`group flex h-full flex-col overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] ${card}`}>
+      <div className="relative aspect-video overflow-hidden bg-[#E2F0FA] dark:bg-[#16364C]">
+        {episode.imageUrl && <img src={episode.imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />}
+        <span className="absolute inset-0 flex items-center justify-center bg-[#06121D]/35 opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#205E85] shadow-lg"><FiPlay className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" /></span>
+        </span>
+        <span className="absolute bottom-3 right-3 rounded-full bg-[#06121D]/75 px-2.5 py-0.5 text-xs font-semibold text-white">Episode {episode.episodeNumber}</span>
+      </div>
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="line-clamp-2 text-base font-semibold tracking-tight text-slate-900 dark:text-white">{episode.title}</h3>
+        <dl className={`mt-auto grid gap-1.5 pt-4 text-sm ${muted}`}>
+          <div className="flex items-center gap-2"><FiUser className="h-4 w-4 shrink-0" aria-hidden="true" /><dt className="sr-only">Host</dt><dd>Hosted by <span className="font-semibold text-slate-800 dark:text-slate-100">{episode.host || "the chapter"}</span></dd></div>
+          {episode.guest && <div className="flex items-center gap-2"><FiMic className="h-4 w-4 shrink-0" aria-hidden="true" /><dt className="sr-only">Guest</dt><dd>With <span className="font-semibold text-slate-800 dark:text-slate-100">{episode.guest}</span></dd></div>}
+        </dl>
+      </div>
+    </a>
+  </Reveal>
+);
+
+// A season of ACM Radio with all its episodes in order.
 const SeasonDetailPage = () => {
   const { id } = useParams();
-  const [season, setSeason] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const loadSeasonDetails = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchSeasonById(id);
-        setSeason(data);
-      } catch (err) {
-        console.error("Error loading season details:", err);
-        setError("Could not load season details. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      loadSeasonDetails();
-    }
-  }, [id]);
-
-  const episodes = season?.episodes 
-    ? [...season.episodes].sort((a, b) => a.episodeNumber - b.episodeNumber) 
-    : [];
+  const { data: season, loading, error } = useDetails(true, id, fetchSeasonById, "We couldn't load this season. Please try again later.");
+  const episodes = season?.episodes ? [...season.episodes].sort((a, b) => a.episodeNumber - b.episodeNumber) : [];
+  const ready = !loading && season;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
-      <Navbar activeSection="" />
-
-      <main className="flex-1 pt-[74px]">
-        {/* Page Header */}
-        <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700 py-16 px-6 relative overflow-hidden">
-          {/* Decorative gradients */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#4B98C8]/5 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#205E85]/5 rounded-full blur-[100px] pointer-events-none" />
-
-          <div className="max-w-7xl mx-auto w-full relative z-10">
-            {/* Back to Radio Page link */}
-            <Link
-              to="/radio"
-              className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-300 hover:text-[#4B98C8] text-xs font-bold uppercase tracking-wider transition-colors mb-6 group"
-            >
-              <FiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              Back to Seasons
-            </Link>
-
-            {loading ? (
-              <div className="h-20 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl max-w-xl" />
-            ) : season ? (
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-                {/* Season Cover Image */}
-                <div className="w-48 h-48 rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 shadow-md shrink-0">
-                  <img
-                    src={season.imageUrl}
-                    alt={`Season ${season.seasonNumber}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="text-center md:text-left">
-                  <span className="px-3 py-1 bg-sky-50 dark:bg-sky-950/40 text-[#4B98C8] dark:text-sky-300 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-sky-100 dark:border-sky-800">
-                    Podcast Season
-                  </span>
-                  <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-3 mb-4">
-                    Season {season.seasonNumber}
-                  </h1>
-                  <p className="text-slate-500 dark:text-slate-300 font-medium text-base max-w-2xl">
-                    Listen to all {episodes.length} episodes of this season. Dive into our exclusive conversations and technical insights below.
-                  </p>
-                </div>
-              </div>
-            ) : null}
+    <SiteLayout>
+      <PageHero
+        eyebrow="ACM Radio"
+        title={ready ? `Season ${season.seasonNumber}` : loading ? "Loading season…" : "Season"}
+        text={ready ? `${episodes.length} ${episodes.length === 1 ? "episode" : "episodes"} of conversations with members, guests, and alumni.` : undefined}
+        media={ready && season.imageUrl ? <img src={season.imageUrl} alt="" className="h-40 w-40 rounded-[2rem] object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.6)] ring-1 ring-white/15 sm:h-48 sm:w-48" /> : undefined}
+      >
+        <Link to="/radio" className={backLink}><FiArrowLeft className="h-4 w-4" aria-hidden="true" />All seasons</Link>
+      </PageHero>
+      <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8 sm:py-20">
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }, (_, i) => <div key={i} className={`aspect-[4/5] rounded-3xl ${skeleton}`} />)}
           </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-700 h-80" />
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 max-w-md mx-auto">
-              <p className="text-red-500 font-bold text-sm mb-4">{error}</p>
-              <Link to="/radio" className="px-5 py-2.5 bg-[#4B98C8] text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-[#205E85] transition-colors">
-                Go back
-              </Link>
-            </div>
-          ) : episodes.length === 0 ? (
-            <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 max-w-lg mx-auto">
-              <FiMic className="w-12 h-12 text-slate-300 dark:text-slate-500 mx-auto mb-4" />
-              <p className="text-slate-800 dark:text-slate-100 font-extrabold text-lg mb-2">No episodes published yet</p>
-              <p className="text-slate-400 dark:text-slate-300 text-sm mb-6">This season is currently in preparation. Stay tuned!</p>
-              <Link to="/radio" className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                Back to Seasons
-              </Link>
-            </div>
-          ) : (
-            /* YouTube Thumbnail Style Grid - 4 columns on desktop */
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {episodes.map((ep, index) => (
-                <div
-                  key={ep.id}
-                  className="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-700 shadow-lg shadow-slate-100/50 dark:shadow-slate-950/50 hover:shadow-xl hover:shadow-slate-200/55 dark:hover:shadow-slate-950/70 transition-all duration-300 flex flex-col h-full"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 50}
-                >
-                  {/* YouTube style thumbnail container */}
-                  <a
-                    href={ep.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border-b border-slate-50 dark:border-slate-700 cursor-pointer"
-                  >
-                    {/* Hover Play Overlay */}
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-[#4B98C8] text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                        <FiPlay className="w-5 h-5 fill-white ml-0.5" />
-                      </div>
-                    </div>
-
-                    <img
-                      src={ep.imageUrl}
-                      alt={ep.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    {/* Episode Number badge overlay */}
-                    <div className="absolute bottom-3 right-3 z-20">
-                      <div className="px-2 py-0.5 bg-slate-900/75 backdrop-blur-sm text-white rounded text-[9px] font-extrabold tracking-widest uppercase">
-                        Ep. {ep.episodeNumber}
-                      </div>
-                    </div>
-                  </a>
-
-                  {/* Thumbnail Info Block */}
-                  <div className="p-5 flex flex-col flex-1">
-                    {/* Title */}
-                    <a
-                      href={ep.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block hover:text-[#4B98C8] transition-colors"
-                    >
-                      <h4 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug mb-3">
-                        {ep.title}
-                      </h4>
-                    </a>
-
-                    {/* Host & Guest Meta details */}
-                    <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-50 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-300 font-bold">
-                      <div className="flex items-center gap-1.5">
-                        <FiUser className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>
-                          Host: <span className="text-slate-700 dark:text-slate-100 font-extrabold">{ep.host || "N/A"}</span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <FiMic className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>
-                          Guest: <span className="text-slate-700 dark:text-slate-100 font-extrabold">{ep.guest || "N/A"}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+        ) : error ? (
+          <EmptyState icon={FiAlertCircle} tone="error" title="Something went wrong" text={error}>
+            <Link to="/radio" className={secondaryButton}>Back to all seasons</Link>
+          </EmptyState>
+        ) : episodes.length === 0 ? (
+          <EmptyState icon={FiMic} title="No episodes yet" text="This season is being recorded. Check back soon." />
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {episodes.map((episode, i) => <EpisodeCard key={episode.id} episode={episode} index={i} />)}
+          </div>
+        )}
+      </div>
+    </SiteLayout>
   );
 };
 
