@@ -54,10 +54,6 @@ public class EventServiceTest {
 
     @Mock
     private EventFormQuestionRepository eventFormQuestionRepository;
-
-    @Mock
-    private EventReviewRepository eventReviewRepository;
-
     @Mock
     private GoogleSheetsService googleSheetsService;
 
@@ -214,7 +210,6 @@ public class EventServiceTest {
         eventService.deleteEvent(1L);
         verify(eventRegistrationRepository).deleteByEventId(1L);
         verify(eventFormQuestionRepository).deleteByEventId(1L);
-        verify(eventReviewRepository).deleteByEventId(1L);
         verify(eventRepository).deleteById(1L);
     }
 
