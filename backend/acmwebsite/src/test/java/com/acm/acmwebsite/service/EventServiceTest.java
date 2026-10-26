@@ -14,6 +14,7 @@ import com.acm.acmwebsite.feature.mapper.EventMapper;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.EventReviewRepository;
 import com.acm.acmwebsite.feature.service.EventService;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
 import com.acm.acmwebsite.feature.service.SubscriptionService;
@@ -53,6 +54,9 @@ public class EventServiceTest {
 
     @Mock
     private EventFormQuestionRepository eventFormQuestionRepository;
+
+    @Mock
+    private EventReviewRepository eventReviewRepository;
 
     @Mock
     private GoogleSheetsService googleSheetsService;
@@ -210,6 +214,7 @@ public class EventServiceTest {
         eventService.deleteEvent(1L);
         verify(eventRegistrationRepository).deleteByEventId(1L);
         verify(eventFormQuestionRepository).deleteByEventId(1L);
+        verify(eventReviewRepository).deleteByEventId(1L);
         verify(eventRepository).deleteById(1L);
     }
 

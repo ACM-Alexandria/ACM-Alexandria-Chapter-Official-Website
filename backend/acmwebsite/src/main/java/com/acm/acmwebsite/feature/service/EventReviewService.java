@@ -4,7 +4,6 @@ import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.entity.Event;
-import com.acm.acmwebsite.feature.entity.EventRegistration;
 import com.acm.acmwebsite.feature.entity.EventReview;
 import com.acm.acmwebsite.feature.enums.ReviewStatus;
 import com.acm.acmwebsite.feature.repository.EventRepository;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,11 +24,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventReviewService {
 
+    private static final Set<Role> ADMIN_ROLES = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD);
+
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final EventReviewRepository eventReviewRepository;
     private final EventRegistrationService eventRegistrationService;
-
 
     @Transactional
     public EventReview addReview(Long eventId, UUID userId, int rating, String comment) {
@@ -39,12 +40,20 @@ public class EventReviewService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (!hasEventEnded(event)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reviews open after the event ends");
+        }
 
-        if (eventRegistrationService.isUserRegistered(userId,eventId)) {
+        if (!eventRegistrationService.isUserRegistered(userId, eventId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only registered attendees can leave feedback");
+        }
+
+        if (eventReviewRepository.existsByUserIdAndEventId(userId, eventId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "You already reviewed this event");
         }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         EventReview review = new EventReview();
         review.setEvent(event);
@@ -61,35 +70,38 @@ public class EventReviewService {
 
         double average = summary.getAverageRating() == null
                 ? 0.0
-                : Math.round(summary.getAverageRating() * 10.0) / 10.0;   // 4.37 -> 4.4
+                : Math.round(summary.getAverageRating() * 10.0) / 10.0;
         long count = summary.getReviewCount() == null ? 0 : summary.getReviewCount();
 
         return new EventRatingSummaryResponse(average, count);
     }
 
-    // Public comments (what any visitor can see)
     @Transactional(readOnly = true)
     public List<String> getPublicComments(Long eventId) {
         return eventReviewRepository.findCommentsByEventIdAndStatus(eventId, ReviewStatus.PUBLIC);
     }
 
-    // Private comments (only for admins/board, restrict this in the controller)
     @Transactional(readOnly = true)
-    public List<String> getAllComments(Long eventId,Role role) {
+    public List<String> getAllComments(Long eventId, Role role) {
+        requireAdmin(role);
         return eventReviewRepository.findCommentsByEventId(eventId);
     }
 
-    private static final Set<Role> ADMIN_ROLES = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD);
+    /** Full anonymous review list for admins (includes ids for visibility toggles). */
+    @Transactional(readOnly = true)
+    public List<EventReview> getReviewsForAdmin(Long eventId, Role role) {
+        requireAdmin(role);
+        return eventReviewRepository.findByEventId(eventId);
+    }
 
-    private boolean isAdmin(Role role) {
-        return ADMIN_ROLES.contains(role);
+    @Transactional(readOnly = true)
+    public boolean hasUserReviewed(Long eventId, UUID userId) {
+        return eventReviewRepository.existsByUserIdAndEventId(userId, eventId);
     }
 
     @Transactional
     public EventReview toggleVisibility(Long reviewId, Role role) {
-        if (!isAdmin(role)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can change review visibility");
-        }
+        requireAdmin(role);
 
         EventReview review = eventReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
@@ -97,6 +109,21 @@ public class EventReviewService {
         review.setReviewStatus(
                 review.getReviewStatus() == ReviewStatus.PUBLIC ? ReviewStatus.PRIVATE : ReviewStatus.PUBLIC);
         return review;
+    }
+
+    private void requireAdmin(Role role) {
+        if (!isAdmin(role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can access this");
+        }
+    }
+
+    private boolean isAdmin(Role role) {
+        return role != null && ADMIN_ROLES.contains(role);
+    }
+
+    private boolean hasEventEnded(Event event) {
+        LocalDateTime end = event.getEndTime() != null ? event.getEndTime() : event.getEventTime();
+        return end != null && end.isBefore(LocalDateTime.now());
     }
 
     public record EventRatingSummaryResponse(double averageRating, long reviewCount) {}

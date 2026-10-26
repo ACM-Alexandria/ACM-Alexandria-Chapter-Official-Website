@@ -16,6 +16,7 @@ import com.acm.acmwebsite.feature.util.QuestionValidationUtil;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.repository.EventRegistrationRepository;
 import com.acm.acmwebsite.feature.repository.EventFormQuestionRepository;
+import com.acm.acmwebsite.feature.repository.EventReviewRepository;
 import com.acm.acmwebsite.feature.exception.AnnouncementAlreadySentException;
 import com.acm.acmwebsite.feature.exception.AnnouncementNotAllowedException;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
@@ -44,6 +45,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final EventRegistrationRepository eventRegistrationRepository;
     private final EventFormQuestionRepository eventFormQuestionRepository;
+    private final EventReviewRepository eventReviewRepository;
     private final GoogleSheetsService googleSheetsService;
     private final SubscriptionService subscriptionService;
     private final SystemSettingsService systemSettingsService;
@@ -55,6 +57,7 @@ public class EventService {
     public EventService(EventRepository eventRepository, EventMapper eventMapper,
                         EventRegistrationRepository eventRegistrationRepository,
                         EventFormQuestionRepository eventFormQuestionRepository,
+                        EventReviewRepository eventReviewRepository,
                         GoogleSheetsService googleSheetsService,
                         SubscriptionService subscriptionService,
                         SystemSettingsService systemSettingsService) {
@@ -62,6 +65,7 @@ public class EventService {
         this.eventMapper = eventMapper;
         this.eventRegistrationRepository = eventRegistrationRepository;
         this.eventFormQuestionRepository = eventFormQuestionRepository;
+        this.eventReviewRepository = eventReviewRepository;
         this.googleSheetsService = googleSheetsService;
         this.subscriptionService = subscriptionService;
         this.systemSettingsService = systemSettingsService;
@@ -217,6 +221,7 @@ public class EventService {
     public void deleteEvent(long id) {
         eventRegistrationRepository.deleteByEventId(id);
         eventFormQuestionRepository.deleteByEventId(id);
+        eventReviewRepository.deleteByEventId(id);
         eventRepository.deleteById(id);
     }
 

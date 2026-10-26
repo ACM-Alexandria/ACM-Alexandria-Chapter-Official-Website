@@ -6,6 +6,12 @@ import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX, HiOutlineChevro
 import { FiMaximize2 } from "react-icons/fi";
 import RegistrationModal from "../registration/RegistrationModal";
 import { checkEventRegistrationStatus } from "../../services/registrationService";
+import EventReviews, { isReviewAdmin } from "./EventReviews";
+
+const isEventPast = (event) => {
+  const end = event?.endTime || event?.eventTime;
+  return end ? new Date(end) < new Date() : false;
+};
 
 const formatDateTime = (eventTime) => {
   if (!eventTime) return "TBA";
@@ -264,7 +270,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
 
             <div className="absolute bottom-10 left-10 right-10 z-20">
               {!loading && event && (() => {
-                const isPast = event.eventTime ? new Date(event.eventTime) < new Date() : false;
+                const isPast = isEventPast(event);
                 return (
                   <div style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) both" }}>
                     <div className={`inline-flex rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white mb-4 ${isPast ? 'bg-slate-500/50 backdrop-blur-md' : 'bg-[#4B98C8]'}`}>
@@ -365,67 +371,81 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Action Section */}
+                Action Section
                 {(() => {
-                  const isPast = event.eventTime ? new Date(event.eventTime) < new Date() : false;
+                  const isPast = isEventPast(event);
+                  const goToLogin = () => {
+                    const path = window.location.pathname + window.location.search;
+                    const delimiter = path.includes("?") ? "&" : "?";
+                    const from = `${path}${delimiter}openEventId=${eventId}`;
+                    navigate("/login", { state: { from } });
+                  };
                   return (
-                    <div className="pt-6">
-                      {isPast ? (
-                        <button
-                          disabled
-                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 dark:bg-slate-800 px-10 py-6 text-lg font-black text-slate-400 dark:text-slate-300 cursor-not-allowed border border-slate-200 dark:border-slate-700"
-                        >
-                          <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
-                        </button>
-                      ) : !event?.registrationOpen ? (
-                        <button
-                          disabled
-                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-100 dark:bg-slate-800/80 px-10 py-6 text-slate-400 dark:text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-80"
-                        >
-                          <span className="uppercase tracking-widest text-sm font-extrabold">Registration Closed</span>
-                        </button>
-                      ) : checkingStatus ? (
-                        <button
-                          disabled
-                          className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 dark:bg-slate-800 px-10 py-6 text-slate-400 dark:text-slate-300 border border-slate-100 dark:border-slate-700 cursor-not-allowed"
-                        >
-                          <div className="w-5 h-5 border-3 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
-                          <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
-                        </button>
-                      ) : isRegistered ? (
-                        <button
-                          disabled
-                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
-                        >
-                          <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <>
+                      <div className="pt-6">
+                        {isPast ? (
+                          <button
+                            disabled
+                            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-slate-200 dark:bg-slate-800 px-10 py-6 text-lg font-black text-slate-400 dark:text-slate-300 cursor-not-allowed border border-slate-200 dark:border-slate-700"
+                          >
+                            <span className="relative z-10 uppercase tracking-widest text-sm">Event Concluded</span>
+                          </button>
+                        ) : !event?.registrationOpen ? (
+                          <button
+                            disabled
+                            className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-100 dark:bg-slate-800/80 px-10 py-6 text-slate-400 dark:text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-80"
+                          >
+                            <span className="uppercase tracking-widest text-sm font-extrabold">Registration Closed</span>
+                          </button>
+                        ) : checkingStatus ? (
+                          <button
+                            disabled
+                            className="flex w-full items-center justify-center gap-3 rounded-[2rem] bg-slate-50 dark:bg-slate-800 px-10 py-6 text-slate-400 dark:text-slate-300 border border-slate-100 dark:border-slate-700 cursor-not-allowed"
+                          >
+                            <div className="w-5 h-5 border-3 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
+                            <span className="uppercase tracking-widest text-sm font-extrabold animate-pulse">Verifying Status...</span>
+                          </button>
+                        ) : isRegistered ? (
+                          <button
+                            disabled
+                            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-emerald-500 px-10 py-6 text-lg font-black text-white border border-emerald-600/20 shadow-2xl shadow-emerald-100 cursor-default"
+                          >
+                            <span className="relative z-10 uppercase tracking-widest text-sm flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-[bounce_1s_ease_infinite_alternate]" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              Already Registered
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              if (!isAuthenticated) {
+                                goToLogin();
+                              } else {
+                                setIsRegistrationOpen(true);
+                              }
+                            }}
+                            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
+                          >
+                            <span className="relative z-10 uppercase tracking-widest text-sm">Register for this event</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
-                            Already Registered
-                          </span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            if (!isAuthenticated) {
-                              const path = window.location.pathname + window.location.search;
-                              const delimiter = path.includes("?") ? "&" : "?";
-                              const from = `${path}${delimiter}openEventId=${eventId}`;
-                              navigate("/login", { state: { from } });
-                            } else {
-                              setIsRegistrationOpen(true);
-                            }
-                          }}
-                          className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4B98C8] to-[#205E85] px-10 py-6 text-lg font-black text-white shadow-2xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-blue-300 active:scale-[0.98]"
-                        >
-                          <span className="relative z-10 uppercase tracking-widest text-sm">Register for this event</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 relative z-10 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                        </button>
-                      )}
-                    </div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+                          </button>
+                        )}
+                      </div>
+
+                      <EventReviews
+                        eventId={eventId}
+                        isPast={isPast}
+                        isLoggedIn={isAuthenticated}
+                        isRegistered={isRegistered}
+                        isAdmin={isReviewAdmin(user?.role)}
+                        onLoginRequired={goToLogin}
+                      />
+                    </>
                   );
                 })()}
               </div>

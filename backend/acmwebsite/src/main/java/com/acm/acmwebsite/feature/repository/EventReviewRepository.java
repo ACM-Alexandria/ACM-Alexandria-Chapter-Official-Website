@@ -49,6 +49,8 @@ public interface EventReviewRepository extends JpaRepository<EventReview, Long> 
 
     boolean existsByUserIdAndEventId(UUID userId, Long eventId);
 
+    void deleteByEventId(Long eventId);
+
     // Projection for the summary query
     interface EventRatingSummary {
         Double getAverageRating();
