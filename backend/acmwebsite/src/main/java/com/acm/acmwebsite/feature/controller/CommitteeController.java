@@ -177,6 +177,14 @@ public class CommitteeController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelCommitteeRegistration(@PathVariable("id") Long committeeId, @PathVariable java.util.UUID userId, Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!authorizationService.isSelf(userId, authentication)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        committeeRegistrationService.cancelRegistration(userId, committeeId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForCommittee(
             @PathVariable("id") Long committeeId,
@@ -229,13 +237,15 @@ public class CommitteeController {
     // --- Admin Call History & Google Sheets Sync Endpoints ---
 
     @GetMapping("/{id}/calls")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<List<CommitteeCallResponseDto>> getCommitteeCalls(@PathVariable("id") Long committeeId) {
         return ResponseEntity.ok(committeeRegistrationService.getCallsForCommittee(committeeId));
     }
 
     @GetMapping("/calls/{callId}/registrations/analysis")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<RegistrationAnalysisDto> getCallRegistrationAnalysis(@PathVariable Long callId) {
         return ResponseEntity.ok(committeeRegistrationService.getRegistrationAnalysis(callId));
     }

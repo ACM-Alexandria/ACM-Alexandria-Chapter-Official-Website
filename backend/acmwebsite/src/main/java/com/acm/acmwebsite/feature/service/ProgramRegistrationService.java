@@ -105,4 +105,13 @@ public class ProgramRegistrationService implements RegistrationService {
     public boolean isUserRegistered(UUID userId, Long programId) {
         return programRegistrationRepository.existsByUserIdAndProgramId(userId, programId);
     }
+
+    @Transactional
+    public void cancelRegistration(UUID userId, Long programId) {
+        if (!programRepository.existsById(programId)) throw new ResourceNotFoundException("Program not found");
+        if (programRegistrationRepository.deleteByUserIdAndProgramId(userId, programId) == 0) {
+            throw new ResourceNotFoundException("Program registration not found");
+        }
+        eventPublisher.publishEvent(new SheetSyncEvent(this, RegistrationEntityType.PROGRAM, programId));
+    }
 }

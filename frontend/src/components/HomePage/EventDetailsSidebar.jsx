@@ -138,6 +138,9 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState(false);
+  const [isCancellingRegistration, setIsCancellingRegistration] = useState(false);
+  const [cancellationError, setCancellationError] = useState("");
 
   // Registration presence trackers (User Request)
   const [isRegistered, setIsRegistered] = useState(false);
@@ -218,6 +221,24 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  const handleCancelRegistration = async () => {
+    if (!user?.id) return;
+
+    setIsCancellingRegistration(true);
+    setCancellationError("");
+    try {
+      await cancelEventRegistration(eventId, user.id);
+      setIsRegistered(false);
+      setIsCancelConfirmationOpen(false);
+    } catch (err) {
+      setCancellationError(
+        typeof err === "string" ? err : "We couldn't cancel your registration. Please try again."
+      );
+    } finally {
+      setIsCancellingRegistration(false);
+    }
+  };
 
   if (!eventId) return null;
 
@@ -460,6 +481,15 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
         entityId={eventId}
         type="event"
         entityName={event?.name}
+      />
+
+      <RegistrationCancellationModal
+        open={isCancelConfirmationOpen}
+        onClose={() => setIsCancelConfirmationOpen(false)}
+        onConfirm={handleCancelRegistration}
+        entityName={event?.name}
+        loading={isCancellingRegistration}
+        error={cancellationError}
       />
 
       {/* Lightbox Modal */}

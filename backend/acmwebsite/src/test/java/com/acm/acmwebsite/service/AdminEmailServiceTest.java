@@ -123,7 +123,7 @@ class AdminEmailServiceTest {
         request.setSubject("Chapter update");
         request.setBody("<p>Hello <strong>members</strong><script>alert(1)</script></p>");
         request.setRoles(List.of(Role.ACM_MEMBER));
-        request.setSelectedUserEmails(List.of("SHARED@acm.org"));
+        request.setSelectedUserEmails(List.of("  ", "SHARED@acm.org"));
 
         CustomEmailPreviewDto preview = adminEmailService.previewCustomEmail(request);
 
@@ -197,6 +197,105 @@ class AdminEmailServiceTest {
         assertThrows(EmailsLockedException.class, () -> adminEmailService.sendCustomEmail(request()));
 
         verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void previewCustomEmailThrowsWhenRolesAndRecipientsAreEmpty() {
+        CustomEmailPreviewRequestDto request = new CustomEmailPreviewRequestDto();
+        request.setRoles(List.of());
+        request.setSelectedUserEmails(null);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> adminEmailService.previewCustomEmail(request));
+        assertEquals("Select at least one role or recipient.", ex.getMessage());
+    }
+
+    @Test
+    void previewCustomEmailCoversAllRoleLabelsAndFiltersNullEmail() {
+        stubCustomEmailTemplate();
+        User superAdmin = User.builder().email("super@acm.org").role(Role.SUPER_ADMIN).build();
+        User highBoard = User.builder().email("hb@acm.org").role(Role.ACM_HIGH_BOARD).build();
+        User commBoard = User.builder().email("cb@acm.org").role(Role.ACM_COMMITTEE_BOARD).build();
+        User clubBoard = User.builder().email("club@acm.org").role(Role.ACM_CLUB_BOARD).build();
+        User user = User.builder().email("user@acm.org").role(Role.USER).build();
+        User noEmailUser = User.builder().email(null).role(Role.USER).build();
+
+        when(memberTargetingService.findMembers(any(), any(), any())).thenReturn(List.of(
+                new MemberTargetingService.TargetedMember(superAdmin, null, null, null, null),
+                new MemberTargetingService.TargetedMember(highBoard, null, null, null, null),
+                new MemberTargetingService.TargetedMember(commBoard, null, null, null, null),
+                new MemberTargetingService.TargetedMember(clubBoard, null, null, null, null),
+                new MemberTargetingService.TargetedMember(user, null, null, null, null),
+                new MemberTargetingService.TargetedMember(noEmailUser, null, null, null, null)
+        ));
+
+        CustomEmailPreviewRequestDto request = new CustomEmailPreviewRequestDto();
+        request.setSubject("Subject");
+        request.setBody("Body");
+        request.setRoles(List.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD, Role.ACM_COMMITTEE_BOARD, Role.ACM_CLUB_BOARD, Role.USER));
+        request.setSelectedUserEmails(null);
+
+        CustomEmailPreviewDto preview = adminEmailService.previewCustomEmail(request);
+
+        assertEquals(5, preview.getTotalRecipients());
+        assertEquals(1L, preview.getRecipientCounts().get("Super Admin"));
+        assertEquals(1L, preview.getRecipientCounts().get("High Board"));
+        assertEquals(1L, preview.getRecipientCounts().get("Committee Board"));
+        assertEquals(1L, preview.getRecipientCounts().get("Club Board"));
+        assertEquals(1L, preview.getRecipientCounts().get("Standard User"));
+        assertNull(preview.getRecipientCounts().get("Selected recipients"));
+    }
+
+    @Test
+    void sendCustomEmailSendsOnlyToSelectedUserEmailsWhenRolesEmpty() throws Exception {
+        stubCustomEmailTemplate();
+        when(mailSender.createMimeMessage())
+                .thenAnswer(ignored -> new MimeMessage(Session.getInstance(new Properties())));
+
+        CustomEmailRequestDto request = new CustomEmailRequestDto();
+        request.setSubject("Direct email");
+        request.setBody("<p>Direct</p>");
+        request.setRoles(List.of());
+        request.setSelectedUserEmails(List.of("  ", "manual1@acm.org", "MANUAL1@ACM.ORG", "manual2@acm.org"));
+
+        CustomEmailResultDto result = adminEmailService.sendCustomEmail(request);
+
+        assertEquals(2, result.getTotalRecipients());
+        verify(memberTargetingService, never()).findRecipientEmails(any(), any(), any());
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendCustomEmailWithNullSelectedEmailsSendsToFilteredRecipients() throws Exception {
+        stubCustomEmailTemplate();
+        when(mailSender.createMimeMessage())
+                .thenAnswer(ignored -> new MimeMessage(Session.getInstance(new Properties())));
+        when(memberTargetingService.findRecipientEmails(any(), any(), any()))
+                .thenReturn(List.of("user@acm.org"));
+
+        CustomEmailRequestDto request = request();
+        request.setSelectedUserEmails(null);
+
+        CustomEmailResultDto result = adminEmailService.sendCustomEmail(request);
+
+        assertEquals(1, result.getTotalRecipients());
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendCustomEmailThrowsIllegalStateExceptionWhenMessagingExceptionOccurs() throws Exception {
+        stubCustomEmailTemplate();
+        MimeMessage mockMessage = org.mockito.Mockito.mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mockMessage);
+        org.mockito.Mockito.doThrow(new jakarta.mail.MessagingException("Invalid recipient"))
+                .when(mockMessage).setFrom(any(jakarta.mail.Address.class));
+
+        when(memberTargetingService.findRecipientEmails(any(), any(), any()))
+                .thenReturn(List.of("user@acm.org"));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> adminEmailService.sendCustomEmail(request()));
+        assertEquals("Unable to compose the email message.", ex.getMessage());
     }
 
     private CustomEmailRequestDto request() {

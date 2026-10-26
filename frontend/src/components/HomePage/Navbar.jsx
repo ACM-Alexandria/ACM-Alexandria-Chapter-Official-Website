@@ -6,7 +6,7 @@ import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineUser, HiOutlineShieldCheck } from "react-icons/hi2";
 import { getEnv } from "../../utils/env";
 import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
-
+import HRFolderIcon from '../icons/HRFolderIcon';
 
 const Navbar = ({ activeSection }) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -18,6 +18,13 @@ const Navbar = ({ activeSection }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, isLoading, logout, user } = useAuth();
+
+  // Admin Tools: super admin, high board, committee board and club board
+  const showAdminLink = ['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'].includes(user?.role);
+
+  // HR Dashboard: only ACM members who belong to the HR Committee
+  const showHRLink = user?.role === 'ACM_MEMBER' && user?.committeeName === 'HR Committee';
+
   const isEnabled = (envVal) => envVal !== "false";
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -179,7 +186,7 @@ const Navbar = ({ activeSection }) => {
               onClick={() => setShowProfileMenu((prev) => !prev)}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                {user?.email?.[0].toUpperCase() || "U"}
+                {user?.email?.[0]?.toUpperCase() || "U"}
               </div>
               <HiOutlineChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${showProfileMenu ? "rotate-180" : ""}`} />
             </button>
@@ -207,7 +214,7 @@ const Navbar = ({ activeSection }) => {
                     <HiOutlineUser className="h-5 w-5 text-slate-500" />
                     My Profile
                   </button>
-                  {['SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD'].includes(user?.role) && (
+                  {showAdminLink && (
                     <button
                       type="button"
                       className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
@@ -218,6 +225,19 @@ const Navbar = ({ activeSection }) => {
                     >
                       <HiOutlineShieldCheck className="h-5 w-5 text-slate-500" />
                       Admin Tools
+                    </button>
+                  )}
+                  {showHRLink && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        navigate("/hr-dashboard");
+                      }}
+                    >
+                      <HRFolderIcon className="h-5 w-5 text-slate-500" />
+                      HR Dashboard
                     </button>
                   )}
                   <button

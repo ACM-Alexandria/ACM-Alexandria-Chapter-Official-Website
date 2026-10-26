@@ -31,7 +31,7 @@ const HighBoardCard = ({ member, index }) => {
           </div>
         )}
 
-        <div className="hidden lg:flex absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 justify-center">
+        <div className="hidden lg:flex absolute bottom-4 left-0 right-0 px-6 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 transition-all duration-500 justify-center">
           <div className="flex justify-center gap-3">
             {linkedinUrl && (
               <a 

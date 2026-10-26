@@ -50,7 +50,10 @@ export const AuthProvider = ({ children }) => {
             setUser({ 
               id: data.id || data.userId || null, 
               email: data.email || null,
-              role: data.role || null
+              role: data.role || null,
+              committeeId: data.committee_id || null,
+              committeeName: data.committee_name || null,
+              points: data.points || 0,
             });
             setIsAuthenticated(true);
             return true;
@@ -129,7 +132,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
 
     if (data.id && data.email) {
-      setUser({ id: data.id, email: data.email, role: data.role || null });
+      setUser({ id: data.id, email: data.email, role: data.role || null, committeeId: data.committee_id || null, committeeName: data.committee_name || null });
     }
 
     return data;
@@ -140,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
 
     if (data.id && data.email) {
-      setUser({ id: data.id, email: data.email, role: data.role || null });
+      setUser({ id: data.id, email: data.email, role: data.role || null, committeeId: data.committee_id || null, committeeName: data.committee_name || null });
     }
 
     return data;

@@ -12,7 +12,7 @@ import { EMAIL_CONTENT_CLASSES } from "../../../../constants/emailContent";
 import RichTextToolbar from "./RichTextToolbar";
 import "./RichTextEditor.css";
 
-const RichTextEditor = ({ value = "", onChange, placeholder = "Write your email..." }) => {
+const RichTextEditor = ({ value = "", onChange, placeholder = "Write your email…" }) => {
     const extensions = useMemo(
         () => [
             StarterKit.configure({

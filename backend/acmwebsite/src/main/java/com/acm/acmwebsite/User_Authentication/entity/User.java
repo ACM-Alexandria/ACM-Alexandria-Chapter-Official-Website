@@ -28,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -60,12 +60,11 @@ public class User {
   @com.fasterxml.jackson.annotation.JsonIgnore
   private String resetPasswordToken;
 
-
   @Column(name = "reset_password_token_created_at")
   private LocalDateTime resetPasswordTokenCreatedAt;
 
   @Builder.Default
-  @Column(name = "forgot_password_count" , nullable = false)
+  @Column(name = "forgot_password_count", nullable = false)
   private Integer forgotPasswordCount = 0;
 
   @Column(name = "name")
@@ -98,4 +97,15 @@ public class User {
 
   @Column(name = "linkedin_url")
   private String linkedinUrl;
+
+  @Column(name = "season_points", nullable = false)
+  @Builder.Default
+  private Integer seasonPoints = 0;
+
+  public void addPoints(int p) {
+    if (this.seasonPoints == null) {
+      this.seasonPoints = 0;
+    }
+    this.seasonPoints += p;
+  }
 }

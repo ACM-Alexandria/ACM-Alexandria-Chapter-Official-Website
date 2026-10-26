@@ -77,6 +77,15 @@ public class UserController {
     return null;
   }
 
+  @GetMapping("/admin/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
+  public ResponseEntity<UserProfileDto> adminGetUserProfile(@PathVariable UUID id) {
+
+    UserProfileDto profile = userService.getUserProfileById(id);
+    return ResponseEntity.ok(profile);
+  }
+
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
   public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {

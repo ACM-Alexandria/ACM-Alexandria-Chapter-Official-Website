@@ -70,6 +70,7 @@ public class UserMapper {
         .boardOrder(boardOrder)
         .committeeId(committeeId)
         .clubId(clubId)
+        .seasonPoints(user.getSeasonPoints())
         .build();
   }
 
@@ -99,6 +100,7 @@ public class UserMapper {
     if (user == null) {
       return null;
     }
+    var committee = user.getCommittee();
 
     return UserProfileDto.builder()
         .id(user.getId())
@@ -111,8 +113,9 @@ public class UserMapper {
         .batch(user.getBatch())
         .profileImageUrl(user.getProfileImageUrl())
         .linkedinUrl(user.getLinkedinUrl())
-        .committeeId(user.getCommittee() != null ? user.getCommittee().getId() : null)
-
+        .committeeId(committee != null ? committee.getId() : null)
+        .committeeName(committee != null ? committee.getName() : null)
+        .seasonPoints(user.getSeasonPoints())
         .build();
   }
 }

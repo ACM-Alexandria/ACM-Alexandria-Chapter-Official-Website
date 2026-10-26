@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FiX, FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiCheckSquare, FiList, FiType, FiImage } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiArrowLeft, FiCheckSquare, FiList, FiType, FiImage } from "react-icons/fi";
 import adminService from "../../../services/adminService";
 import useThemedDialog from "../../../hooks/useThemedDialog";
 import { Highlight } from "../../ThemedDialog";
-
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
+import ModalShell from "../SharedComponents/ModalShell";
+import {
+  fieldClass,
+  iconButtonClass,
+  iconButtonDangerClass,
+  noticeClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  tagDangerClass,
+  tagMutedClass,
+} from "../SharedComponents/adminStyles";
 
 const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, resourceType }) => {
   const { dialog, confirm } = useThemedDialog();
@@ -245,30 +253,25 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl dark:shadow-slate-950/60 max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 animate-[scaleIn_0.25s_ease] flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
-          <div>
-            <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-              {mode === "list" ? "Registration Form Questions" : mode === "add" ? "Add Question" : "Edit Question"}
-            </h3>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider">
-              {resourceName}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 rounded-lg transition-colors"
-          >
-            <FiX className="w-4.5 h-4.5" />
-          </button>
-        </div>
-
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto py-4 space-y-4">
+    <>
+      <ModalShell
+        open
+        onClose={onClose}
+        title={mode === "list" ? "Registration form questions" : mode === "add" ? "Add question" : "Edit question"}
+        subtitle={resourceName}
+        size="lg"
+        busy={saving}
+        footer={
+          mode === "list" ? (
+            <button type="button" onClick={onClose} className={secondaryButtonClass}>
+              Close
+            </button>
+          ) : null
+        }
+      >
+        <div className="space-y-4">
           {error && (
-            <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-bold">
+            <div role="alert" className={noticeClass.error}>
               {error}
             </div>
           )}
@@ -277,16 +280,15 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
             <>
               {/* List View Actions */}
               <div className="flex justify-between items-center mb-1 shrink-0">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Form Structure ({questions.length} questions)
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Form structure ({questions.length} questions)
                 </span>
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="px-3.5 py-1.5 text-white text-[11px] font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow flex items-center gap-1.5"
-                  style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
+                  className={primaryButtonClass}
                 >
-                  <FiPlus className="w-3.5 h-3.5" /> Add Question
+                  <FiPlus className="w-4 h-4" aria-hidden="true" /> Add question
                 </button>
               </div>
 
@@ -294,33 +296,33 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loading questions...</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Loading questions…</p>
                 </div>
               ) : questions.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                  <p className="text-slate-400 text-xs font-medium">No custom questions defined yet. Only standard registration fields (Name, Email, Phone, Batch, Dept) are requested.</p>
+                <div className="text-center py-10 px-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">No custom questions defined yet. Only standard registration fields (Name, Email, Phone, Batch, Dept) are requested.</p>
                 </div>
               ) : (
-                <div className="space-y-3.5 max-h-[50vh] overflow-y-auto pr-1">
+                <div className="space-y-3">
                   {questions.map((q, index) => (
-                    <div key={q.id || index} className="bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-2xl p-4 flex justify-between gap-4 transition-all duration-300">
+                    <div key={q.id || index} className="bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex justify-between gap-4">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border flex items-center gap-1 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-200 border-slate-200 dark:border-slate-600`}>
+                          <span className={`${tagMutedClass} gap-1`}>
                             {getTypeIcon(q.questionType)}
-                            {q.questionType?.replace("_", " ")}
+                            {q.questionType?.replace("_"," ")}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${q.isRequired ? 'bg-rose-50/50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 border-rose-100 dark:border-rose-800' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200/50 dark:border-slate-700'}`}>
+                          <span className={q.isRequired ? tagDangerClass : tagMutedClass}>
                             {q.isRequired ? "Required" : "Optional"}
                           </span>
                         </div>
-                        <h4 className="text-xs font-extrabold text-slate-800 dark:text-slate-100 break-words leading-snug">
+                        <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 break-words">
                           {q.questionText}
                         </h4>
                         {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && q.options && q.options.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
-                              <span key={oIdx} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-[9px] font-bold px-2 py-0.5 rounded-lg">
+                              <span key={oIdx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-lg">
                                 {opt}
                               </span>
                             ))}
@@ -331,19 +333,21 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         <button
                           type="button"
                           onClick={() => handleEditClick(q)}
-                          className="p-2 bg-white dark:bg-slate-900 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-400 dark:text-slate-300 hover:text-[#4B98C8] border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95"
-                          title="Edit Question"
+                          className={iconButtonClass}
+                          title="Edit question"
+                          aria-label="Edit question"
                         >
-                          <FiEdit2 className="w-3.5 h-3.5" />
+                          <FiEdit2 className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteClick(q)}
                           disabled={loading}
-                          className="p-2 bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 dark:text-slate-300 hover:text-rose-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-                          title="Delete Question"
+                          className={iconButtonDangerClass}
+                          title="Delete question"
+                          aria-label="Delete question"
                         >
-                          <FiTrash2 className="w-3.5 h-3.5" />
+                          <FiTrash2 className="w-4 h-4" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -353,9 +357,9 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
             </>
           ) : (
             /* Add/Edit Form View */
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                   Question text / Label
                 </label>
                 <input
@@ -369,10 +373,10 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     }
                   }}
                   placeholder="e.g. What is your GitHub profile link?"
-                          className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border ${fieldErrors.questionText ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
+                          className={`${fieldClass} ${fieldErrors.questionText ? "border-rose-500! focus:ring-rose-500/25!" : ""}`}
                 />
                 {fieldErrors.questionText && (
-                  <p className="mt-1.5 text-[9px] text-rose-500 font-extrabold uppercase tracking-wide">
+                  <p className="mt-1.5 text-xs font-medium text-rose-700 dark:text-rose-400">
                     {fieldErrors.questionText}
                   </p>
                 )}
@@ -380,7 +384,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                     Input Type
                   </label>
                   <select
@@ -391,7 +395,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         setFieldErrors((prev) => ({ ...prev, questionType: null, options: null, emptyOptionIndices: null }));
                       }
                     }}
-                    className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border ${fieldErrors.questionType ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'} text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all cursor-pointer`}
+                    className={`${fieldClass} cursor-pointer ${fieldErrors.questionType ? "border-rose-500! focus:ring-rose-500/25!" : ""}`}
                   >
                     <option value="TEXT">Short Text Answer</option>
                     <option value="MULTIPLE_CHOICE">Multiple Choice (Dropdown)</option>
@@ -399,7 +403,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     <option value="IMAGE">Image Upload</option>
                   </select>
                   {fieldErrors.questionType && (
-                    <p className="mt-1.5 text-[9px] text-rose-500 font-extrabold uppercase tracking-wide">
+                    <p className="mt-1.5 text-xs font-medium text-rose-700 dark:text-rose-400">
                       {fieldErrors.questionType}
                     </p>
                   )}
@@ -411,10 +415,10 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                       type="checkbox"
                       checked={isRequired}
                       onChange={(e) => setIsRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#4B98C8] focus:ring-[#4B98C8]/30 border-slate-300 dark:border-slate-600"
+                      className="w-4 h-4 rounded text-[#4B98C8] focus:ring-[#4B98C8]/30 border-slate-300 dark:border-slate-700"
                     />
-                    <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
-                      Mark as Required
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      Mark as required
                     </span>
                   </label>
                 </div>
@@ -422,37 +426,37 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
 
               {/* Info note for IMAGE type */}
               {questionType === "IMAGE" && (
-                <div className="flex items-start gap-2.5 bg-sky-50 border border-sky-100 rounded-xl px-4 py-3">
+                <div className="flex items-start gap-2.5 bg-[#4B98C8]/10 border border-[#4B98C8]/30 rounded-lg px-4 py-3">
                   <FiImage className="w-4 h-4 text-[#4B98C8] shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-sky-700 font-semibold leading-snug">
+                  <p className="text-sm text-slate-800 dark:text-slate-200">
                     Users will be prompted to upload an image file.<br />
-                    <span className="font-black">Maximum size: 2 MB.</span> Accepted formats: JPG, PNG, WEBP, GIF, etc.
+                    <span className="font-semibold">Maximum size: 2 MB.</span> Accepted formats: JPG, PNG, WEBP, GIF, etc.
                   </p>
                 </div>
               )}
 
               {/* Options Editor (Only if MULTIPLE_CHOICE or CHECKBOX) */}
               {(questionType === "MULTIPLE_CHOICE" || questionType === "CHECKBOX") && (
-                <div className="space-y-2 border-t border-slate-100 pt-3.5">
+                <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-4">
                   <div className="flex justify-between items-center">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
                       {questionType === "MULTIPLE_CHOICE" ? "Dropdown Options" : "Checkbox Options"}
                     </label>
                     <button
                       type="button"
                       onClick={handleAddOption}
-                      className="text-[10px] font-black text-[#4B98C8] hover:text-[#205E85] flex items-center gap-1 active:scale-95 transition-all"
+                      className="text-sm font-medium text-[#2C6F99] dark:text-[#7DBBE0] hover:underline flex items-center gap-1"
                     >
-                      <FiPlus className="w-3 h-3" /> Add Option
+                      <FiPlus className="w-4 h-4" aria-hidden="true" /> Add option
                     </button>
                   </div>
 
                   {options.length === 0 ? (
-                    <p className="text-[11px] text-slate-400 italic">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       Please add at least one option for the {questionType === "MULTIPLE_CHOICE" ? "dropdown" : "checkbox"} selection.
                     </p>
                   ) : (
-                    <div className="space-y-2 max-h-[30vh] overflow-y-auto pr-1">
+                    <div className="space-y-2">
                       {options.map((opt, optIdx) => {
                         const isOptionEmpty = fieldErrors.emptyOptionIndices?.includes(optIdx);
                         return (
@@ -462,19 +466,16 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                               value={opt}
                               onChange={(e) => handleOptionChange(optIdx, e.target.value)}
                               placeholder={`Option ${optIdx + 1}`}
-                              className={`flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border ${
-                                isOptionEmpty || fieldErrors.options 
-                                  ? 'border-rose-400 focus:ring-rose-400/25 focus:border-rose-500' 
-                                  : 'border-slate-200 dark:border-slate-600 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8]'
-                              } text-slate-800 dark:text-slate-300 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 transition-all`}
+                              className={`${fieldClass} flex-1 min-w-0 ${isOptionEmpty || fieldErrors.options ? "border-rose-500! focus:ring-rose-500/25!" : ""}`}
                             />
                             <button
                               type="button"
                               onClick={() => handleRemoveOption(optIdx)}
-                              className="p-2 bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 rounded-xl transition-all"
-                              title="Remove Option"
+                              className={`${iconButtonDangerClass} shrink-0`}
+                              title="Remove option"
+                              aria-label={`Remove option ${optIdx + 1}`}
                             >
-                              <FiTrash2 className="w-3.5 h-3.5" />
+                              <FiTrash2 className="w-4 h-4" aria-hidden="true" />
                             </button>
                           </div>
                         );
@@ -482,7 +483,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     </div>
                   )}
                   {fieldErrors.options && (
-                    <p className="mt-1.5 text-[9px] text-rose-500 font-extrabold uppercase tracking-wide">
+                    <p className="mt-1.5 text-xs font-medium text-rose-700 dark:text-rose-400">
                       {fieldErrors.options}
                     </p>
                   )}
@@ -490,42 +491,28 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
               )}
 
               {/* Form Footer Buttons */}
-              <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-6 shrink-0">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 pt-4 border-t border-slate-200 dark:border-slate-800 mt-6">
                 <button
                   type="button"
                   onClick={() => setMode("list")}
-                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all flex items-center gap-1.5"
+                  className={secondaryButtonClass}
                 >
-                  <FiArrowLeft className="w-4.5 h-4.5" /> Back to list
+                  <FiArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to list
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow disabled:opacity-40"
-                  style={{ background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})` }}
+                  className={primaryButtonClass}
                 >
-                  {saving ? "Saving..." : "Save Question"}
+                  {saving ? "Saving…" : "Save question"}
                 </button>
               </div>
             </form>
           )}
         </div>
-
-        {/* Footer (Only shown in list view) */}
-        {mode === "list" && (
-          <div className="flex justify-end pt-4 border-t border-slate-100 mt-2 shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
-            >
-              Close
-            </button>
-          </div>
-        )}
-      </div>
+      </ModalShell>
       {dialog}
-    </div>
+    </>
   );
 };
 

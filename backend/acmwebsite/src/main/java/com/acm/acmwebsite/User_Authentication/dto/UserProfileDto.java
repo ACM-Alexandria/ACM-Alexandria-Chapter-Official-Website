@@ -3,6 +3,7 @@ package com.acm.acmwebsite.User_Authentication.dto;
 import com.acm.acmwebsite.User_Authentication.enums.Department;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,11 +39,19 @@ public class UserProfileDto {
     @JsonProperty("profile_image_url")
     private String profileImageUrl;
 
+    @Pattern(
+        regexp = "^$|^https?://([a-z]{2,3}\\.)?linkedin\\.com/(in|pub)/[A-Za-z0-9_%.-]+/?([?#].*)?$",
+        message = "LinkedIn URL must be a profile link like https://linkedin.com/in/username")
     @JsonProperty("linkedin_url")
     private String linkedinUrl;
 
     @JsonProperty("committee_id")
     private Long committeeId;
 
+    @JsonProperty("committee_name")
+    private String committeeName;
+    
+    @JsonProperty("season_points")
+    private Integer seasonPoints;
 
 }

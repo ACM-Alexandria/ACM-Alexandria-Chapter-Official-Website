@@ -1,33 +1,33 @@
 import React from "react";
 import { createPortal } from "react-dom";
+import useScrollLock from "../hooks/useScrollLock";
 import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSend } from "react-icons/fi";
 
-// Same look as UnsubscribeConfirmModal, so confirmations, errors and hints all match across the site
 const TONES = {
   danger: {
     icon: FiAlertTriangle,
-    iconClass: "bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400",
-    buttonClass: "bg-red-600 hover:bg-red-700",
+    iconClass: "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400",
+    buttonClass: "bg-rose-600 hover:bg-rose-700",
   },
   warning: {
     icon: FiAlertTriangle,
-    iconClass: "bg-amber-50 dark:bg-amber-950/40 text-amber-500 dark:text-amber-400",
-    buttonClass: "bg-amber-500 hover:bg-amber-600",
+    iconClass: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
+    buttonClass: "bg-amber-600 hover:bg-amber-700",
   },
   success: {
     icon: FiCheckCircle,
-    iconClass: "bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400",
-    buttonClass: "bg-green-600 hover:bg-green-700",
+    iconClass: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400",
+    buttonClass: "bg-emerald-600 hover:bg-emerald-700",
   },
   brand: {
     icon: FiSend,
-    iconClass: "bg-sky-50 dark:bg-sky-950/40 text-[#4B98C8]",
-    buttonClass: "bg-gradient-to-br from-[#4B98C8] to-[#205E85] hover:brightness-110",
+    iconClass: "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]",
+    buttonClass: "bg-[#4B98C8] hover:bg-[#3d7da6]",
   },
   info: {
     icon: FiInfo,
-    iconClass: "bg-sky-50 dark:bg-sky-950/40 text-[#4B98C8]",
-    buttonClass: "bg-gradient-to-br from-[#4B98C8] to-[#205E85] hover:brightness-110",
+    iconClass: "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]",
+    buttonClass: "bg-[#4B98C8] hover:bg-[#3d7da6]",
   },
 };
 
@@ -43,15 +43,49 @@ const ThemedDialog = ({
   cancelLabel,
   onConfirm,
   onCancel,
+  confirmDisabled = false,
+  busy = false,
 }) => {
-  const dismiss = onCancel || onConfirm;
+  const dismiss = busy ? undefined : onCancel || onConfirm;
+  const dialogRef = React.useRef(null);
+  const id = React.useId();
+  useScrollLock(open);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    return () => {
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [open]);
 
   React.useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e) => {
+      const overlays = document.querySelectorAll("[data-modal-overlay]");
+      if (overlays[overlays.length - 1] !== dialogRef.current?.closest("[data-modal-overlay]")) return;
       if (e.key === "Escape") {
         e.preventDefault();
         if (dismiss) dismiss();
+      }
+      if (e.key === "Tab") {
+        const elements = [...dialogRef.current.querySelectorAll(
+          "input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href]"
+        )];
+        const first = elements[0];
+        const last = elements.at(-1);
+        if (!first) {
+          e.preventDefault();
+        } else if (!dialogRef.current.contains(document.activeElement)) {
+          e.preventDefault();
+          first.focus();
+        } else if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -66,36 +100,47 @@ const ThemedDialog = ({
 
   return createPortal(
     <div
+      data-modal-overlay
       onClick={dismiss}
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease]"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
     >
       <div
+        ref={dialogRef}
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
-        className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-sm w-full p-6 text-center animate-[scaleIn_0.25s_ease]"
+        aria-labelledby={`${id}-title`}
+        aria-describedby={content ? `${id}-content` : undefined}
+        aria-busy={busy}
+        className="flex max-h-[90dvh] w-full max-w-sm flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none"
       >
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${theme.iconClass}`}>
-          <Icon className="w-6 h-6" />
+        <div className="min-h-0 overflow-y-auto p-5 flex gap-4">
+          <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${theme.iconClass}`}>
+            <Icon className="w-5 h-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h3 id={`${id}-title`} className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+            {content && <div id={`${id}-content`} className="mt-1.5 text-sm text-slate-700 dark:text-slate-300 break-words">{content}</div>}
+          </div>
         </div>
-        <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{title}</h3>
-        {content && (
-          <div className="text-xs text-slate-400 dark:text-slate-300 font-semibold mt-2 leading-relaxed">{content}</div>
-        )}
-        <div className="flex gap-3 justify-center mt-6">
+        <div className="shrink-0 px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
           {cancelLabel && (
             <button
+              type="button"
               onClick={onCancel}
+              disabled={busy}
               autoFocus={tone === "danger"}
-              className="px-4 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all cursor-pointer"
+              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
             >
               {cancelLabel}
             </button>
           )}
           <button
+            type="button"
             onClick={onConfirm}
+            disabled={confirmDisabled || busy}
             autoFocus={tone !== "danger" || !cancelLabel}
-            className={`px-4 py-2.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all shadow cursor-pointer ${theme.buttonClass}`}
+            className={`h-9 px-4 rounded-md text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900 ${theme.buttonClass}`}
           >
             {confirmLabel}
           </button>
@@ -108,7 +153,7 @@ const ThemedDialog = ({
 
 // Highlights a name inside a dialog message, like "ACM Newsletter Updates" in the unsubscribe modal
 export const Highlight = ({ children }) => (
-  <span className="font-extrabold text-slate-700 dark:text-slate-200">"{children}"</span>
+  <span className="font-semibold text-slate-900 dark:text-slate-100">"{children}"</span>
 );
 
 export default ThemedDialog;

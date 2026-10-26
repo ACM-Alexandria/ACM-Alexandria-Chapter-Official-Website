@@ -27,7 +27,7 @@ const StatusAlert = ({ type, message, duration = 3000 }) => {
     if (!message || !visible) return null;
     const { role, className } = STYLES[type];
     return (
-        <div className={`mb-4 rounded-md border px-4 py-3 text-sm ${className}`} role={role}>
+        <div className={`mb-4 rounded-lg border px-4 py-3 text-sm ${className}`} role={role}>
             {message}
         </div>
     );

@@ -17,6 +17,6 @@ public class CacheConfig {
                 CacheNames.CLUBS, CacheNames.EVENTS, CacheNames.PROGRAMS,
                 CacheNames.COMMITTEES, CacheNames.HIGH_BOARD, CacheNames.PARTNERS,
                 CacheNames.GALLERY, CacheNames.SOCIAL_LINKS, CacheNames.RADIO,
-                CacheNames.EXCLUSIVE_FORMS);
+                CacheNames.EXCLUSIVE_FORMS, CacheNames.PAST_BOARDS, CacheNames.BOARD_SEASONS);
     }
 }

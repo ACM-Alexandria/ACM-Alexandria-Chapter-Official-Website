@@ -131,7 +131,6 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
-
     if (error.response?.status === 401 && !isAuthEndpoint && window.location.pathname !== "/login") {
       await tokenService.clearAllTokens();
       window.dispatchEvent(new Event("auth:logout"));

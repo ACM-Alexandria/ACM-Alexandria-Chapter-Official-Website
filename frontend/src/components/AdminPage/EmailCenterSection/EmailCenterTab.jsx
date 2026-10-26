@@ -1,4 +1,3 @@
-import { FiMail } from "react-icons/fi";
 import { useTargetMembers } from "../../../hooks/useTargetMembers";
 import { useEmailComposer } from "../../../hooks/useEmailComposer";
 import EmailComposerForm from "./EmailComposerForm";
@@ -10,12 +9,12 @@ const EmailCenterTab = () => {
     const composer = useEmailComposer({ committees, clubs });
 
     return (
-        <section className="animate-[fadeIn_0.4s_ease]">
-            <div className="mb-6 flex items-start gap-3 border-b border-slate-200 pb-5 dark:border-slate-700">
-                <div className="rounded-md bg-sky-50 p-2.5 text-[#205E85] dark:bg-slate-800 dark:text-sky-300">
-                    <FiMail aria-hidden="true" className="h-5 w-5" />
-                </div>
-                <h2 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">Email Center</h2>
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">Email center</h2>
+                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+                    Write a message and send it to members, committees or clubs.
+                </p>
             </div>
 
             <StatusAlert type="error" message={composer.formError} />

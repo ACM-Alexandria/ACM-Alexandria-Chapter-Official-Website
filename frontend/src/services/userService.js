@@ -27,7 +27,7 @@ export const uploadProfileImage = async (userId, file) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const response = await api.post(`/api/v1/users/${userId}/profile/image`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -40,8 +40,20 @@ export const uploadProfileImage = async (userId, file) => {
   }
 };
 
+
+export const adminFetchUserProfile = async (userId) => {
+  try {
+    const response = await api.get(`/api/v1/users/admin/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching user profile:`, error);
+    throw error.response?.data || new Error("Unable to load user profile.");
+  }
+};
+
 export default {
   fetchUserProfile,
   updateUserProfile,
   uploadProfileImage,
+  adminFetchUserProfile
 };

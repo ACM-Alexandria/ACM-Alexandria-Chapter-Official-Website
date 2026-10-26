@@ -150,6 +150,21 @@ public class ExclusiveFormController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/{id}/register/{userId}")
+    public ResponseEntity<Void> cancelFormRegistration(
+            @PathVariable("id") Long formId,
+            @PathVariable java.util.UUID userId,
+            Authentication authentication) {
+        if (!authorizationService.isAuthenticated(authentication)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!authorizationService.isSelf(userId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        registrationService.cancelRegistration(userId, formId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/is-registered/{userId}")
     public ResponseEntity<Map<String, Boolean>> isRegisteredForForm(
             @PathVariable("id") Long formId,
@@ -174,7 +189,8 @@ public class ExclusiveFormController {
     // --- Analytics and Sync ---
 
     @GetMapping("/{id}/registrations/analysis")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+      + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public ResponseEntity<RegistrationAnalysisDto> getFormRegistrationAnalysis(@PathVariable("id") Long formId) {
         return ResponseEntity.ok(registrationService.getRegistrationAnalysis(formId));
     }

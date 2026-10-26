@@ -89,3 +89,17 @@ export const validatePasswordMatch = (password, passwordConfirmation) => {
   }
   return { isValid: true, message: "" };
 };
+
+export const isHttpUrl = (value) => {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) && Boolean(url.hostname)
+      && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+};
+
+export const isPastBoardSeason = (value, currentSeason) =>
+  /^\d{4}$/.test(String(value)) && Number(value) >= 2000 && Number(value) < currentSeason;

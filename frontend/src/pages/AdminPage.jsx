@@ -1,26 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/HomePage/Navbar";
-import adminService, { fetchInsights } from "../services/adminService";
+import adminService from "../services/adminService";
 import { useAuth } from "../contexts/AuthContext";
 import {
   fetchHighBoard,
-  fetchCommittee,
-  fetchEvents,
-  fetchClubs,
-  fetchPrograms,
   fetchSeasons,
 } from "../services/homePageService";
-import SystemInsightsTab from "../components/AdminPage/InsightsSection/SystemInsightsTab";
+import InsightsTab from "../components/AdminPage/InsightsSection/InsightsTab";
 import ManagementSidebar from "../components/AdminPage/ManagementSection/ManagementSidebar";
 import ResourceTable from "../components/AdminPage/ManagementSection/ResourceTable";
 import ResourceFormModal from "../components/AdminPage/ManagementSection/ResourceFormModal";
-import CallMessageModal from "../components/AdminPage/ManagementSection/CallMessageModal";
-import RegistrationPanelModal from "../components/AdminPage/ManagementSection/RegistrationPanelModal";
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
-import QuestionsManagementModal from "../components/AdminPage/ManagementSection/QuestionsManagementModal";
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
-import RegistrationEmailsModal from "../components/AdminPage/ManagementSection/RegistrationEmailsModal";
 import OpenCallConfirmModal from "../components/AdminPage/ManagementSection/OpenCallConfirmModal";
 import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
@@ -28,7 +20,18 @@ import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
+import PastBoardsTab from "../components/AdminPage/PastBoardsSection/PastBoardsTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
+import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageHeader";
+import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
+import ResourceToolbar from "../components/AdminPage/SharedComponents/ResourceToolbar";
+import { fieldClass, noticeClass, secondaryButtonClass } from "../components/AdminPage/SharedComponents/adminStyles";
+import ResourceDialogs from "../components/AdminPage/ManagementSection/ResourceDialogs";
+import ResourcePagination from "../components/AdminPage/SharedComponents/ResourcePagination";
+import useResourceDialogs from "../hooks/useResourceDialogs";
+import useEmailLock from "../hooks/useEmailLock";
+import { loadResourceList } from "../hooks/useResourceList";
+import { SHARED_RESOURCE_TABS, resourceTypeForTab } from "../constants/resourceTypes";
 import {
   FiCalendar,
   FiAward,
@@ -54,17 +57,10 @@ import {
   FiLock,
 } from "react-icons/fi";
 
-/* ─── Brand ─── */
-const B = "#4B98C8";
-const BD = "#205E85";
-
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ADMIN PAGE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const AdminPage = () => {
-  const [insights, setInsights] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("insights");
 
   // ── Resource Management States ──
@@ -92,11 +88,6 @@ const AdminPage = () => {
   const [socialsModalOpen, setSocialsModalOpen] = useState(false);
   const [selectedClubForSocials, setSelectedClubForSocials] = useState(null);
 
-  // Form Questions modal states
-  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
-  const [selectedResourceForQuestions, setSelectedResourceForQuestions] = useState(null);
-  const [questionsResourceType, setQuestionsResourceType] = useState("event");
-
   // Committee Board Member Specifics
   const [selectedCommitteeId, setSelectedCommitteeId] = useState("");
 
@@ -106,28 +97,11 @@ const AdminPage = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
 
-  // Message Modal states
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
-  const [selectedCommittee, setSelectedCommittee] = useState(null);
-  const [messageSubject, setMessageSubject] = useState("");
-  const [messageBody, setMessageBody] = useState("");
   const [modalError, setModalError] = useState(null);
-
-  // Registration Panel States
-  const [regModalOpen, setRegModalOpen] = useState(false);
-  const [selectedResourceForAnalysis, setSelectedResourceForAnalysis] = useState(null);
-  const [regAnalysisData, setRegAnalysisData] = useState(null);
-  const [regAnalysisLoading, setRegAnalysisLoading] = useState(false);
-  const [regSyncLoading, setRegSyncLoading] = useState(false);
-  const [regModalError, setRegModalError] = useState(null);
 
   // Event Gallery modal states
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
-
-  // Registration Emails modal states (events & clubs)
-  const [emailsModalOpen, setEmailsModalOpen] = useState(false);
-  const [selectedResourceForEmails, setSelectedResourceForEmails] = useState(null);
 
   // Committee open-call confirm states
   const [openCallCommittee, setOpenCallCommittee] = useState(null);
@@ -142,23 +116,26 @@ const AdminPage = () => {
   // Themed confirmations, errors and hints for the email actions (same look as the unsubscribe dialog)
   const { dialog, confirm, notify } = useThemedDialog();
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
-  const [emailsEnabled, setEmailsEnabled] = useState(true);
+  // Past boards can be managed by every board role; only archiving the season stays super-admin only
+  const canManagePastBoards = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"].includes(user?.role);
+  const [emailsEnabled, setEmailsEnabled] = useEmailLock();
   const [emailLockSaving, setEmailLockSaving] = useState(false);
 
+  // HR Feedback is visible to the super admin and to the HR Committee board only
+  const canSeeHRFeedback =
+    isSuperAdmin || (user?.role === "ACM_COMMITTEE_BOARD" && user?.committeeName === "HR Committee");
+
   const mgmtTabs = [
-    { id: "users", label: "Users", icon: FiUserCheck },
-    { id: "committees", label: "Committees", icon: FiLayers },
-    { id: "events", label: "Events", icon: FiCalendar },
-    { id: "clubs", label: "Clubs", icon: FiAward },
-    { id: "programs", label: "Programs", icon: FiBookOpen },
+    ...SHARED_RESOURCE_TABS.slice(0, 5),
     { id: "radio", label: "Radio", icon: FiRadio },
-    { id: "exclusiveForms", label: "Exclusive Forms", icon: FiFileText },
+    ...SHARED_RESOURCE_TABS.slice(5),
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
     { id: "partners", label: "Partners", icon: FiGlobe },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
     { id: "hrFeedback", label: "HR Feedback", icon: FiMessageSquare },
-  ];
+    ...(canManagePastBoards ? [{ id: "pastBoards", label: "Past Boards", icon: FiLayers }] : []),
+  ].filter((tab) => tab.id !== "hrFeedback" || canSeeHRFeedback);
 
   const loadMgmtTabData = async (tab, page = 0) => {
     setMgmtLoading(true);
@@ -171,36 +148,18 @@ const AdminPage = () => {
         setHighBoard(data.sort((a, b) => (a.order || 99) - (b.order || 99)));
 
       } else if (tab === "committees" || tab === "committeeBoard") {
-        const data = await fetchCommittee();
-        // Ensure boardRoles are sorted by order within each committee
-        const sortedData = data.map((c) => ({
-          ...c,
-          boardRoles: (c.boardRoles || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
-        }));
+        const sortedData = await loadResourceList("committees");
         setCommittees(sortedData);
         if (sortedData.length > 0 && !selectedCommitteeId) {
           setSelectedCommitteeId(sortedData[0].id.toString());
         }
 
       } else if (tab === "events") {
-        const data = await fetchEvents(page);
-        // Sort events by eventTime descending (latest first)
-        const sorted = {
-          ...data,
-          content: data.content.sort((a, b) => new Date(b.eventTime) - new Date(a.eventTime)),
-        };
-        setEvents(sorted);
+        setEvents(await loadResourceList("events", page));
       } else if (tab === "clubs") {
-        const data = await fetchClubs(page);
-        // Sort clubs alphabetically by name
-        const sorted = {
-          ...data,
-          content: data.content.sort((a, b) => a.name.localeCompare(b.name)),
-        };
-        setClubs(sorted);
+        setClubs(await loadResourceList("clubs", page));
       } else if (tab === "programs") {
-        const data = await fetchPrograms(page);
-        setPrograms(data);
+        setPrograms(await loadResourceList("programs", page));
       } else if (tab === "radio") {
         const data = await fetchSeasons(page);
         const sorted = {
@@ -209,8 +168,7 @@ const AdminPage = () => {
         };
         setSeasons(sorted);
       } else if (tab === "exclusiveForms") {
-        const data = await adminService.fetchExclusiveForms();
-        setExclusiveForms(data || []);
+        setExclusiveForms(await loadResourceList("exclusiveForms"));
       } else if (tab === "socialLinks") {
         const data = await adminService.fetchSocialLinks();
         setSocialLinks(data);
@@ -229,6 +187,8 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
+
+  const dialogs = useResourceDialogs({ onChanged: () => loadMgmtTabData(mgmtTab) });
 
   useEffect(() => {
     if (activeTab === "management") {
@@ -395,7 +355,7 @@ const AdminPage = () => {
     setMgmtLoading(true);
     setMgmtError(null);
     setModalError(null);
- 
+
     try {
       let payload = { ...formData };
       if (mgmtTab === "highboard" && payload.user) {
@@ -435,7 +395,7 @@ const AdminPage = () => {
           try {
             const { questions: _questions, ...eventPayload } = formData;
             newEvent = await adminService.createEvent(eventPayload);
-            
+
             if (newEvent?.id && formData.questions && formData.questions.length > 0) {
               for (const q of formData.questions) {
                 const payload = {
@@ -503,7 +463,7 @@ const AdminPage = () => {
           await adminService.updatePartner(editingItem.id, formData);
         }
       }
- 
+
       setFormOpen(false);
       loadMgmtTabData(mgmtTab);
     } catch (err) {
@@ -514,7 +474,7 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
- 
+
   const handleMgmtDeleteClick = async (item) => {
     if (deleteInFlight.current) return;
     deleteInFlight.current = true;
@@ -629,9 +589,8 @@ const AdminPage = () => {
     setSelectedSeasonForEpisodes(season);
     setEpisodesModalOpen(true);
   };
- 
+
   const toggleInFlight = useRef(false);
-  const syncSheetInFlight = useRef(false);
   const deleteInFlight = useRef(false);
 
   const handleToggleCall = async (item) => {
@@ -640,119 +599,118 @@ const AdminPage = () => {
 
     try {
       const isCurrentlyOpen =
-      mgmtTab === "programs"
-        ? Boolean(item.registrationOpen)
-        : mgmtTab === "exclusiveForms"
-        ? Boolean(item.isActive)
-        : Boolean(item.registrationOpen || item.open || item.isOpen);
-
-    const resourceName = item.name || item.title || "this resource";
-
-    // If opening a committee call, preserve OpenCallConfirmModal to configure emailing subscribers
-    if (mgmtTab === "committees" && !isCurrentlyOpen) {
-      setOpenCallCommittee(item);
-      return;
-    }
-
-    // Determine confirmation tone, title, and description based on resource type and action direction
-    const isClosing = isCurrentlyOpen;
-    let title = "";
-    let description = "";
-    let tone = isClosing ? "warning" : "brand";
-    let confirmLabel = isClosing ? "Close" : "Open";
-
-    if (mgmtTab === "committees") {
-      title = "Close Committee Call?";
-      description = (
-        <>
-          Closing this call for <Highlight>{resourceName}</Highlight> will immediately stop accepting new committee applications. Existing applications will remain safely stored, but new applicants will no longer be able to submit until the call is reopened.
-        </>
-      );
-      confirmLabel = "Close Call";
-    } else if (mgmtTab === "exclusiveForms") {
-      title = isClosing ? "Deactivate Form?" : "Activate Form?";
-      description = isClosing ? (
-        <>
-          Deactivating <Highlight>{resourceName}</Highlight> will immediately prevent new submissions. Existing submissions will remain saved.
-        </>
-      ) : (
-        <>
-          Activating <Highlight>{resourceName}</Highlight> will make the form publicly available and allow new applicants to submit entries.
-        </>
-      );
-      confirmLabel = isClosing ? "Deactivate" : "Activate";
-    } else {
-      title = isClosing ? "Close Registration?" : "Open Registration?";
-      description = isClosing ? (
-        <>
-          Closing registration for <Highlight>{resourceName}</Highlight> will immediately stop accepting new registrations. Existing registrations will remain preserved.
-        </>
-      ) : (
-        <>
-          Opening registration for <Highlight>{resourceName}</Highlight> will make the registration form publicly available and allow new applicants to register.
-        </>
-      );
-      confirmLabel = isClosing ? "Close Registration" : "Open Registration";
-    }
-
-    const confirmed = await confirm({
-      tone,
-      title,
-      description,
-      confirmLabel,
-      cancelLabel: "Cancel",
-    });
-
-    if (!confirmed) return;
-
-    setMgmtLoading(true);
-    setMgmtError(null);
-    try {
-      if (mgmtTab === "programs") {
-        await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
-      } else if (mgmtTab === "clubs") {
-        if (isCurrentlyOpen) {
-          await adminService.closeClubCall(item.id);
-        } else {
-          await adminService.openClubCall(item.id);
-        }
-      } else if (mgmtTab === "events") {
-        if (isCurrentlyOpen) {
-          await adminService.closeEventCall(item.id);
-        } else {
-          await adminService.openEventCall(item.id);
-        }
-      } else if (mgmtTab === "exclusiveForms") {
-        await adminService.updateExclusiveForm(item.id, {
-          ...item,
-          isActive: !isCurrentlyOpen,
-        });
-      } else {
-        await adminService.closeCommitteeCall(item.id);
-      }
-      await loadMgmtTabData(mgmtTab);
-    } catch (err) {
-      console.error(err);
-      let errMsg = `Failed to update ${
         mgmtTab === "programs"
+          ? Boolean(item.registrationOpen)
+          : mgmtTab === "exclusiveForms"
+            ? Boolean(item.isActive)
+            : Boolean(item.registrationOpen || item.open || item.isOpen);
+
+      const resourceName = item.name || item.title || "this resource";
+
+      // If opening a committee call, preserve OpenCallConfirmModal to configure emailing subscribers
+      if (mgmtTab === "committees" && !isCurrentlyOpen) {
+        setOpenCallCommittee(item);
+        return;
+      }
+
+      // Determine confirmation tone, title, and description based on resource type and action direction
+      const isClosing = isCurrentlyOpen;
+      let title = "";
+      let description = "";
+      let tone = isClosing ? "warning" : "brand";
+      let confirmLabel = isClosing ? "Close" : "Open";
+
+      if (mgmtTab === "committees") {
+        title = "Close Committee Call?";
+        description = (
+          <>
+            Closing this call for <Highlight>{resourceName}</Highlight> will immediately stop accepting new committee applications. Existing applications will remain safely stored, but new applicants will no longer be able to submit until the call is reopened.
+          </>
+        );
+        confirmLabel = "Close Call";
+      } else if (mgmtTab === "exclusiveForms") {
+        title = isClosing ? "Deactivate Form?" : "Activate Form?";
+        description = isClosing ? (
+          <>
+            Deactivating <Highlight>{resourceName}</Highlight> will immediately prevent new submissions. Existing submissions will remain saved.
+          </>
+        ) : (
+          <>
+            Activating <Highlight>{resourceName}</Highlight> will make the form publicly available and allow new applicants to submit entries.
+          </>
+        );
+        confirmLabel = isClosing ? "Deactivate" : "Activate";
+      } else {
+        title = isClosing ? "Close Registration?" : "Open Registration?";
+        description = isClosing ? (
+          <>
+            Closing registration for <Highlight>{resourceName}</Highlight> will immediately stop accepting new registrations. Existing registrations will remain preserved.
+          </>
+        ) : (
+          <>
+            Opening registration for <Highlight>{resourceName}</Highlight> will make the registration form publicly available and allow new applicants to register.
+          </>
+        );
+        confirmLabel = isClosing ? "Close Registration" : "Open Registration";
+      }
+
+      const confirmed = await confirm({
+        tone,
+        title,
+        description,
+        confirmLabel,
+        cancelLabel: "Cancel",
+      });
+
+      if (!confirmed) return;
+
+      setMgmtLoading(true);
+      setMgmtError(null);
+      try {
+        if (mgmtTab === "programs") {
+          await adminService.toggleProgramRegistration(item.id, !isCurrentlyOpen);
+        } else if (mgmtTab === "clubs") {
+          if (isCurrentlyOpen) {
+            await adminService.closeClubCall(item.id);
+          } else {
+            await adminService.openClubCall(item.id);
+          }
+        } else if (mgmtTab === "events") {
+          if (isCurrentlyOpen) {
+            await adminService.closeEventCall(item.id);
+          } else {
+            await adminService.openEventCall(item.id);
+          }
+        } else if (mgmtTab === "exclusiveForms") {
+          await adminService.updateExclusiveForm(item.id, {
+            ...item,
+            isActive: !isCurrentlyOpen,
+          });
+        } else {
+          await adminService.closeCommitteeCall(item.id);
+        }
+        await loadMgmtTabData(mgmtTab);
+      } catch (err) {
+        console.error(err);
+        let errMsg = `Failed to update ${mgmtTab === "programs"
           ? "program registration"
           : mgmtTab === "exclusiveForms"
-          ? "exclusive form status"
-          : "committee call"
-      } status.`;
-      if (typeof err === "string") {
-        errMsg = err;
-      } else if (err && typeof err === "object") {
-        errMsg = err.error || err.message || errMsg;
+            ? "exclusive form status"
+            : "committee call"
+          } status.`;
+        if (typeof err === "string") {
+          errMsg = err;
+        } else if (err && typeof err === "object") {
+          errMsg = err.error || err.message || errMsg;
+        }
+        setMgmtError(errMsg);
+      } finally {
+        setMgmtLoading(false);
       }
-      setMgmtError(errMsg);
     } finally {
-      setMgmtLoading(false);
+      toggleInFlight.current = false;
     }
-  } finally {
-    toggleInFlight.current = false;
-  }
-};
+  };
 
   const handleConfirmOpenCall = async (sendAnnouncement) => {
     if (openCallInFlight.current) return;
@@ -799,7 +757,7 @@ const AdminPage = () => {
         (force) =>
           isCommittee
             ? adminService.announceCommitteeCall(item.id, force)
-            : adminService.sendAnnouncement(mgmtTab, item.id, force),
+            : adminService.sendAnnouncement(resourceTypeForTab(mgmtTab), item.id, force),
         confirm
       );
       if (sent) {
@@ -818,17 +776,6 @@ const AdminPage = () => {
       setMgmtLoading(false);
     }
   };
-
-  const handleEmailsClick = (item) => {
-    setSelectedResourceForEmails({ item, type: mgmtTab });
-    setEmailsModalOpen(true);
-  };
-
-  useEffect(() => {
-    adminService.fetchEmailLock()
-      .then((data) => setEmailsEnabled(data?.emailsEnabled !== false))
-      .catch((err) => console.error("Failed to load email lock status", err));
-  }, []);
 
   const emailLockInFlight = useRef(false);
 
@@ -872,75 +819,6 @@ const AdminPage = () => {
     }
   };
 
-  const handleEditMessageClick = (committee) => {
-    setSelectedCommittee(committee);
-    setMessageSubject(committee.callMessage?.subject || "");
-    setMessageBody(committee.callMessage?.body || "");
-    setMgmtError(null);
-    setModalError(null);
-    setMessageModalOpen(true);
-  };
- 
-  const handleMessageSubmit = async (e) => {
-    e.preventDefault();
-    setMgmtLoading(true);
-    setMgmtError(null);
-    setModalError(null);
-    try {
-      await adminService.changeCallMessage(selectedCommittee.id, {
-        subject: messageSubject,
-        body: messageBody,
-      });
-      setMessageModalOpen(false);
-      await loadMgmtTabData(mgmtTab);
-    } catch (err) {
-      console.error(err);
-      const msg = err.message || err.error || (typeof err === "string" ? err : null) || "Failed to update call message.";
-      setModalError(msg);
-    } finally {
-      setMgmtLoading(false);
-    }
-  };
-
-  const handleRegistrationClick = async (item) => {
-    const resourceType = mgmtTab === "events" ? "event" : mgmtTab === "clubs" ? "club" : mgmtTab === "programs" ? "program" : mgmtTab === "exclusiveForms" ? "exclusive-form" : "committee";
-    setSelectedResourceForAnalysis({
-      id: item.id,
-      name: item.name || item.title,
-      type: resourceType,
-    });
-    setRegModalOpen(true);
-    setRegAnalysisLoading(true);
-    setRegModalError(null);
-    setRegAnalysisData(null);
-    
-    if (resourceType !== "committee") {
-      try {
-        const data = await adminService.fetchRegistrationAnalysis(resourceType, item.id);
-        setRegAnalysisData(data);
-      } catch (err) {
-        console.error(err);
-        setRegModalError(err.message || err.error || "Failed to load registration analytics.");
-      } finally {
-        setRegAnalysisLoading(false);
-      }
-    } else {
-      setRegAnalysisLoading(false);
-    }
-  };
-
-  const handleQuestionsClick = (item) => {
-    setSelectedResourceForQuestions(item);
-    setQuestionsResourceType(
-      mgmtTab === "events" ? "event" :
-      mgmtTab === "clubs" ? "club" :
-      mgmtTab === "programs" ? "program" :
-      mgmtTab === "exclusiveForms" ? "exclusive-form" :
-      "committee"
-    );
-    setQuestionsModalOpen(true);
-  };
-
   const handleSocialsClick = (item) => {
     setSelectedClubForSocials(item);
     setSocialsModalOpen(true);
@@ -951,195 +829,86 @@ const AdminPage = () => {
     setGalleryModalOpen(true);
   };
 
-  const handleSyncRegistrationSheet = async () => {
-    if (!selectedResourceForAnalysis) return;
-    if (syncSheetInFlight.current) return;
-    syncSheetInFlight.current = true;
-
-    try {
-      const resourceName = selectedResourceForAnalysis.name || "this resource";
-
-      const confirmed = await confirm({
-        tone: "danger",
-        title: "Overwrite Google Sheet?",
-        description: (
-          <>
-            This will replace the existing spreadsheet contents for <Highlight>{resourceName}</Highlight> with the latest registration data from the website. Any manual notes, formulas, or other changes currently in the Google Sheet may be permanently erased.
-          </>
-        ),
-        confirmLabel: "Yes, Overwrite Sheet",
-        cancelLabel: "Cancel",
-      });
-
-      if (!confirmed) return;
-
-      const { id, type } = selectedResourceForAnalysis;
-      setRegSyncLoading(true);
-      setRegModalError(null);
-      try {
-        const updatedData = await adminService.syncRegistrationSheet(type, id);
-        setRegAnalysisData(updatedData);
-        
-        // Update local state list so URL and timestamp are updated in the main table data
-        if (type === "event") {
-          setEvents(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        } else if (type === "club") {
-          setClubs(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        } else if (type === "program") {
-          setPrograms(prev => ({
-            ...prev,
-            content: prev.content.map(item => item.id === id ? { ...item, googleSheetUrl: updatedData.googleSheetUrl, sheetLastUpdatedAt: updatedData.sheetLastUpdatedAt } : item)
-          }));
-        }
-      } catch (err) {
-        console.error(err);
-        setRegModalError(err.message || err.error || "Failed to synchronize spreadsheet.");
-      } finally {
-        setRegSyncLoading(false);
-      }
-    } finally {
-      syncSheetInFlight.current = false;
-    }
-  };
-
-  const loadInsights = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchInsights();
-      setInsights(data);
-    } catch (err) {
-      console.error("Error loading admin insights:", err);
-      setError(err.message || "Failed to load dashboard insights.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadInsights();
-  }, []);
-
 
 
   const tabs = [
-    { id: "insights", label: "System Insights", icon: FiTrendingUp },
-    { id: "management", label: "Resource Management", icon: FiSliders },
-    { id: "email", label: "Email Center", icon: FiMail },
+    { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
+    { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
+    { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
   ];
 
+  // Paginated resources, keyed by tab
+  const pagedData = { events, clubs, programs, radio: seasons };
+  const pageInfo = pagedData[mgmtTab];
+
+  const sectionNames = {
+    highboard: "high board",
+    committeeBoard: "committee board",
+    radio: "radio seasons",
+    socialLinks: "social links",
+    exclusiveForms: "exclusive forms",
+  };
+  const sectionName = sectionNames[mgmtTab] || mgmtTab;
+
+  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards"].includes(mgmtTab);
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans">
+    <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
       <Navbar activeSection="" />
 
-      <main className="pt-[100px] pb-20 px-4 sm:px-6 md:px-10 lg:px-14 max-w-[1400px] mx-auto">
-        {/* ── Header ── */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
-          style={{ animation: "fadeIn 0.5s ease both" }}
-        >
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <FiActivity className="w-4 h-4" style={{ color: B }} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: B }}>
-                Administration
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-              Dashboard
-            </h1>
-          </div>
+      <main className="admin-ui pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
+        <AdminPageHeader
+          title="Dashboard"
+          description="Administration"
+          actions={
+            <>
+              {isSuperAdmin && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={emailsEnabled}
+                  onClick={handleToggleEmailLock}
+                  disabled={emailLockSaving}
+                  title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
+                  className={secondaryButtonClass}
+                >
+                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-[#4B98C8]" : "text-rose-600"}`} aria-hidden="true" />
+                  Site emails
+                  <span
+                    aria-hidden="true"
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-[#4B98C8]" : "bg-rose-500"}`}
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${emailsEnabled ? "translate-x-4" : "translate-x-1"}`}
+                    />
+                  </span>
+                </button>
+              )}
+            </>
+          }
+        />
 
-          <div className="flex items-center gap-3">
-          {isSuperAdmin && (
-            <button
-              type="button"
-              onClick={handleToggleEmailLock}
-              disabled={emailLockSaving}
-              title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
-              className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase text-slate-600 dark:text-slate-200 active:scale-95 transition-all disabled:opacity-40"
-            >
-              <FiLock className="w-3.5 h-3.5" style={{ color: emailsEnabled ? B : "#dc2626" }} />
-              Site Emails
-              <span
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
-                  emailsEnabled ? "bg-[#4B98C8]" : "bg-red-500"
-                }`}
-              >
-                <span
-                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                    emailsEnabled ? "translate-x-4" : "translate-x-1"
-                  }`}
-                />
-              </span>
-            </button>
-          )}
-          {activeTab === "insights" && (
-            <button
-              onClick={loadInsights}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl shadow-sm dark:shadow-slate-950/40 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all disabled:opacity-40"
-            >
-              <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} style={{ color: B }} />
-              Refresh
-            </button>
-          )}
-          </div>
-        </div>
-
-        {/* ── Email lock warning ── */}
+        {/* Email lock warning */}
         {!emailsEnabled && (
-          <div className="flex items-center gap-3 p-4 mb-8 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl">
-            <FiAlertTriangle className="w-5 h-5 shrink-0" />
-            <p className="text-xs font-bold">
+          <div role="alert" className={`flex items-start gap-2.5 ${noticeClass.error}`}>
+            <FiAlertTriangle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+            <p>
               All site emails are locked. No emails or notifications are sent (except password resets).
-              {isSuperAdmin ? " Use the Site Emails switch above to unlock." : " Only the super admin can unlock them."}
+              {isSuperAdmin ? " Use the Site emails switch above to unlock." : " Only the super admin can unlock them."}
             </p>
           </div>
         )}
 
-        {/* ── Tab Bar ── */}
-        <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-1 rounded-xl w-fit shadow-sm dark:shadow-slate-950/40 mb-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                activeTab === tab.id
-                  ? "text-white shadow-md"
-                  : "text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-              }`}
-              style={activeTab === tab.id ? { background: `linear-gradient(135deg, ${B}, ${BD})` } : {}}
-            >
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <AdminTabs tabs={tabs} active={activeTab} onChange={setActiveTab} ariaLabel="Admin sections" />
 
-        {/* ━━━━ TAB 1: INSIGHTS ━━━━ */}
         {activeTab === "insights" && (
-          <SystemInsightsTab
-            insights={insights}
-            loading={loading}
-            error={error}
-            onRefresh={loadInsights}
-          />
+          <InsightsTab />
         )}
 
-        {activeTab === "email" && (
-          <EmailCenterTab />
-        )}
+        {activeTab === "email" && <EmailCenterTab />}
 
-        {/* ━━━━ TAB 2: MANAGEMENT ━━━━ */}
         {activeTab === "management" && (
-          <div className="flex flex-col lg:flex-row gap-8 items-start animate-[fadeIn_0.4s_ease]">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
             <ManagementSidebar
               activeTab={mgmtTab}
               setActiveTab={setMgmtTab}
@@ -1147,80 +916,49 @@ const AdminPage = () => {
               setSearchQuery={setMgmtSearchQuery}
             />
 
-            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-6 shadow-sm dark:shadow-slate-950/40 min-h-[500px] flex flex-col justify-between">
+            <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
               <div>
-                {/* Header Controls — hidden for gallery/feedback/hrFeedback/users which render their own headers */}
-                {mgmtTab !== "gallery" && mgmtTab !== "feedback" && mgmtTab !== "hrFeedback" && mgmtTab !== "users" && (
-                  <>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                      <div>
-                        <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight capitalize">
-                          Manage {mgmtTab === "highboard" ? "High Board" : mgmtTab === "committeeBoard" ? "Committee Board" : mgmtTab === "radio" ? "Radio Seasons" : mgmtTab === "partners" ? "Partners" : mgmtTab}
-                        </h2>
-                        <p className="text-xs text-slate-400 dark:text-slate-300 font-medium">
-                          Add, edit, or delete items within this database category.
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={handleMgmtAddClick}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide shadow active:scale-95 transition-all"
-                        style={{ backgroundColor: B }}
+                {!hasOwnHeader && (
+                  <ResourceToolbar
+                    title={`Manage ${sectionName}`}
+                    description="Add, edit or delete items in this section."
+                    onAdd={handleMgmtAddClick}
+                    search={mgmtSearchQuery}
+                    onSearchChange={setMgmtSearchQuery}
+                  >
+                    {/* Committee selector for committee board management */}
+                    {mgmtTab === "committeeBoard" && (
+                      <select
+                        aria-label="Committee"
+                        value={selectedCommitteeId}
+                        onChange={(e) => setSelectedCommitteeId(e.target.value)}
+                        className={`${fieldClass} sm:w-auto`}
                       >
-                        <FiPlus className="w-4 h-4" />
-                        Add New
-                      </button>
-                    </div>
-
-                    {/* Search Bar / Selector Row */}
-                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                      <div className="relative flex-1">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                          <FiSearch className="w-4 h-4" />
-                        </span>
-                        <input
-                          type="text"
-                          value={mgmtSearchQuery}
-                          onChange={(e) => setMgmtSearchQuery(e.target.value)}
-                          placeholder="Search by name or description..."
-                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                        />
-                      </div>
-
-                      {/* Committee Selector for Committee Board Management */}
-                      {mgmtTab === "committeeBoard" && (
-                        <select
-                          value={selectedCommitteeId}
-                          onChange={(e) => setSelectedCommitteeId(e.target.value)}
-                          className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
-                        >
-                          {committees.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </>
+                        {committees.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    )}
+                  </ResourceToolbar>
                 )}
 
-                {/* Error Alert */}
                 {mgmtError && (
-                  <div className="mb-6 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-200 rounded-xl p-4 flex items-center gap-3">
-                    <FiAlertTriangle className="w-5 h-5 shrink-0" />
-                    <p className="text-xs font-bold">{mgmtError}</p>
+                  <div role="alert" className={`mb-5 flex items-start gap-2.5 ${noticeClass.error}`}>
+                    <FiAlertTriangle className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+                    <p>{mgmtError}</p>
                   </div>
                 )}
 
-                {/* Table Data — skipped for gallery/feedback/hrFeedback/users tabs which render their own UI */}
-                {mgmtTab === "users" ? (
+                {/* Users, gallery, feedback and past boards render their own UI */}
+                {mgmtTab === "pastBoards" ? (
+                  <PastBoardsTab />
+                ) : mgmtTab === "users" ? (
                   <UserManagementTab />
                 ) : mgmtTab === "gallery" ? (
                   <GalleryTab />
                 ) : mgmtTab === "feedback" ? (
                   <FeedbackTab />
-                ) : mgmtTab === "hrFeedback" ? (
+                ) : mgmtTab === "hrFeedback" && canSeeHRFeedback ? (
                   <HRFeedbackTab />
                 ) : (
                   <ResourceTable
@@ -1230,56 +968,20 @@ const AdminPage = () => {
                     onEditClick={handleMgmtEditClick}
                     onDeleteClick={handleMgmtDeleteClick}
                     onToggleCall={handleToggleCall}
-                    onEditMessageClick={handleEditMessageClick}
-                    onRegistrationClick={handleRegistrationClick}
-                    onQuestionsClick={handleQuestionsClick}
+                    onEditMessageClick={dialogs.openCallMessage}
+                    onRegistrationClick={(item) => dialogs.openRegistration(item, resourceTypeForTab(mgmtTab) ?? "committee")}
+                    onQuestionsClick={(item) => dialogs.openQuestions(item, resourceTypeForTab(mgmtTab) ?? "committee")}
                     onSocialsClick={handleSocialsClick}
                     onGalleryClick={handleGalleryClick}
                     onEpisodesClick={handleEpisodesClick}
                     onAnnounceClick={handleAnnounceClick}
                     announcingId={announcingId}
-                    onEmailsClick={handleEmailsClick}
+                    onEmailsClick={(item) => dialogs.openEmails(item, resourceTypeForTab(mgmtTab))}
                   />
                 )}
               </div>
 
-              {/* Pagination controls for paginated resources */}
-              {(mgmtTab === "events" || mgmtTab === "clubs" || mgmtTab === "programs" || mgmtTab === "radio") && (
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-5 mt-6">
-                  <span className="text-xs text-slate-400 dark:text-slate-300 font-bold">
-                    Page {(mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1} of{" "}
-                    {mgmtTab === "events" ? events.totalPages : mgmtTab === "clubs" ? clubs.totalPages : mgmtTab === "radio" ? seasons.totalPages : programs.totalPages}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      disabled={mgmtTab === "events" ? events.number === 0 : mgmtTab === "clubs" ? clubs.number === 0 : mgmtTab === "radio" ? seasons.number === 0 : programs.number === 0}
-                      onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) - 1)
-                      }
-                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
-                    >
-                      <FiChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      disabled={
-                        mgmtTab === "events"
-                          ? events.number >= events.totalPages - 1
-                          : mgmtTab === "clubs"
-                            ? clubs.number >= clubs.totalPages - 1
-                            : mgmtTab === "radio"
-                              ? seasons.number >= seasons.totalPages - 1
-                              : programs.number >= programs.totalPages - 1
-                      }
-                      onClick={() =>
-                        loadMgmtTabData(mgmtTab, (mgmtTab === "events" ? events.number : mgmtTab === "clubs" ? clubs.number : mgmtTab === "radio" ? seasons.number : programs.number) + 1)
-                      }
-                      className="p-2 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 disabled:opacity-40 rounded-lg active:scale-95 transition-all"
-                    >
-                      <FiChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
+              <ResourcePagination pageInfo={pageInfo} onPageChange={(page) => loadMgmtTabData(mgmtTab, page)} />
             </div>
 
             {/* Modals */}
@@ -1295,31 +997,8 @@ const AdminPage = () => {
               error={modalError}
             />
 
-            <CallMessageModal
-              open={messageModalOpen}
-              onClose={() => { setMessageModalOpen(false); setModalError(null); }}
-              onSubmit={handleMessageSubmit}
-              selectedCommittee={selectedCommittee}
-              messageSubject={messageSubject}
-              setMessageSubject={setMessageSubject}
-              messageBody={messageBody}
-              setMessageBody={setMessageBody}
-              loading={mgmtLoading}
-              error={modalError}
-            />
+            <ResourceDialogs dialogs={dialogs} />
 
-            <RegistrationPanelModal
-              open={regModalOpen}
-              onClose={() => { setRegModalOpen(false); setRegModalError(null); }}
-              resourceId={selectedResourceForAnalysis?.id}
-              resourceName={selectedResourceForAnalysis?.name || ""}
-              resourceType={selectedResourceForAnalysis?.type || ""}
-              analysis={regAnalysisData}
-              loading={regAnalysisLoading}
-              syncLoading={regSyncLoading}
-              onSyncSheet={handleSyncRegistrationSheet}
-              error={regModalError}
-            />
 
             <ClubSocialsModal
               open={socialsModalOpen}
@@ -1328,13 +1007,6 @@ const AdminPage = () => {
               onSaved={() => loadMgmtTabData(mgmtTab)}
             />
 
-            <QuestionsManagementModal
-              open={questionsModalOpen}
-              onClose={() => { setQuestionsModalOpen(false); setModalError(null); }}
-              resourceId={selectedResourceForQuestions?.id}
-              resourceName={selectedResourceForQuestions?.name}
-              resourceType={questionsResourceType}
-            />
 
             <EpisodesManagementModal
               open={episodesModalOpen}
@@ -1350,12 +1022,6 @@ const AdminPage = () => {
               onSave={() => loadMgmtTabData(mgmtTab)}
             />
 
-            <RegistrationEmailsModal
-              open={emailsModalOpen}
-              onClose={() => { setEmailsModalOpen(false); setSelectedResourceForEmails(null); }}
-              resource={selectedResourceForEmails?.item}
-              resourceType={selectedResourceForEmails?.type}
-            />
 
             <OpenCallConfirmModal
               open={Boolean(openCallCommittee)}
@@ -1367,7 +1033,7 @@ const AdminPage = () => {
           </div>
         )}
       </main>
-      {dialog}
+      <div className="admin-ui">{dialog}</div>
     </div>
   );
 };

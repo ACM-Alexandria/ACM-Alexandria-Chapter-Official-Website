@@ -1,16 +1,36 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchUserProfile, updateUserProfile } from "../services/userService";
+import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
+import { fetchUserPointsLogs } from "../services/pointsLogService";
 import Navbar from "../components/HomePage/Navbar";
-import ProfileViewCard from "../components/UserProfile/ProfileViewCard";
+import { ProfileHeader, ProfileDetails, Panel } from "../components/UserProfile/ProfileViewCard";
 import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
-import { uploadProfileImage } from "../services/userService";
-import { 
+import PointsLogSection from "../components/UserProfile/PointsLogSection";
+
+import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
-  HiOutlinePencilAlt
+  HiOutlineArrowLeft,
+  HiOutlinePencil
 } from "react-icons/hi";
+
+const Alert = ({ tone, children }) => {
+  const success = tone === "success";
+  const Icon = success ? HiOutlineCheckCircle : HiOutlineExclamationCircle;
+  return (
+    <div
+      role={success ? "status" : "alert"}
+      className={`flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm ${success
+        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200"
+        : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200"
+        }`}
+    >
+      <Icon className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+      <p>{children}</p>
+    </div>
+  );
+};
 
 const UserProfilePage = () => {
   const { user } = useAuth();
@@ -24,7 +44,9 @@ const UserProfilePage = () => {
     batch: "",
     linkedinUrl: "",
     profileImageUrl: "",
-    role: "USER"
+    committeeName: "",
+    role: "USER",
+    seasonPoints: 0,
   });
 
   const [backupProfile, setBackupProfile] = useState(null);
@@ -32,8 +54,19 @@ const UserProfilePage = () => {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+
+  // --- PROFILE ALERTS STATE ---
+  const [profileError, setProfileError] = useState(null);
+  const [profileSuccess, setProfileSuccess] = useState(false);
+
+  // --- POINTS LOG ALERTS STATE ---
+  const [pointsError, setPointsError] = useState(null);
+  const [pointsSuccess, setPointsSuccess] = useState(false);
+
+  // --- POINTS LOG STATE ---
+  const [pointsLogs, setPointsLogs] = useState([]);
+  const [pointsPage, setPointsPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Fetch profile data from backend
   useEffect(() => {
@@ -41,10 +74,9 @@ const UserProfilePage = () => {
 
     const loadProfile = async () => {
       setLoading(true);
-      setError(null);
+      setProfileError(null);
       try {
         const data = await fetchUserProfile(user.id);
-        // Carefully map from database JSON keys defined by @JsonProperty
         const profileData = {
           name: data.name || "",
           phoneNumber: data.phone_number || "",
@@ -53,13 +85,15 @@ const UserProfilePage = () => {
           batch: data.batch || "",
           linkedinUrl: data.linkedin_url || "",
           profileImageUrl: data.profile_image_url || "",
-          role: data.role || user?.role || "USER"
+          committeeName: data.committee_name || "",
+          role: data.role || user?.role || "USER",
+          seasonPoints: data.season_points ?? 0,
         };
         setProfile(profileData);
         setBackupProfile(profileData);
       } catch (err) {
         console.error("Profile fetch failure:", err);
-        setError("Failed to load your profile. Please try again later.");
+        setProfileError("Failed to load your profile. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -68,18 +102,42 @@ const UserProfilePage = () => {
     loadProfile();
   }, [user?.id]);
 
-  // Auto-hide success banners
+  // Auto-hide Profile success banner
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(false), 4000);
+    if (profileSuccess) {
+      const timer = setTimeout(() => setProfileSuccess(false), 4000);
       return () => clearTimeout(timer);
     }
-  }, [success]);
+  }, [profileSuccess]);
+
+  // Auto-hide Points success banner
+  useEffect(() => {
+    if (pointsSuccess) {
+      const timer = setTimeout(() => setPointsSuccess(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [pointsSuccess]);
+
+  // Fetch Points Logs
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadPointsLogs = async () => {
+      try {
+        const data = await fetchUserPointsLogs(user.id, pointsPage);
+        setPointsLogs(data.content || []);
+        setTotalPages(data.totalPages || 0);
+      } catch (err) {
+        console.error("Failed to load points logs:", err);
+      }
+    };
+
+    loadPointsLogs();
+  }, [user?.id, pointsPage, profile.role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "phoneNumber") {
-      // Filter out non-digit inputs and limit strictly to 11 chars
       const cleanVal = value.replace(/\D/g, "").substring(0, 11);
       setProfile((prev) => ({ ...prev, [name]: cleanVal }));
       return;
@@ -91,14 +149,12 @@ const UserProfilePage = () => {
     setProfile((prev) => ({
       ...prev,
       isAlexEngStudent: val,
-      // Clear university specific values if turned off
       department: val ? prev.department : "",
       batch: val ? prev.batch : ""
     }));
   };
 
   const handleStartEdit = () => {
-    // If state is null when user clicks edit, automatically promote it to true to pre-select 'Yes' in form
     setProfile(prev => ({
       ...prev,
       isAlexEngStudent: prev.isAlexEngStudent ?? true
@@ -108,9 +164,9 @@ const UserProfilePage = () => {
 
   const handleCancelEdit = () => {
     if (backupProfile) {
-      setProfile(backupProfile); // Restore original state
+      setProfile(backupProfile);
     }
-    setError(null);
+    setProfileError(null);
     setIsEditing(false);
   };
 
@@ -118,143 +174,141 @@ const UserProfilePage = () => {
     e.preventDefault();
     if (!user?.id) return;
 
-    // Strictly enforce: Exactly 11 digits, starting with 01
     const phoneRegex = /^01[0-9]{9}$/;
     if (!phoneRegex.test(profile.phoneNumber)) {
-      setError("Invalid Phone Number: Must be exactly 11 digits starting with '01'.");
+      setProfileError("Invalid Phone Number: Must be exactly 11 digits starting with '01'.");
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // Enforce Batch and Department if student flag is checked
+    const linkedinRegex = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|pub)\/[A-Za-z0-9_%.-]+\/?([?#].*)?$/;
+    if (profile.linkedinUrl && !linkedinRegex.test(profile.linkedinUrl.trim())) {
+      setProfileError("Invalid LinkedIn URL: Use your profile link, like https://linkedin.com/in/username.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (profile.isAlexEngStudent === true) {
       if (!profile.batch) {
-        setError("Validation Error: Please select your Academic Batch.");
+        setProfileError("Validation Error: Please select your Academic Batch.");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
       if (!profile.department) {
-        setError("Validation Error: Please select your Department.");
+        setProfileError("Validation Error: Please select your Department.");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
 
     setSubmitting(true);
-    setError(null);
-    setSuccess(false);
+    setProfileError(null);
+    setProfileSuccess(false);
 
-    // Compose payload strictly matching @JsonProperty backend specifications
     const payload = {
       name: profile.name,
       phone_number: profile.phoneNumber,
       is_alex_eng_student: profile.isAlexEngStudent,
       department: profile.isAlexEngStudent ? (profile.department || null) : null,
       batch: profile.isAlexEngStudent ? (profile.batch || null) : null,
-      linkedin_url: profile.linkedinUrl || null
+      linkedin_url: profile.linkedinUrl.trim() || null
     };
 
     try {
       await updateUserProfile(user.id, payload);
-      setBackupProfile(profile); // Commit local updates to persistent backup
-      setSuccess(true);
+      setBackupProfile(profile);
+      setProfileSuccess(true);
       setIsEditing(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error("Profile update failure:", err);
-      setError(err.message || "Unable to save your changes. Please check your inputs.");
+      setProfileError(err.message || "Unable to save your changes. Please check your inputs.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-[#4B98C8]/20">
       <Navbar />
 
-      <main className="pt-[120px] pb-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto">
-        
-        {/* Page Header Section */}
-        <div className="mb-10" style={{ animation: "fadeInDown 0.6s ease-out both" }}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-start sm:items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-lg shadow-blue-200/50 flex items-center justify-center text-white text-2xl font-black tracking-wider shrink-0">
-                {user?.email?.[0].toUpperCase() || "U"}
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Account Profile</h1>
-                <p className="text-slate-500 dark:text-slate-300 font-medium text-sm mt-1">
-                  Manage your official registration details and contact preferences.
-                </p>
-              </div>
-            </div>
-
-            {!loading && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="px-6 py-3 flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm text-slate-700 dark:text-slate-100 font-bold text-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <HiOutlinePencilAlt className="w-5 h-5 text-[#4B98C8]" />
-                Edit Information
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Notification Alerts */}
-        {success && (
-          <div className="mb-6 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-            <HiOutlineCheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
-            <p className="font-bold text-sm">Profile saved successfully! Your information is now fully updated.</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-6 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.4s_ease] shadow-sm">
-            <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-            <p className="font-bold text-sm">{error}</p>
-          </div>
-        )}
-
-        {/* Master Profile Display Card */}
-        <div 
-          className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/30 dark:shadow-slate-950/50 overflow-hidden transition-all duration-500"
-          style={{ animation: "fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both" }}
+      <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-fit -ml-1 inline-flex items-center gap-1.5 px-1 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
         >
-          {loading ? (
-            /* Skeleton Placeholders */
-            <div className="p-8 md:p-12 space-y-8 animate-pulse">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
-                    <div className="h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
-                  </div>
-                ))}
+          <HiOutlineArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
+        </button>
+
+        {loading ? (
+          <div className="flex flex-col gap-8 animate-pulse motion-reduce:animate-none" aria-busy="true" aria-label="Loading profile">
+            <div className="flex items-start gap-5">
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0" />
+              <div className="flex-1 space-y-3 pt-1">
+                <div className="h-7 w-48 rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-slate-800" />
               </div>
-              <div className="h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full md:w-40 ml-auto mt-8" />
             </div>
-          ) : !isEditing ? (
-            <ProfileViewCard user={user} profile={profile} />
-          ) : (
-            <ProfileEditForm 
-              user={user} 
-              profile={profile} 
-              handleInputChange={handleInputChange} 
-              handleToggleAlexEng={handleToggleAlexEng} 
-              handleCancelEdit={handleCancelEdit} 
-              handleSubmit={handleSubmit} 
-              submitting={submitting}
-              onImageUpload={async (file) => {
-                const res = await uploadProfileImage(user.id, file);
-                const imageUrl = res.profile_image_url || res;
-                setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                return imageUrl;
-              }}
+            <div className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+          </div>
+        ) : (
+          <>
+            <ProfileHeader
+              user={user}
+              profile={profile}
+              actions={!isEditing && (
+                <button
+                  onClick={handleStartEdit}
+                  className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+                >
+                  <HiOutlinePencil className="w-4 h-4" aria-hidden="true" />
+                  Edit profile
+                </button>
+              )}
             />
-          )}
-        </div>
+
+            {profileSuccess && <Alert tone="success">Profile saved.</Alert>}
+            {profileError && <Alert tone="error">{profileError}</Alert>}
+
+            <Panel title={isEditing ? "Edit details" : "Details"}>
+              {isEditing ? (
+                <ProfileEditForm
+                  user={user}
+                  profile={profile}
+                  handleInputChange={handleInputChange}
+                  handleToggleAlexEng={handleToggleAlexEng}
+                  handleCancelEdit={handleCancelEdit}
+                  handleSubmit={handleSubmit}
+                  submitting={submitting}
+                  onImageUpload={async (file) => {
+                    const res = await uploadProfileImage(user.id, file);
+                    const imageUrl = res.profile_image_url || res;
+                    setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                    setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
+                    return imageUrl;
+                  }}
+                />
+              ) : (
+                <ProfileDetails profile={profile} />
+              )}
+            </Panel>
+
+            {!isEditing && profile.role !== "USER" && (
+              <div className="flex flex-col gap-3">
+                {pointsSuccess && <Alert tone="success">Points updated.</Alert>}
+                {pointsError && <Alert tone="error">{pointsError}</Alert>}
+                <PointsLogSection
+                  logs={pointsLogs}
+                  isAdmin={false}
+                  page={pointsPage}
+                  totalPages={totalPages}
+                  onPageChange={(newPage) => setPointsPage(newPage)}
+                />
+              </div>
+            )}
+          </>
+        )}
       </main>
     </div>
   );
