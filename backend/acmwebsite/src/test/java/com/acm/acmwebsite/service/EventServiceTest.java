@@ -61,7 +61,6 @@ public class EventServiceTest {
 
     @Mock
     private EventFormQuestionRepository eventFormQuestionRepository;
-
     @Mock
     private GoogleSheetsService googleSheetsService;
 

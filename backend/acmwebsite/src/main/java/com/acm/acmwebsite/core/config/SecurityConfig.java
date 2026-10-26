@@ -68,6 +68,14 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Secure feedback submission and screenshot uploads for authenticated users
                         // only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
+                        // Event reviews: public summary + public comments; rest requires auth / admin
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/summary").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/comments/public").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/add").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/mine").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/admin").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/comments").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
+                        .requestMatchers(HttpMethod.PATCH, "/api/event-reviews/visibility").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
                         // Allow only GET requests to social links for unauthenticated users
                         .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
                         // Restrict write operations on social links to SUPER_ADMIN
@@ -136,7 +144,7 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
         }
 
         // Allowed HTTP Methods
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         // Allowed Headers
         configuration.setAllowedHeaders(List.of("*"));
