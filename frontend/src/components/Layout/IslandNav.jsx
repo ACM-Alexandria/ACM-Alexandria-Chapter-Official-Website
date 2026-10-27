@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/useAuth";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import useScrollLock from "../../hooks/useScrollLock";
 import HRFolderIcon from "../icons/HRFolderIcon";
+import { switchTheme } from "../../utils/themeTransition";
 
 const prefersDark = () => {
   const saved = localStorage.getItem("theme");
@@ -110,7 +111,7 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
             ))}
           </nav>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <button type="button" onClick={() => setDark((value) => !value)} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} className={`hidden sm:flex ${iconButton}`}>
+            <button type="button" onClick={(event) => switchTheme(event, !dark, () => setDark(!dark))} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} className={`hidden sm:flex ${iconButton}`}>
               {dark ? <FiSun className="h-[18px] w-[18px]" aria-hidden="true" /> : <FiMoon className="h-[18px] w-[18px]" aria-hidden="true" />}
             </button>
             {isLoading ? (
@@ -163,7 +164,7 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
               ))}
             </nav>
             <div className="mt-3 border-t border-[#E6EEF5] pt-3 dark:border-white/10">
-              <button type="button" onClick={() => setDark((value) => !value)} className={menuItem}>
+              <button type="button" onClick={(event) => switchTheme(event, !dark, () => setDark(!dark))} className={menuItem}>
                 {dark ? <FiSun className="h-5 w-5 text-slate-500 dark:text-[#7DBBE0]" aria-hidden="true" /> : <FiMoon className="h-5 w-5 text-slate-500" aria-hidden="true" />}
                 {dark ? "Light mode" : "Dark mode"}
               </button>
