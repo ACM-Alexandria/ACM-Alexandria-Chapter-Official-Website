@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import acmLogo from "../../assets/logo/acm-logo-no-bg.png";
 import NightSky from "../ui/NightSky";
+import { switchTheme } from "../../utils/themeTransition";
 
 const stars = Array.from({ length: 40 }, (_, i) => ({ x: (i * 41.3) % 100, y: (i * 23.7) % 70, size: i % 6 === 0 ? 2.5 : 1.5, delay: (i % 5) * 0.8 }));
 
@@ -57,7 +58,7 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
             <span className="md:hidden"><img src={acmLogo} alt="" className="mr-1 inline h-6 w-6 object-contain align-[-6px]" />ACM Alexandria</span>
             <span className="hidden md:inline">Back to home</span>
           </Link>
-          <button type="button" onClick={() => setIsDark((value) => !value)} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-[#A9C7DB] dark:hover:bg-white/5">
+          <button type="button" onClick={(event) => switchTheme(event, !isDark, () => setIsDark(!isDark))} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-[#A9C7DB] dark:hover:bg-white/5">
             {isDark ? <FiSun className="h-[18px] w-[18px]" aria-hidden="true" /> : <FiMoon className="h-[18px] w-[18px]" aria-hidden="true" />}
           </button>
         </header>

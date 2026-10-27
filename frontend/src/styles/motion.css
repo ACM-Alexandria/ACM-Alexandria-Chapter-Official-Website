@@ -24,3 +24,14 @@
 @media (prefers-reduced-motion: reduce) {
   .hp *, .hp *::before, .hp *::after { animation: none !important; transition: none !important; }
 }
+
+/* The theme switch (utils/themeTransition.js): the browser's own cross-fade is off and a circle from the clicked
+   button takes its place. Going dark the new page grows out of the button; going light the old (dark) page shrinks
+   into it. `forwards` holds the last frame until the transition ends, so nothing flashes back. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 0; }
+::view-transition-new(root) { z-index: 1; }
+html[data-theme-dir="grow"]::view-transition-new(root) { animation: hp-theme-grow 1100ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+html[data-theme-dir="shrink"]::view-transition-old(root) { z-index: 2; animation: hp-theme-shrink 1100ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes hp-theme-grow { from { clip-path: circle(0px at var(--theme-x) var(--theme-y)); } to { clip-path: circle(var(--theme-r) at var(--theme-x) var(--theme-y)); } }
+@keyframes hp-theme-shrink { from { clip-path: circle(var(--theme-r) at var(--theme-x) var(--theme-y)); } to { clip-path: circle(0px at var(--theme-x) var(--theme-y)); } }
