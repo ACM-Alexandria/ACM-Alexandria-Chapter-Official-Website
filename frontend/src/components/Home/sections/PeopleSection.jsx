@@ -21,7 +21,7 @@ const PeopleSection = ({ loading, highBoard, committees, clubs, currentSeason, m
           <h2 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl dark:text-white" style={{ textWrap: "balance" }}>Led by students, for students</h2>
           <p className={`mt-4 max-w-2xl text-lg ${muted}`}>The high board leads the chapter. Every committee and club has its own heads under it.</p>
         </div>
-        <Link to="/boards" className="inline-flex items-center gap-1.5 font-semibold text-[#2A7AB0] hover:text-[#205E85] dark:text-[#7DBBE0]">See past boards <FiArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+        <Link to="/boards" className="inline-flex items-center gap-1.5 font-semibold text-ocean-573 hover:text-ocean-676 dark:text-ocean-316">See past boards <FiArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
       </Reveal>
 
       {loading ? (
@@ -35,9 +35,9 @@ const PeopleSection = ({ loading, highBoard, committees, clubs, currentSeason, m
               className="mb-14 sm:mb-20"
               members={highBoard}
               root={(
-                <div className="flex items-center gap-4 rounded-full bg-[#0F3A5A] py-2 pl-2 pr-6 text-white shadow-[0_18px_40px_-20px_rgba(15,58,90,0.8)] dark:bg-[#12304A]">
+                <div className="flex items-center gap-4 rounded-full bg-ocean-794 py-2 pl-2 pr-6 text-white shadow-[0_18px_40px_-20px_color-mix(in_srgb,var(--color-ocean-794)_80%,transparent)] dark:bg-ocean-820">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white"><img src={logo} alt="" className="h-9 w-9 object-contain" /></span>
-                  <div className="text-left"><p className="text-base font-semibold">High board</p><p className="text-xs text-[#BFE0F5]">ACM Alexandria · {currentSeason ? `${currentSeason} season` : "this year"}</p></div>
+                  <div className="text-left"><p className="text-base font-semibold">High board</p><p className="text-xs text-ocean-145">ACM Alexandria · {currentSeason ? `${currentSeason} season` : "this year"}</p></div>
                 </div>
               )}
               renderMember={(m) => <Portrait member={m} aspect="aspect-[4/5]" />}

@@ -112,7 +112,7 @@ const HomePage = () => {
   ].filter(Boolean);
 
   return (
-    <div className="hp admin-ui min-h-screen bg-[#F3F7FB] text-slate-800 dark:bg-[#0A1724] dark:text-slate-100">
+    <div className="hp admin-ui min-h-screen bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100">
       <IslandNav links={links} />
 
       <HeroPharos committees={committees} clubs={clubs} stats={data.stats} signedIn={isAuthenticated} />
@@ -160,7 +160,7 @@ const HomePage = () => {
       {forms.length > 0 && (
         <a
           href="#exclusive-forms"
-          className={`fixed bottom-6 right-6 z-30 inline-flex h-12 items-center gap-2 rounded-xl bg-[#205E85] px-5 text-sm font-semibold text-white shadow-[0_14px_40px_-12px_rgba(8,24,38,0.6)] transition-all duration-500 hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] ${showFormsButton ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-16 opacity-0"}`}
+          className={`fixed bottom-6 right-6 z-30 inline-flex h-12 items-center gap-2 rounded-xl bg-ocean-676 px-5 text-sm font-semibold text-white shadow-[0_14px_40px_-12px_color-mix(in_srgb,var(--color-ocean-910)_60%,transparent)] transition-all duration-500 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 ${showFormsButton ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-16 opacity-0"}`}
         >
           <FiClock className="h-4 w-4" aria-hidden="true" />Exclusive opportunities
         </a>

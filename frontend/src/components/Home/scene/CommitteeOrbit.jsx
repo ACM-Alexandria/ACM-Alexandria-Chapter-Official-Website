@@ -29,7 +29,7 @@ const BrokenRing = ({ radius, pieces, dashed = false, delay }) => (
           key={j}
           d={arc(radius, a0, a1)}
           fill="none"
-          stroke="#FFFFFF"
+          stroke="var(--color-white)"
           strokeOpacity="0.2"
           strokeWidth="0.35"
           strokeDasharray={dashed ? "1 1.2" : undefined}
@@ -61,7 +61,7 @@ const Ring = ({ items, radius, duration, reverse = false, small = false, order =
           <div key={item.id} className="absolute" style={{ left: `${50 + radius * Math.cos(angle)}%`, top: `${50 + radius * Math.sin(angle)}%`, transform: "translate(-50%, -50%)", opacity: `calc(1 - ${f} * ${f})` }}>
             <div className="group-hover:[animation-play-state:paused]" style={{ animation: `hp-counter ${duration}s linear infinite${direction}` }}>
               <span
-                className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-[#205E85] shadow-[0_10px_30px_-10px_rgba(4,24,40,0.6)] ring-1 ring-black/5 dark:bg-[#12304A] dark:text-[#D3E9F7] dark:ring-white/10 ${small ? "pr-3 text-xs" : "pr-4 text-sm"}`}
+                className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-ocean-676 shadow-[0_10px_30px_-10px_color-mix(in_srgb,var(--color-ocean-914)_60%,transparent)] ring-1 ring-black/5 dark:bg-ocean-820 dark:text-ocean-102 dark:ring-white/10 ${small ? "pr-3 text-xs" : "pr-4 text-sm"}`}
                 style={{
                   animation: `hp-pop 0.6s cubic-bezier(0.22,1,0.36,1) ${0.5 + i * 0.12}s both`,
                   translate: `calc(${f} * ${sideways}px) calc(${f} * ${f} * 620px)`,
@@ -85,7 +85,7 @@ const CommitteeOrbit = ({ committees, clubs = [], className = "" }) => (
       <BrokenRing radius={44} pieces={10} delay={0} />
       <BrokenRing radius={26} pieces={7} dashed delay={0.05} />
     </svg>
-    <div className="absolute inset-[37%] flex items-center justify-center rounded-full bg-white shadow-[0_0_0_12px_rgba(255,255,255,0.07),0_0_0_28px_rgba(255,255,255,0.04)] dark:bg-[#E9F4FB]" style={{ animation: "hp-pop 0.8s cubic-bezier(0.22,1,0.36,1) 0.15s both", scale: "calc(1 - var(--hp, 0) * 0.12)" }}>
+    <div className="absolute inset-[37%] flex items-center justify-center rounded-full bg-white shadow-[0_0_0_12px_color-mix(in_srgb,var(--color-white)_7%,transparent),0_0_0_28px_color-mix(in_srgb,var(--color-white)_4%,transparent)] dark:bg-ocean-51" style={{ animation: "hp-pop 0.8s cubic-bezier(0.22,1,0.36,1) 0.15s both", scale: "calc(1 - var(--hp, 0) * 0.12)" }}>
       <img src={logo} alt="" className="h-3/4 w-3/4 object-contain" />
     </div>
     <Ring items={committees.map((c) => ({ id: `c${c.id}`, name: c.name, image: c.logoUrl }))} radius={44} duration={70} />

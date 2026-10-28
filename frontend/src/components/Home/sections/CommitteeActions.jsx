@@ -100,13 +100,13 @@ const CommitteeActions = ({ committee, isMyCommittee = false, onApply, isRegistr
     <>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {isMyCommittee && (
-          <span className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-[#E2F0FA] px-4 text-sm font-semibold text-[#1D6A9C] dark:bg-[#16364C] dark:text-[#9FD0EE]">
+          <span className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-ocean-67 px-4 text-sm font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-222">
             <FiStar className="h-4 w-4 fill-current" aria-hidden="true" />My committee
           </span>
         )}
         {open && (checking ? (
-          <span className="inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-slate-500 ring-1 ring-[#D6E6F2] dark:text-[#A9C7DB] dark:ring-white/15">
-            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#D6E6F2] border-t-[#4B98C8]" aria-hidden="true" />Checking
+          <span className="inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-slate-500 ring-1 ring-ocean-106 dark:text-ocean-239 dark:ring-white/15">
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ocean-106 border-t-ocean-461" aria-hidden="true" />Checking
           </span>
         ) : registered ? (
           <>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/colors.css";
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -10,8 +11,8 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #0f172a; 
-  color: #f1f5f9;            
+  background-color: var(--color-ink-900); 
+  color: var(--color-ink-100);            
 }
 
 html {

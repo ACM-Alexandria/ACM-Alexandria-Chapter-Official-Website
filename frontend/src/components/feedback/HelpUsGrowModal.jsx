@@ -12,8 +12,8 @@ import {
 } from "react-icons/fi";
 import { submitFeature, submitBug, uploadScreenshot } from "../../services/feedbackService";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
+const BRAND = "var(--color-ocean-461)";
+const BRAND_DARK = "var(--color-ocean-676)";
 
 const HelpUsGrowModal = ({ open, onClose }) => {
   const [animate, setAnimate] = useState(false);
@@ -233,7 +233,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     : "e.g., Sidebar overlapping on mobile viewports"
                 }
                 disabled={isUploading || submitting}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-ocean-461/25 focus:border-ocean-461 transition-all disabled:opacity-50"
               />
             </div>
 
@@ -252,7 +252,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     : "Describe the issue, what actions lead to it, and what the expected behavior was."
                 }
                 disabled={isUploading || submitting}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50 resize-none"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-ocean-461/25 focus:border-ocean-461 transition-all disabled:opacity-50 resize-none"
               />
             </div>
 
@@ -305,7 +305,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                       <span
                         className={`text-[11px] font-extrabold shrink-0 ${
                           isUploading
-                            ? "text-[#4B98C8]"
+                            ? "text-ocean-461"
                             : batchProgress.failed > 0
                             ? "text-red-500"
                             : "text-emerald-600"
@@ -318,7 +318,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
                           isUploading
-                            ? "bg-[#4B98C8]"
+                            ? "bg-ocean-461"
                             : batchProgress.failed > 0
                             ? "bg-red-400"
                             : "bg-emerald-500"
@@ -339,8 +339,8 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     onDrop={handleDrop}
                     className={`relative border-2 border-dashed rounded-2xl p-6 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
                       isUploading
-                        ? "border-[#4B98C8]/40 bg-[#4B98C8]/5 cursor-not-allowed"
-                        : "border-slate-200 dark:border-slate-600 hover:border-[#4B98C8]/50 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        ? "border-ocean-461/40 bg-ocean-461/5 cursor-not-allowed"
+                        : "border-slate-200 dark:border-slate-600 hover:border-ocean-461/50 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
                     <input
@@ -353,7 +353,7 @@ const HelpUsGrowModal = ({ open, onClose }) => {
                     />
                     {isUploading ? (
                       <>
-                        <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
+                        <FiLoader className="w-8 h-8 text-ocean-461 animate-spin mb-2" />
                         <p className="text-[11px] font-bold text-slate-600 dark:text-slate-200">Uploading to Cloudinary…</p>
                         <p className="text-[9px] text-slate-400 dark:text-slate-300 mt-1">Please wait.</p>
                       </>

@@ -33,7 +33,7 @@ const TeamBoard = ({ team, index }) => (
         <OrgTree
           className="mt-8"
           members={team.boardRoles.map(toPortrait)}
-          root={<span className="inline-flex items-center gap-2 rounded-full bg-[#E2F0FA] px-4 py-2 text-sm font-semibold text-[#1D6A9C] dark:bg-[#16364C] dark:text-[#9FD0EE]"><TeamLogo src={team.logoUrl} name={team.name} className="h-6 w-6 rounded-full" />{shortName(team.name)} board</span>}
+          root={<span className="inline-flex items-center gap-2 rounded-full bg-ocean-67 px-4 py-2 text-sm font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-222"><TeamLogo src={team.logoUrl} name={team.name} className="h-6 w-6 rounded-full" />{shortName(team.name)} board</span>}
           renderMember={(member) => <Portrait member={member} />}
         />
       ) : <p className={`mt-6 text-sm ${muted}`}>No board listed for this season.</p>}
@@ -107,12 +107,12 @@ const BoardsPage = () => {
               next.set("season", event.target.value);
               return next;
             })}
-            className="h-12 min-w-56 cursor-pointer appearance-none rounded-xl bg-white pl-4 pr-10 text-sm font-semibold text-[#205E85] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7DBBE0] disabled:opacity-70 dark:bg-[#0F2233] dark:text-[#9FD0EE]"
+            className="h-12 min-w-56 cursor-pointer appearance-none rounded-xl bg-white pl-4 pr-10 text-sm font-semibold text-ocean-676 shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-316 disabled:opacity-70 dark:bg-ocean-871 dark:text-ocean-222"
           >
             {!validSelection && <option value="" disabled>{seasons ? "Choose a season" : "Loading seasons…"}</option>}
             {available.map((season) => <option key={season} value={season}>{formatBoardSeason(season)} season{season === seasons.currentSeason ? " (current)" : ""}</option>)}
           </select>
-          <FiChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#205E85] dark:text-[#9FD0EE]" aria-hidden="true" />
+          <FiChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ocean-676 dark:text-ocean-222" aria-hidden="true" />
         </div>
       </PageHero>
 
@@ -133,9 +133,9 @@ const BoardsPage = () => {
                 <OrgTree
                   members={boards.highBoard.map(toPortrait)}
                   root={(
-                    <div className="flex items-center gap-4 rounded-full bg-[#0F3A5A] py-2 pl-2 pr-6 text-white shadow-[0_18px_40px_-20px_rgba(15,58,90,0.8)] dark:bg-[#12304A]">
+                    <div className="flex items-center gap-4 rounded-full bg-ocean-794 py-2 pl-2 pr-6 text-white shadow-[0_18px_40px_-20px_color-mix(in_srgb,var(--color-ocean-794)_80%,transparent)] dark:bg-ocean-820">
                       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white"><img src={logo} alt="" className="h-9 w-9 object-contain" /></span>
-                      <div className="text-left"><p className="text-base font-semibold">High board</p><p className="text-xs text-[#BFE0F5]">ACM Alexandria · {formatBoardSeason(selected)} season{isCurrent ? " (current)" : ""}</p></div>
+                      <div className="text-left"><p className="text-base font-semibold">High board</p><p className="text-xs text-ocean-145">ACM Alexandria · {formatBoardSeason(selected)} season{isCurrent ? " (current)" : ""}</p></div>
                     </div>
                   )}
                   renderMember={(member) => <Portrait member={member} aspect="aspect-[4/5]" />}

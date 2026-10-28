@@ -5,7 +5,7 @@ import { card, muted, secondaryButton } from "../ui/uiStyles";
 import { canShowPhoto, getRoleLabel } from "../UserProfile/profileUtils";
 
 const Tag = ({ children }) => (
-  <span className="rounded-full bg-[#E2F0FA] px-3 py-1 text-xs font-semibold text-[#1D6A9C] dark:bg-[#16364C] dark:text-[#9FD0EE]">{children}</span>
+  <span className="rounded-full bg-ocean-67 px-3 py-1 text-xs font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-222">{children}</span>
 );
 
 // Who you are, always in view beside the tabs: photo (board members and admins only), name, email, role,
@@ -20,8 +20,8 @@ const ProfileSideCard = ({ profile, email, onEdit }) => (
       {profile.committeeName && <Tag>{profile.committeeName}</Tag>}
     </div>
     {profile.role !== "USER" && (
-      <p className="mt-5 flex items-center justify-center gap-2 border-t border-[#E6EEF5] pt-5 dark:border-white/10">
-        <FaStar className="h-5 w-5 text-[#F5B301]" aria-hidden="true" />
+      <p className="mt-5 flex items-center justify-center gap-2 border-t border-ocean-69 pt-5 dark:border-white/10">
+        <FaStar className="h-5 w-5 text-gold-518" aria-hidden="true" />
         <span className="text-2xl font-semibold tabular-nums text-slate-900 dark:text-white">{profile.seasonPoints || 0}</span>
         <span className={`text-sm ${muted}`}>points this season</span>
       </p>

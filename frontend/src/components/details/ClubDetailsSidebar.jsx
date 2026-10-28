@@ -56,7 +56,7 @@ const ClubDetailsSidebar = ({ clubId, isOpen, onClose }) => {
                   {links.map((url) => {
                     const Icon = socialIcon(url);
                     return (
-                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" aria-label={url} className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#205E85] ring-1 ring-[#D6E6F2] transition-colors hover:bg-[#205E85] hover:text-white dark:bg-[#0F2233] dark:text-[#9FD0EE] dark:ring-white/10 dark:hover:bg-[#4B98C8] dark:hover:text-[#081826]">
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" aria-label={url} className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-ocean-676 ring-1 ring-ocean-106 transition-colors hover:bg-ocean-676 hover:text-white dark:bg-ocean-871 dark:text-ocean-222 dark:ring-white/10 dark:hover:bg-ocean-461 dark:hover:text-ocean-910">
                         <Icon className="h-5 w-5" aria-hidden="true" />
                       </a>
                     );

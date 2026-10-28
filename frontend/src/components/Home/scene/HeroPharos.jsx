@@ -58,7 +58,7 @@ const BrokenRing = ({ radius, pieces, dashed = false, delay }) => (
           key={j}
           d={`M${x0.toFixed(2)} ${y0.toFixed(2)} A${radius} ${radius} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`}
           fill="none"
-          stroke="#FFFFFF"
+          stroke="var(--color-white)"
           strokeOpacity="0.2"
           strokeWidth="0.35"
           strokeDasharray={dashed ? "1 1.2" : undefined}
@@ -185,7 +185,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
   if (reduced) {
     return (
       <>
-        <section id="top" className="relative overflow-hidden bg-[#0F3A5A] text-white dark:bg-[#081826]">
+        <section id="top" className="relative overflow-hidden bg-ocean-794 text-white dark:bg-ocean-910">
           <div className="relative mx-auto grid max-w-[1280px] items-center gap-14 px-5 pb-20 pt-32 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-40">
             <div><HeroIntro stats={stats} signedIn={signedIn} /></div>
             <div className="mx-auto w-[84%] max-w-[560px] sm:w-[80%] lg:w-full"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
@@ -201,16 +201,16 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
       ref={stageRef}
       id="top"
       aria-label="ACM Alexandria"
-      className="relative h-[520vh] bg-[#0F3A5A] text-white dark:bg-[#081826]"
+      className="relative h-[520vh] bg-ocean-794 text-white dark:bg-ocean-910"
       style={{ "--brk": 0, "--out": 0, "--night": 0, "--words": 0, "--plan": 0, "--build": 0, "--beam": `${BEAM_START}deg`, "--logo": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}
     >
       <div ref={sceneRef} className="sticky top-0 h-screen overflow-hidden">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 dark:hidden" style={{ opacity: "calc(0.08 * (1 - var(--night)))", backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 dark:hidden" style={{ opacity: "calc(0.08 * (1 - var(--night)))", backgroundImage: "radial-gradient(var(--color-white) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
         <NightSky />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,#081826_0%,#06121D_45%,#0B2236_78%,#0F3A5A_100%)]" style={{ opacity: "var(--night)" }} />
         <div aria-hidden="true" className="absolute inset-0" style={{ opacity: "var(--night)" }}>
           {stars.map((s, i) => (
-            <span key={i} className="absolute rounded-full bg-[#D3E9F7]" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }} />
+            <span key={i} className="absolute rounded-full bg-ocean-102" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }} />
           ))}
         </div>
 
@@ -225,7 +225,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
               transform: "rotate(var(--beam))",
               opacity: "calc(var(--ignite) * 0.9)",
               clipPath: "polygon(0 49.4%, 100% 32%, 100% 68%, 0 50.6%)",
-              background: "linear-gradient(90deg, rgba(255,236,170,0.75) 0%, rgba(255,226,140,0.28) 35%, rgba(255,226,140,0) 85%)",
+              background: "linear-gradient(90deg, color-mix(in srgb, var(--color-gold-167) 75%, transparent) 0%, color-mix(in srgb, var(--color-gold-225) 28%, transparent) 35%, color-mix(in srgb, var(--color-gold-225) 0%, transparent) 85%)",
             }}
           />
           <Pharos plan="var(--plan)" build="var(--build)" light="var(--ignite)" className="relative h-full w-full" />
@@ -234,7 +234,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[16%] overflow-hidden" style={{ transform: "translateY(calc((1 - var(--night)) * 100%))" }}>
           {[0, 1, 2].map((layer) => (
             <svg key={layer} viewBox="0 0 1200 60" preserveAspectRatio="none" className="absolute bottom-0 h-full w-[200%]" style={{ opacity: 0.35 + layer * 0.25, bottom: `${-layer * 18}%`, animation: `hp-wave ${18 - layer * 4}s linear infinite` }}>
-              <path d="M0 30 Q 75 10 150 30 T 300 30 T 450 30 T 600 30 T 750 30 T 900 30 T 1050 30 T 1200 30 V 60 H 0 Z" fill={["#1D5A85", "#174A70", "#0F3A5A"][layer]} />
+              <path d="M0 30 Q 75 10 150 30 T 300 30 T 450 30 T 600 30 T 750 30 T 900 30 T 1050 30 T 1200 30 V 60 H 0 Z" fill={["var(--color-ocean-682)", "var(--color-ocean-735)", "var(--color-ocean-794)"][layer]} />
             </svg>
           ))}
         </div>
@@ -242,11 +242,11 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
         <div className="absolute inset-0 mx-auto flex max-w-[1280px] flex-col justify-center px-5 pb-[14vh] pt-[16vh] sm:px-8" style={{ opacity: "var(--words)" }}>
           <p className="max-w-[15ch] text-2xl font-semibold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:max-w-[16ch] md:text-5xl lg:max-w-[18ch] lg:text-7xl">
             {words.map((word, i) => (
-              <span key={i} ref={(el) => { wordRefs.current[i] = el; }} className="inline-block pr-[0.25em] text-[#FFF4CC]" style={{ opacity: 0.12 }}>{word}</span>
+              <span key={i} ref={(el) => { wordRefs.current[i] = el; }} className="inline-block pr-[0.25em] text-gold-100" style={{ opacity: 0.12 }}>{word}</span>
             ))}
           </p>
           <div ref={ctaRef} className="pointer-events-none mt-6 flex max-w-[62%] flex-wrap items-center gap-3 sm:mt-10 sm:gap-4 lg:max-w-none" style={{ opacity: "var(--cta)", transform: "translateY(calc((1 - var(--cta)) * 24px))" }}>
-            <a href={meetCta.href} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#FFE7A3] px-5 text-sm sm:h-12 sm:px-7 font-semibold text-[#06121D] shadow-[0_0_40px_rgba(255,220,130,0.45)] transition-transform hover:-translate-y-px">
+            <a href={meetCta.href} className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold-180 px-5 text-sm sm:h-12 sm:px-7 font-semibold text-ocean-931 shadow-[0_0_40px_color-mix(in_srgb,var(--color-gold-245)_45%,transparent)] transition-transform hover:-translate-y-px">
               {meetCta.label} <FiArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
@@ -262,7 +262,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
               <BrokenRing radius={26} pieces={7} dashed delay={0.05} />
             </svg>
             <div className="absolute inset-[37%]" style={{ opacity: "calc(1 - var(--logo))", scale: "calc(1 - var(--logo) * 0.4)" }}>
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-white shadow-[0_0_0_12px_rgba(255,255,255,0.07),0_0_0_28px_rgba(255,255,255,0.04)] dark:bg-[#E9F4FB]" style={{ animation: "hp-pop 0.8s cubic-bezier(0.22,1,0.36,1) 0.15s both" }}>
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-white shadow-[0_0_0_12px_color-mix(in_srgb,var(--color-white)_7%,transparent),0_0_0_28px_color-mix(in_srgb,var(--color-white)_4%,transparent)] dark:bg-ocean-51" style={{ animation: "hp-pop 0.8s cubic-bezier(0.22,1,0.36,1) 0.15s both" }}>
                 <img src={logo} alt="" className="h-3/4 w-3/4 object-contain" />
               </div>
             </div>
@@ -271,7 +271,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
 
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           {planets.map((planet, i) => (
-            <span key={planet.id} ref={(el) => { rippleRefs.current[i] = el; }} className="absolute left-0 top-0 h-10 w-10 rounded-full border-2 sm:h-16 sm:w-16 border-[#9FD0EE] opacity-0 shadow-[0_0_18px_rgba(159,208,238,0.7)]" />
+            <span key={planet.id} ref={(el) => { rippleRefs.current[i] = el; }} className="absolute left-0 top-0 h-10 w-10 rounded-full border-2 sm:h-16 sm:w-16 border-ocean-222 opacity-0 shadow-[0_0_18px_color-mix(in_srgb,var(--color-ocean-222)_70%,transparent)]" />
           ))}
         </div>
 
@@ -279,7 +279,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
           {planets.map((planet, i) => (
             <li key={planet.id} ref={(el) => { chipRefs.current[i] = el; }} className="absolute left-0 top-0 will-change-transform">
               <span
-                className={`relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-[#205E85] shadow-[0_10px_30px_-10px_rgba(4,24,40,0.6)] ring-1 ring-black/5 dark:bg-[#12304A] dark:text-[#D3E9F7] dark:ring-white/10 pr-1 ${planet.small ? "text-xs sm:pr-3" : "text-sm sm:pr-4"}`}
+                className={`relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-ocean-676 shadow-[0_10px_30px_-10px_color-mix(in_srgb,var(--color-ocean-914)_60%,transparent)] ring-1 ring-black/5 dark:bg-ocean-820 dark:text-ocean-102 dark:ring-white/10 pr-1 ${planet.small ? "text-xs sm:pr-3" : "text-sm sm:pr-4"}`}
                 style={{ animation: `hp-pop 0.6s cubic-bezier(0.22,1,0.36,1) ${0.5 + i * 0.12}s both` }}
               >
                 <TeamLogo src={planet.image} name={planet.name} className={`relative ${planet.small ? "h-6 w-6" : "h-8 w-8"} rounded-full`} />

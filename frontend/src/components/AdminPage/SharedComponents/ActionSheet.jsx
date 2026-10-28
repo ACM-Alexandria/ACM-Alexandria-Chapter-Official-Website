@@ -31,9 +31,9 @@ const ActionSheet = ({ open, onClose, title, subtitle, actions }) => {
         role="dialog"
         aria-modal="true"
         aria-label={title ? `Actions for ${title}` : "Actions"}
-        className="relative w-full max-h-[85dvh] flex flex-col rounded-t-2xl border-t border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] shadow-2xl animate-[sheetUp_0.25s_ease-out] motion-reduce:animate-none"
+        className="relative w-full max-h-[85dvh] flex flex-col rounded-t-2xl border-t border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 shadow-2xl animate-[sheetUp_0.25s_ease-out] motion-reduce:animate-none"
       >
-        <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-[#1E3248]">
+        <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-ocean-800">
           <div className="min-w-0">
             <p className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate">{title || "Actions"}</p>
             {subtitle && <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400 truncate">{subtitle}</p>}
@@ -42,7 +42,7 @@ const ActionSheet = ({ open, onClose, title, subtitle, actions }) => {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#15273A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="-mr-1.5 -mt-1 w-9 h-9 shrink-0 inline-flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-ocean-845 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40"
           >
             <FiX className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -60,14 +60,14 @@ const ActionSheet = ({ open, onClose, title, subtitle, actions }) => {
                     onClose();
                     action.onClick();
                   }}
-                  className={`w-full min-h-[3.25rem] px-5 flex items-center gap-3 text-left text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:bg-slate-50 dark:focus-visible:bg-[#15273A] ${action.danger
+                  className={`w-full min-h-[3.25rem] px-5 flex items-center gap-3 text-left text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:bg-slate-50 dark:focus-visible:bg-ocean-845 ${action.danger
                     ? "text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                    : "text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-[#15273A]"}`}
+                    : "text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-ocean-845"}`}
                 >
                   <span
                     className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center ${action.danger
                       ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400"
-                      : "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]"}`}
+                      : "bg-ocean-461/10 text-ocean-614 dark:text-ocean-316"}`}
                   >
                     {Icon && <Icon className="w-4 h-4" aria-hidden="true" />}
                   </span>

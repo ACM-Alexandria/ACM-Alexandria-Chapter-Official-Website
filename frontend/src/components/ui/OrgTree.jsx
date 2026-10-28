@@ -5,7 +5,7 @@ const wideColumns = { 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols
 // A root node with members branching underneath. The connector lines draw in once, when the tree
 // scrolls into view. With more than two members the lines show from `sm` up, where all members fit
 // on one row; on phones the members wrap into two columns without lines.
-const OrgTree = ({ root, members, renderMember, lineClass = "bg-[#9CC5E0] dark:bg-[#2C5878]", className = "" }) => {
+const OrgTree = ({ root, members, renderMember, lineClass = "bg-ocean-255 dark:bg-ocean-678", className = "" }) => {
   const [ref, seen] = useInView(0.25);
   const grow = (axis, delay) => (seen ? { animation: `hp-grow-${axis} 0.3s cubic-bezier(0.22,1,0.36,1) ${delay}s both` } : { transform: axis === "x" ? "scaleX(0)" : "scaleY(0)" });
   const count = members.length;

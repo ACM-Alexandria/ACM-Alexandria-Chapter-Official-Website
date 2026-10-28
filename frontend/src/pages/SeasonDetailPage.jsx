@@ -13,13 +13,13 @@ const backLink = "inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm fo
 // One episode: the thumbnail opens it (on YouTube or wherever it's published), with its number, host, and guest.
 const EpisodeCard = ({ episode, index }) => (
   <Reveal delay={(index % 4) * 70} className="h-full">
-    <a href={episode.url} target="_blank" rel="noopener noreferrer" className={`group flex h-full flex-col overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] ${card}`}>
-      <div className="relative aspect-video overflow-hidden bg-[#E2F0FA] dark:bg-[#16364C]">
+    <a href={episode.url} target="_blank" rel="noopener noreferrer" className={`group flex h-full flex-col overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 ${card}`}>
+      <div className="relative aspect-video overflow-hidden bg-ocean-67 dark:bg-ocean-808">
         {episode.imageUrl && <img src={episode.imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />}
-        <span className="absolute inset-0 flex items-center justify-center bg-[#06121D]/35 opacity-0 transition-opacity group-hover:opacity-100">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#205E85] shadow-lg"><FiPlay className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" /></span>
+        <span className="absolute inset-0 flex items-center justify-center bg-ocean-931/35 opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-ocean-676 shadow-lg"><FiPlay className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" /></span>
         </span>
-        <span className="absolute bottom-3 right-3 rounded-full bg-[#06121D]/75 px-2.5 py-0.5 text-xs font-semibold text-white">Episode {episode.episodeNumber}</span>
+        <span className="absolute bottom-3 right-3 rounded-full bg-ocean-931/75 px-2.5 py-0.5 text-xs font-semibold text-white">Episode {episode.episodeNumber}</span>
       </div>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="line-clamp-2 text-base font-semibold tracking-tight text-slate-900 dark:text-white">{episode.title}</h3>
@@ -45,7 +45,7 @@ const SeasonDetailPage = () => {
         eyebrow="ACM Radio"
         title={ready ? `Season ${season.seasonNumber}` : loading ? "Loading season…" : "Season"}
         text={ready ? `${episodes.length} ${episodes.length === 1 ? "episode" : "episodes"} of conversations with members, guests, and alumni.` : undefined}
-        media={ready && season.imageUrl ? <img src={season.imageUrl} alt="" className="h-40 w-40 rounded-[2rem] object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.6)] ring-1 ring-white/15 sm:h-48 sm:w-48" /> : undefined}
+        media={ready && season.imageUrl ? <img src={season.imageUrl} alt="" className="h-40 w-40 rounded-[2rem] object-cover shadow-[0_24px_60px_-24px_color-mix(in_srgb,var(--color-black)_60%,transparent)] ring-1 ring-white/15 sm:h-48 sm:w-48" /> : undefined}
       >
         <Link to="/radio" className={backLink}><FiArrowLeft className="h-4 w-4" aria-hidden="true" />All seasons</Link>
       </PageHero>

@@ -10,11 +10,11 @@ const SectionIntro = ({ icon, label, count, countLabel, text, to, cta, dark = fa
   const Icon = icon;
   return (
     <Reveal>
-      <p className={`flex items-center gap-2 text-sm font-semibold ${dark ? "text-[#7DBBE0]" : "text-[#2A7AB0] dark:text-[#7DBBE0]"}`}><Icon className="h-4 w-4" aria-hidden="true" />{label}</p>
-      <p className={`mt-4 text-6xl font-semibold tracking-tight sm:text-7xl ${dark ? "text-white" : "text-[#205E85] dark:text-white"}`}><CountUp value={count} /></p>
+      <p className={`flex items-center gap-2 text-sm font-semibold ${dark ? "text-ocean-316" : "text-ocean-573 dark:text-ocean-316"}`}><Icon className="h-4 w-4" aria-hidden="true" />{label}</p>
+      <p className={`mt-4 text-6xl font-semibold tracking-tight sm:text-7xl ${dark ? "text-white" : "text-ocean-676 dark:text-white"}`}><CountUp value={count} /></p>
       <p className={`mt-1 text-lg font-semibold ${dark ? "text-white" : "text-slate-900 dark:text-white"}`}>{countLabel}</p>
-      <p className={`mt-4 max-w-sm text-lg leading-relaxed ${dark ? "text-[#CFE6F5]" : muted}`}>{text}</p>
-      <Link to={to} className={`mt-7 inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-transform hover:-translate-y-px ${dark ? "bg-white text-[#205E85]" : "bg-[#205E85] text-white dark:bg-[#4B98C8] dark:text-[#081826]"}`}>{cta} <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
+      <p className={`mt-4 max-w-sm text-lg leading-relaxed ${dark ? "text-ocean-114" : muted}`}>{text}</p>
+      <Link to={to} className={`mt-7 inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-transform hover:-translate-y-px ${dark ? "bg-white text-ocean-676" : "bg-ocean-676 text-white dark:bg-ocean-461 dark:text-ocean-910"}`}>{cta} <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
     </Reveal>
   );
 };

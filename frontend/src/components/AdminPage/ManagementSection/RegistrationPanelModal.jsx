@@ -186,33 +186,33 @@ const RegistrationPanelModal = ({
 
               {callsLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-[#28405A] border-t-[#4B98C8] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-ocean-745 border-t-ocean-461 rounded-full animate-spin mb-3" />
                   <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Loading calls…</p>
                 </div>
               ) : calls.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-[#28405A] rounded-lg">
+                <div className="text-center py-12 border border-dashed border-slate-200 dark:border-ocean-745 rounded-lg">
                   <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">No open calls have been run for this committee yet.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto border border-slate-150 rounded-lg">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-50/70 dark:bg-[#15273A]/70 border-b border-slate-150 dark:border-[#28405A] text-slate-600 dark:text-slate-400 text-xs font-medium">
+                      <tr className="bg-slate-50/70 dark:bg-ocean-845/70 border-b border-slate-150 dark:border-ocean-745 text-slate-600 dark:text-slate-400 text-xs font-medium">
                         <th className="p-3">Opened At</th>
                         <th className="p-3">Status</th>
                         <th className="p-3 text-center">Applicants</th>
                         <th className="p-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#28405A] text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <tbody className="divide-y divide-slate-100 dark:divide-ocean-745 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {calls.map((call) => (
-                        <tr key={call.id} className="hover:bg-slate-50/30 dark:hover:bg-[#15273A]/50 transition-colors">
+                        <tr key={call.id} className="hover:bg-slate-50/30 dark:hover:bg-ocean-845/50 transition-colors">
                           <td className="p-3 font-medium text-slate-800 dark:text-slate-100">
                             {formatDate(call.openedAt)}
                           </td>
                           <td className="p-3">
                             {call.closedAt ? (
-                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-[#15273A] text-slate-500 dark:text-slate-300 border border-slate-200/50 dark:border-[#28405A]">
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-ocean-845 text-slate-500 dark:text-slate-300 border border-slate-200/50 dark:border-ocean-745">
                                 Closed {call.closedAt.split("T")[0]}
                               </span>
                             ) : (
@@ -230,7 +230,7 @@ const RegistrationPanelModal = ({
                                 href={call.googleSheetUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex p-1.5 bg-white dark:bg-[#15273A] hover:bg-slate-50 dark:hover:bg-[#1E3248] border border-slate-200 dark:border-[#28405A] text-emerald-600 hover:text-emerald-700 rounded-lg transition-all"
+                                className="inline-flex p-1.5 bg-white dark:bg-ocean-845 hover:bg-slate-50 dark:hover:bg-ocean-800 border border-slate-200 dark:border-ocean-745 text-emerald-600 hover:text-emerald-700 rounded-lg transition-all"
                                 title="Open Spreadsheet"
                               >
                                 <FiExternalLink className="w-3.5 h-3.5" />
@@ -238,7 +238,7 @@ const RegistrationPanelModal = ({
                             )}
                             <button
                               onClick={() => handleSelectCall(call)}
-                              className="px-3 py-1.5 bg-[#4B98C8]/10 hover:bg-[#4B98C8]/20 dark:hover:bg-[#4B98C8]/30 text-[#2C6F99] dark:text-[#4B98C8] rounded-lg font-medium text-xs transition-all"
+                              className="px-3 py-1.5 bg-ocean-461/10 hover:bg-ocean-461/20 dark:hover:bg-ocean-461/30 text-ocean-614 dark:text-ocean-461 rounded-lg font-medium text-xs transition-all"
                             >
                               Details
                             </button>
@@ -256,17 +256,17 @@ const RegistrationPanelModal = ({
               {isCommittee && (
                 <button
                   onClick={() => setSelectedCall(null)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#4B98C8] transition-colors pb-1 w-fit"
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-ocean-461 transition-colors pb-1 w-fit"
                 >
                   <FiArrowLeft className="w-4 h-4" /> Back to calls history
                 </button>
               )}
 
               {/* Google Sheets Integration Card */}
-              <div className="rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] p-5">
+              <div className="rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 p-5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900' : 'bg-slate-100 dark:bg-[#15273A] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#28405A]'} shrink-0  border`}>
+                    <div className={`p-3 rounded-lg ${currentAnalysis?.googleSheetUrl ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900' : 'bg-slate-100 dark:bg-ocean-845 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-ocean-745'} shrink-0  border`}>
                       <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z" />
                       </svg>
@@ -316,7 +316,7 @@ const RegistrationPanelModal = ({
                         href={currentAnalysis.googleSheetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-[#15273A] hover:bg-slate-50 dark:hover:bg-[#1E3248] border border-slate-200 dark:border-[#28405A] text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
+                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-ocean-845 hover:bg-slate-50 dark:hover:bg-ocean-800 border border-slate-200 dark:border-ocean-745 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
                       >
                         View Sheet <FiExternalLink className="w-3.5 h-3.5" />
                       </a>
@@ -325,7 +325,7 @@ const RegistrationPanelModal = ({
                     <button
                       onClick={currentSyncHandler}
                       disabled={currentSyncLoading}
-                      className="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-white bg-[#2A7AB0] hover:bg-[#23699A] transition-colors"
+                      className="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-white bg-ocean-573 hover:bg-ocean-629 transition-colors"
                     >
                       {currentSyncLoading ? (
                         <>
@@ -345,7 +345,7 @@ const RegistrationPanelModal = ({
 
               {currentLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-[#28405A] border-t-[#4B98C8] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-ocean-745 border-t-ocean-461 rounded-full animate-spin mb-3" />
                   <p className="text-xs text-slate-600 dark:text-slate-400 font-medium animate-pulse">
                     Fetching Insights...
                   </p>
@@ -355,8 +355,8 @@ const RegistrationPanelModal = ({
                   {/* Stat Overview Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Total Registrations */}
-                    <div className="rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]">
+                    <div className="rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 p-5 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-ocean-461/10 text-ocean-614 dark:text-ocean-316">
                         <FiUsers className="w-6 h-6" />
                       </div>
                       <div>
@@ -370,7 +370,7 @@ const RegistrationPanelModal = ({
                     </div>
 
                     {/* University Affiliation */}
-                    <div className="rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] p-5 flex flex-col justify-center">
+                    <div className="rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 p-5 flex flex-col justify-center">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                           University Classification
@@ -381,9 +381,9 @@ const RegistrationPanelModal = ({
                       </div>
                       {total > 0 ? (
                         <div className="space-y-1.5">
-                          <div className="w-full h-2.5 bg-slate-100 dark:bg-[#1E3248] rounded-full overflow-hidden flex">
+                          <div className="w-full h-2.5 bg-slate-100 dark:bg-ocean-800 rounded-full overflow-hidden flex">
                             <div
-                              className="h-full bg-[#4B98C8] transition-all"
+                              className="h-full bg-ocean-461 transition-all"
                               style={{ width: `${alexPct}%` }}
                               title={`Alex Eng: ${alexPct}%`}
                             />
@@ -394,7 +394,7 @@ const RegistrationPanelModal = ({
                             />
                           </div>
                           <div className="flex justify-between text-xs font-semibold">
-                            <span className="text-[#4B98C8]">Alex Eng ({alexPct}%)</span>
+                            <span className="text-ocean-461">Alex Eng ({alexPct}%)</span>
                             <span className="text-slate-600 dark:text-slate-400">Other ({nonAlexPct}%)</span>
                           </div>
                         </div>
@@ -407,9 +407,9 @@ const RegistrationPanelModal = ({
                   {/* Breakdowns Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                     {/* Department Distribution */}
-                    <div className="bg-white dark:bg-[#0F1C29] border border-slate-200 dark:border-[#28405A] rounded-lg p-5 space-y-4">
+                    <div className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg p-5 space-y-4">
                       <div className="flex items-center gap-2 border-b border-slate-50 pb-2 mb-2">
-                        <FiAward className="w-4 h-4 text-[#4B98C8]" />
+                        <FiAward className="w-4 h-4 text-ocean-461" />
                         <h4 className="text-xs font-semibold dark:text-slate-300 text-slate-800">
                           Department Breakdown
                         </h4>
@@ -432,7 +432,7 @@ const RegistrationPanelModal = ({
                                     className="h-full rounded-full transition-all"
                                     style={{
                                       width: `${pct}%`,
-                                      background: "#4B98C8",
+                                      background: "var(--color-ocean-461)",
                                     }}
                                   />
                                 </div>
@@ -446,9 +446,9 @@ const RegistrationPanelModal = ({
                     </div>
 
                     {/* Batch Distribution */}
-                    <div className="bg-white dark:bg-[#0F1C29] border border-slate-200 dark:border-[#28405A] rounded-lg p-5 space-y-4">
+                    <div className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg p-5 space-y-4">
                       <div className="flex items-center gap-2 border-b border-slate-50 pb-2 mb-2">
-                        <FiBook className="w-4 h-4 text-[#4B98C8]" />
+                        <FiBook className="w-4 h-4 text-ocean-461" />
                         <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-100">
                           Batch Breakdown
                         </h4>

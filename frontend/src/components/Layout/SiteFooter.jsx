@@ -11,7 +11,7 @@ import { fetchNewsSubscriptionStatus, fetchSocialLinks, subscribeToNews, unsubsc
 import { contactEmail as fallbackEmail } from "../Home/homeContent";
 
 const icons = { Facebook: FiFacebook, Instagram: FiInstagram, LinkedIn: FiLinkedin, Linkedin: FiLinkedin, YouTube: FiYoutube, Youtube: FiYoutube, X: FiTwitter, Twitter: FiTwitter };
-const linkClass = "text-sm text-[#BFE0F5] transition-colors hover:text-white";
+const linkClass = "text-sm text-ocean-145 transition-colors hover:text-white";
 const heading = "text-sm font-semibold text-white";
 
 // The chapter's logo, email and social links on the deep blue, then the section links, resources, and the
@@ -70,7 +70,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
   };
 
   return (
-    <footer id="footer" className="bg-[#0F3A5A] text-[#BFE0F5] dark:bg-[#081826]">
+    <footer id="footer" className="bg-ocean-794 text-ocean-145 dark:bg-ocean-910">
       <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
@@ -86,7 +86,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
                 const Icon = icons[s.platform] || FiGlobe;
                 return (
                   <li key={s.url}>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.platform} title={s.platform} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white hover:text-[#205E85]">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.platform} title={s.platform} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white hover:text-ocean-676">
                       <Icon className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </li>
@@ -119,13 +119,13 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
           <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
             <p className={heading}>Newsletter</p>
             <p className="mt-2 text-sm leading-relaxed">Get the chapter's news and upcoming events in your inbox.</p>
-            <button type="button" onClick={askNews} disabled={busy} className={`mt-5 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors disabled:opacity-60 ${subscribed ? "text-white ring-1 ring-white/25 hover:bg-white/10" : "bg-white text-[#205E85] hover:bg-[#E2F0FA]"}`}>
+            <button type="button" onClick={askNews} disabled={busy} className={`mt-5 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors disabled:opacity-60 ${subscribed ? "text-white ring-1 ring-white/25 hover:bg-white/10" : "bg-white text-ocean-676 hover:bg-ocean-67"}`}>
               {busy ? "One moment…" : subscribed ? "Unsubscribe from news" : "Subscribe to news"}
             </button>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#BFE0F5]/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-ocean-145/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} ACM Alexandria Student Chapter</p>
         </div>
       </div>

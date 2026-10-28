@@ -29,12 +29,12 @@ const OpenCallForm = ({ onClose, onConfirm, committee, loading }) => {
         Members will be able to apply to <span className="font-semibold text-slate-900 dark:text-slate-100">{committee.name}</span> until you close the call.
       </p>
 
-      <label className="mt-4 flex items-start gap-3 p-3.5 rounded-lg border border-slate-200 dark:border-[#28405A] bg-slate-50 dark:bg-[#0B1520]/60 cursor-pointer">
+      <label className="mt-4 flex items-start gap-3 p-3.5 rounded-lg border border-slate-200 dark:border-ocean-745 bg-slate-50 dark:bg-ocean-916/60 cursor-pointer">
         <input
           type="checkbox"
           checked={sendAnnouncement}
           onChange={(e) => setSendAnnouncement(e.target.checked)}
-          className="mt-0.5 w-4 h-4 accent-[#4B98C8]"
+          className="mt-0.5 w-4 h-4 accent-ocean-461"
         />
         <span>
           <span className="block text-sm font-medium text-slate-900 dark:text-slate-100">Email subscribers</span>

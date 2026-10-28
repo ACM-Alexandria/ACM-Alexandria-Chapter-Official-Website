@@ -29,7 +29,7 @@ const Lightbox = ({ images, startIndex = 0, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-label="Photo viewer"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#06121D]/90 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ocean-931/90 backdrop-blur-md"
       style={{ animation: "hp-fade 0.2s ease both" }}
       onTouchStart={(event) => { touchX.current = event.touches[0].clientX; }}
       onTouchEnd={(event) => {

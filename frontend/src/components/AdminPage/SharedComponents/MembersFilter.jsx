@@ -21,14 +21,14 @@ const SectionLabel = ({ children }) => (
 const CheckboxTile = ({ checked, onChange, label, hint }) => (
     <label
         className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all group/opt ${checked
-            ? "border-[#4B98C8] bg-[#4B98C8]/5 dark:bg-[#4B98C8]/10"
-            : "border-slate-200 dark:border-[#28405A] hover:border-[#4B98C8]/50"
+            ? "border-ocean-461 bg-ocean-461/5 dark:bg-ocean-461/10"
+            : "border-slate-200 dark:border-ocean-745 hover:border-ocean-461/50"
             }`}
     >
         <div
             className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${checked
-                ? "bg-[#4B98C8] border-[#4B98C8]"
-                : "bg-white dark:bg-[#0F1C29] border-slate-300 dark:border-[#28405A] group-hover/opt:border-[#4B98C8]/60"
+                ? "bg-ocean-461 border-ocean-461"
+                : "bg-white dark:bg-ocean-890 border-slate-300 dark:border-ocean-745 group-hover/opt:border-ocean-461/60"
                 }`}
         >
             {checked && (
@@ -51,8 +51,8 @@ const ToggleChip = ({ active, onClick, disabled = false, children }) => (
         onClick={onClick}
         disabled={disabled}
         className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all  disabled:cursor-not-allowed disabled: ${active
-            ? "bg-[#4B98C8] border-[#4B98C8] text-white"
-            : "bg-white dark:bg-[#15273A] border-slate-200 dark:border-[#28405A] text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
+            ? "bg-ocean-461 border-ocean-461 text-white"
+            : "bg-white dark:bg-ocean-845 border-slate-200 dark:border-ocean-745 text-slate-500 dark:text-slate-300 hover:border-ocean-461/50"
             }`}
     >
         {children}
@@ -174,7 +174,7 @@ const MembersFilter = ({
             />
 
             {showRecipientCount && (
-                <div aria-live="polite" className="border-t border-slate-200 pt-3 text-sm dark:border-[#28405A]">
+                <div aria-live="polite" className="border-t border-slate-200 pt-3 text-sm dark:border-ocean-745">
                     {previewLoading ? (
                         <span className="text-slate-500 dark:text-slate-400">Estimating recipients…</span>
                     ) : previewError ? (

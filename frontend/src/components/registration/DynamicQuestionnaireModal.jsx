@@ -15,10 +15,10 @@ const ImageAnswer = ({ file, disabled, onChange }) => {
 
   if (file) {
     return (
-      <div className={`overflow-hidden rounded-2xl ring-2 ${tooLarge ? "ring-red-400" : "ring-[#4B98C8]/40"}`}>
-        <div className="relative bg-[#F3F7FB] dark:bg-white/5">
+      <div className={`overflow-hidden rounded-2xl ring-2 ${tooLarge ? "ring-red-400" : "ring-ocean-461/40"}`}>
+        <div className="relative bg-ocean-31 dark:bg-white/5">
           <img src={preview} alt="Selected upload" className="max-h-56 w-full object-contain" />
-          <button type="button" disabled={disabled} onClick={() => onChange(null)} aria-label="Remove image" className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#06121D]/60 text-white transition-colors hover:bg-red-600">
+          <button type="button" disabled={disabled} onClick={() => onChange(null)} aria-label="Remove image" className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-ocean-931/60 text-white transition-colors hover:bg-red-600">
             <FiX className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
@@ -31,8 +31,8 @@ const ImageAnswer = ({ file, disabled, onChange }) => {
     );
   }
   return (
-    <label className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-[#D6E6F2] bg-[#F3F7FB] py-8 transition-colors hover:border-[#4B98C8] dark:border-white/15 dark:bg-white/5 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#7DBBE0]"><FiImage className="h-5 w-5" aria-hidden="true" /></span>
+    <label className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ocean-106 bg-ocean-31 py-8 transition-colors hover:border-ocean-461 dark:border-white/15 dark:bg-white/5 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-316"><FiImage className="h-5 w-5" aria-hidden="true" /></span>
       <span className="text-center">
         <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">Choose an image</span>
         <span className={`mt-0.5 block text-xs ${muted}`}>JPG, PNG, WEBP or GIF, up to {MAX_MB} MB</span>
@@ -69,8 +69,8 @@ const DynamicQuestionnaireModal = ({ onClose, type, entityName, questions, answe
                       const selected = Array.isArray(value) ? value : [];
                       const checked = selected.includes(option);
                       return (
-                        <label key={option} className={`flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 ring-1 transition-colors ${checked ? "bg-[#E2F0FA] ring-[#4B98C8] dark:bg-[#16364C]" : "bg-white ring-[#D6E6F2] hover:ring-[#4B98C8] dark:bg-[#0A1724] dark:ring-white/15"} ${submitting ? "pointer-events-none opacity-60" : ""}`}>
-                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ${checked ? "bg-[#205E85] text-white ring-[#205E85] dark:bg-[#4B98C8] dark:text-[#081826] dark:ring-[#4B98C8]" : "ring-slate-300 dark:ring-white/25"}`}>
+                        <label key={option} className={`flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 ring-1 transition-colors ${checked ? "bg-ocean-67 ring-ocean-461 dark:bg-ocean-808" : "bg-white ring-ocean-106 hover:ring-ocean-461 dark:bg-ocean-911 dark:ring-white/15"} ${submitting ? "pointer-events-none opacity-60" : ""}`}>
+                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ${checked ? "bg-ocean-676 text-white ring-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 dark:ring-ocean-461" : "ring-slate-300 dark:ring-white/25"}`}>
                             {checked && <FiCheck className="h-3.5 w-3.5" aria-hidden="true" />}
                           </span>
                           <input type="checkbox" className="sr-only" checked={checked} disabled={submitting} onChange={() => onInputChange(question.id, checked ? selected.filter((v) => v !== option) : [...selected, option])} />

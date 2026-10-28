@@ -4,22 +4,22 @@ import AnimatedNumber from "./AnimatedNumber";
 
 // Tinted number tiles (style C), cycling through four tones.
 const TILE_TONES = [
-  { tile: "bg-[#E8F2F9] dark:bg-[#16364C]", label: "text-[#2C6F99] dark:text-[#7DBBE0]", value: "text-[#16364C] dark:text-white" },
+  { tile: "bg-ocean-57 dark:bg-ocean-808", label: "text-ocean-614 dark:text-ocean-316", value: "text-ocean-808 dark:text-white" },
   { tile: "bg-emerald-50 dark:bg-emerald-950/50", label: "text-emerald-700 dark:text-emerald-300", value: "text-emerald-900 dark:text-emerald-50" },
   { tile: "bg-amber-50 dark:bg-amber-950/50", label: "text-amber-800 dark:text-amber-300", value: "text-amber-900 dark:text-amber-50" },
   { tile: "bg-violet-50 dark:bg-violet-950/50", label: "text-violet-700 dark:text-violet-300", value: "text-violet-900 dark:text-violet-50" },
 ];
 
-const DEFAULT_COLORS = ["#4B98C8", "#1D9E75", "#EF9F27", "#7F77DD"];
-const POINTS_COLORS = ["#1D9E75", "#E24B4A"];
+const DEFAULT_COLORS = ["var(--color-ocean-461)", "var(--color-chart-green)", "var(--color-chart-amber)", "var(--color-chart-purple)"];
+const POINTS_COLORS = ["var(--color-chart-green)", "var(--color-chart-red)"];
 
 const STATUS_TONES = {
   success: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-900",
   danger: "bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900",
-  neutral: "bg-slate-50 dark:bg-[#15273A] text-slate-800 dark:text-slate-200 border-slate-200 dark:border-[#28405A]",
+  neutral: "bg-slate-50 dark:bg-ocean-845 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-ocean-745",
 };
 
-const cardClass = "rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29]";
+const cardClass = "rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890";
 
 const Tile = ({ kpi, tone, index }) => (
   <div className={`${tone.tile} rounded-2xl p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>
@@ -42,7 +42,7 @@ const RankList = ({ ranking, index }) => {
         <ol className="flex flex-col gap-3">
           {ranking.items.map((item, i) => (
             <li key={`${item.label}-${i}`} className="flex items-center gap-3">
-              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-[#15273A] text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-ocean-845 text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
                 {i + 1}
               </span>
               <span className="min-w-0 flex-1 flex flex-col gap-1">
@@ -53,9 +53,9 @@ const RankList = ({ ranking, index }) => {
                   </span>
                   <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100"><AnimatedNumber value={item.value} /></span>
                 </span>
-                <span className="h-1.5 rounded-full bg-slate-100 dark:bg-[#15273A] overflow-hidden" aria-hidden="true">
+                <span className="h-1.5 rounded-full bg-slate-100 dark:bg-ocean-845 overflow-hidden" aria-hidden="true">
                   <span
-                    className="block h-full rounded-full bg-[#4B98C8] insights-bar-x"
+                    className="block h-full rounded-full bg-ocean-461 insights-bar-x"
                     style={{ width: `${(item.value / max) * 100}%`, animationDelay: `${350 + i * 50}ms` }}
                   />
                 </span>

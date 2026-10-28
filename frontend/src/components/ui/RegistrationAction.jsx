@@ -8,8 +8,8 @@ const notice = "flex w-full items-center justify-center gap-2 rounded-2xl px-5 p
 const RegistrationAction = ({ status, labels = {}, onOpen, onCancel }) => {
   if (status === "checking") {
     return (
-      <div className={`${notice} bg-white text-slate-500 ring-1 ring-[#D6E6F2] dark:bg-[#0F2233] dark:text-[#A9C7DB] dark:ring-white/10`}>
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#D6E6F2] border-t-[#4B98C8]" aria-hidden="true" />Checking your registration
+      <div className={`${notice} bg-white text-slate-500 ring-1 ring-ocean-106 dark:bg-ocean-871 dark:text-ocean-239 dark:ring-white/10`}>
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-ocean-106 border-t-ocean-461" aria-hidden="true" />Checking your registration
       </div>
     );
   }
@@ -28,7 +28,7 @@ const RegistrationAction = ({ status, labels = {}, onOpen, onCancel }) => {
   }
   const text = { ended: labels.ended || "This has ended", closed: labels.closed || "Registration is closed", locked: labels.locked || "For chapter members only" }[status];
   return (
-    <div className={`${notice} bg-white text-slate-500 ring-1 ring-[#D6E6F2] dark:bg-[#0F2233] dark:text-[#A9C7DB] dark:ring-white/10`}>
+    <div className={`${notice} bg-white text-slate-500 ring-1 ring-ocean-106 dark:bg-ocean-871 dark:text-ocean-239 dark:ring-white/10`}>
       {status === "locked" && <FiLock className="h-4 w-4" aria-hidden="true" />}{text}
     </div>
   );

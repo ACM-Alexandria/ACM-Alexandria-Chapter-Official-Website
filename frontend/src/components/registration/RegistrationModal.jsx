@@ -291,7 +291,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
     <Dialog open={isOpen} onClose={onClose} size={compact ? "sm" : "lg"} dismissable={!busy} labelledBy="registration-title" z="z-[80]">
       {loading ? (
         <div className="flex flex-col items-center gap-4 px-8 py-14 text-center">
-          <span className="h-10 w-10 animate-spin rounded-full border-4 border-[#E2F0FA] border-t-[#4B98C8] dark:border-[#16364C]" aria-hidden="true" />
+          <span className="h-10 w-10 animate-spin rounded-full border-4 border-ocean-67 border-t-ocean-461 dark:border-ocean-808" aria-hidden="true" />
           <p id="registration-title" className={`text-sm font-semibold ${muted}`}>Getting your form ready…</p>
         </div>
       ) : needsProfileUpdate ? (

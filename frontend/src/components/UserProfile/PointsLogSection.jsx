@@ -47,7 +47,7 @@ const PointsLogSection = ({
   onDeleteClick
 }) => {
   const pageButtonClass =
-    "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#15273A] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+    "h-8 px-2.5 rounded-md inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-ocean-845 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
   return (
     <Panel
@@ -56,7 +56,7 @@ const PointsLogSection = ({
         isAdmin && (
           <button
             onClick={onAddClick}
-            className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md bg-[#4B98C8] hover:bg-[#3d7da6] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-[#0F1C29]"
+            className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md bg-ocean-461 hover:bg-ocean-555 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ocean-461 dark:focus-visible:ring-offset-ocean-890"
           >
             <HiOutlinePlus className="w-4 h-4" aria-hidden="true" />
             Add points
@@ -78,7 +78,7 @@ const PointsLogSection = ({
         <div className="overflow-x-auto">
           <table className="w-full table-fixed text-left border-separate border-spacing-0">
             <thead>
-              <tr className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-[#15273A]/60">
+              <tr className="text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-ocean-845/60">
                 <th scope="col" className="hidden sm:table-cell w-48 px-5 py-3 font-medium">Date</th>
                 <th scope="col" className="px-3 sm:px-5 py-3 font-medium">Activity</th>
                 {isAdmin && <th scope="col" className="hidden sm:table-cell w-52 px-5 py-3 font-medium">Assigned by</th>}
@@ -92,10 +92,10 @@ const PointsLogSection = ({
                 const createdAt = log.createdAt || log.created_at;
                 const updatedAt = log.updatedAt || log.updated_at;
                 const edited = isAdmin && log.lastUpdaterName && updatedAt && updatedAt !== createdAt;
-                const rowBorder = "border-b border-slate-200 dark:border-[#1E3248] group-last:border-b-0";
+                const rowBorder = "border-b border-slate-200 dark:border-ocean-800 group-last:border-b-0";
 
                 return (
-                  <tr key={log.id} className="group align-middle hover:bg-slate-50 dark:hover:bg-[#15273A]/40 transition-colors">
+                  <tr key={log.id} className="group align-middle hover:bg-slate-50 dark:hover:bg-ocean-845/40 transition-colors">
                     <td className={`hidden sm:table-cell px-5 py-4 ${rowBorder}`}>
                       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{timeAgo(createdAt)}</p>
                       <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400 tabular-nums">
@@ -137,7 +137,7 @@ const PointsLogSection = ({
                         <div className="flex items-center justify-end">
                           <button
                             onClick={() => onEditClick(log)}
-                            className="p-1.5 sm:p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-[#2C6F99] hover:bg-slate-100 dark:hover:bg-[#15273A] transition-colors"
+                            className="p-1.5 sm:p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-ocean-614 hover:bg-slate-100 dark:hover:bg-ocean-845 transition-colors"
                             aria-label={`Edit "${log.reason}"`}
                             title="Edit"
                           >
@@ -163,7 +163,7 @@ const PointsLogSection = ({
       )}
 
       {totalPages > 1 && (
-        <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-[#1E3248]">
+        <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-ocean-800">
           <button onClick={() => onPageChange(page - 1)} disabled={page === 0} className={pageButtonClass}>
             <HiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
           </button>
