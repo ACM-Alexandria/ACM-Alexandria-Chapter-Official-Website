@@ -21,7 +21,7 @@ const Select = ({ id, name, value, onChange, required, disabled, placeholder, op
 const ProfileGatewayModal = ({ onClose, type, entityName, profileForm, onInputChange, onToggle, onSubmit, submitting, error }) => {
   const words = registrationCopy(type);
   const student = profileForm.isAlexEngStudent;
-  const choice = (active) => `inline-flex h-10 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors ${active ? "bg-white text-[#205E85] shadow-sm dark:bg-[#4B98C8] dark:text-[#081826]" : "text-slate-600 hover:text-slate-900 dark:text-[#A9C7DB] dark:hover:text-white"}`;
+  const choice = (active) => `inline-flex h-10 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors ${active ? "bg-white text-ocean-676 shadow-sm dark:bg-ocean-461 dark:text-ocean-910" : "text-slate-600 hover:text-slate-900 dark:text-ocean-239 dark:hover:text-white"}`;
 
   return (
     <>
@@ -41,16 +41,16 @@ const ProfileGatewayModal = ({ onClose, type, entityName, profileForm, onInputCh
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#F3F7FB] p-5 dark:bg-white/5">
+          <div className="rounded-2xl bg-ocean-31 p-5 dark:bg-white/5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className={fieldLabel}>Are you a student at Alexandria University's Faculty of Engineering? <span className="text-red-500" aria-hidden="true">*</span></p>
-              <div role="radiogroup" aria-label="Faculty of Engineering student" className="inline-flex w-fit shrink-0 rounded-xl bg-white p-1 ring-1 ring-[#D6E6F2] dark:bg-[#0A1724] dark:ring-white/15">
+              <div role="radiogroup" aria-label="Faculty of Engineering student" className="inline-flex w-fit shrink-0 rounded-xl bg-white p-1 ring-1 ring-ocean-106 dark:bg-ocean-911 dark:ring-white/15">
                 <button type="button" role="radio" aria-checked={student === true} onClick={() => onToggle(true)} disabled={submitting} className={choice(student === true)}>{student === true && <FiCheck className="h-4 w-4" aria-hidden="true" />}Yes</button>
                 <button type="button" role="radio" aria-checked={student === false} onClick={() => onToggle(false)} disabled={submitting} className={choice(student === false)}>{student === false && <FiCheck className="h-4 w-4" aria-hidden="true" />}No</button>
               </div>
             </div>
             {student === true && (
-              <div className="mt-5 grid gap-5 border-t border-[#D6E6F2] pt-5 sm:grid-cols-2 dark:border-white/10" style={{ animation: "hp-fade 0.3s ease both" }}>
+              <div className="mt-5 grid gap-5 border-t border-ocean-106 pt-5 sm:grid-cols-2 dark:border-white/10" style={{ animation: "hp-fade 0.3s ease both" }}>
                 <div className="space-y-2">
                   <label htmlFor="profile-batch" className={`block ${fieldLabel}`}>Batch <span className="text-red-500" aria-hidden="true">*</span></label>
                   <Select id="profile-batch" name="batch" value={profileForm.batch} onChange={onInputChange} required disabled={submitting} placeholder="Choose your batch" options={batches.map((b) => [b, b])} />

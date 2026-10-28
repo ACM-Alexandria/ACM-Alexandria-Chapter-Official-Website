@@ -209,14 +209,14 @@ const MemberProfileView = ({ userId, onChanged }) => {
             {loading ? (
                 <div className="flex flex-col gap-8 animate-pulse motion-reduce:animate-none" aria-busy="true" aria-label="Loading profile">
                     <div className="flex items-start gap-5">
-                        <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-[#15273A] shrink-0" />
+                        <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-ocean-845 shrink-0" />
                         <div className="flex-1 space-y-3 pt-1">
-                            <div className="h-7 w-48 rounded bg-slate-200 dark:bg-[#15273A]" />
-                            <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-[#15273A]" />
-                            <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-[#15273A]" />
+                            <div className="h-7 w-48 rounded bg-slate-200 dark:bg-ocean-845" />
+                            <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-ocean-845" />
+                            <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-ocean-845" />
                         </div>
                     </div>
-                    <div className="h-64 rounded-xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29]" />
+                    <div className="h-64 rounded-xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890" />
                 </div>
             ) : (
                 <ProfileViewCard user={profile} profile={profile} />

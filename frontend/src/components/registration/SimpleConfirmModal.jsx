@@ -9,8 +9,8 @@ const SimpleConfirmModal = ({ onClose, type, entityName, onSubmit, submitting, e
   if (success) return <SuccessView title={words.done} entityName={entityName} onClose={onClose} />;
   return (
     <form onSubmit={onSubmit} className="px-6 pb-6 pt-8 text-center sm:px-8">
-      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#7DBBE0]"><FiHelpCircle className="h-6 w-6" aria-hidden="true" /></span>
-      <p className="mt-5 text-xs font-semibold text-[#2A7AB0] dark:text-[#7DBBE0]">{words.eyebrow}</p>
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-316"><FiHelpCircle className="h-6 w-6" aria-hidden="true" /></span>
+      <p className="mt-5 text-xs font-semibold text-ocean-573 dark:text-ocean-316">{words.eyebrow}</p>
       <h2 id="registration-title" className="mt-1 text-xl font-semibold tracking-tight text-slate-900 dark:text-white" style={{ textWrap: "balance" }}>
         {words.verb[0].toUpperCase() + words.verb.slice(1)} {entityName}?
       </h2>

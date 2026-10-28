@@ -117,7 +117,7 @@ const EmailConfirmationPage = () => {
         <div className="py-10 flex flex-col items-center justify-center gap-4 text-center">
           <span
             aria-hidden="true"
-            className="w-10 h-10 rounded-full border-4 border-[#4B98C8]/30 border-t-[#205E85] shrink-0"
+            className="w-10 h-10 rounded-full border-4 border-ocean-461/30 border-t-ocean-676 shrink-0"
             style={{ animation: "spin 0.8s linear infinite" }}
           />
           <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
@@ -133,7 +133,7 @@ const EmailConfirmationPage = () => {
           style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <div
-            className="w-16 h-16 rounded-full bg-[#205E85] dark:bg-[#4B98C8] dark:text-[#081826] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+            className="w-16 h-16 rounded-full bg-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
             style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
           >
             ✓
@@ -151,7 +151,7 @@ const EmailConfirmationPage = () => {
             to="/login"
             className="
               flex w-full h-12 items-center justify-center px-6 text-center
-              bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+              bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
               text-white font-semibold text-sm rounded-xl 
                transition-all duration-300
             "
@@ -177,7 +177,7 @@ const EmailConfirmationPage = () => {
               to="/login"
               className="
                 flex w-full h-12 items-center justify-center px-6 text-center
-                bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+                bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
                 text-white font-semibold text-sm rounded-xl 
                  transition-all duration-300
               "
@@ -218,7 +218,7 @@ const EmailConfirmationPage = () => {
                 disabled={resendLoading}
                 className={`
                   relative w-full h-12 px-6 flex items-center justify-center gap-2
-                  bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+                  bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
                   text-white font-semibold text-sm rounded-xl
                    overflow-hidden transition-all duration-300
                   ${resendLoading ? "opacity-70 cursor-not-allowed" : ""}
@@ -232,7 +232,7 @@ const EmailConfirmationPage = () => {
           <div className="pt-2 flex flex-col items-center gap-2.5 text-center">
             <Link
               to="/login"
-              className="text-sm font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors"
+              className="text-sm font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors"
             >
               Back to Sign In
             </Link>

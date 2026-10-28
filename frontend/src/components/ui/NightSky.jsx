@@ -11,7 +11,7 @@ const NightSky = ({ always = false }) => (
     {stars.map((s, i) => (
       <span
         key={i}
-        className="absolute rounded-full bg-[#D3E9F7]"
+        className="absolute rounded-full bg-ocean-102"
         style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }}
       />
     ))}

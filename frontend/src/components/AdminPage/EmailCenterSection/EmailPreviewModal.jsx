@@ -67,7 +67,7 @@ const EmailPreviewModal = ({ composer }) => {
                     )}
 
                     {/* Recipients */}
-                    <div className="rounded-lg border border-slate-200 p-4 dark:border-[#28405A]">
+                    <div className="rounded-lg border border-slate-200 p-4 dark:border-ocean-745">
                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Recipients</p>
                         {membersLoading ? (
                             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Calculating…</p>
@@ -85,7 +85,7 @@ const EmailPreviewModal = ({ composer }) => {
                             <div className="mt-3 flex flex-wrap gap-1.5">
                                 {roleCounts.map(([label, count]) => (
                                     <span key={label} className={tagMutedClass}>
-                                        {label} <span className="ml-1 text-[#2C6F99] dark:text-[#7DBBE0] tabular-nums">{count}</span>
+                                        {label} <span className="ml-1 text-ocean-614 dark:text-ocean-316 tabular-nums">{count}</span>
                                     </span>
                                 ))}
                             </div>
@@ -99,7 +99,7 @@ const EmailPreviewModal = ({ composer }) => {
                         title={`Email preview: ${subject}`}
                         srcDoc={emailHtml}
                         sandbox=""
-                        className="h-[420px] sm:h-[620px] w-full rounded-lg border border-slate-200 bg-white dark:border-[#28405A]"
+                        className="h-[420px] sm:h-[620px] w-full rounded-lg border border-slate-200 bg-white dark:border-ocean-745"
                     />
                 </div>
             </ModalShell>

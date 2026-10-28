@@ -235,7 +235,7 @@ const RegisterForm = () => {
         style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
       >
         <div
-          className="w-16 h-16 rounded-full bg-[#205E85] dark:bg-[#4B98C8] dark:text-[#081826] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+          className="w-16 h-16 rounded-full bg-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
           style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           ✓
@@ -251,7 +251,7 @@ const RegisterForm = () => {
 
         {/* Resend Button with Countdown */}
         <div className="mb-6">
-          {resendStatusMsg && <p role="status" className="mb-3 text-sm text-slate-600 dark:text-[#A9C7DB]">{resendStatusMsg}</p>}
+          {resendStatusMsg && <p role="status" className="mb-3 text-sm text-slate-600 dark:text-ocean-239">{resendStatusMsg}</p>}
           <button
             type="button"
             onClick={handleResendInRegister}
@@ -261,7 +261,7 @@ const RegisterForm = () => {
               ${
                 resendCountdown > 0 || isResending
                   ? "border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed"
-                  : "border-[#4B98C8] text-[#205E85] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/10 cursor-pointer"
+                  : "border-ocean-461 text-ocean-676 dark:text-ocean-316 hover:bg-ocean-461/10 cursor-pointer"
               }
             `}
           >
@@ -278,7 +278,7 @@ const RegisterForm = () => {
         <div className="flex flex-col items-center gap-2.5 text-center">
           <Link
             to="/login"
-            className="flex w-full h-12 items-center justify-center px-6 bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0] text-white font-semibold text-sm rounded-xl   transition-all duration-300"
+            className="flex w-full h-12 items-center justify-center px-6 bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316 text-white font-semibold text-sm rounded-xl   transition-all duration-300"
           >
             Go to Sign In
           </Link>
@@ -369,7 +369,7 @@ const RegisterForm = () => {
         aria-busy={isLoading}
         className={`
           relative w-full mt-2 h-12 px-6 flex items-center justify-center gap-2
-          bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+          bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
           text-white font-semibold text-sm rounded-xl
            overflow-hidden
           transition-all duration-300
@@ -404,7 +404,7 @@ const RegisterForm = () => {
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-300">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
+          <Link to="/login" className="font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors">
             Sign In
           </Link>
         </p>

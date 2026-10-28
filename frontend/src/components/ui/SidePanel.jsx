@@ -21,30 +21,30 @@ const SidePanel = ({ open, onClose, label, image, eyebrow, title, loading = fals
       aria-hidden={!visible}
       inert={!open ? true : undefined}
     >
-      <div className={`absolute inset-0 bg-[#06121D]/55 backdrop-blur-sm transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`} onClick={onClose} />
+      <div className={`absolute inset-0 bg-ocean-931/55 backdrop-blur-sm transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`} onClick={onClose} />
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={label || title}
-        className={`absolute inset-y-0 right-0 w-full overflow-y-auto overscroll-contain bg-[#F3F7FB] shadow-[0_0_80px_-20px_rgba(4,18,30,0.6)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:w-[560px] sm:rounded-l-[2rem] lg:w-[640px] dark:bg-[#0A1724] ${visible ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute inset-y-0 right-0 w-full overflow-y-auto overscroll-contain bg-ocean-31 shadow-[0_0_80px_-20px_color-mix(in_srgb,var(--color-ocean-933)_60%,transparent)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:w-[560px] sm:rounded-l-[2rem] lg:w-[640px] dark:bg-ocean-911 ${visible ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0F3A5A] sm:aspect-[16/9]">
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-ocean-794 sm:aspect-[16/9]">
           {loading ? (
             <div className={`h-full w-full ${skeleton}`} />
           ) : showImage ? (
             <img src={image} alt="" className="h-full w-full object-cover" onError={() => setFailed(image)} />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#1D5A85,#0F3A5A_60%,#081826)]">
+            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,var(--color-ocean-682),#0F3A5A_60%,var(--color-ocean-910))]">
               <span className="text-8xl font-semibold text-white/10">{initials(title || "")}</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#06121D]/90 via-[#06121D]/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ocean-931/90 via-ocean-931/25 to-transparent" />
           <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-lg transition-colors hover:bg-white">
             <FiX className="h-5 w-5" aria-hidden="true" />
           </button>
           {!loading && title && (
             <div className="absolute inset-x-6 bottom-6 sm:inset-x-8" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) both" }}>
-              {eyebrow && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#205E85]">{eyebrow}</span>}
+              {eyebrow && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-ocean-676">{eyebrow}</span>}
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl" style={{ textWrap: "balance" }}>{title}</h2>
             </div>
           )}
@@ -87,8 +87,8 @@ export const PanelSection = ({ title, children }) => (
 export const InfoTile = ({ icon, label, children }) => {
   const Icon = icon;
   return (
-    <div className="flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-[#D6E6F2] dark:bg-[#0F2233] dark:ring-white/10">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#7DBBE0]"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+    <div className="flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-ocean-106 dark:bg-ocean-871 dark:ring-white/10">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-316"><Icon className="h-5 w-5" aria-hidden="true" /></span>
       <div className="min-w-0">
         <p className={`text-xs font-medium ${muted}`}>{label}</p>
         <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">{children}</p>

@@ -26,7 +26,7 @@ const InputField = ({
 
       <div className="relative">
         {Icon && (
-          <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${isFocused ? "text-[#2A7AB0] dark:text-[#7DBBE0]" : "text-slate-400"}`}>
+          <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${isFocused ? "text-ocean-573 dark:text-ocean-316" : "text-slate-400"}`}>
             <Icon />
           </div>
         )}
@@ -48,12 +48,12 @@ const InputField = ({
           className={`
             w-full pr-4 ${Icon ? "pl-11" : "pl-4"}
             h-12 rounded-xl bg-white text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-shadow duration-200
-            dark:bg-[#0A1724] dark:text-slate-100 dark:placeholder:text-slate-500
+            dark:bg-ocean-911 dark:text-slate-100 dark:placeholder:text-slate-500
             ${error
               ? "ring-2 ring-red-400 dark:ring-red-500/70"
               : isFocused
-                ? "ring-2 ring-[#4B98C8]"
-                : "ring-1 ring-[#D6E6F2] hover:ring-[#9CC5E0] dark:ring-white/15 dark:hover:ring-white/25"
+                ? "ring-2 ring-ocean-461"
+                : "ring-1 ring-ocean-106 hover:ring-ocean-255 dark:ring-white/15 dark:hover:ring-white/25"
             }
           `}
           aria-invalid={error ? "true" : "false"}

@@ -216,7 +216,7 @@ const LoginForm = () => {
         aria-busy={isLoading}
         className={`
           relative w-full mt-2 h-12 px-6 flex items-center justify-center gap-2
-          bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+          bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
           text-white font-semibold text-sm rounded-xl
            overflow-hidden
           transition-all duration-300
@@ -251,7 +251,7 @@ const LoginForm = () => {
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-300">
           Don't have an account?{" "}
-          <Link to="/register" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
+          <Link to="/register" className="font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors">
             Create one
           </Link>
         </p>

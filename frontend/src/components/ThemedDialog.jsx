@@ -21,13 +21,13 @@ const TONES = {
   },
   brand: {
     icon: FiSend,
-    iconClass: "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]",
-    buttonClass: "bg-[#4B98C8] hover:bg-[#3d7da6]",
+    iconClass: "bg-ocean-461/10 text-ocean-614 dark:text-ocean-316",
+    buttonClass: "bg-ocean-461 hover:bg-ocean-555",
   },
   info: {
     icon: FiInfo,
-    iconClass: "bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]",
-    buttonClass: "bg-[#4B98C8] hover:bg-[#3d7da6]",
+    iconClass: "bg-ocean-461/10 text-ocean-614 dark:text-ocean-316",
+    buttonClass: "bg-ocean-461 hover:bg-ocean-555",
   },
 };
 
@@ -130,7 +130,7 @@ const ThemedDialog = ({
               onClick={onCancel}
               disabled={busy}
               autoFocus={tone === "danger"}
-              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40"
             >
               {cancelLabel}
             </button>
@@ -140,7 +140,7 @@ const ThemedDialog = ({
             onClick={onConfirm}
             disabled={confirmDisabled || busy}
             autoFocus={tone !== "danger" || !cancelLabel}
-            className={`h-9 px-4 rounded-md text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900 ${theme.buttonClass}`}
+            className={`h-9 px-4 rounded-md text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ocean-461 dark:focus-visible:ring-offset-slate-900 ${theme.buttonClass}`}
           >
             {confirmLabel}
           </button>

@@ -9,7 +9,7 @@ const EmailCenterTab = () => {
     const composer = useEmailComposer({ committees, clubs });
 
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-[#1E3248] dark:bg-[#0F1C29] sm:p-6">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-ocean-800 dark:bg-ocean-890 sm:p-6">
             <div className="mb-6">
                 <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">Email center</h2>
                 <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">

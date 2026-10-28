@@ -8,10 +8,10 @@ import Reveal from "../../ui/Reveal";
 const bars = Array.from({ length: 36 }, (_, i) => 0.3 + (((i * 37) % 23) / 23) * 0.7);
 
 const Cover = ({ season, className }) => (
-  <span className={`relative block overflow-hidden bg-[#16364C] ring-1 ring-white/10 ${className}`}>
+  <span className={`relative block overflow-hidden bg-ocean-808 ring-1 ring-white/10 ${className}`}>
     {season.imageUrl
       ? <img src={season.imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-      : <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-[#7DBBE0]">S{season.season}</span>}
+      : <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-ocean-316">S{season.season}</span>}
   </span>
 );
 
@@ -23,10 +23,10 @@ const RadioSection = ({ loading, seasons, count }) => {
   const episodes = seasons.reduce((total, season) => total + season.episodes, 0);
   const latest = featured?.latest;
   const seasonPath = featured && `/radio/seasons/${featured.id}`;
-  const play = "flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-[#0F3A5A] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7DBBE0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B2236]";
+  const play = "flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-ocean-794 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-316 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-873";
 
   return (
-    <section id="radio" className="relative scroll-mt-20 overflow-hidden bg-[#0B2236] py-16 text-white sm:py-24 dark:bg-[#06121D]">
+    <section id="radio" className="relative scroll-mt-20 overflow-hidden bg-ocean-873 py-16 text-white sm:py-24 dark:bg-ocean-931">
       <NightSky always />
       <div className="relative mx-auto grid max-w-[1280px] gap-10 px-5 sm:gap-12 sm:px-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
         <div className="lg:sticky lg:top-28">
@@ -37,16 +37,16 @@ const RadioSection = ({ loading, seasons, count }) => {
           <div className="flex flex-col gap-5">
             <Reveal className="rounded-[2rem] bg-white/5 p-5 ring-1 ring-white/10 sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-                <Link to={seasonPath} className="w-40 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7DBBE0] sm:w-52" aria-label={`Open season ${featured.season}`}>
+                <Link to={seasonPath} className="w-40 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-316 sm:w-52" aria-label={`Open season ${featured.season}`}>
                   <Cover season={featured} className="aspect-square rounded-3xl" />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#9FD0EE]">Newest season</span>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-ocean-222">Newest season</span>
                   <h3 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Season {featured.season}</h3>
-                  <p className="mt-1 font-medium text-[#7DBBE0]">{featured.episodes} {featured.episodes === 1 ? "episode" : "episodes"} so far</p>
+                  <p className="mt-1 font-medium text-ocean-316">{featured.episodes} {featured.episodes === 1 ? "episode" : "episodes"} so far</p>
                   {latest && (
-                    <p className="mt-4 text-[#CFE6F5]">
-                      <span className="text-sm font-semibold text-[#7DBBE0]">Latest{latest.number ? `, episode ${latest.number}` : ""}</span>
+                    <p className="mt-4 text-ocean-114">
+                      <span className="text-sm font-semibold text-ocean-316">Latest{latest.number ? `, episode ${latest.number}` : ""}</span>
                       <span className="mt-1 block line-clamp-2 text-lg font-semibold text-white">{latest.title}</span>
                       {latest.guest && <span className="mt-0.5 block text-sm">with {latest.guest}</span>}
                     </p>
@@ -61,12 +61,12 @@ const RadioSection = ({ loading, seasons, count }) => {
                   {bars.map((h, i) => (
                     <span
                       key={i}
-                      className="w-1 shrink-0 rounded-full bg-[#4B98C8] sm:w-1.5"
+                      className="w-1 shrink-0 rounded-full bg-ocean-461 sm:w-1.5"
                       style={{ height: `${Math.round(h * 100)}%`, animation: `hp-bar ${0.9 + (i % 4) * 0.22}s ease-in-out ${(i % 6) * 0.11}s infinite` }}
                     />
                   ))}
                 </div>
-                <Link to={seasonPath} className="hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-[#9FD0EE] hover:text-white sm:inline-flex">All episodes <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
+                <Link to={seasonPath} className="hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-ocean-222 hover:text-white sm:inline-flex">All episodes <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
               </div>
             </Reveal>
 
@@ -74,11 +74,11 @@ const RadioSection = ({ loading, seasons, count }) => {
               <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0">
                 {older.slice(0, 3).map((season, i) => (
                   <Reveal key={season.id} delay={i * 80} className="w-[58%] shrink-0 snap-start sm:w-auto">
-                    <Link to={`/radio/seasons/${season.id}`} className="group flex items-center gap-3 rounded-3xl bg-white/5 p-3 ring-1 ring-white/10 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7DBBE0]">
+                    <Link to={`/radio/seasons/${season.id}`} className="group flex items-center gap-3 rounded-3xl bg-white/5 p-3 ring-1 ring-white/10 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-316">
                       <Cover season={season} className="h-16 w-16 shrink-0 rounded-2xl" />
                       <span className="min-w-0">
                         <span className="block font-semibold">Season {season.season}</span>
-                        <span className="block text-sm text-[#7DBBE0]">{season.episodes} {season.episodes === 1 ? "episode" : "episodes"}</span>
+                        <span className="block text-sm text-ocean-316">{season.episodes} {season.episodes === 1 ? "episode" : "episodes"}</span>
                       </span>
                     </Link>
                   </Reveal>

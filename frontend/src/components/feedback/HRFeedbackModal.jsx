@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FiX, FiLoader, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import hrFeedbackService from "../../services/hrFeedbackService";
 
-const BRAND = "#4B98C8";
-const BRAND_DARK = "#205E85";
+const BRAND = "var(--color-ocean-461)";
+const BRAND_DARK = "var(--color-ocean-676)";
 
 const HRFeedbackModal = ({ open, onClose }) => {
   const [animate, setAnimate] = useState(false);
@@ -141,7 +141,7 @@ const HRFeedbackModal = ({ open, onClose }) => {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={`Write your ${type.toLowerCase()} here...`}
                 disabled={submitting}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all disabled:opacity-50 resize-none"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-xs font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-ocean-461/25 focus:border-ocean-461 transition-all disabled:opacity-50 resize-none"
               />
             </div>
 
@@ -152,7 +152,7 @@ const HRFeedbackModal = ({ open, onClose }) => {
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="w-4 h-4 text-[#4B98C8] bg-white border-slate-300 rounded focus:ring-[#4B98C8] dark:focus:ring-[#4B98C8] dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600 cursor-pointer"
+                  className="w-4 h-4 text-ocean-461 bg-white border-slate-300 rounded focus:ring-ocean-461 dark:focus:ring-ocean-461 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600 cursor-pointer"
                 />
               </div>
               <div className="text-sm">

@@ -52,9 +52,9 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
               <PanelSection title="Photos">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {photos.map((src, i) => (
-                    <button key={src} type="button" onClick={() => setPhoto(i)} className="group relative aspect-video overflow-hidden rounded-2xl bg-[#E2F0FA] dark:bg-[#16364C]" aria-label={`Open photo ${i + 1}`}>
+                    <button key={src} type="button" onClick={() => setPhoto(i)} className="group relative aspect-video overflow-hidden rounded-2xl bg-ocean-67 dark:bg-ocean-808" aria-label={`Open photo ${i + 1}`}>
                       <img src={src} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                      <span className="absolute inset-0 flex items-center justify-center bg-[#06121D]/30 opacity-0 transition-opacity group-hover:opacity-100"><FiMaximize2 className="h-5 w-5 text-white" aria-hidden="true" /></span>
+                      <span className="absolute inset-0 flex items-center justify-center bg-ocean-931/30 opacity-0 transition-opacity group-hover:opacity-100"><FiMaximize2 className="h-5 w-5 text-white" aria-hidden="true" /></span>
                     </button>
                   ))}
                 </div>
