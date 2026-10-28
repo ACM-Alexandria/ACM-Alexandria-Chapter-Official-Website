@@ -20,6 +20,7 @@ import {
   FiSend,
   FiLock,
   FiUnlock,
+  FiMessageSquare,
 } from "react-icons/fi";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import RowActions from "../SharedComponents/RowActions";
@@ -92,6 +93,7 @@ const ResourceRow = ({
   onQuestionsClick,
   onSocialsClick,
   onGalleryClick,
+  onFeedbackClick,
   onEpisodesClick,
   onAnnounceClick,
   onEmailsClick,
@@ -183,6 +185,7 @@ const ResourceRow = ({
       hidden: isHRMode || activeTab !== "programs",
     },
     { key: "gallery", label: "Event gallery", icon: FiImage, onClick: () => onGalleryClick(item), hidden: isHRMode || activeTab !== "events" },
+    { key: "feedback", label: "Event feedback", icon: FiMessageSquare, onClick: () => onFeedbackClick(item), hidden: activeTab !== "events" },
     { key: "socials", label: "Club social links", icon: FiShare2, onClick: () => onSocialsClick(item), hidden: isHRMode || activeTab !== "clubs" },
     { key: "episodes", label: "Season episodes", icon: FiVolume2, onClick: () => onEpisodesClick(item), hidden: isHRMode || activeTab !== "radio" },
     { key: "edit", label: "Edit", icon: FiEdit2, onClick: () => onEditClick(item), hidden: isHRMode },

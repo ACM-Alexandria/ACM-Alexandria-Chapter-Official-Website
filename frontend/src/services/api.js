@@ -71,8 +71,10 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/confirm-email") ||
       requestUrl.includes("/auth/resend-confirmation-email");
 
-    // If it's a 401 or 403 error and it's NOT a public auth endpoint, try to refresh
-    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint && !originalRequest._retry) {
+    // 401 = unauthenticated (expired/missing token). Do not treat 403 as logout:
+    // review endpoints return 403 when the user is logged in but not allowed
+    // (e.g. not a registered attendee, or not a review admin).
+    if (error.response?.status === 401 && !isAuthEndpoint && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -130,9 +132,6 @@ api.interceptors.response.use(
       }
     }
 
-    // A 401 that survives a token refresh means the session is really gone, so sign out.
-    // A 403 that survives a refresh is a genuine "not allowed" for this user: reject that
-    // one request and leave the session alone.
     if (error.response?.status === 401 && !isAuthEndpoint && window.location.pathname !== "/login") {
       await tokenService.clearAllTokens();
       window.dispatchEvent(new Event("auth:logout"));

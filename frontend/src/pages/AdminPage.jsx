@@ -13,6 +13,7 @@ import ResourceFormModal from "../components/AdminPage/ManagementSection/Resourc
 import ClubSocialsModal from "../components/AdminPage/ManagementSection/ClubSocialsModal";
 import EpisodesManagementModal from "../components/AdminPage/ManagementSection/EpisodesManagementModal";
 import EventGalleryModal from "../components/AdminPage/ManagementSection/EventGalleryModal";
+import EventFeedbackModal from "../components/AdminPage/ManagementSection/EventFeedbackModal";
 import OpenCallConfirmModal from "../components/AdminPage/ManagementSection/OpenCallConfirmModal";
 import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
@@ -102,6 +103,8 @@ const AdminPage = () => {
   // Event Gallery modal states
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [selectedEventForGallery, setSelectedEventForGallery] = useState(null);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [selectedEventForFeedback, setSelectedEventForFeedback] = useState(null);
 
   // Committee open-call confirm states
   const [openCallCommittee, setOpenCallCommittee] = useState(null);
@@ -590,6 +593,11 @@ const AdminPage = () => {
     setEpisodesModalOpen(true);
   };
 
+  const handleFeedbackClick = (event) => {
+    setSelectedEventForFeedback(event);
+    setFeedbackModalOpen(true);
+  };
+
   const toggleInFlight = useRef(false);
   const deleteInFlight = useRef(false);
 
@@ -973,6 +981,7 @@ const AdminPage = () => {
                     onQuestionsClick={(item) => dialogs.openQuestions(item, resourceTypeForTab(mgmtTab) ?? "committee")}
                     onSocialsClick={handleSocialsClick}
                     onGalleryClick={handleGalleryClick}
+                    onFeedbackClick={handleFeedbackClick}
                     onEpisodesClick={handleEpisodesClick}
                     onAnnounceClick={handleAnnounceClick}
                     announcingId={announcingId}
@@ -1020,6 +1029,12 @@ const AdminPage = () => {
               onClose={() => { setGalleryModalOpen(false); setSelectedEventForGallery(null); }}
               event={selectedEventForGallery}
               onSave={() => loadMgmtTabData(mgmtTab)}
+            />
+
+            <EventFeedbackModal
+              open={feedbackModalOpen}
+              onClose={() => { setFeedbackModalOpen(false); setSelectedEventForFeedback(null); }}
+              event={selectedEventForFeedback}
             />
 
 
