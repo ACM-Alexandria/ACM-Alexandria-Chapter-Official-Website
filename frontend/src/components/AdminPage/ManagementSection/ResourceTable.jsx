@@ -64,11 +64,11 @@ const getItemName = (tab, item) => {
   return item.name;
 };
 
-const mediaBase = "w-10 h-10 shrink-0 object-cover border border-slate-200 dark:border-slate-700";
+const mediaBase = "w-10 h-10 shrink-0 object-cover border border-slate-200 dark:border-ocean-745";
 
 const MediaIcon = ({ icon, round = false }) => (
   <div
-    className={`w-10 h-10 shrink-0 flex items-center justify-center bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] ${round ? "rounded-full" : "rounded-lg"}`}
+    className={`w-10 h-10 shrink-0 flex items-center justify-center bg-ocean-57 dark:bg-ocean-808 text-ocean-614 dark:text-ocean-316 ${round ? "rounded-full" : "rounded-lg"}`}
     aria-hidden="true"
   >
     {createElement(icon, { className: "w-5 h-5" })}
@@ -211,7 +211,7 @@ const ResourceRow = ({
             <button
               type="button"
               onClick={() => setDetailOpen(true)}
-              className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs"
+              className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40 @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs"
               title={name}
             >
               {name}
@@ -247,7 +247,7 @@ const ResourceRow = ({
                 disabled={loading}
                 className={`h-7 px-2.5 shrink-0 whitespace-nowrap rounded-lg border text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${open
                   ? "border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                  : "border-[#4B98C8]/40 text-[#2C6F99] dark:text-[#7DBBE0] hover:bg-[#4B98C8]/10"}`}
+                  : "border-ocean-461/40 text-ocean-614 dark:text-ocean-316 hover:bg-ocean-461/10"}`}
               >
                 {open ? "Close form" : "Open form"}
               </button>
@@ -264,7 +264,7 @@ const ResourceRow = ({
               href={linkUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex max-w-full items-center gap-1 text-sm text-[#2C6F99] dark:text-[#7DBBE0] hover:underline underline-offset-2"
+              className="inline-flex max-w-full items-center gap-1 text-sm text-ocean-614 dark:text-ocean-316 hover:underline underline-offset-2"
             >
               <span className="truncate">{linkUrl}</span>
               <FiExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
@@ -298,7 +298,7 @@ const ResourceRow = ({
             </button>
           }
         >
-          <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+          <dl className="divide-y divide-slate-200 dark:divide-ocean-800">
             {detailRows.map((row) => (
               <div key={row.label} className="py-3 grid grid-cols-1 sm:grid-cols-[9rem_1fr] gap-1 sm:gap-4">
                 <dt className="text-sm text-slate-600 dark:text-slate-400">{row.label}</dt>
@@ -321,11 +321,11 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
     return (
       <div className={`${panelClass} overflow-hidden`} aria-busy="true" aria-label="Loading">
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="px-5 py-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 last:border-b-0 animate-pulse motion-reduce:animate-none">
-            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div key={i} className="px-5 py-4 flex items-center gap-3 border-b border-slate-200 dark:border-ocean-800 last:border-b-0 animate-pulse motion-reduce:animate-none">
+            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-ocean-845" />
             <div className="space-y-2">
-              <div className="h-3.5 w-40 rounded bg-slate-200 dark:bg-slate-800" />
-              <div className="h-3 w-56 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="h-3.5 w-40 rounded bg-slate-200 dark:bg-ocean-845" />
+              <div className="h-3 w-56 max-w-full rounded bg-slate-200 dark:bg-ocean-845" />
             </div>
           </div>
         ))}
@@ -335,7 +335,7 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
 
   if (filteredItems.length === 0) {
     return (
-      <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+      <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-ocean-745">
         <p className="text-sm font-medium text-slate-900 dark:text-slate-100">No records found</p>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Try a different search, or add a new one.</p>
       </div>

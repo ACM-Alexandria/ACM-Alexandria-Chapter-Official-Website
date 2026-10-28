@@ -7,15 +7,15 @@
   max-width: 500px;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-black) 30%, transparent);
   animation: slideIn 0.3s ease-out;
   font-family: inherit;
 }
 
 .toast-error {
-  background-color: #dc3545;
+  background-color: var(--color-danger-500);
   color: white;
-  border-left: 4px solid #a71d2a;
+  border-left: 4px solid var(--color-danger-700);
 }
 
 .toast-content {

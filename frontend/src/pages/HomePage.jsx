@@ -1,363 +1,169 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { getEnv } from "../utils/env";
-import { useAuth } from "../contexts/AuthContext";
-import Navbar from "../components/HomePage/Navbar";
-import GreetingSection from "../components/HomePage/sections/GreetingSection";
-import AboutSection from "../components/HomePage/sections/AboutSection";
-import CommitteesSection from "../components/HomePage/sections/CommitteesSection";
-import ClubsSection from "../components/HomePage/sections/ClubsSection";
-import GallerySection from "../components/HomePage/sections/GallerySection";
-import EventsSection from "../components/HomePage/sections/EventsSection";
-import ProgramsSection from "../components/HomePage/sections/ProgramsSection";
-import RadioSection from "../components/HomePage/sections/RadioSection";
-import ServicesSection from "../components/HomePage/sections/ServicesSection";
-import PartnersSection from "../components/HomePage/sections/PartnersSection";
-import EventDetailsSidebar from "../components/HomePage/EventDetailsSidebar";
-import ClubDetailsSidebar from "../components/HomePage/ClubDetailsSidebar";
-import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
-import ExclusiveFormDetailsSidebar from "../components/HomePage/ExclusiveFormDetailsSidebar";
-import RegistrationModal from "../components/registration/RegistrationModal";
-import ActiveFormsSection from "../components/HomePage/sections/ActiveFormsSection";
-import Footer from "../components/HomePage/Footer";
-import { fetchHomePageData, fetchActiveExclusiveForms, fetchPartners } from "../services/homePageService";
 import { FiClock } from "react-icons/fi";
+import { useAuth } from "../contexts/useAuth";
+import { fetchActiveExclusiveForms, fetchPartners } from "../services/homePageService";
+import { useSmoothScroll } from "../hooks/useSmoothScroll";
+import IslandNav from "../components/Layout/IslandNav";
+import SiteFooter from "../components/Layout/SiteFooter";
+import HeroPharos from "../components/Home/scene/HeroPharos";
+import GallerySection from "../components/Home/sections/GallerySection";
+import ExclusiveFormsSection from "../components/Home/sections/ExclusiveFormsSection";
+import PeopleSection from "../components/Home/sections/PeopleSection";
+import EventsSection from "../components/Home/sections/EventsSection";
+import ProgramsSection from "../components/Home/sections/ProgramsSection";
+import RadioSection from "../components/Home/sections/RadioSection";
+import PartnersSection from "../components/Home/sections/PartnersSection";
+import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
+import ClubDetailsSidebar from "../components/details/ClubDetailsSidebar";
+import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
+import ExclusiveFormDetailsSidebar from "../components/details/ExclusiveFormDetailsSidebar";
+import RegistrationModal from "../components/registration/RegistrationModal";
+import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
 
+// The public home page: the hero and lighthouse scene, the gallery, the chapter's people, then events,
+// programs, and ACM Radio, with the exclusive forms and partners when there are any. A section without content
+// is left out. Design: docs/home-page-redesign/DESIGN.md.
 const HomePage = () => {
   const { isAuthenticated, user } = useAuth();
-  const [clubs, setClubs] = useState([]);
-  const [committee, setCommittee] = useState([]);
-  const [highBoard, setHighBoard] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [programs, setPrograms] = useState([]);
-  const [seasons, setSeasons] = useState([]);
-  const [activeForms, setActiveForms] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [data, setData] = useState(emptyHomeData);
+  const [loading, setLoading] = useState(true);
+  const [forms, setForms] = useState([]);
+  const [formsLoading, setFormsLoading] = useState(true);
   const [partners, setPartners] = useState([]);
   const [partnersLoading, setPartnersLoading] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [activeFormsLoading, setActiveFormsLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("greeting");
-  const [showFloatingButton, setShowFloatingButton] = useState(true);
-  const [selectedEventId, setSelectedEventId] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedClubId, setSelectedClubId] = useState(null);
-  const [isClubSidebarOpen, setIsClubSidebarOpen] = useState(false);
-  const [selectedProgramId, setSelectedProgramId] = useState(null);
-  const [isProgramSidebarOpen, setIsProgramSidebarOpen] = useState(false);
-  const [selectedCommitteeIdForReg, setSelectedCommitteeIdForReg] = useState(null);
-  const [isCommitteeRegOpen, setIsCommitteeRegOpen] = useState(false);
-  const [selectedExclusiveFormId, setSelectedExclusiveFormId] = useState(null);
-  const [isExclusiveFormSidebarOpen, setIsExclusiveFormSidebarOpen] = useState(false);
+  const [eventId, setEventId] = useState(null);
+  const [clubId, setClubId] = useState(null);
+  const [programId, setProgramId] = useState(null);
+  const [formId, setFormId] = useState(null);
+  const [committeeId, setCommitteeId] = useState(null);
+  const [panel, setPanel] = useState(null);
+  const [showFormsButton, setShowFormsButton] = useState(true);
+  useSmoothScroll(-88, !loading);
 
-  const handleApplyClick = (committeeId) => {
-    setSelectedCommitteeIdForReg(committeeId);
-    setIsCommitteeRegOpen(true);
-  };
-
-  const handleShowExclusiveFormDetails = (formId) => {
-    setSelectedExclusiveFormId(formId);
-    setIsExclusiveFormSidebarOpen(true);
-  };
-
-  const handleCloseExclusiveFormSidebar = () => {
-    setIsExclusiveFormSidebarOpen(false);
-  };
-
-  const handleShowEventDetails = (eventId) => {
-    setSelectedEventId(eventId);
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleShowClubDetails = (clubId) => {
-    setSelectedClubId(clubId);
-    setIsClubSidebarOpen(true);
-  };
-
-  const handleCloseClubSidebar = () => {
-    setIsClubSidebarOpen(false);
-  };
-
-  const handleShowProgramDetails = (programId) => {
-    setSelectedProgramId(programId);
-    setIsProgramSidebarOpen(true);
-  };
-
-  const handleCloseProgramSidebar = () => {
-    setIsProgramSidebarOpen(false);
-  };
-
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Automatically restores sidebar state if returning from dynamic login redirects (User Request)
-  useEffect(() => {
-    const openEventId = searchParams.get("openEventId");
-    const openClubId = searchParams.get("openClubId");
-    const openCommitteeId = searchParams.get("openCommitteeId");
-    const openProgramId = searchParams.get("openProgramId");
-    const openExclusiveFormId = searchParams.get("openExclusiveFormId");
-
-    if (openEventId) {
-      handleShowEventDetails(Number(openEventId));
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openEventId");
-      setSearchParams(newParams, { replace: true });
-    } else if (openClubId) {
-      handleShowClubDetails(Number(openClubId));
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openClubId");
-      setSearchParams(newParams, { replace: true });
-    } else if (openProgramId) {
-      handleShowProgramDetails(Number(openProgramId));
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openProgramId");
-      setSearchParams(newParams, { replace: true });
-    } else if (openCommitteeId) {
-      setSelectedCommitteeIdForReg(Number(openCommitteeId));
-      setIsCommitteeRegOpen(true);
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openCommitteeId");
-      setSearchParams(newParams, { replace: true });
-    } else if (openExclusiveFormId) {
-      handleShowExclusiveFormDetails(Number(openExclusiveFormId));
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openExclusiveFormId");
-      setSearchParams(newParams, { replace: true });
-    }
-  }, [searchParams]);
+  const openEvent = (id) => { setEventId(id); setPanel("event"); };
+  const openClub = (id) => { setClubId(id); setPanel("club"); };
+  const openProgram = (id) => { setProgramId(id); setPanel("program"); };
+  const openForm = (id) => { setFormId(id); setPanel("form"); };
+  const openApplication = (id) => { setCommitteeId(id); setPanel("apply"); };
+  const closePanel = () => setPanel(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchHomePageData();
-
-        setClubs(data.clubs || []);
-        setCommittee(data.committee || []);
-        setHighBoard(data.highBoard || []);
-        setEvents(data.events || []);
-        setPrograms(data.programs || []);
-        setSeasons(data.seasons || []);
-      } catch (err) {
-        console.error("Error loading home page data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
+    let active = true;
+    fetchHomeData()
+      .then((result) => { if (active) setData(result); })
+      .catch((err) => console.error("Error loading home page data:", err))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    const loadActiveForms = async () => {
-        if (!isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS"))) {
-            setActiveFormsLoading(false);
-            return;
-        }
-        try {
-            setActiveFormsLoading(true);
-            const forms = await fetchActiveExclusiveForms();
-            setActiveForms(forms || []);
-        } catch (err) {
-            console.error("Error loading active forms:", err);
-        } finally {
-            setActiveFormsLoading(false);
-        }
-    };
-    loadActiveForms();
+    let active = true;
+    fetchActiveExclusiveForms()
+      .then((result) => { if (active) setForms(result || []); })
+      .catch((err) => console.error("Error loading active forms:", err))
+      .finally(() => { if (active) setFormsLoading(false); });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    const loadPartners = async () => {
-      if (!isEnabled(getEnv("VITE_ENABLE_PARTNERS"))) {
-        setPartnersLoading(false);
-        return;
-      }
-      try {
-        setPartnersLoading(true);
-        const data = await fetchPartners();
-        setPartners(data || []);
-      } catch (err) {
-        console.error("Error loading partners:", err);
-      } finally {
-        setPartnersLoading(false);
-      }
-    };
-    loadPartners();
+    let active = true;
+    fetchPartners()
+      .then((result) => { if (active) setPartners(result || []); })
+      .catch((err) => console.error("Error loading partners:", err))
+      .finally(() => { if (active) setPartnersLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  // Initialize AOS animations
+  // Reopens the sidebar or application a visitor was on before a login redirect, then clears the parameter.
   useEffect(() => {
-    AOS.init({
-      disable: true,
-    });
-  }, []);
+    const targets = [
+      ["openEventId", (id) => { setEventId(id); setPanel("event"); }],
+      ["openClubId", (id) => { setClubId(id); setPanel("club"); }],
+      ["openProgramId", (id) => { setProgramId(id); setPanel("program"); }],
+      ["openCommitteeId", (id) => { setCommitteeId(id); setPanel("apply"); }],
+      ["openExclusiveFormId", (id) => { setFormId(id); setPanel("form"); }],
+    ];
+    const match = targets.find(([key]) => searchParams.get(key));
+    if (!match) return;
+    const [key, open] = match;
+    open(Number(searchParams.get(key)));
+    const next = new URLSearchParams(searchParams);
+    next.delete(key);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
-  // Track active section based on scroll position
   useEffect(() => {
-    let debounceTimer;
-
-    const handleScroll = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        setShowFloatingButton(window.scrollY < 300);
-
-        const sections = document.querySelectorAll("section[id], div[id]");
-        const navHeight = 100; // navbar height offset
-
-        let closestSection = "greeting";
-        let closestDistance = Infinity;
-
-        sections.forEach((section) => {
-          const rect = section.getBoundingClientRect();
-          // Check if top of section is near or above viewport center
-          const distance = Math.abs(rect.top - navHeight);
-
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestSection = section.id;
-          }
-        });
-
-        setActiveSection(closestSection);
-      }, 0); // Debounce every 50ms
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      clearTimeout(debounceTimer);
-    };
+    const onScroll = () => setShowFormsButton(window.scrollY < 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isEnabled = (envVal) => envVal !== "false";
-  const myCommitteeId =
-    isAuthenticated && ["ACM_MEMBER", "ACM_COMMITTEE_BOARD"].includes(user?.role)
-      ? user?.committeeId
-      : null;
+  const myCommitteeId = isAuthenticated && ["ACM_MEMBER", "ACM_COMMITTEE_BOARD"].includes(user?.role) ? user?.committeeId : null;
+  const { committees, clubs } = data;
+  // A section shows while loading and then only if it has something to show.
+  const has = (key) => loading || data[key].length > 0;
+  const links = [
+    ["#people", "People"],
+    has("events") && ["#events", "Events"],
+    has("programs") && ["#programs", "Programs"],
+    has("radio") && ["#radio", "Radio"],
+  ].filter(Boolean);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
-      <Navbar activeSection={activeSection} />
-      <main className="flex-1 pt-[74px]">
-        <GreetingSection />
-        {isEnabled(getEnv("VITE_ENABLE_ABOUT")) && (
-          <AboutSection 
-            loading={loading} 
-            highBoard={highBoard} 
-            activeFormsLoading={activeFormsLoading}
-            activeForms={activeForms}
-            onShowExclusiveFormDetails={handleShowExclusiveFormDetails}
-          />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_COMMITTEES")) && (
-          <CommitteesSection 
-            loading={loading}
-            committees={committee}
-            myCommitteeId={myCommitteeId}
-            onApplyClick={handleApplyClick}
-            isRegistrationModalOpen={isCommitteeRegOpen}
-          />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_CLUBS")) && (
-          <ClubsSection 
-            loading={loading}
-            clubs={clubs}
-            onShowClubDetails={handleShowClubDetails}
-          />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_GALLERY")) && (
-          <section id="gallery" className="w-full py-24 px-6 relative overflow-hidden bg-white dark:bg-slate-900">
-            <div className="max-w-7xl mx-auto relative z-10">
-              <GallerySection />
-            </div>
-          </section>
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_EVENTS")) && (
-          <EventsSection
-            loading={loading}
-            events={events}
-            onShowEventDetails={handleShowEventDetails}
-          />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_PROGRAMS")) && (
-          <ProgramsSection loading={loading} programs={programs} onShowProgramDetails={handleShowProgramDetails} />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_RADIO")) && (
-          <RadioSection loading={loading} seasons={seasons} />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_SERVICES")) && (
-          <ServicesSection />
-        )}
-        {isEnabled(getEnv("VITE_ENABLE_PARTNERS")) && (partnersLoading || partners.length > 0) && (
-          <PartnersSection loading={partnersLoading} partners={partners} />
-        )}
+    <div className="hp admin-ui min-h-screen bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100">
+      <IslandNav links={links} />
+
+      <HeroPharos committees={committees} clubs={clubs} stats={data.stats} signedIn={isAuthenticated} />
+
+      {data.gallery.length > 0 && <GallerySection images={data.gallery} />}
+
+      <main>
+        <ExclusiveFormsSection loading={formsLoading} forms={forms} onShowDetails={openForm} />
+
+        <PeopleSection
+          loading={loading}
+          highBoard={data.highBoard}
+          committees={committees}
+          clubs={clubs}
+          currentSeason={data.currentSeason}
+          myCommitteeId={myCommitteeId}
+          onApply={openApplication}
+          onShowClub={openClub}
+          isRegistrationModalOpen={panel === "apply"}
+        />
+
+        {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} onShowEvent={openEvent} />}
+
+        {has("programs") && <ProgramsSection loading={loading} programs={data.programs} count={data.counts.programs} onShowProgram={openProgram} />}
+
+        {has("radio") && <RadioSection loading={loading} seasons={data.radio} count={data.counts.radio} />}
+
+        {(partnersLoading || partners.length > 0) && <PartnersSection loading={partnersLoading} partners={partners} />}
       </main>
-      <Footer />
 
-      <EventDetailsSidebar
-        eventId={selectedEventId}
-        isOpen={isSidebarOpen}
-        onClose={handleCloseSidebar}
-      />
+      <SiteFooter social={data.social} links={links} showPartners={partners.length > 0} />
 
-      <ClubDetailsSidebar
-        clubId={selectedClubId}
-        isOpen={isClubSidebarOpen}
-        onClose={handleCloseClubSidebar}
-      />
-
-      <ProgramDetailsSidebar
-        programId={selectedProgramId}
-        isOpen={isProgramSidebarOpen}
-        onClose={handleCloseProgramSidebar}
-      />
-
+      <EventDetailsSidebar eventId={eventId} isOpen={panel === "event"} onClose={closePanel} />
+      <ClubDetailsSidebar clubId={clubId} isOpen={panel === "club"} onClose={closePanel} />
+      <ProgramDetailsSidebar programId={programId} isOpen={panel === "program"} onClose={closePanel} />
+      <ExclusiveFormDetailsSidebar formId={formId} isOpen={panel === "form"} onClose={closePanel} />
       <RegistrationModal
-        isOpen={isCommitteeRegOpen}
-        onClose={() => setIsCommitteeRegOpen(false)}
-        entityId={selectedCommitteeIdForReg}
+        isOpen={panel === "apply"}
+        onClose={closePanel}
+        entityId={committeeId}
         type="committee"
-        entityName={committee.find(c => c.id === selectedCommitteeIdForReg)?.name || ""}
+        entityName={data.committees.find((c) => c.id === committeeId)?.name || ""}
       />
 
-      <ExclusiveFormDetailsSidebar
-        formId={selectedExclusiveFormId}
-        isOpen={isExclusiveFormSidebarOpen}
-        onClose={handleCloseExclusiveFormSidebar}
-      />
-
-      {/* Floating Button for Exclusive Opportunities */}
-      {isEnabled(getEnv("VITE_ENABLE_EXCLUSIVE_FORMS")) && activeForms.length > 0 && (
-        <div
-          className={`fixed bottom-8 right-8 z-40 transition-all duration-500 transform ${
-            showFloatingButton ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
-          }`}
+      {forms.length > 0 && (
+        <a
+          href="#exclusive-forms"
+          className={`fixed bottom-6 right-6 z-30 inline-flex h-12 items-center gap-2 rounded-xl bg-ocean-676 px-5 text-sm font-semibold text-white shadow-[0_14px_40px_-12px_color-mix(in_srgb,var(--color-ocean-910)_60%,transparent)] transition-all duration-500 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 ${showFormsButton ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-16 opacity-0"}`}
         >
-          <button
-            onClick={() => {
-              const element = document.getElementById("exclusive-forms");
-              if (element) {
-                const navHeight = 73;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.scrollY - navHeight-10;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: "smooth"
-                });
-              }
-            }}
-            className="flex items-center gap-2 px-6 py-3 bg-[#205E85] hover:bg-[#4B98C8] text-white font-bold rounded-full shadow-lg shadow-[#205E85]/30 dark:shadow-slate-950/50 hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            <FiClock className="w-5 h-5 animate-pulse" />
-            Exclusive Opportunities
-          </button>
-        </div>
+          <FiClock className="h-4 w-4" aria-hidden="true" />Exclusive opportunities
+        </a>
       )}
     </div>
   );

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/HomePage/Navbar";
+import IslandNav from "../components/Layout/IslandNav";
+import { siteSections } from "../components/Layout/siteSections";
 import adminService from "../services/adminService";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import {
   fetchHighBoard,
   fetchSeasons,
@@ -853,8 +854,8 @@ const AdminPage = () => {
   const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards"].includes(mgmtTab);
 
   return (
-    <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
-      <Navbar activeSection="" />
+    <div className="min-h-screen bg-ocean-31 dark:bg-ocean-916 text-slate-800 dark:text-slate-100 font-sans">
+      <IslandNav links={siteSections} home={false} solid />
 
       <main className="admin-ui pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
         <AdminPageHeader
@@ -872,11 +873,11 @@ const AdminPage = () => {
                   title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
                   className={secondaryButtonClass}
                 >
-                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-[#4B98C8]" : "text-rose-600"}`} aria-hidden="true" />
+                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-ocean-461" : "text-rose-600"}`} aria-hidden="true" />
                   Site emails
                   <span
                     aria-hidden="true"
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-[#4B98C8]" : "bg-rose-500"}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-ocean-461" : "bg-rose-500"}`}
                   >
                     <span
                       className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${emailsEnabled ? "translate-x-4" : "translate-x-1"}`}
@@ -916,7 +917,7 @@ const AdminPage = () => {
               setSearchQuery={setMgmtSearchQuery}
             />
 
-            <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
+            <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
               <div>
                 {!hasOwnHeader && (
                   <ResourceToolbar

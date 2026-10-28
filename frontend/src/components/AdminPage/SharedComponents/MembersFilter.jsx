@@ -1,19 +1,6 @@
 import React from "react";
 import { EXPORT_PRESETS, ROLE_GROUPS, ROLE_OPTIONS } from "../../../constants/roles";
-
-export const COMMITTEE_SCOPED_ROLES = ROLE_OPTIONS
-    .filter((role) => role.scope === "committee")
-    .map((role) => role.value);
-export const CLUB_SCOPED_ROLES = ROLE_OPTIONS
-    .filter((role) => role.scope === "club")
-    .map((role) => role.value);
-export const DEFAULT_MEMBERS_ROLES = [...EXPORT_PRESETS[0].roles];
-
-export const buildMembersFilters = (roles, committeeIds, clubIds) => ({
-    roles,
-    committeeIds: roles.some((role) => COMMITTEE_SCOPED_ROLES.includes(role)) ? committeeIds : [],
-    clubIds: roles.some((role) => CLUB_SCOPED_ROLES.includes(role)) ? clubIds : [],
-});
+import { CLUB_SCOPED_ROLES, COMMITTEE_SCOPED_ROLES } from "./membersFilters";
 
 const toggleValue = (values, value) => values.includes(value)
     ? values.filter((item) => item !== value)
@@ -34,14 +21,14 @@ const SectionLabel = ({ children }) => (
 const CheckboxTile = ({ checked, onChange, label, hint }) => (
     <label
         className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all group/opt ${checked
-            ? "border-[#4B98C8] bg-[#4B98C8]/5 dark:bg-[#4B98C8]/10"
-            : "border-slate-200 dark:border-slate-700 hover:border-[#4B98C8]/50"
+            ? "border-ocean-461 bg-ocean-461/5 dark:bg-ocean-461/10"
+            : "border-slate-200 dark:border-ocean-745 hover:border-ocean-461/50"
             }`}
     >
         <div
             className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${checked
-                ? "bg-[#4B98C8] border-[#4B98C8]"
-                : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 group-hover/opt:border-[#4B98C8]/60"
+                ? "bg-ocean-461 border-ocean-461"
+                : "bg-white dark:bg-ocean-890 border-slate-300 dark:border-ocean-745 group-hover/opt:border-ocean-461/60"
                 }`}
         >
             {checked && (
@@ -64,8 +51,8 @@ const ToggleChip = ({ active, onClick, disabled = false, children }) => (
         onClick={onClick}
         disabled={disabled}
         className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all  disabled:cursor-not-allowed disabled: ${active
-            ? "bg-[#4B98C8] border-[#4B98C8] text-white"
-            : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:border-[#4B98C8]/50"
+            ? "bg-ocean-461 border-ocean-461 text-white"
+            : "bg-white dark:bg-ocean-845 border-slate-200 dark:border-ocean-745 text-slate-500 dark:text-slate-300 hover:border-ocean-461/50"
             }`}
     >
         {children}
@@ -187,7 +174,7 @@ const MembersFilter = ({
             />
 
             {showRecipientCount && (
-                <div aria-live="polite" className="border-t border-slate-200 pt-3 text-sm dark:border-slate-700">
+                <div aria-live="polite" className="border-t border-slate-200 pt-3 text-sm dark:border-ocean-745">
                     {previewLoading ? (
                         <span className="text-slate-500 dark:text-slate-400">Estimating recipients…</span>
                     ) : previewError ? (

@@ -1,227 +1,66 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/HomePage/Navbar";
-import Footer from "../components/HomePage/Footer";
-import ProgramCard from "../components/HomePage/cards/ProgramCard";
-import ProgramDetailsSidebar from "../components/HomePage/ProgramDetailsSidebar";
+import { useCallback, useState } from "react";
+import { FiAlertCircle, FiBookOpen } from "react-icons/fi";
+import SiteLayout from "../components/Layout/SiteLayout";
+import PageHero from "../components/Layout/PageHero";
+import MediaCard, { StateTag } from "../components/ui/MediaCard";
+import Pagination from "../components/ui/Pagination";
+import EmptyState from "../components/ui/EmptyState";
+import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
 import { fetchPrograms } from "../services/homePageService";
-import { FiChevronLeft, FiChevronRight, FiArrowLeft } from "react-icons/fi";
+import usePagedList from "../hooks/usePagedList";
+import useOpenFromQuery from "../hooks/useOpenFromQuery";
+import { eventDate, summary } from "../utils/format";
+import { skeleton } from "../components/ui/uiStyles";
 
+const span = (program) => {
+  if (!program.startDate) return program.time || "Schedule to be announced";
+  const start = eventDate(program.startDate);
+  const end = program.endDate ? eventDate(program.endDate) : null;
+  return end ? `${start.day} ${start.month} to ${end.day} ${end.month}` : `Starts ${start.day} ${start.month}`;
+};
+
+// The chapter's training programs. A card opens the program's details and registration.
 const ProgramsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [programsPage, setProgramsPage] = useState({ content: [], totalPages: 1, number: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedProgramId, setSelectedProgramId] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const urlPage = Number(searchParams.get("page") || 1);
-  const currentPage = Math.max(0, urlPage - 1);
-  const totalPages = programsPage.totalPages || 1;
-
-  const loadPrograms = useCallback(async (page = 0) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchPrograms(page);
-      setProgramsPage(data);
-    } catch (err) {
-      console.error("Failed to fetch programs:", err);
-      setError("Unable to load programs right now. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadPrograms(currentPage);
-  }, [loadPrograms, currentPage]);
-
-  // Handle openProgramId URL param (from login redirect)
-  useEffect(() => {
-    const openProgramId = searchParams.get("openProgramId");
-    if (openProgramId) {
-      setSelectedProgramId(Number(openProgramId));
-      setIsSidebarOpen(true);
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("openProgramId");
-      setSearchParams(newParams, { replace: true });
-    }
-  }, [searchParams]);
-
-  const handleShowDetails = (programId) => {
-    setSelectedProgramId(programId);
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handlePageChange = (pageIndex) => {
-    if (pageIndex === currentPage) return;
-    window.location.href = `/programs?page=${pageIndex + 1}`;
-  };
-
-  const filteredPrograms = programsPage.content || [];
+  const list = usePagedList(fetchPrograms, "We couldn't load the programs. Please try again later.");
+  const [programId, setProgramId] = useState(null);
+  const [open, setOpen] = useState(false);
+  const show = useCallback((id) => { setProgramId(id); setOpen(true); }, []);
+  useOpenFromQuery("openProgramId", show);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
-      <Navbar activeSection="" />
-
-      <main className="flex-1 pt-[74px]">
-        {/* Page Header */}
-        <div className="relative py-24 px-6 overflow-hidden bg-white dark:bg-slate-900">
-          {/* Back to Home Button */}
-          <div className="absolute top-6 left-6 z-20">
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 dark:hover:shadow-slate-950/40 transition-all duration-300 font-bold text-sm group"
-            >
-              <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Back to Home
-            </Link>
+    <SiteLayout>
+      <PageHero eyebrow="Programs" title="Longer tracks that build real skills" text="Programs meet every week and go deep on one topic. Register while a program is open." />
+      <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8 sm:py-20">
+        {list.loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }, (_, i) => <div key={i} className={`aspect-[4/5] rounded-3xl ${skeleton}`} />)}
           </div>
-
-          {/* Background Blobs */}
-          <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <h2
-              className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-4"
-              style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) both" }}
-            >
-              Our Programs
-            </h2>
-            <h1
-              className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]"
-              style={{ animation: "slideLeft 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
-            >
-              Advance Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Skills & Knowledge</span>
-            </h1>
-            <p
-              className="text-xl text-slate-500 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed"
-              style={{ animation: "fadeIn 1s ease 0.6s both" }}
-            >
-              Specialized academic and professional programs designed to take your computing knowledge to the next level.
-            </p>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-7xl mx-auto px-6 py-20">
-
-          {/* Error State */}
-          {error && !loading && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center text-red-500 dark:text-red-300 mb-6">
-                <span className="text-3xl">!</span>
-              </div>
-              <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">Something went wrong</p>
-              <p className="text-slate-400 dark:text-slate-300 text-sm mb-6">{error}</p>
-              <button
-                onClick={() => loadPrograms(currentPage)}
-                className="px-6 py-3 bg-[#4B98C8] text-white font-bold rounded-2xl hover:bg-[#205E85] transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* Loading Skeleton */}
-          {loading && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse flex flex-col lg:flex-row bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 overflow-hidden" style={{minHeight: '280px'}}>
-                  <div className="w-full h-56 lg:w-2/5 lg:h-auto bg-slate-200 dark:bg-slate-800 shrink-0" />
-                  <div className="flex-1 p-6 md:p-7 space-y-4">
-                    <div className="h-7 bg-slate-200 dark:bg-slate-800 rounded-full w-3/4" />
-                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-full" />
-                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-5/6" />
-                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-4/6" />
-                  </div>
-                </div>
+        ) : list.error ? (
+          <EmptyState icon={FiAlertCircle} tone="error" title="Something went wrong" text={list.error} />
+        ) : list.items.length === 0 ? (
+          <EmptyState icon={FiBookOpen} title="No programs right now" text="New programs are announced at the start of each term." />
+        ) : (
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {list.items.map((program, i) => (
+                <MediaCard
+                  key={program.id}
+                  index={i}
+                  image={program.imageUrl}
+                  meta={[span(program), program.startDate && program.time].filter(Boolean).join(" · ")}
+                  title={program.name}
+                  text={summary(program.description, 120)}
+                  tag={<StateTag open={program.registrationOpen} openLabel="Registration open" closedLabel="Registration closed" />}
+                  onClick={() => show(program.id)}
+                />
               ))}
             </div>
-          )}
-
-          {/* Programs Grid */}
-          {!loading && !error && (
-            <>
-              {filteredPrograms.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-500 mb-6 text-4xl font-black">
-                    P
-                  </div>
-                  <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">No programs found</p>
-                  <p className="text-slate-400 dark:text-slate-300 text-sm">
-                    Check back later for upcoming programs.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
-                  {filteredPrograms.map((program, index) => (
-                    <ProgramCard
-                      key={program.id}
-                      program={program}
-                      index={index}
-                      onShowDetails={handleShowDetails}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-4 mt-16">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 0}
-                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
-                  >
-                    <FiChevronLeft className="w-5 h-5" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i)}
-                        className={`w-10 h-10 rounded-xl text-sm font-extrabold transition-all ${
-                          i === currentPage
-                            ? "bg-[#4B98C8] text-white shadow-lg shadow-blue-200 dark:shadow-slate-950/50"
-                            : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-[#4B98C8] border border-slate-200 dark:border-slate-600"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages - 1}
-                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
-                  >
-                    <FiChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </main>
-
-      <Footer />
-
-      <ProgramDetailsSidebar
-        programId={selectedProgramId}
-        isOpen={isSidebarOpen}
-        onClose={handleCloseSidebar}
-      />
-    </div>
+            <Pagination page={list.page} totalPages={list.totalPages} onChange={list.setPage} />
+          </>
+        )}
+      </div>
+      <ProgramDetailsSidebar programId={programId} isOpen={open} onClose={() => setOpen(false)} />
+    </SiteLayout>
   );
 };
 

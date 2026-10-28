@@ -1,28 +1,25 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
 import acmLogo from "../../assets/logo/acm-logo-no-bg.png";
-import { ThemeToggleButton } from "../Layout/ThemeToggleButton";
+import NightSky from "../ui/NightSky";
+import { switchTheme } from "../../utils/themeTransition";
+
+const stars = Array.from({ length: 40 }, (_, i) => ({ x: (i * 41.3) % 100, y: (i * 23.7) % 70, size: i % 6 === 0 ? 2.5 : 1.5, delay: (i % 5) * 0.8 }));
 
 /**
- * Shared layout for all auth pages.
- * Pure Tailwind — no external CSS file.
+ * Shared layout for the auth pages, in the site's design: the night sky with the chapter's tagline on
+ * one side (from `md` up) and the form on the other.
  *
  * Props:
  *  - title        : string — form heading
  *  - subtitle     : string — small description below heading
- *  - panelTagline : node   — JSX tagline for the left panel
- *  - panelSub     : string — supporting text for the left panel
- *  - activeDot    : number — which bottom indicator dot is active (0-based)
+ *  - panelTagline : node   — the line on the night-sky panel
+ *  - panelSub     : string — supporting text on the night-sky panel
+ *  - isReversed   : bool   — put the night-sky panel on the right (sign up)
  *  - children     : node   — form content
  */
-const AuthLayout = ({
-  title,
-  subtitle,
-  panelTagline,
-  panelSub,
-  activeDot = 0,
-  isReversed = false,
-  children,
-}) => {
+const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = false, children }) => {
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) return savedTheme === "dark";
@@ -34,140 +31,49 @@ const AuthLayout = ({
   }, [isDark]);
 
   return (
-    <div key={isReversed ? "register" : "login"} className="min-h-screen w-full flex items-center justify-center px-4 py-12 bg-gray-50 dark:bg-slate-950 relative overflow-hidden">
-      <div className="fixed right-5 top-5 z-20">
-        <ThemeToggleButton
-          isDark={isDark}
-          onToggle={() => setIsDark((currentIsDark) => !currentIsDark)}
-        />
-      </div>
+    <div className={`hp admin-ui flex min-h-screen bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100 ${isReversed ? "flex-row-reverse" : ""}`}>
+      <aside aria-hidden="true" className="relative hidden w-[44%] shrink-0 overflow-hidden bg-[linear-gradient(180deg,#081826_0%,#06121D_45%,#0B2236_78%,#0F3A5A_100%)] md:block">
+        <div className="absolute inset-0">
+          {stars.map((s, i) => (
+            <span key={i} className="absolute rounded-full bg-ocean-102" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }} />
+          ))}
+        </div>
+        <NightSky />
+        <div className="relative z-10 flex h-full flex-col p-10 lg:p-12">
+          <Link to="/" tabIndex={-1} className="flex items-center gap-3 text-white">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white"><img src={acmLogo} alt="" className="h-8 w-8 object-contain" /></span>
+            <span className="text-base font-semibold">ACM Alexandria</span>
+          </Link>
+          <div className="my-auto max-w-sm pb-12">
+            <p className="text-3xl font-semibold leading-tight tracking-tight text-gold-100" style={{ animation: "hp-rise 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>{panelTagline}</p>
+            {panelSub && <p className="mt-4 text-base leading-relaxed text-ocean-114" style={{ animation: "hp-rise 0.7s ease-out 0.2s both" }}>{panelSub}</p>}
+          </div>
+        </div>
+      </aside>
 
-      {/* Subtle background blobs — site palette colours */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed -top-32 -left-28 w-[480px] h-[480px] rounded-full bg-[#4B98C8]/20 blur-3xl animate-[drift_18s_ease-in-out_infinite]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed -bottom-24 -right-24 w-[380px] h-[380px] rounded-full bg-[#205E85]/15 blur-3xl animate-[drift-r_22s_ease-in-out_infinite]"
-      />
-
-      {/* Card */}
-      <div
-        className={`
-          relative z-10 w-full max-w-[860px] flex ${isReversed ? "flex-row-reverse" : "flex-row"} rounded-2xl overflow-hidden
-          shadow-2xl shadow-slate-900/10 dark:shadow-black/50 border border-gray-200 dark:border-slate-700
-          animate-[${isReversed ? "cardSlideLeft" : "cardSlideRight"}_0.7s_cubic-bezier(0.22,1,0.36,1)_both]
-        `}
-      >
-
-        {/* ── Side decorative panel (left or right) ── */}
-        <aside
-          aria-hidden="true"
-          className="
-            hidden md:flex flex-col justify-between
-            w-[42%] shrink-0
-            bg-gradient-to-br from-[#4B98C8] to-[#205E85] dark:from-[#2D759E] dark:to-[#123B55]
-            px-10 py-10 relative overflow-hidden
-          "
-        >
-          {/* Grid texture */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.07) 1px,transparent 1px)",
-              backgroundSize: "36px 36px",
-            }}
-          />
-          {/* Soft radial glow */}
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_50%_at_30%_20%,rgba(255,255,255,0.12),transparent)]" />
-
-          {/* Logo */}
-          <div
-            className="relative z-10 flex items-center gap-3"
-            style={{ animation: `${isReversed ? "slideRight" : "slideLeft"} 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both` }}
-          >
-            <img src={acmLogo} alt="ACM Logo" className="h-11 w-auto" />
-            <div className="leading-tight">
-              <p className="text-white font-extrabold text-[15px] tracking-tight">ACM ALEXANDRIA</p>
-              <p className="text-blue-100/80 text-[10px] font-bold tracking-[0.12em] uppercase">Student Chapter</p>
+      <div className="flex min-h-screen flex-1 flex-col">
+        <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-8">
+          <Link to="/" className="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-ocean-676 dark:text-ocean-239 dark:hover:text-white">
+            <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <span className="md:hidden"><img src={acmLogo} alt="" className="mr-1 inline h-6 w-6 object-contain align-[-6px]" />ACM Alexandria</span>
+            <span className="hidden md:inline">Back to home</span>
+          </Link>
+          <button type="button" onClick={(event) => switchTheme(event, !isDark, () => setIsDark(!isDark))} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-ocean-239 dark:hover:bg-white/5">
+            {isDark ? <FiSun className="h-[18px] w-[18px]" aria-hidden="true" /> : <FiMoon className="h-[18px] w-[18px]" aria-hidden="true" />}
+          </button>
+        </header>
+        <main className="flex flex-1 items-center justify-center px-5 pb-12 sm:px-8">
+          <div className="w-full max-w-md">
+            <div className="mb-8" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) both" }}>
+              <h1 className="text-3xl font-semibold tracking-[-0.03em] text-slate-900 sm:text-4xl dark:text-white">{title}</h1>
+              {subtitle && <p className="mt-2 text-base leading-relaxed text-slate-600 dark:text-ocean-239">{subtitle}</p>}
             </div>
-          </div>
-
-          {/* Central copy */}
-          <div
-            className="relative z-10"
-            style={{ animation: `${isReversed ? "slideRight" : "slideLeft"} 0.7s cubic-bezier(0.22,1,0.36,1) 0.35s both` }}
-          >
-            <div className="text-white font-extrabold text-[1.85rem] leading-[1.2] tracking-tight mb-4">
-              {typeof panelTagline === 'string' ? (
-                panelTagline.split(' ').map((word, i) => (
-                  <span
-                    key={i}
-                    className="inline-block mr-[0.25em]"
-                    style={{
-                      animation: `revealWord 0.5s cubic-bezier(0.22,1,0.36,1) ${0.5 + i * 0.1}s both`
-                    }}
-                  >
-                    {word}
-                  </span>
-                ))
-              ) : (
-                panelTagline
-              )}
+            <div className="rounded-[2rem] bg-white p-6 shadow-[0_24px_60px_-32px_color-mix(in_srgb,var(--color-ocean-794)_35%,transparent)] ring-1 ring-ocean-106 sm:p-8 dark:bg-ocean-871 dark:ring-white/10" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) 0.08s both" }}>
+              {children}
             </div>
-            <p
-              className="text-blue-50/70 text-[15px] leading-relaxed font-medium"
-              style={{ animation: "fadeIn 0.8s ease 1.2s both" }}
-            >
-              {panelSub}
-            </p>
-          </div>
-
-          {/* Dots */}
-          <div
-            className="relative z-10 flex gap-1.5"
-            style={{ animation: `${isReversed ? "slideRight" : "slideLeft"} 0.7s cubic-bezier(0.22,1,0.36,1) 0.45s both` }}
-          >
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`rounded-full transition-all duration-300 ${
-                  i === activeDot
-                    ? "w-4 h-2 bg-white"
-                    : "w-2 h-2 bg-white/30"
-                }`}
-              />
-            ))}
-          </div>
-        </aside>
-
-        {/* ── Right form panel ── */}
-        <main className="flex-1 bg-white dark:bg-slate-900 px-8 py-10 sm:px-12 sm:py-14 flex flex-col justify-center">
-
-          {/* Mobile logo */}
-          <div className="md:hidden flex items-center gap-2.5 mb-8 animate-[floatIn_0.5s_cubic-bezier(0.22,1,0.36,1)_0.05s_both]">
-            <img src={acmLogo} alt="ACM Logo" className="h-9 w-auto" />
-            <div className="leading-tight">
-              <p className="text-slate-900 dark:text-slate-100 font-extrabold text-sm tracking-tight">ACM ALEXANDRIA</p>
-              <p className="text-slate-500 dark:text-slate-300 text-[9px] font-bold tracking-widest uppercase">Student Chapter</p>
-            </div>
-          </div>
-
-          {/* Heading */}
-          <div className="mb-9 animate-[floatIn_0.6s_cubic-bezier(0.22,1,0.36,1)_0.15s_both]">
-            <h1 className="text-[32px] font-extrabold text-slate-900 dark:text-slate-100 tracking-[-0.03em] mb-2 leading-tight">{title}</h1>
-            <p className="text-base text-slate-500 dark:text-slate-300 leading-relaxed font-medium">{subtitle}</p>
-          </div>
-
-          {/* Form */}
-          <div className="animate-[floatIn_0.6s_cubic-bezier(0.22,1,0.36,1)_0.25s_both]">
-            {children}
           </div>
         </main>
       </div>
-
     </div>
   );
 };

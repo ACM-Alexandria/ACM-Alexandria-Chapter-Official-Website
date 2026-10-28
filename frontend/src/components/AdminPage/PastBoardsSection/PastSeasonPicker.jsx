@@ -56,7 +56,7 @@ const PastSeasonPicker = ({ currentSeason, seasons, season, disabled, onSelect }
         <div className="min-w-0 sm:max-w-xs sm:flex-1">
           <label htmlFor={`${id}-season`} className={`mb-1.5 block ${labelClass}`}>Past season</label>
           <div className="relative">
-            <FiCalendar aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#2C6F99] dark:text-[#7DBBE0]" />
+            <FiCalendar aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ocean-614 dark:text-ocean-316" />
             <select
               id={`${id}-season`}
               disabled={disabled || !available.length}
@@ -100,7 +100,7 @@ const PastSeasonPicker = ({ currentSeason, seasons, season, disabled, onSelect }
             }
           }}
           noValidate
-          className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800"
+          className="mt-5 border-t border-slate-200 pt-5 dark:border-ocean-800"
         >
           <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Enter the season</h3>
           <p id={`${id}-hint`} className={`mt-1 ${hintClass}`}>

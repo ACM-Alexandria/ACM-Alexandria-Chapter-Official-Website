@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiArchive, FiCalendar, FiEdit2, FiPlus, FiRefreshCw, FiTrash2 } from "react-icons/fi";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/useAuth";
 import {
   fetchCurrentBoardSeason,
   fetchPastSeasons,
@@ -232,7 +232,7 @@ const PastBoardsTab = () => {
         </div>
       ) : loading ? (
         <p role="status" className="flex items-center justify-center gap-3 py-16 text-sm font-medium text-slate-600 dark:text-slate-400">
-          <SpinnerIcon aria-hidden="true" className="h-4 w-4 animate-spin text-[#4B98C8]" />Loading past boards…
+          <SpinnerIcon aria-hidden="true" className="h-4 w-4 animate-spin text-ocean-461" />Loading past boards…
         </p>
       ) : season ? (
         <>
@@ -261,7 +261,7 @@ const PastBoardsTab = () => {
           })}
         </>
       ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-700">
+        <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-ocean-745">
           <FiArchive aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-slate-400 dark:text-slate-500" />
           <p className="text-sm font-medium text-slate-800 dark:text-slate-200">No past boards yet</p>
           <p className={`mt-2 ${hintClass}`}>Choose “Add past season” above to start an earlier board.</p>

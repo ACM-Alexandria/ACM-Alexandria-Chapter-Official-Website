@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 import { 
   fetchEventQuestions, 
   fetchClubQuestions, 
@@ -22,13 +22,12 @@ import { uploadImage } from "../../services/adminService";
 import ProfileGatewayModal from "./ProfileGatewayModal";
 import SimpleConfirmModal from "./SimpleConfirmModal";
 import DynamicQuestionnaireModal from "./DynamicQuestionnaireModal";
+import Dialog from "../ui/Dialog";
+import { muted } from "../ui/uiStyles";
 
 const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
   const { user } = useAuth();
   
-  // Global overlay active & entry tracking (Fixes backdrop blur lag)
-  const [isVisible, setIsVisible] = useState(false);
-
   // Controller Loading / State flags
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,12 +50,9 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
   const [profileSubmitting, setProfileSubmitting] = useState(false);
   const [profileError, setProfileError] = useState(null);
 
-  // Manage opening effects, global scrolling freeze & visibility entries
+  // Start every opening from a clean form. The dialog itself locks page scrolling.
   useEffect(() => {
-    if (!isOpen) {
-      setIsVisible(false);
-      return;
-    }
+    if (!isOpen) return;
 
     setError(null);
     setSuccess(false);
@@ -70,20 +66,6 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
       batch: "",
       department: ""
     });
-
-    const frame = requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
-    
-    // Block external layout scrolling while modal dashboard is visible
-    const originalStyle = window.getComputedStyle(document.body).overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      cancelAnimationFrame(frame);
-      document.body.style.overflow = originalStyle;
-      setIsVisible(false);
-    };
   }, [isOpen]);
 
   // Orchestrator Data Loading Sequence
@@ -263,7 +245,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
           const result = await uploadImage(val);
           // API returns { url: "..." } so response.data is the object
           serializedAnswers[id] = typeof result === "string" ? result : result?.url || result?.imageUrl || String(result);
-        } catch (uploadErr) {
+        } catch {
           setSubmitting(false);
           setError("Failed to upload image. Please try again.");
           return;
@@ -300,33 +282,22 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
     }
   };
 
-  // Do not render anything if state is closed
   if (!isOpen) return null;
+  const busy = submitting || profileSubmitting || success;
+  const compact = loading || (!needsProfileUpdate && questions.length === 0);
 
-  // ================= DUAL ROUTING UI RENDER =================
+  // One dialog for the whole flow: profile check first if needed, then a plain confirmation or the questions.
   return (
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center px-4 sm:px-6 transition-all duration-300 ${
-      isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-    }`}>
-      
-      {/* Singular, Continuous Global Backdrop: Stays stable across state changes (NO MORE LAG/BLINK!) */}
-      <div 
-        className="absolute inset-0 bg-slate-900/60 dark:bg-black/75 transition-opacity" 
-        onClick={submitting || profileSubmitting || success ? undefined : onClose}
-      />
-
+    <Dialog open={isOpen} onClose={onClose} size={compact ? "sm" : "lg"} dismissable={!busy} labelledBy="registration-title" z="z-[80]">
       {loading ? (
-        /* Standard loading skeleton card (inherits parent visibility transitions) */
-        <div className={`relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 flex flex-col items-center space-y-4 shadow-2xl dark:shadow-black/60 border border-slate-100 dark:border-slate-700 transform transition-all duration-500 ${
-          isVisible ? "translate-y-0 scale-100" : "translate-y-12 scale-95 opacity-0"
-        }`}>
-          <div className="w-12 h-12 border-4 border-blue-100 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin" />
-          <span className="text-sm font-bold text-slate-600 dark:text-slate-200 tracking-wide animate-pulse">Initializing Session...</span>
+        <div className="flex flex-col items-center gap-4 px-8 py-14 text-center">
+          <span className="h-10 w-10 animate-spin rounded-full border-4 border-ocean-67 border-t-ocean-461 dark:border-ocean-808" aria-hidden="true" />
+          <p id="registration-title" className={`text-sm font-semibold ${muted}`}>Getting your form ready…</p>
         </div>
       ) : needsProfileUpdate ? (
         <ProfileGatewayModal
-          isVisible={isVisible}
           onClose={onClose}
+          type={type}
           entityName={entityName}
           profileForm={profileForm}
           onInputChange={handleProfileInputChange}
@@ -337,7 +308,6 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         />
       ) : questions.length === 0 ? (
         <SimpleConfirmModal
-          isVisible={isVisible}
           onClose={onClose}
           type={type}
           entityName={entityName}
@@ -348,7 +318,6 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
         />
       ) : (
         <DynamicQuestionnaireModal
-          isVisible={isVisible}
           onClose={onClose}
           type={type}
           entityName={entityName}
@@ -361,7 +330,7 @@ const RegistrationModal = ({ isOpen, onClose, entityId, type, entityName }) => {
           success={success}
         />
       )}
-    </div>
+    </Dialog>
   );
 };
 

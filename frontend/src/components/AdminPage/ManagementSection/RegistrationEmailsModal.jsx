@@ -92,11 +92,11 @@ const RegistrationEmailsModal = ({ open, onClose, resource, resourceType }) => {
       >
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12" role="status">
-            <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin motion-reduce:animate-none mb-3" />
+            <div className="w-8 h-8 border-4 border-slate-200 dark:border-ocean-745 border-t-ocean-461 rounded-full animate-spin motion-reduce:animate-none mb-3" />
             <p className="text-sm text-slate-600 dark:text-slate-400">Loading email settings…</p>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/40">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border border-slate-200 dark:border-ocean-745 bg-slate-50 dark:bg-ocean-916/60">
             <div className="min-w-0">
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{label} announcement</p>
               <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">

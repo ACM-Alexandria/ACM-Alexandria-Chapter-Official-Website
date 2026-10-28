@@ -1,173 +1,42 @@
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/HomePage/Navbar";
-import Footer from "../components/HomePage/Footer";
-import SeasonCard from "../components/HomePage/cards/SeasonCard";
+import { FiAlertCircle, FiMic } from "react-icons/fi";
+import SiteLayout from "../components/Layout/SiteLayout";
+import PageHero from "../components/Layout/PageHero";
+import MediaCard from "../components/ui/MediaCard";
+import Pagination from "../components/ui/Pagination";
+import EmptyState from "../components/ui/EmptyState";
 import { fetchSeasons } from "../services/homePageService";
-import { FiChevronLeft, FiChevronRight, FiMic, FiArrowLeft } from "react-icons/fi";
-import { useState, useEffect, useCallback } from "react";
+import usePagedList from "../hooks/usePagedList";
+import { skeleton } from "../components/ui/uiStyles";
 
+// Every season of ACM Radio; a season opens its episodes.
 const RadioPage = () => {
-  const [searchParams] = useSearchParams();
-  const [seasonsPage, setSeasonsPage] = useState({ content: [], totalPages: 1, number: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const urlPage = Number(searchParams.get("page") || 1);
-  const currentPage = Math.max(0, urlPage - 1);
-  const totalPages = seasonsPage.totalPages || 1;
-
-  const loadSeasons = useCallback(async (page = 0) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchSeasons(page);
-      setSeasonsPage(data);
-    } catch (err) {
-      console.error("Failed to fetch seasons:", err);
-      setError("Unable to load radio seasons right now. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadSeasons(currentPage);
-  }, [loadSeasons, currentPage]);
-
-  const handlePageChange = (pageIndex) => {
-    if (pageIndex === currentPage) return;
-    window.location.href = `/radio?page=${pageIndex + 1}`;
-  };
-
-  const seasonsList = seasonsPage.content || [];
+  const list = usePagedList(fetchSeasons, "We couldn't load ACM Radio. Please try again later.");
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
-      <Navbar activeSection="" />
-
-      <main className="flex-1 pt-[74px]">
-        {/* Page Header */}
-        <div className="relative py-24 px-6 overflow-hidden bg-white dark:bg-slate-900">
-          {/* Back to Home Button */}
-          <div className="absolute top-6 left-6 z-20">
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8]/30 hover:bg-[#4B98C8]/5 hover:shadow-lg hover:shadow-blue-50 dark:hover:shadow-slate-950/40 transition-all duration-300 font-bold text-sm group"
-            >
-              <FiArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Back to Home
-            </Link>
+    <SiteLayout>
+      <PageHero eyebrow="ACM Radio" title="Conversations about tech and student life" text="Members, guests, and alumni on tech and student life. Pick a season to see its episodes." />
+      <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-8 sm:py-20">
+        {list.loading ? (
+          <div className="grid grid-cols-2 gap-5 sm:gap-6 lg:grid-cols-4">
+            {Array.from({ length: 4 }, (_, i) => <div key={i} className={`aspect-[4/5] rounded-3xl ${skeleton}`} />)}
           </div>
-
-          {/* Background Blobs */}
-          <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#4B98C8]/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-[#205E85]/5 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <h2 className="text-lg font-bold text-[#4B98C8] uppercase tracking-[0.2em] mb-4">
-              ACM Podcast
-            </h2>
-            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mb-8 leading-[1.1]">
-              Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4B98C8] to-[#205E85]">Radio Seasons</span>
-            </h1>
-            <p className="text-xl text-slate-500 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
-              Listen to episodes containing deep-dive technical insights, career guidance, and academic reviews hosted by ACM Alexandria.
-            </p>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          {/* Error State */}
-          {error && !loading && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center text-red-500 dark:text-red-300 mb-6 font-bold text-3xl">
-                !
-              </div>
-              <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">Something went wrong</p>
-              <p className="text-slate-400 dark:text-slate-300 text-sm mb-6">{error}</p>
-              <button
-                onClick={() => loadSeasons(currentPage)}
-                className="px-6 py-3 bg-[#4B98C8] text-white font-bold rounded-2xl hover:bg-[#205E85] transition-colors"
-              >
-                Try Again
-              </button>
+        ) : list.error ? (
+          <EmptyState icon={FiAlertCircle} tone="error" title="Something went wrong" text={list.error} />
+        ) : list.items.length === 0 ? (
+          <EmptyState icon={FiMic} title="No seasons yet" text="The first season of ACM Radio is on its way." />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-5 sm:gap-6 lg:grid-cols-4">
+              {list.items.map((season, i) => {
+                const count = season.episodes?.length || 0;
+                return <MediaCard key={season.id} index={i} square image={season.imageUrl} meta={`${count} ${count === 1 ? "episode" : "episodes"}`} title={`Season ${season.seasonNumber}`} to={`/radio/seasons/${season.id}`} />;
+              })}
             </div>
-          )}
-
-          {/* Loading Skeleton */}
-          {loading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 overflow-hidden h-96" />
-              ))}
-            </div>
-          )}
-
-          {/* Seasons Grid */}
-          {!loading && !error && (
-            <>
-              {seasonsList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-500 mb-6">
-                    <FiMic className="w-10 h-10" />
-                  </div>
-                  <p className="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">No seasons found</p>
-                  <p className="text-slate-400 dark:text-slate-300 text-sm">
-                    Our podcast radio is currently in production. Stay tuned!
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-                  {seasonsList.map((season, index) => (
-                    <SeasonCard key={season.id} season={season} index={index} />
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-4 mt-16">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 0}
-                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
-                  >
-                    <FiChevronLeft className="w-5 h-5" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i)}
-                        className={`w-10 h-10 rounded-xl text-sm font-extrabold transition-all ${
-                          i === currentPage
-                            ? "bg-[#4B98C8] text-white shadow-lg shadow-blue-200 dark:shadow-slate-950/50"
-                            : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-[#4B98C8] border border-slate-200 dark:border-slate-600"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages - 1}
-                    className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 hover:text-[#4B98C8] hover:border-[#4B98C8] disabled:opacity-40 rounded-2xl transition-all shadow-sm dark:shadow-slate-950/40 active:scale-95"
-                  >
-                    <FiChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+            <Pagination page={list.page} totalPages={list.totalPages} onChange={list.setPage} />
+          </>
+        )}
+      </div>
+    </SiteLayout>
   );
 };
 

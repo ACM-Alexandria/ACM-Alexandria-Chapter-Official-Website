@@ -4,7 +4,7 @@ import { confirmEmail, resendConfirmationEmail } from "../services/authService";
 import { validateEmail } from "../utils/validation";
 import AuthLayout from "../components/auth/AuthLayout";
 import InputField from "../components/auth/InputField";
-import { ErrorCircleIcon, EnvelopeIcon } from "../components/icons";
+import { ErrorCircleIcon, EnvelopeIcon } from "../components/icons/index";
 
 const EmailConfirmationPage = () => {
   const { token } = useParams();
@@ -117,10 +117,10 @@ const EmailConfirmationPage = () => {
         <div className="py-10 flex flex-col items-center justify-center gap-4 text-center">
           <span
             aria-hidden="true"
-            className="w-10 h-10 rounded-full border-4 border-[#4B98C8]/30 border-t-[#205E85] shrink-0"
+            className="w-10 h-10 rounded-full border-4 border-ocean-461/30 border-t-ocean-676 shrink-0"
             style={{ animation: "spin 0.8s linear infinite" }}
           />
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
             Validating confirmation token...
           </p>
         </div>
@@ -133,15 +133,15 @@ const EmailConfirmationPage = () => {
           style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <div
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+            className="w-16 h-16 rounded-full bg-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
             style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
           >
             ✓
           </div>
-          <h2 className="text-xl font-extrabold text-gray-800 dark:text-gray-100 mb-2 tracking-tight">
+          <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">
             Account Activated!
           </h2>
-          <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-6">
+          <p className="text-slate-500 dark:text-slate-300 text-sm leading-relaxed mb-6">
             Your email has been successfully confirmed.
             <br />
             You can now sign in with your account credentials.
@@ -150,10 +150,10 @@ const EmailConfirmationPage = () => {
           <Link
             to="/login"
             className="
-              inline-block w-full py-3 px-6 text-center
-              bg-gradient-to-r from-[#4B98C8] to-[#205E85]
-              text-white font-bold text-sm rounded-xl shadow-md
-              hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300
+              flex w-full h-12 items-center justify-center px-6 text-center
+              bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
+              text-white font-semibold text-sm rounded-xl 
+               transition-all duration-300
             "
           >
             Sign In Now
@@ -176,10 +176,10 @@ const EmailConfirmationPage = () => {
             <Link
               to="/login"
               className="
-                inline-block w-full py-3 px-6 text-center
-                bg-gradient-to-r from-[#4B98C8] to-[#205E85]
-                text-white font-bold text-sm rounded-xl shadow-md
-                hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300
+                flex w-full h-12 items-center justify-center px-6 text-center
+                bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
+                text-white font-semibold text-sm rounded-xl 
+                 transition-all duration-300
               "
             >
               Sign In
@@ -193,7 +193,7 @@ const EmailConfirmationPage = () => {
             </div>
           ) : (
             <form onSubmit={handleResend} noValidate className="space-y-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Need a new confirmation link? Enter your email address below:
               </p>
 
@@ -217,11 +217,11 @@ const EmailConfirmationPage = () => {
                 type="submit"
                 disabled={resendLoading}
                 className={`
-                  relative w-full py-3 px-6 flex items-center justify-center gap-2
-                  bg-gradient-to-r from-[#4B98C8] to-[#205E85]
-                  text-white font-bold text-sm rounded-xl
-                  shadow-md overflow-hidden transition-all duration-300
-                  ${resendLoading ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-lg"}
+                  relative w-full h-12 px-6 flex items-center justify-center gap-2
+                  bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
+                  text-white font-semibold text-sm rounded-xl
+                   overflow-hidden transition-all duration-300
+                  ${resendLoading ? "opacity-70 cursor-not-allowed" : ""}
                 `}
               >
                 {resendLoading ? "Sending..." : "Resend Confirmation Link"}
@@ -232,13 +232,13 @@ const EmailConfirmationPage = () => {
           <div className="pt-2 flex flex-col items-center gap-2.5 text-center">
             <Link
               to="/login"
-              className="text-sm font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors"
+              className="text-sm font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors"
             >
               Back to Sign In
             </Link>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />
