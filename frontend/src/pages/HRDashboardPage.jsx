@@ -135,7 +135,7 @@ const HRDashboardPage = () => {
                             isHRMode={HRMode}
                         />
 
-                        <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px]">
+                        <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] p-4 sm:p-6 min-h-[500px]">
                             {activeResourceTab !== 'users' && (
                                 <ResourceToolbar
                                     title={activeSection?.label || 'Resources'}

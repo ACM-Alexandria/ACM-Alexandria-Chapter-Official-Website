@@ -16,10 +16,10 @@ const POINTS_COLORS = ["#1D9E75", "#E24B4A"];
 const STATUS_TONES = {
   success: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-900",
   danger: "bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-900",
-  neutral: "bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700",
+  neutral: "bg-slate-50 dark:bg-[#15273A] text-slate-800 dark:text-slate-200 border-slate-200 dark:border-[#28405A]",
 };
 
-const cardClass = "rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
+const cardClass = "rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29]";
 
 const Tile = ({ kpi, tone, index }) => (
   <div className={`${tone.tile} rounded-2xl p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>
@@ -42,7 +42,7 @@ const RankList = ({ ranking, index }) => {
         <ol className="flex flex-col gap-3">
           {ranking.items.map((item, i) => (
             <li key={`${item.label}-${i}`} className="flex items-center gap-3">
-              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+              <span className="w-6 h-6 shrink-0 inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-[#15273A] text-xs font-semibold tabular-nums text-slate-700 dark:text-slate-300">
                 {i + 1}
               </span>
               <span className="min-w-0 flex-1 flex flex-col gap-1">
@@ -53,7 +53,7 @@ const RankList = ({ ranking, index }) => {
                   </span>
                   <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100"><AnimatedNumber value={item.value} /></span>
                 </span>
-                <span className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden" aria-hidden="true">
+                <span className="h-1.5 rounded-full bg-slate-100 dark:bg-[#15273A] overflow-hidden" aria-hidden="true">
                   <span
                     className="block h-full rounded-full bg-[#4B98C8] insights-bar-x"
                     style={{ width: `${(item.value / max) * 100}%`, animationDelay: `${350 + i * 50}ms` }}

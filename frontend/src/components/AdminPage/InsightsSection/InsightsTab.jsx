@@ -24,7 +24,7 @@ const SECTION_TABS = [
 ];
 
 const Skeleton = ({ className }) => (
-  <div className={`rounded-2xl bg-slate-100 dark:bg-slate-800/60 animate-pulse motion-reduce:animate-none ${className}`} />
+  <div className={`rounded-2xl bg-slate-100 dark:bg-[#15273A]/60 animate-pulse motion-reduce:animate-none ${className}`} />
 );
 
 const ErrorNotice = ({ message, onRetry }) => (
@@ -74,7 +74,7 @@ const InsightsTab = () => {
                   className={`h-8 min-w-[2.75rem] px-2.5 rounded-lg border text-sm font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50 ${
                     active
                       ? "border-[#4B98C8] text-[#2C6F99] dark:text-[#7DBBE0] bg-[#4B98C8]/10"
-                      : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                      : "border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   {p.label}
@@ -87,7 +87,7 @@ const InsightsTab = () => {
             onClick={refresh}
             aria-label="Refresh insights"
             title="Refresh"
-            className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50"
+            className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#15273A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50"
           >
             <FiRefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin motion-reduce:animate-none" : ""}`} aria-hidden="true" />
           </button>
@@ -140,7 +140,7 @@ const InsightsTab = () => {
                 aria-selected={active}
                 onClick={() => setSection(tab.id)}
                 className={`h-9 px-3.5 whitespace-nowrap rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/50 ${
-                  active ? "bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0]" : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100"
+                  active ? "bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0]" : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-[#0F1C29] hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
               >
                 {tab.label}

@@ -29,7 +29,7 @@ export const ProfileAvatar = ({ profile, email, size = "lg" }) => {
       <img
         src={profile.profileImageUrl}
         alt=""
-        className={`${sizeClass} rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0`}
+        className={`${sizeClass} rounded-full object-cover border border-slate-200 dark:border-[#28405A] shrink-0`}
       />
     );
   }
@@ -52,7 +52,7 @@ const Tag = ({ children }) => (
 );
 
 export const ProfileHeader = ({ user, profile, actions }) => (
-  <header className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+  <header className="rounded-xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] overflow-hidden">
     {/* Cover: soft brand tint with the chapter logo as a watermark */}
     <div className="relative h-24 sm:h-28 overflow-hidden bg-[#E8F2F9] dark:bg-[#16364C] border-b border-[#4B98C8]/15">
       <img
@@ -94,7 +94,7 @@ export const ProfileHeader = ({ user, profile, actions }) => (
 
 const DetailTile = ({ icon, label, children }) => (
   <div
-    className={`flex items-start gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-4`}
+    className={`flex items-start gap-3 rounded-lg border border-slate-200 dark:border-[#1E3248] bg-slate-50/60 dark:bg-[#0B1520]/60 p-4`}
   >
     <span className="w-10 h-10 shrink-0 rounded-lg bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0] flex items-center justify-center">
       {createElement(icon, { className: "w-5 h-5", "aria-hidden": true })}
@@ -165,9 +165,9 @@ export const ProfileDetails = ({ profile }) => {
 };
 
 export const Panel = ({ title, aside, children }) => (
-  <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+  <section className="rounded-xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] overflow-hidden">
     {(title || aside) && (
-      <div className="px-5 py-4 flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="px-5 py-4 flex items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1E3248]">
         <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
         {aside}
       </div>

@@ -3,7 +3,7 @@ import { TbCheck, TbLink, TbLinkOff, TbX } from "react-icons/tb";
 
 const ICON = { size: 18 };
 const buttonClass =
-    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700";
+    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-[#1E3248]";
 
 const IconButton = ({ title, active = false, onClick, children }) => (
     <button
@@ -69,13 +69,13 @@ const LinkEditor = ({ editor, active }) => {
 
     return (
         <>
-            <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-slate-700">
+            <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-[#28405A]">
                 <IconButton title="Add or edit link" active={active || open} onClick={toggle}>
                     <TbLink {...ICON} />
                 </IconButton>
             </div>
             {open && (
-                <div className="flex w-full flex-col gap-1 border-t border-slate-200 pt-1.5 dark:border-slate-700">
+                <div className="flex w-full flex-col gap-1 border-t border-slate-200 pt-1.5 dark:border-[#28405A]">
                     <div className="flex items-center gap-1.5">
                         <div className="relative flex-1">
                             <TbLink size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -99,7 +99,7 @@ const LinkEditor = ({ editor, active }) => {
                                         close();
                                     }
                                 }}
-                                className={`h-8 w-full rounded border bg-white pl-8 pr-2 text-xs text-slate-700 outline-none dark:bg-slate-800 dark:text-slate-200 ${error
+                                className={`h-8 w-full rounded border bg-white pl-8 pr-2 text-xs text-slate-700 outline-none dark:bg-[#15273A] dark:text-slate-200 ${error
                                     ? "border-red-400 focus:border-red-500"
                                     : "border-slate-200 focus:border-[#4B98C8] dark:border-slate-600"
                                     }`}

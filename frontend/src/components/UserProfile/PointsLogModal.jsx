@@ -45,7 +45,7 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
   };
 
   const fieldClass =
-    "w-full h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
+    "w-full h-10 px-3 bg-white dark:bg-[#0B1520] border border-slate-300 dark:border-[#28405A] rounded-md outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
 
   const negative = Number(points) < 0;
 
@@ -59,10 +59,10 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="points-dialog-title"
-        className="w-full max-w-lg rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none"
+        className="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] shadow-xl overflow-hidden animate-[scaleIn_0.2s_ease-out] motion-reduce:animate-none"
       >
         {/* Header */}
-        <div className="px-5 py-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="px-5 py-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-[#1E3248]">
           <div className="min-w-0">
             <h3 id="points-dialog-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">
               {editingLog ? "Edit points" : "Add points"}
@@ -76,7 +76,7 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
             onClick={onClose}
             aria-label="Close"
             title="Close"
-            className="-mr-1.5 -mt-1 w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="-mr-1.5 -mt-1 w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#15273A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
           >
             <HiX className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -131,19 +131,19 @@ const PointsLogForm = ({ onClose, onSubmit, editingLog, memberName }) => {
           </div>
 
           {/* Actions */}
-          <div className="px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+          <div className="px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-[#1E3248] bg-slate-50 dark:bg-[#0F1C29]/60">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              className="h-9 px-4 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#0F1C29] border border-slate-300 dark:border-[#28405A] hover:bg-slate-50 dark:hover:bg-[#15273A] transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="h-9 px-4 rounded-md text-sm font-medium text-white bg-[#4B98C8] hover:bg-[#3d7da6] transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
+              className="h-9 px-4 rounded-md text-sm font-medium text-white bg-[#4B98C8] hover:bg-[#3d7da6] transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-[#0F1C29]"
             >
               {isSubmitting && (
                 <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin motion-reduce:animate-none" aria-hidden="true" />

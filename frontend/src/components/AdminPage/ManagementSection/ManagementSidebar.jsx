@@ -45,7 +45,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
           onClick={() => setPickerOpen((open) => !open)}
           aria-haspopup="listbox"
           aria-expanded={pickerOpen}
-          className="w-full h-11 px-3 flex items-center justify-between gap-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+          className="w-full h-11 px-3 flex items-center justify-between gap-3 rounded-lg border border-slate-300 dark:border-[#28405A] bg-white dark:bg-[#0F1C29] text-slate-900 dark:text-slate-100 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
         >
           <span className="flex items-center gap-2.5 min-w-0">
             {CurrentIcon && <CurrentIcon className="w-4 h-4 shrink-0 text-[#2C6F99] dark:text-[#7DBBE0]" aria-hidden="true" />}
@@ -58,7 +58,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
           <ul
             role="listbox"
             aria-label="Resources"
-            className="absolute z-30 left-0 right-0 mt-1.5 max-h-[60vh] overflow-y-auto overscroll-contain rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg py-1"
+            className="absolute z-30 left-0 right-0 mt-1.5 max-h-[60vh] overflow-y-auto overscroll-contain rounded-lg border border-slate-200 dark:border-[#28405A] bg-white dark:bg-[#0F1C29] shadow-lg py-1"
           >
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -68,7 +68,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
                   <button
                     type="button"
                     onClick={() => select(tab.id)}
-                    className={`w-full min-h-[2.75rem] px-3 flex items-center gap-2.5 text-left text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${selected ? "text-[#2C6F99] dark:text-[#7DBBE0]" : "text-slate-800 dark:text-slate-200"}`}
+                    className={`w-full min-h-[2.75rem] px-3 flex items-center gap-2.5 text-left text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-[#15273A] ${selected ? "text-[#2C6F99] dark:text-[#7DBBE0]" : "text-slate-800 dark:text-slate-200"}`}
                   >
                     {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
                     <span className="flex-1 truncate">{tab.label}</span>
@@ -82,7 +82,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
       </div>
 
       {/* Desktop: vertical list */}
-      <ul className="hidden lg:flex flex-col gap-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2">
+      <ul className="hidden lg:flex flex-col gap-1 rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-white dark:bg-[#0F1C29] p-2">
         {visibleTabs.map((tab) => {
           const Icon = tab.icon;
           const selected = tab.id === current?.id;
@@ -94,7 +94,7 @@ const ManagementSidebar = ({ activeTab, setActiveTab, tabs, setSearchQuery, isHR
                 aria-current={selected ? "page" : undefined}
                 className={`w-full h-10 px-3 flex items-center gap-3 rounded-lg text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 ${selected
                   ? "bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0]"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#15273A]"}`}
               >
                 {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
                 <span className="truncate">{tab.label}</span>

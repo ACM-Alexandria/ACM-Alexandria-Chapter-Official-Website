@@ -64,7 +64,7 @@ const getItemName = (tab, item) => {
   return item.name;
 };
 
-const mediaBase = "w-10 h-10 shrink-0 object-cover border border-slate-200 dark:border-slate-700";
+const mediaBase = "w-10 h-10 shrink-0 object-cover border border-slate-200 dark:border-[#28405A]";
 
 const MediaIcon = ({ icon, round = false }) => (
   <div
@@ -298,7 +298,7 @@ const ResourceRow = ({
             </button>
           }
         >
-          <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+          <dl className="divide-y divide-slate-200 dark:divide-[#1E3248]">
             {detailRows.map((row) => (
               <div key={row.label} className="py-3 grid grid-cols-1 sm:grid-cols-[9rem_1fr] gap-1 sm:gap-4">
                 <dt className="text-sm text-slate-600 dark:text-slate-400">{row.label}</dt>
@@ -321,11 +321,11 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
     return (
       <div className={`${panelClass} overflow-hidden`} aria-busy="true" aria-label="Loading">
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="px-5 py-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 last:border-b-0 animate-pulse motion-reduce:animate-none">
-            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div key={i} className="px-5 py-4 flex items-center gap-3 border-b border-slate-200 dark:border-[#1E3248] last:border-b-0 animate-pulse motion-reduce:animate-none">
+            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-[#15273A]" />
             <div className="space-y-2">
-              <div className="h-3.5 w-40 rounded bg-slate-200 dark:bg-slate-800" />
-              <div className="h-3 w-56 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="h-3.5 w-40 rounded bg-slate-200 dark:bg-[#15273A]" />
+              <div className="h-3 w-56 max-w-full rounded bg-slate-200 dark:bg-[#15273A]" />
             </div>
           </div>
         ))}
@@ -335,7 +335,7 @@ const ResourceTable = ({ activeTab, filteredItems, loading, isHRMode = false, ..
 
   if (filteredItems.length === 0) {
     return (
-      <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+      <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-[#28405A]">
         <p className="text-sm font-medium text-slate-900 dark:text-slate-100">No records found</p>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Try a different search, or add a new one.</p>
       </div>

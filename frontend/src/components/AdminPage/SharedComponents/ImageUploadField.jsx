@@ -38,8 +38,8 @@ const ImageUploadField = ({ label = "Image", value, onChange, disabled = false, 
     <div>
       <label htmlFor={value ? undefined : id} className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
       {value ? (
-        <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-700 dark:bg-slate-950/40">
-          <img src={value} alt={`${label} preview`} className="h-16 w-16 rounded-lg border border-slate-200 object-cover dark:border-slate-700" />
+        <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3.5 dark:border-[#28405A] dark:bg-[#0B1520]/60">
+          <img src={value} alt={`${label} preview`} className="h-16 w-16 rounded-lg border border-slate-200 object-cover dark:border-[#28405A]" />
           <p className="min-w-0 flex-1 text-sm text-slate-700 dark:text-slate-300">Image selected</p>
           <button type="button" disabled={busy} onClick={() => { onChange(""); setError(""); }} className={iconButtonDangerClass} aria-label={`Remove ${label.toLowerCase()}`} title="Remove image">
             <FiTrash2 className="h-4 w-4" aria-hidden="true" />
@@ -49,7 +49,7 @@ const ImageUploadField = ({ label = "Image", value, onChange, disabled = false, 
         <div
           onDragOver={(event) => event.preventDefault()}
           onDrop={(event) => { event.preventDefault(); upload(event.dataTransfer.files[0]); }}
-          className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors focus-within:ring-2 focus-within:ring-[#4B98C8]/40 ${busy ? "border-[#4B98C8]/40 bg-[#4B98C8]/5" : "border-slate-300 hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/60"}`}
+          className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors focus-within:ring-2 focus-within:ring-[#4B98C8]/40 ${busy ? "border-[#4B98C8]/40 bg-[#4B98C8]/5" : "border-slate-300 hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:border-[#28405A] dark:hover:bg-[#15273A]/60"}`}
         >
           <input
             id={id}

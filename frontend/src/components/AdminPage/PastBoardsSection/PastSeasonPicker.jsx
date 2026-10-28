@@ -100,7 +100,7 @@ const PastSeasonPicker = ({ currentSeason, seasons, season, disabled, onSelect }
             }
           }}
           noValidate
-          className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800"
+          className="mt-5 border-t border-slate-200 pt-5 dark:border-[#1E3248]"
         >
           <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Enter the season</h3>
           <p id={`${id}-hint`} className={`mt-1 ${hintClass}`}>

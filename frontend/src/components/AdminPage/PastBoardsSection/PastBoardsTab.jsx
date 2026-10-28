@@ -261,7 +261,7 @@ const PastBoardsTab = () => {
           })}
         </>
       ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-700">
+        <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-[#28405A]">
           <FiArchive aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-slate-400 dark:text-slate-500" />
           <p className="text-sm font-medium text-slate-800 dark:text-slate-200">No past boards yet</p>
           <p className={`mt-2 ${hintClass}`}>Choose “Add past season” above to start an earlier board.</p>
