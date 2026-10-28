@@ -3,15 +3,15 @@ import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import logo from "../../../assets/logo/acm-logo-no-bg.png";
 import Pharos from "./Pharos";
-import HeroIntro from "./HeroIntro";
-import NightSky from "../../ui/NightSky";
+import HeroIntro, { HeroFacts } from "./HeroIntro";
 import CommitteeOrbit from "./CommitteeOrbit";
 import PharosFinale from "./PharosFinale";
+import HeroVideo from "./HeroVideo";
 import { pharosFrameClass, pharosLight } from "./pharosGeometry";
 import { meetCta } from "../homeContent";
 import { shortName } from "../../../utils/format";
 import { clamp01 } from "../../../hooks/useScrollFrame";
-import { useStaticScene } from "../../../hooks/useStaticScene";
+import { useMediaQuery, useStaticScene } from "../../../hooks/useStaticScene";
 import TeamLogo from "../../ui/TeamLogo";
 
 const words = "Alexandria lit the way for the ancient world. We light the way into computing.".split(" ");
@@ -75,7 +75,8 @@ const BrokenRing = ({ radius, pieces, dashed = false, delay }) => (
 );
 
 // The hero and the Pharos are one pinned scene, so nothing jumps between sections. At the top it is the
-// hero: committees and clubs orbit the logo. Scrolling cracks the rings while the blue turns to night and a
+// hero over the welcome video: committees and clubs orbit the logo. Scrolling cracks the rings while the blue
+// (and the video) turns to night and a
 // blueprint of the lighthouse draws itself. The same planets then fall out of orbit in pairs onto the
 // lighthouse, ground floor first, and each pair merges into its tier as the tier fills in, so the chapter's
 // teams build the Pharos. Its flame ignites, and the beam lights the closing line word by word before coming
@@ -84,12 +85,14 @@ const BrokenRing = ({ radius, pieces, dashed = false, delay }) => (
 // so a planet always falls from exactly where it is in its orbit.
 const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
   const reduced = useStaticScene();
+  const narrow = useMediaQuery("(max-width: 1024px)");
   const stageRef = useRef(null);
   const sceneRef = useRef(null);
   const orbitRef = useRef(null);
   const introRef = useRef(null);
   const ctaRef = useRef(null);
   const lighthouseRef = useRef(null);
+  const videoRef = useRef(null);
   const wordRefs = useRef([]);
   const rippleRefs = useRef([]);
   const chipRefs = useRef([]);
@@ -123,6 +126,13 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
         };
         Object.entries(v).forEach(([key, value]) => stage.style.setProperty(`--${key}`, value.toFixed(4)));
         if (introRef.current) introRef.current.style.pointerEvents = v.out > 0.5 ? "none" : "auto";
+        // The welcome video only plays while it can be seen; the night sky covers it fully.
+        const video = videoRef.current;
+        if (video) {
+          const covered = v.night >= 0.999;
+          if (covered && !video.paused) video.pause();
+          else if (!covered && video.paused && video.autoplay) video.play().catch(() => {});
+        }
 
         const box = scene.getBoundingClientRect();
         const tower = lighthouseRef.current.getBoundingClientRect();
@@ -182,10 +192,31 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
     return () => cancelAnimationFrame(frame);
   }, [reduced, planets]);
 
+  // Phones and tablets: the hero is the video's own 16:9 frame, as tall as the width allows, so the video is never
+  // cropped. The headline and button sit over it; the tagline, totals and the teams follow below.
+  if (reduced && narrow) {
+    return (
+      <>
+        <section id="top" className="bg-ocean-794 text-white dark:bg-ocean-910">
+          <div className="relative aspect-video w-full overflow-hidden">
+            <HeroVideo />
+            <div className="relative flex h-full flex-col justify-end px-5 pb-[5vw] sm:px-8"><HeroIntro compact stats={stats} signedIn={signedIn} /></div>
+          </div>
+          <div className="mx-auto max-w-[1280px] px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
+            <HeroFacts stats={stats} />
+            <div className="mx-auto mt-14 w-[84%] max-w-[560px] sm:w-[80%]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
+          </div>
+        </section>
+        <PharosFinale chips={planets} still />
+      </>
+    );
+  }
+
   if (reduced) {
     return (
       <>
         <section id="top" className="relative overflow-hidden bg-ocean-794 text-white dark:bg-ocean-910">
+          <HeroVideo />
           <div className="relative mx-auto grid max-w-[1280px] items-center gap-14 px-5 pb-20 pt-32 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-40">
             <div><HeroIntro stats={stats} signedIn={signedIn} /></div>
             <div className="mx-auto w-[84%] max-w-[560px] sm:w-[80%] lg:w-full"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
@@ -205,8 +236,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
       style={{ "--brk": 0, "--out": 0, "--night": 0, "--words": 0, "--plan": 0, "--build": 0, "--beam": `${BEAM_START}deg`, "--logo": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}
     >
       <div ref={sceneRef} className="sticky top-0 h-screen overflow-hidden">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 dark:hidden" style={{ opacity: "calc(0.08 * (1 - var(--night)))", backgroundImage: "radial-gradient(var(--color-white) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-        <NightSky />
+        <HeroVideo ref={videoRef} />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,#081826_0%,#06121D_45%,#0B2236_78%,#0F3A5A_100%)]" style={{ opacity: "var(--night)" }} />
         <div aria-hidden="true" className="absolute inset-0" style={{ opacity: "var(--night)" }}>
           {stars.map((s, i) => (
