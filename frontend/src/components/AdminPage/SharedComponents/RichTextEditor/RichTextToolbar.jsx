@@ -21,9 +21,9 @@ import LinkEditor from "./LinkEditor";
 const ICON = { size: 18 };
 
 const buttonClass =
-    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent dark:text-slate-300 dark:hover:bg-slate-700";
+    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent dark:text-slate-300 dark:hover:bg-[#1E3248]";
 const selectClass =
-    "h-8 rounded border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-[#4B98C8] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
+    "h-8 rounded border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-[#4B98C8] dark:border-slate-600 dark:bg-[#15273A] dark:text-slate-200";
 
 const ToolbarButton = ({ title, active = false, disabled = false, onClick, children }) => (
     <button
@@ -41,7 +41,7 @@ const ToolbarButton = ({ title, active = false, disabled = false, onClick, child
 );
 
 const ToolbarGroup = ({ children }) => (
-    <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-slate-700">
+    <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-[#28405A]">
         {children}
     </div>
 );
@@ -84,7 +84,7 @@ const RichTextToolbar = ({ editor }) => {
     const clearFormatting = () => editor.chain().focus().clearNodes().unsetAllMarks().setTextAlign("left").run();
 
     return (
-        <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 p-1.5 dark:border-slate-700">
+        <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 p-1.5 dark:border-[#28405A]">
             <ToolbarGroup>
                 <select
                     aria-label="Block style"
@@ -132,7 +132,7 @@ const RichTextToolbar = ({ editor }) => {
                 </ToolbarButton>
                 <label
                     title="Text color"
-                    className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-[#1E3248]"
                 >
                     <TbTextColor {...ICON} />
                     <span

@@ -252,8 +252,8 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
           </div>
         </div>
 
-        <div className="relative mx-auto grid h-full max-w-[1280px] content-center items-center gap-8 px-5 pt-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-16">
-          <div ref={introRef} style={{ opacity: "calc(1 - var(--out))", transform: "translateY(calc(var(--out) * -90px))" }}>
+        <div className="pointer-events-none relative mx-auto grid h-full max-w-[1280px] content-center items-center gap-8 px-5 pt-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-16">
+          <div ref={introRef} className="pointer-events-auto" style={{ opacity: "calc(1 - var(--out))", transform: "translateY(calc(var(--out) * -90px))" }}>
             <HeroIntro stats={stats} signedIn={signedIn} />
           </div>
           <div ref={orbitRef} className="relative mx-auto aspect-square w-full max-w-[min(560px,86vw,calc(100svh-590px))] lg:max-w-[min(560px,58vh)]" aria-hidden="true">

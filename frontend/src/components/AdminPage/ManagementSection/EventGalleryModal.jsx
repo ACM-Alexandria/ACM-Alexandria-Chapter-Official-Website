@@ -255,7 +255,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
           {/* Body */}
           <div className="space-y-6">
             {loadingEvent ? (
-              <div aria-busy="true" aria-label="Loading gallery images" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
+              <div aria-busy="true" aria-label="Loading gallery images" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-[#15273A] animate-pulse motion-reduce:animate-none" />))}</div>
             ) : (
               <>
                 {/* Gallery grid */}
@@ -265,7 +265,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
                   </label>
 
                   {attachedImages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-center">
+                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-[#15273A] border border-slate-100 dark:border-[#28405A] rounded-lg text-center">
                       <FiImage className="w-8 h-8 text-slate-300 mb-2" />
                       <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">No images yet.</p>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Upload images below to attach them to this event.</p>
@@ -275,7 +275,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
                       {attachedImages.map((url, idx) => (
                         <div
                           key={idx}
-                          className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer"
+                          className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-[#28405A] bg-slate-50 dark:bg-[#15273A] cursor-pointer"
                           onClick={() => setLightboxIndex(idx)}
                         >
                           <img
@@ -305,7 +305,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
 
                 {/* Single batch progress bar */}
                 {batchProgress !== null && (
-                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-[#15273A] border border-slate-100 dark:border-[#28405A] rounded-lg px-4 py-3">
                     <div className="flex items-center justify-between mb-2 gap-2">
                       <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                         {isUploading
@@ -320,7 +320,7 @@ const EventGalleryForm = ({ open, onClose, event, onSave }) => {
                         {batchProgress.percent}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-200 dark:bg-[#1E3248] rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
                           isUploading ? "bg-[#4B98C8]" : batchProgress.failed > 0 ? "bg-red-400" : "bg-emerald-500"

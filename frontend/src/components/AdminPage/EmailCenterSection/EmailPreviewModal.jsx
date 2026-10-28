@@ -67,7 +67,7 @@ const EmailPreviewModal = ({ composer }) => {
                     )}
 
                     {/* Recipients */}
-                    <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                    <div className="rounded-lg border border-slate-200 p-4 dark:border-[#28405A]">
                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Recipients</p>
                         {membersLoading ? (
                             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Calculating…</p>
@@ -99,7 +99,7 @@ const EmailPreviewModal = ({ composer }) => {
                         title={`Email preview: ${subject}`}
                         srcDoc={emailHtml}
                         sandbox=""
-                        className="h-[420px] sm:h-[620px] w-full rounded-lg border border-slate-200 bg-white dark:border-slate-700"
+                        className="h-[420px] sm:h-[620px] w-full rounded-lg border border-slate-200 bg-white dark:border-[#28405A]"
                     />
                 </div>
             </ModalShell>
