@@ -213,7 +213,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
           <button
             type="button"
             onClick={() => setMode("list")}
-            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40"
           >
             <FiArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to list
           </button>
@@ -236,7 +236,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4B98C8] hover:bg-[#2C6F99] text-white rounded-lg text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-ocean-461 hover:bg-ocean-614 text-white rounded-lg text-xs font-medium transition-colors"
                 >
                   <FiPlus className="w-3.5 h-3.5" />
                   Add Episode
@@ -245,17 +245,17 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
 
               {loading ? (
                 <div className="flex items-center justify-center py-16">
-                  <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin" />
+                  <FiLoader className="w-8 h-8 text-ocean-461 animate-spin" />
                 </div>
               ) : episodesPage.content.length === 0 ? (
-                <div className="text-center py-16 border border-dashed border-slate-200 dark:border-[#28405A] rounded-lg">
+                <div className="text-center py-16 border border-dashed border-slate-200 dark:border-ocean-745 rounded-lg">
                   <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">No episodes found in this season.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 dark:border-[#28405A] text-slate-600 dark:text-slate-400 text-xs font-medium">
+                      <tr className="border-b border-slate-100 dark:border-ocean-745 text-slate-600 dark:text-slate-400 text-xs font-medium">
                         <th className="pb-2.5 pl-2 w-16">Number</th>
                         <th className="pb-2.5">Title</th>
                         <th className="pb-2.5">Host & Guest</th>
@@ -263,13 +263,13 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                         <th className="pb-2.5 pr-2 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-[#28405A] text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <tbody className="divide-y divide-slate-50 dark:divide-ocean-745 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {episodesPage.content.map((ep) => (
-                        <tr key={ep.id} className="hover:bg-slate-50/50 dark:hover:bg-[#15273A]/60 transition-colors">
+                        <tr key={ep.id} className="hover:bg-slate-50/50 dark:hover:bg-ocean-845/60 transition-colors">
                           <td className="py-2.5 pl-2 text-slate-600 dark:text-slate-400 font-medium">Ep. {ep.episodeNumber}</td>
                           <td className="py-2.5">
                             <div className="flex items-center gap-2">
-                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-[#28405A] shrink-0" />
+                              <img src={ep.imageUrl} alt={ep.title} className="w-10 h-7 object-cover rounded border border-slate-200 dark:border-ocean-745 shrink-0" />
                               <span className="font-semibold text-slate-800 dark:text-slate-100 truncate max-w-[150px]">{ep.title}</span>
                             </div>
                           </td>
@@ -278,7 +278,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                             <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Guest: <span className="font-medium">{ep.guest || "N/A"}</span></div>
                           </td>
                           <td className="py-2.5">
-                            <a href={ep.url} target="_blank" rel="noopener noreferrer" className="text-[#4B98C8] hover:underline inline-flex items-center gap-0.5">
+                            <a href={ep.url} target="_blank" rel="noopener noreferrer" className="text-ocean-461 hover:underline inline-flex items-center gap-0.5">
                               Watch <FiExternalLink className="w-3 h-3" />
                             </a>
                           </td>
@@ -286,14 +286,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                             <div className="flex justify-end gap-2">
                               <button
                                 onClick={() => handleEditClick(ep)}
-                                className="p-1.5 bg-slate-50 dark:bg-[#15273A] hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-500 dark:text-slate-300 hover:text-sky-600 rounded-lg transition-colors"
+                                className="p-1.5 bg-slate-50 dark:bg-ocean-845 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-slate-500 dark:text-slate-300 hover:text-sky-600 rounded-lg transition-colors"
                               >
                                 <FiEdit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(ep)}
                                 disabled={loading}
-                                className="p-1.5 bg-slate-50 dark:bg-[#15273A] hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+                                className="p-1.5 bg-slate-50 dark:bg-ocean-845 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                               >
                                 <FiTrash2 className="w-3.5 h-3.5" />
                               </button>
@@ -308,7 +308,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
 
               {/* Pagination */}
               {episodesPage.totalPages > 1 && !loading && (
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#28405A] pt-4 mt-4">
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-ocean-745 pt-4 mt-4">
                   <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                     Page {episodesPage.number + 1} of {episodesPage.totalPages}
                   </span>
@@ -345,7 +345,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     value={episodeNumber}
                     onChange={(e) => setEpisodeNumber(e.target.value)}
                     placeholder="e.g. 1"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#15273A] border border-slate-200 dark:border-[#28405A] text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-ocean-845 border border-slate-200 dark:border-ocean-745 text-slate-800 dark:text-slate-100 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-461/25 focus:border-ocean-461 transition-all"
                   />
                 </div>
 
@@ -412,8 +412,8 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 </label>
 
                 {imageUrl ? (
-                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 dark:bg-[#15273A] border border-slate-200 dark:border-[#28405A] rounded-lg">
-                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200 dark:border-[#28405A]" />
+                  <div className="relative flex items-center gap-4 p-3 bg-slate-50 dark:bg-ocean-845 border border-slate-200 dark:border-ocean-745 rounded-lg">
+                    <img src={imageUrl} alt="Episode Preview" className="w-16 h-12 rounded object-cover border border-slate-200 dark:border-ocean-745" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{imageUrl.split("/").pop()}</p>
                       <p className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">Cloudinary Asset</p>
@@ -421,14 +421,14 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="p-1.5 bg-slate-50 dark:bg-[#15273A] hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                      className="p-1.5 bg-slate-50 dark:bg-ocean-845 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-300 hover:text-red-500 rounded-lg transition-colors"
                       title="Remove image"
                     >
                       <FiTrash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="relative border-2 border-dashed border-slate-300 dark:border-[#28405A] hover:border-[#4B98C8]/60 hover:bg-slate-50 dark:hover:bg-[#15273A]/60 rounded-lg p-5 text-center flex flex-col items-center justify-center cursor-pointer">
+                  <div className="relative border-2 border-dashed border-slate-300 dark:border-ocean-745 hover:border-ocean-461/60 hover:bg-slate-50 dark:hover:bg-ocean-845/60 rounded-lg p-5 text-center flex flex-col items-center justify-center cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
@@ -438,7 +438,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                     />
                     {uploading ? (
                       <>
-                        <FiLoader className="w-6 h-6 text-[#4B98C8] animate-spin mb-1" />
+                        <FiLoader className="w-6 h-6 text-ocean-461 animate-spin mb-1" />
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-200">Uploading to Cloudinary…</p>
                       </>
                     ) : (
@@ -454,7 +454,7 @@ const EpisodesManagementModal = ({ open, onClose, seasonId, seasonNumber }) => {
                 )}
               </div>
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-[#28405A]">
+              <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-ocean-745">
                 <button
                   type="button"
                   onClick={() => setMode("list")}

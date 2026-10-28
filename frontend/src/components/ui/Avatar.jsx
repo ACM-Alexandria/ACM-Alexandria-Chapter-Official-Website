@@ -5,7 +5,7 @@ import { initials } from "../../utils/format";
 const Avatar = ({ name, src, className = "h-12 w-12 text-sm" }) => {
   const [failed, setFailed] = useState(false);
   if (!src || failed) {
-    return <span className={`flex shrink-0 items-center justify-center rounded-full bg-[#E2F0FA] font-semibold text-[#1D6A9C] dark:bg-[#16364C] dark:text-[#7DBBE0] ${className}`}>{initials(name)}</span>;
+    return <span className={`flex shrink-0 items-center justify-center rounded-full bg-ocean-67 font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-316 ${className}`}>{initials(name)}</span>;
   }
   return <img src={src} alt={name} loading="lazy" onError={() => setFailed(true)} className={`shrink-0 rounded-full object-cover ${className}`} />;
 };

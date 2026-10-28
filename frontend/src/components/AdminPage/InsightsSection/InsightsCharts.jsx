@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const BRAND = "#4B98C8";
+const BRAND = "var(--color-ocean-461)";
 const WIDTH = 600;
 const HEIGHT = 220;
 const PAD_L = 44; // room for the y axis numbers

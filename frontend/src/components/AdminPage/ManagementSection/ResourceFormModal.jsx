@@ -331,7 +331,7 @@ const ResourceForm = ({
 
           {/* Inline Form Questions (Only on Add Mode for Events) */}
           {activeTab === "events" && formMode === "add" && (
-            <div className="p-4 border border-slate-200 dark:border-[#28405A] rounded-lg bg-slate-50 dark:bg-[#0B1520]/60">
+            <div className="p-4 border border-slate-200 dark:border-ocean-745 rounded-lg bg-slate-50 dark:bg-ocean-916/60">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100">Form Questions (Optional)</h4>
@@ -352,12 +352,12 @@ const ResourceForm = ({
               
               <div className="space-y-3">
                 {(formData.questions || []).length === 0 ? (
-                  <div className="text-center py-6 px-4 text-sm text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-[#28405A] rounded-lg bg-white dark:bg-[#0F1C29]">
+                  <div className="text-center py-6 px-4 text-sm text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-ocean-745 rounded-lg bg-white dark:bg-ocean-890">
                     No questions added yet. The form will only collect default fields (Name, Email, etc.).
                   </div>
                 ) : (
                   (formData.questions || []).map((q, idx) => (
-                    <div key={idx} className="p-3 bg-white dark:bg-[#0F1C29] border border-slate-200 dark:border-[#28405A] rounded-lg relative group">
+                    <div key={idx} className="p-3 bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg relative group">
                       <button
                         type="button"
                         onClick={() => {
@@ -382,7 +382,7 @@ const ResourceForm = ({
                               newQ[idx].questionText = e.target.value;
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full h-9 px-2.5 bg-white dark:bg-[#0B1520] border border-slate-300 dark:border-[#28405A] text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-ocean-916 border border-slate-300 dark:border-ocean-745 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-ocean-461 focus:ring-2 focus:ring-ocean-461/25 transition-colors"
                           />
                         </div>
                         <div className="sm:col-span-4">
@@ -396,7 +396,7 @@ const ResourceForm = ({
                               }
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="w-full h-9 px-2.5 bg-white dark:bg-[#0B1520] border border-slate-300 dark:border-[#28405A] text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors cursor-pointer"
+                            className="w-full h-9 px-2.5 bg-white dark:bg-ocean-916 border border-slate-300 dark:border-ocean-745 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-ocean-461 focus:ring-2 focus:ring-ocean-461/25 transition-colors cursor-pointer"
                           >
                             <option value="TEXT">Text</option>
                             <option value="MULTIPLE_CHOICE">Multiple Choice</option>
@@ -415,13 +415,13 @@ const ResourceForm = ({
                             newQ[idx].isRequired = e.target.checked;
                             setFormData({ ...formData, questions: newQ });
                           }}
-                          className="rounded border-slate-300 text-[#4B98C8] focus:ring-[#4B98C8]"
+                          className="rounded border-slate-300 text-ocean-461 focus:ring-ocean-461"
                         />
                         Required Field
                       </label>
 
                       {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && (
-                        <div className="pl-2 border-l-2 border-[#4B98C8]/30 space-y-2 mt-2">
+                        <div className="pl-2 border-l-2 border-ocean-461/30 space-y-2 mt-2">
                           {q.options.map((opt, optIdx) => (
                             <div key={optIdx} className="flex items-center gap-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
@@ -435,7 +435,7 @@ const ResourceForm = ({
                                   newQ[idx].options[optIdx] = e.target.value;
                                   setFormData({ ...formData, questions: newQ });
                                 }}
-                                className="flex-1 min-w-0 h-9 px-2.5 bg-white dark:bg-[#0B1520] border border-slate-300 dark:border-[#28405A] text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25 transition-colors"
+                                className="flex-1 min-w-0 h-9 px-2.5 bg-white dark:bg-ocean-916 border border-slate-300 dark:border-ocean-745 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 text-sm rounded-lg focus:outline-none focus:border-ocean-461 focus:ring-2 focus:ring-ocean-461/25 transition-colors"
                               />
                               <button
                                 type="button"
@@ -457,7 +457,7 @@ const ResourceForm = ({
                               newQ[idx].options.push("");
                               setFormData({ ...formData, questions: newQ });
                             }}
-                            className="text-sm font-medium text-[#2C6F99] dark:text-[#7DBBE0] hover:underline flex items-center gap-1"
+                            className="text-sm font-medium text-ocean-614 dark:text-ocean-316 hover:underline flex items-center gap-1"
                           >
                             <FiPlus className="w-3 h-3" /> Add Option
                           </button>

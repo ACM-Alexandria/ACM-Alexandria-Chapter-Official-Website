@@ -59,13 +59,13 @@ const ProgramsSection = ({ loading, programs, count, onShowProgram }) => {
                   <button
                     type="button"
                     onClick={() => onShowProgram(program.id)}
-                    className={`group relative grid w-full overflow-hidden rounded-[2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8] sm:grid-cols-[0.9fr_1.1fr] ${card}`}
+                    className={`group relative grid w-full overflow-hidden rounded-[2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 sm:grid-cols-[0.9fr_1.1fr] ${card}`}
                   >
-                    <span className="relative block aspect-[16/9] overflow-hidden bg-[#E2F0FA] sm:aspect-auto sm:min-h-[300px] dark:bg-[#16364C]">
+                    <span className="relative block aspect-[16/9] overflow-hidden bg-ocean-67 sm:aspect-auto sm:min-h-[300px] dark:bg-ocean-808">
                       {program.imageUrl && <img src={program.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />}
                     </span>
                     <span className="flex flex-col p-6 sm:p-8">
-                      <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${program.open ? "bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#9FD0EE]" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"}`}>
+                      <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${program.open ? "bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"}`}>
                         {program.open ? "Registration open" : "Registration closed"}
                       </span>
                       <span className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white" style={{ textWrap: "balance" }}>{program.name}</span>
@@ -74,9 +74,9 @@ const ProgramsSection = ({ loading, programs, count, onShowProgram }) => {
                         {program.time && <span className="flex items-center gap-1.5"><FiClock className="h-4 w-4" aria-hidden="true" />{program.time}</span>}
                         {range && <span>{range}</span>}
                       </span>
-                      <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-[#2A7AB0] dark:text-[#7DBBE0]">View details <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></span>
+                      <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-ocean-573 dark:text-ocean-316">View details <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></span>
                     </span>
-                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#0F3A5A]" style={{ opacity: "calc(var(--cover) * 0.25)" }} />
+                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-ocean-794" style={{ opacity: "calc(var(--cover) * 0.25)" }} />
                   </button>
                 </div>
               );

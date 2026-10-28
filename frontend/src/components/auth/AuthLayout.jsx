@@ -31,11 +31,11 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
   }, [isDark]);
 
   return (
-    <div className={`hp admin-ui flex min-h-screen bg-[#F3F7FB] text-slate-800 dark:bg-[#0A1724] dark:text-slate-100 ${isReversed ? "flex-row-reverse" : ""}`}>
+    <div className={`hp admin-ui flex min-h-screen bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100 ${isReversed ? "flex-row-reverse" : ""}`}>
       <aside aria-hidden="true" className="relative hidden w-[44%] shrink-0 overflow-hidden bg-[linear-gradient(180deg,#081826_0%,#06121D_45%,#0B2236_78%,#0F3A5A_100%)] md:block">
         <div className="absolute inset-0">
           {stars.map((s, i) => (
-            <span key={i} className="absolute rounded-full bg-[#D3E9F7]" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }} />
+            <span key={i} className="absolute rounded-full bg-ocean-102" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite` }} />
           ))}
         </div>
         <NightSky />
@@ -45,20 +45,20 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
             <span className="text-base font-semibold">ACM Alexandria</span>
           </Link>
           <div className="my-auto max-w-sm pb-12">
-            <p className="text-3xl font-semibold leading-tight tracking-tight text-[#FFF4CC]" style={{ animation: "hp-rise 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>{panelTagline}</p>
-            {panelSub && <p className="mt-4 text-base leading-relaxed text-[#CFE6F5]" style={{ animation: "hp-rise 0.7s ease-out 0.2s both" }}>{panelSub}</p>}
+            <p className="text-3xl font-semibold leading-tight tracking-tight text-gold-100" style={{ animation: "hp-rise 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>{panelTagline}</p>
+            {panelSub && <p className="mt-4 text-base leading-relaxed text-ocean-114" style={{ animation: "hp-rise 0.7s ease-out 0.2s both" }}>{panelSub}</p>}
           </div>
         </div>
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-8">
-          <Link to="/" className="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-[#205E85] dark:text-[#A9C7DB] dark:hover:text-white">
+          <Link to="/" className="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-ocean-676 dark:text-ocean-239 dark:hover:text-white">
             <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span className="md:hidden"><img src={acmLogo} alt="" className="mr-1 inline h-6 w-6 object-contain align-[-6px]" />ACM Alexandria</span>
             <span className="hidden md:inline">Back to home</span>
           </Link>
-          <button type="button" onClick={(event) => switchTheme(event, !isDark, () => setIsDark(!isDark))} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-[#A9C7DB] dark:hover:bg-white/5">
+          <button type="button" onClick={(event) => switchTheme(event, !isDark, () => setIsDark(!isDark))} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-ocean-239 dark:hover:bg-white/5">
             {isDark ? <FiSun className="h-[18px] w-[18px]" aria-hidden="true" /> : <FiMoon className="h-[18px] w-[18px]" aria-hidden="true" />}
           </button>
         </header>
@@ -66,9 +66,9 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
           <div className="w-full max-w-md">
             <div className="mb-8" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) both" }}>
               <h1 className="text-3xl font-semibold tracking-[-0.03em] text-slate-900 sm:text-4xl dark:text-white">{title}</h1>
-              {subtitle && <p className="mt-2 text-base leading-relaxed text-slate-600 dark:text-[#A9C7DB]">{subtitle}</p>}
+              {subtitle && <p className="mt-2 text-base leading-relaxed text-slate-600 dark:text-ocean-239">{subtitle}</p>}
             </div>
-            <div className="rounded-[2rem] bg-white p-6 shadow-[0_24px_60px_-32px_rgba(15,58,90,0.35)] ring-1 ring-[#D6E6F2] sm:p-8 dark:bg-[#0F2233] dark:ring-white/10" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) 0.08s both" }}>
+            <div className="rounded-[2rem] bg-white p-6 shadow-[0_24px_60px_-32px_color-mix(in_srgb,var(--color-ocean-794)_35%,transparent)] ring-1 ring-ocean-106 sm:p-8 dark:bg-ocean-871 dark:ring-white/10" style={{ animation: "hp-rise 0.6s cubic-bezier(0.22,1,0.36,1) 0.08s both" }}>
               {children}
             </div>
           </div>

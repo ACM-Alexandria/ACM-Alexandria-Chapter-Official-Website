@@ -43,11 +43,11 @@ const PharosFinale = ({ chips = [], still = false }) => {
   useScrollFrame(onFrame);
 
   return (
-    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-[#0F3A5A] dark:bg-[#081826] ${still ? "h-[min(100svh,34rem)] sm:h-[min(100svh,40rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
+    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-ocean-794 dark:bg-ocean-910 ${still ? "h-[min(100svh,34rem)] sm:h-[min(100svh,40rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
       <div className={`sticky top-0 overflow-hidden ${still ? "h-full" : "h-screen"} bg-[linear-gradient(180deg,#0F3A5A_0%,#0A2740_20%,#06121D_48%,#0B2236_78%,#0F3A5A_100%)] dark:bg-[linear-gradient(180deg,#081826_0%,#06121D_42%,#0B2236_78%,#0F3A5A_100%)]`}>
         <div aria-hidden="true" className="absolute inset-0">
           {stars.map((s, i) => (
-            <span key={i} className="absolute rounded-full bg-[#D3E9F7]" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite`, opacity: "calc(1 - var(--ignite) * 0.4)" }} />
+            <span key={i} className="absolute rounded-full bg-ocean-102" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, animation: `hp-twinkle ${3.5 + s.delay}s ease-in-out ${s.delay}s infinite`, opacity: "calc(1 - var(--ignite) * 0.4)" }} />
           ))}
         </div>
 
@@ -63,8 +63,8 @@ const PharosFinale = ({ chips = [], still = false }) => {
                 transform: `translateY(calc((1 - ${landing(i)}) * (1 - ${landing(i)}) * -${36 + (i % 3) * 10}vh)) rotate(calc((1 - ${landing(i)}) * ${(i % 2 ? 1 : -1) * (20 + i * 6)}deg))`,
               }}
             >
-              <span className="relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#12304A] py-1 pl-1 pr-3 text-xs font-semibold text-[#D3E9F7] ring-1 ring-white/10 sm:pr-4 sm:text-sm">
-                <span className="absolute -inset-1 rounded-full bg-[#FFE7A3]/25 blur-md" style={{ opacity: chipLit(i) }} aria-hidden="true" />
+              <span className="relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-ocean-820 py-1 pl-1 pr-3 text-xs font-semibold text-ocean-102 ring-1 ring-white/10 sm:pr-4 sm:text-sm">
+                <span className="absolute -inset-1 rounded-full bg-gold-180/25 blur-md" style={{ opacity: chipLit(i) }} aria-hidden="true" />
                 <TeamLogo src={chip.image} name={chip.name} className="relative h-6 w-6 rounded-full sm:h-7 sm:w-7" />
                 <span className="relative">{shortName(chip.name)}</span>
               </span>
@@ -83,7 +83,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
               transform: "rotate(calc(208deg - var(--sweep) * 42deg))",
               opacity: "calc(var(--ignite) * 0.9)",
               clipPath: "polygon(0 49.4%, 100% 32%, 100% 68%, 0 50.6%)",
-              background: "linear-gradient(90deg, rgba(255,236,170,0.75) 0%, rgba(255,226,140,0.28) 35%, rgba(255,226,140,0) 85%)",
+              background: "linear-gradient(90deg, color-mix(in srgb, var(--color-gold-167) 75%, transparent) 0%, color-mix(in srgb, var(--color-gold-225) 28%, transparent) 35%, color-mix(in srgb, var(--color-gold-225) 0%, transparent) 85%)",
             }}
           />
           <Pharos build="var(--build)" light="var(--ignite)" className="relative h-full w-full" />
@@ -92,7 +92,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[16%] overflow-hidden">
           {[0, 1, 2].map((layer) => (
             <svg key={layer} viewBox="0 0 1200 60" preserveAspectRatio="none" className="absolute bottom-0 h-full w-[200%]" style={{ opacity: 0.35 + layer * 0.25, bottom: `${-layer * 18}%`, animation: `hp-wave ${18 - layer * 4}s linear infinite` }}>
-              <path d="M0 30 Q 75 10 150 30 T 300 30 T 450 30 T 600 30 T 750 30 T 900 30 T 1050 30 T 1200 30 V 60 H 0 Z" fill={["#1D5A85", "#174A70", "#0F3A5A"][layer]} />
+              <path d="M0 30 Q 75 10 150 30 T 300 30 T 450 30 T 600 30 T 750 30 T 900 30 T 1050 30 T 1200 30 V 60 H 0 Z" fill={["var(--color-ocean-682)", "var(--color-ocean-735)", "var(--color-ocean-794)"][layer]} />
             </svg>
           ))}
         </div>
@@ -100,11 +100,11 @@ const PharosFinale = ({ chips = [], still = false }) => {
         <div className="relative mx-auto flex h-full max-w-[1280px] flex-col justify-center px-5 pb-[14vh] pt-[16vh] sm:px-8">
           <p className="max-w-[15ch] text-2xl font-semibold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:max-w-[16ch] md:text-5xl lg:max-w-[18ch] lg:text-7xl">
             {words.map((word, i) => (
-              <span key={i} className="inline-block pr-[0.25em] text-[#FFF4CC]" style={{ opacity: `calc(0.12 + 0.88 * clamp(0, calc((var(--sweep) - 0.45) * ${((words.length + 2) / 0.55).toFixed(2)} - ${i}), 1))` }}>{word}</span>
+              <span key={i} className="inline-block pr-[0.25em] text-gold-100" style={{ opacity: `calc(0.12 + 0.88 * clamp(0, calc((var(--sweep) - 0.45) * ${((words.length + 2) / 0.55).toFixed(2)} - ${i}), 1))` }}>{word}</span>
             ))}
           </p>
           <div className="mt-6 flex max-w-[62%] flex-wrap items-center gap-3 sm:mt-10 sm:gap-4 lg:max-w-none" style={{ opacity: "var(--cta)", transform: "translateY(calc((1 - var(--cta)) * 24px))" }}>
-            <a href={meetCta.href} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#FFE7A3] px-5 text-sm sm:h-12 sm:px-7 font-semibold text-[#06121D] shadow-[0_0_40px_rgba(255,220,130,0.45)] transition-transform hover:-translate-y-px">
+            <a href={meetCta.href} className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold-180 px-5 text-sm sm:h-12 sm:px-7 font-semibold text-ocean-931 shadow-[0_0_40px_color-mix(in_srgb,var(--color-gold-245)_45%,transparent)] transition-transform hover:-translate-y-px">
               {meetCta.label} <FiArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>

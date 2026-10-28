@@ -3,7 +3,7 @@ import { TbCheck, TbLink, TbLinkOff, TbX } from "react-icons/tb";
 
 const ICON = { size: 18 };
 const buttonClass =
-    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-[#1E3248]";
+    "flex h-8 w-8 items-center justify-center rounded text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-ocean-800";
 
 const IconButton = ({ title, active = false, onClick, children }) => (
     <button
@@ -13,7 +13,7 @@ const IconButton = ({ title, active = false, onClick, children }) => (
         aria-pressed={active}
         onMouseDown={(event) => event.preventDefault()}
         onClick={onClick}
-        className={`${buttonClass} ${active ? "bg-[#4B98C8]/20 text-[#205E85] dark:text-sky-300" : ""}`}
+        className={`${buttonClass} ${active ? "bg-ocean-461/20 text-ocean-676 dark:text-sky-300" : ""}`}
     >
         {children}
     </button>
@@ -69,13 +69,13 @@ const LinkEditor = ({ editor, active }) => {
 
     return (
         <>
-            <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-[#28405A]">
+            <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1.5 last:border-r-0 dark:border-ocean-745">
                 <IconButton title="Add or edit link" active={active || open} onClick={toggle}>
                     <TbLink {...ICON} />
                 </IconButton>
             </div>
             {open && (
-                <div className="flex w-full flex-col gap-1 border-t border-slate-200 pt-1.5 dark:border-[#28405A]">
+                <div className="flex w-full flex-col gap-1 border-t border-slate-200 pt-1.5 dark:border-ocean-745">
                     <div className="flex items-center gap-1.5">
                         <div className="relative flex-1">
                             <TbLink size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -99,16 +99,16 @@ const LinkEditor = ({ editor, active }) => {
                                         close();
                                     }
                                 }}
-                                className={`h-8 w-full rounded border bg-white pl-8 pr-2 text-xs text-slate-700 outline-none dark:bg-[#15273A] dark:text-slate-200 ${error
+                                className={`h-8 w-full rounded border bg-white pl-8 pr-2 text-xs text-slate-700 outline-none dark:bg-ocean-845 dark:text-slate-200 ${error
                                     ? "border-red-400 focus:border-red-500"
-                                    : "border-slate-200 focus:border-[#4B98C8] dark:border-slate-600"
+                                    : "border-slate-200 focus:border-ocean-461 dark:border-slate-600"
                                     }`}
                             />
                         </div>
                         <button
                             type="button"
                             onClick={apply}
-                            className="flex h-8 items-center gap-1 rounded bg-[#4B98C8] px-3 text-xs font-medium text-white transition-colors hover:bg-[#3d86b3]"
+                            className="flex h-8 items-center gap-1 rounded bg-ocean-461 px-3 text-xs font-medium text-white transition-colors hover:bg-ocean-529"
                         >
                             <TbCheck size={16} />
                             {active ? "Update" : "Apply"}

@@ -31,3 +31,12 @@ npm run build
 | `styles/motion.css` | The site's keyframes (`hp-*`) and the reduced-motion switch. Global styles are in `index.css`. |
 
 The design of the public site is described in `docs/home-page-redesign/DESIGN.md`.
+
+## Colors
+
+Every color lives in `src/styles/colors.css`, defined once as a Tailwind theme variable. Use it through utilities
+(`bg-ocean-676`, `text-gold-180`, `dark:bg-ocean-871`) or, in CSS and inline styles, `var(--color-ocean-676)`.
+Do not write a hex or `rgb()` value anywhere else. To change a color across the whole site, edit its line in
+`colors.css`. The names are `ocean-N` (brand blues, N grows with darkness), `gold-N` (the lighthouse's light),
+`ink-N` (cool greys), and `danger`, `chart` and `linkedin` for colors with a meaning of their own. Tailwind's own
+palette (slate, red, emerald, amber) is still used for text greys and status colors.

@@ -9,11 +9,11 @@ const date = (iso) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "n
 const PointsPanel = ({ total, logs, page, totalPages, onPageChange, error }) => (
   <div className="flex flex-col gap-8">
     <div className="flex items-center gap-5">
-      <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#FFF3C4] dark:bg-[#3A3012]">
-        <FaStar className="h-8 w-8 text-[#F5B301]" style={{ animation: "hp-star-beat 3.6s ease-in-out infinite" }} />
+      <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gold-116 dark:bg-gold-851">
+        <FaStar className="h-8 w-8 text-gold-518" style={{ animation: "hp-star-beat 3.6s ease-in-out infinite" }} />
       </span>
       <div>
-        <p className="text-5xl font-semibold leading-none tracking-tight text-[#205E85] tabular-nums dark:text-white">{total}</p>
+        <p className="text-5xl font-semibold leading-none tracking-tight text-ocean-676 tabular-nums dark:text-white">{total}</p>
         <p className={`mt-1.5 text-sm font-medium ${muted}`}>points this season</p>
       </div>
     </div>
@@ -27,7 +27,7 @@ const PointsPanel = ({ total, logs, page, totalPages, onPageChange, error }) => 
       </div>
     ) : (
       <>
-        <ul className={`divide-y divide-[#E6EEF5] overflow-hidden rounded-3xl dark:divide-white/10 ${card}`}>
+        <ul className={`divide-y divide-ocean-69 overflow-hidden rounded-3xl dark:divide-white/10 ${card}`}>
           {logs.map((log) => {
             const created = log.createdAt || log.created_at;
             return (

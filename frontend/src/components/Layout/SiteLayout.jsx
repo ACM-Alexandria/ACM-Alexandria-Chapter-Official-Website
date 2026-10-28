@@ -8,7 +8,7 @@ import { siteSections as sections } from "./siteSections";
 const SiteLayout = ({ children }) => {
   useSmoothScroll();
   return (
-    <div className="hp admin-ui flex min-h-screen flex-col bg-[#F3F7FB] text-slate-800 dark:bg-[#0A1724] dark:text-slate-100">
+    <div className="hp admin-ui flex min-h-screen flex-col bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100">
       <IslandNav links={sections} home={false} />
       <main className="flex-1">{children}</main>
       <SiteFooter links={sections} />

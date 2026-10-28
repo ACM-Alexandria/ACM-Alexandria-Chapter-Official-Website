@@ -103,7 +103,7 @@ const ForgotPassword = () => {
             aria-busy={isLoading}
             className={`
               relative w-full mt-2 h-12 px-6 flex items-center justify-center gap-2
-              bg-[#205E85] hover:bg-[#16364C] dark:bg-[#4B98C8] dark:text-[#081826] dark:hover:bg-[#7DBBE0]
+              bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
               text-white font-semibold text-sm rounded-xl
                overflow-hidden transition-all duration-300
               ${isLoading ? "opacity-70 cursor-not-allowed" : ""}
@@ -126,7 +126,7 @@ const ForgotPassword = () => {
           <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-300">
               Remember your password?{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors">
                 Sign In
               </Link>
             </p>
@@ -150,7 +150,7 @@ const ForgotPassword = () => {
           style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <div
-            className="w-16 h-16 rounded-full bg-[#205E85] dark:bg-[#4B98C8] dark:text-[#081826] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+            className="w-16 h-16 rounded-full bg-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
             style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
           >
             ✓
@@ -165,7 +165,7 @@ const ForgotPassword = () => {
           <div className="flex flex-col items-center gap-2.5 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-300">
               Return to{" "}
-              <Link to="/login" className="font-semibold text-[#205E85] dark:text-[#7DBBE0] hover:text-[#4B98C8] transition-colors">
+              <Link to="/login" className="font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors">
                 Sign In
               </Link>
             </p>

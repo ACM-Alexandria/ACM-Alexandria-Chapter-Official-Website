@@ -58,7 +58,7 @@ const policies = [
 
 const IconBox = ({ icon }) => {
   const Icon = icon;
-  return <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E2F0FA] text-[#205E85] dark:bg-[#16364C] dark:text-[#7DBBE0]"><Icon className="h-5 w-5" aria-hidden="true" /></span>;
+  return <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-316"><Icon className="h-5 w-5" aria-hidden="true" /></span>;
 };
 
 // The chapter's code of conduct for everyone, plus the internal policies that members see once signed in.
@@ -102,11 +102,11 @@ const RulesPage = () => {
                   <article className={`rounded-[2rem] p-6 sm:p-8 ${card}`}>
                     <div className="flex items-center gap-4">
                       <IconBox icon={policy.icon} />
-                      <h3 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white"><span className="text-[#2A7AB0] dark:text-[#7DBBE0]">{i + 1}.</span> {policy.title}</h3>
+                      <h3 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white"><span className="text-ocean-573 dark:text-ocean-316">{i + 1}.</span> {policy.title}</h3>
                     </div>
                     <dl className="mt-6 grid gap-4 md:grid-cols-2">
                       {policy.rules.map((rule) => (
-                        <div key={rule.title} className="rounded-2xl bg-[#F3F7FB] p-5 dark:bg-white/5">
+                        <div key={rule.title} className="rounded-2xl bg-ocean-31 p-5 dark:bg-white/5">
                           <dt className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">{rule.tone && <span className={`h-2.5 w-2.5 rounded-full ${rule.tone}`} aria-hidden="true" />}{rule.title}</dt>
                           <dd className={`mt-2 text-sm leading-relaxed ${muted}`}>{rule.text}</dd>
                         </div>
@@ -125,12 +125,12 @@ const RulesPage = () => {
           )}
         </section>
 
-        <Reveal className="flex flex-col items-start justify-between gap-6 rounded-[2rem] bg-[#0F3A5A] p-8 text-white sm:flex-row sm:items-center sm:p-10 dark:bg-[#12304A]">
+        <Reveal className="flex flex-col items-start justify-between gap-6 rounded-[2rem] bg-ocean-794 p-8 text-white sm:flex-row sm:items-center sm:p-10 dark:bg-ocean-820">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Questions about the rules?</h2>
-            <p className="mt-1 text-[#CFE6F5]">Reach out to your committee leaders or the ACM Alexandria HR Board for clarifications.</p>
+            <p className="mt-1 text-ocean-114">Reach out to your committee leaders or the ACM Alexandria HR Board for clarifications.</p>
           </div>
-          <Link to="/" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-[#205E85] transition-colors hover:bg-[#E2F0FA]">Back to home <FiArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+          <Link to="/" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-ocean-676 transition-colors hover:bg-ocean-67">Back to home <FiArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
         </Reveal>
       </div>
     </SiteLayout>
