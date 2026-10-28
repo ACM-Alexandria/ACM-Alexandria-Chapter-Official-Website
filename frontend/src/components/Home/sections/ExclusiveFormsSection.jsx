@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FiArrowUpRight, FiChevronLeft, FiChevronRight, FiClock, FiFileText } from "react-icons/fi";
 import Reveal from "../../ui/Reveal";
 import { prefersReducedMotion } from "../../../hooks/useScrollFrame";
-import { skeleton } from "../../ui/uiStyles";
+import { panelRadius, sectionLead, skeleton } from "../../ui/uiStyles";
 import { summary } from "../../../utils/format";
 
 const ROTATE_MS = 7000;
@@ -28,40 +28,40 @@ const ExclusiveFormsSection = ({ loading, forms, onShowDetails }) => {
   const step = (by) => setIndex((active + by + count) % count);
 
   return (
-    <section id="exclusive-forms" aria-label="Exclusive opportunities" className="mx-auto max-w-[1280px] scroll-mt-20 px-5 pt-16 sm:px-8 sm:pt-24">
-      {loading ? <div className={`h-96 rounded-[2rem] ${skeleton}`} /> : (
+    <section id="exclusive-forms" aria-label="Exclusive opportunities" className="mx-auto max-w-[1280px] scroll-mt-20 px-5 pt-16 sm:px-8 sm:pt-20 lg:pt-24">
+      {loading ? <div className={`h-96 ${panelRadius} ${skeleton}`} /> : (
         <Reveal>
           <div
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocus={() => setPaused(true)}
             onBlur={() => setPaused(false)}
-            className="relative overflow-hidden rounded-[2rem] bg-ocean-794 text-white dark:bg-ocean-871 dark:ring-1 dark:ring-white/10"
+            className={`relative overflow-hidden bg-ocean-794 text-white dark:bg-ocean-871 dark:ring-1 dark:ring-white/10 ${panelRadius}`}
           >
             <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-white/[0.06]" style={{ animation: "hp-sweep 9s ease-in-out 1s infinite" }} />
-            <div key={form.id} className="relative grid items-center gap-8 p-6 sm:p-10 md:grid-cols-[1.1fr_0.9fr] md:gap-10 lg:gap-12 lg:p-14" style={{ animation: "hp-fade 600ms ease-out" }}>
+            <div key={form.id} className="relative grid grid-cols-1 items-center gap-6 p-5 sm:gap-8 sm:p-8 md:grid-cols-[1.1fr_0.9fr] md:gap-10 lg:gap-12 lg:p-12" style={{ animation: "hp-fade 600ms ease-out" }}>
               <div>
                 <p className="flex items-center gap-2 text-sm font-semibold text-ocean-316">
                   <FiClock className="h-4 w-4" aria-hidden="true" />Open for a limited time{count > 1 && <span className="text-ocean-114/70">· {active + 1} of {count}</span>}
                 </p>
-                <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl" style={{ textWrap: "balance" }}>{form.title}</h2>
-                <p className="mt-4 max-w-xl text-lg leading-relaxed text-ocean-114">{summary(form.description || "", 220) || "Limited seats. Secure your spot before registration closes."}</p>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:mt-4 sm:text-4xl lg:text-5xl" style={{ textWrap: "balance" }}>{form.title}</h2>
+                <p className={`mt-3 max-w-xl leading-relaxed text-ocean-114 sm:mt-4 ${sectionLead}`}>{summary(form.description || "", 220) || "Limited seats. Secure your spot before registration closes."}</p>
                 <button
                   type="button"
                   onClick={() => onShowDetails(form.id)}
-                  className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-ocean-676 transition-transform hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-316 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-794"
+                  className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 sm:mt-8 text-sm font-semibold text-ocean-676 transition-transform hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-316 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-794"
                 >
                   View details and register <FiArrowUpRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
-              <div className="aspect-[16/10] overflow-hidden rounded-3xl bg-ocean-808 ring-1 ring-white/10">
+              <div className="aspect-video overflow-hidden rounded-2xl bg-ocean-808 ring-1 ring-white/10 sm:rounded-3xl md:aspect-[16/10]">
                 {form.imageUrl
                   ? <img src={form.imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
                   : <span className="flex h-full w-full items-center justify-center"><FiFileText className="h-14 w-14 text-ocean-316/50" aria-hidden="true" /></span>}
               </div>
             </div>
             {count > 1 && (
-              <div className="relative flex items-center justify-between gap-4 px-6 pb-6 sm:px-10 sm:pb-8 lg:px-14">
+              <div className="relative flex items-center justify-between gap-4 px-5 pb-5 sm:px-8 sm:pb-8 lg:px-12">
                 <div className="flex items-center gap-2">
                   {forms.map((f, i) => (
                     <button

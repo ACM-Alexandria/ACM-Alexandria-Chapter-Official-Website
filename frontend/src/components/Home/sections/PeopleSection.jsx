@@ -5,7 +5,7 @@ import OrgTree from "../../ui/OrgTree";
 import Portrait from "../../ui/Portrait";
 import Reveal from "../../ui/Reveal";
 import TeamsExplorer from "./TeamsExplorer";
-import { muted, skeleton } from "../../ui/uiStyles";
+import { muted, sectionLead, sectionTitle, sectionY, skeleton } from "../../ui/uiStyles";
 
 // The chapter's people: the high board as a photo tree, then every committee and club with its own heads.
 const PeopleSection = ({ loading, highBoard, committees, clubs, currentSeason, myCommitteeId, onApply, onShowClub, isRegistrationModalOpen }) => {
@@ -15,11 +15,11 @@ const PeopleSection = ({ loading, highBoard, committees, clubs, currentSeason, m
   };
 
   return (
-    <section id="people" className="mx-auto max-w-[1280px] scroll-mt-20 px-5 py-16 sm:px-8 sm:py-24">
-      <Reveal className="mb-10 grid gap-6 sm:mb-14 lg:grid-cols-[1fr_auto] lg:items-end">
+    <section id="people" className={`mx-auto max-w-[1280px] scroll-mt-20 px-5 sm:px-8 ${sectionY}`}>
+      <Reveal className="mb-8 grid gap-5 sm:mb-12 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h2 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl dark:text-white" style={{ textWrap: "balance" }}>Led by students, for students</h2>
-          <p className={`mt-4 max-w-2xl text-lg ${muted}`}>The high board leads the chapter. Every committee and club has its own heads under it.</p>
+          <h2 className={sectionTitle} style={{ textWrap: "balance" }}>Led by students, for students</h2>
+          <p className={`mt-3 max-w-2xl sm:mt-4 ${sectionLead} ${muted}`}>The high board leads the chapter. Every committee and club has its own heads under it.</p>
         </div>
         <Link to="/boards" className="inline-flex items-center gap-1.5 font-semibold text-ocean-573 hover:text-ocean-676 dark:text-ocean-316">See past boards <FiArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
       </Reveal>
@@ -32,7 +32,7 @@ const PeopleSection = ({ loading, highBoard, committees, clubs, currentSeason, m
         <>
           {highBoard.length > 0 && (
             <OrgTree
-              className="mb-14 sm:mb-20"
+              className="mb-12 sm:mb-16 lg:mb-20"
               members={highBoard}
               root={(
                 <div className="flex items-center gap-4 rounded-full bg-ocean-794 py-2 pl-2 pr-6 text-white shadow-[0_18px_40px_-20px_color-mix(in_srgb,var(--color-ocean-794)_80%,transparent)] dark:bg-ocean-820">

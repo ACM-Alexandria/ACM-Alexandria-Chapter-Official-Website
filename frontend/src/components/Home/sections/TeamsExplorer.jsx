@@ -5,7 +5,7 @@ import Portrait from "../../ui/Portrait";
 import TeamLogo from "../../ui/TeamLogo";
 import CommitteeActions from "./CommitteeActions";
 import { shortName } from "../../../utils/format";
-import { muted, secondaryButton } from "../../ui/uiStyles";
+import { cardTitle, muted, panelRadius, secondaryButton, sectionLead } from "../../ui/uiStyles";
 
 const OpenTag = ({ open }) => (
   <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${open ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "bg-slate-100 text-slate-600 dark:bg-white/5 dark:text-ocean-239"}`}>{open ? "Open" : "Closed"}</span>
@@ -27,8 +27,8 @@ const TeamsExplorer = ({ groups, myCommitteeId = null, onApply, onShowClub, isRe
   const isCommittee = tab === "committees";
 
   return (
-    <div className="overflow-hidden rounded-[2.25rem] bg-white ring-1 ring-ocean-106 dark:bg-ocean-871 dark:ring-white/10">
-      <div className="flex flex-col gap-5 border-b border-ocean-69 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between dark:border-white/10">
+    <div className={`overflow-hidden bg-white ring-1 ring-ocean-106 dark:bg-ocean-871 dark:ring-white/10 ${panelRadius}`}>
+      <div className="flex flex-col gap-4 border-b border-ocean-69 p-5 sm:gap-5 sm:p-8 lg:flex-row lg:items-center lg:justify-between dark:border-white/10">
         <div role="tablist" aria-label="Teams" className="inline-flex w-fit rounded-xl bg-ocean-31 p-1 dark:bg-white/5">
           {available.map(([id, label]) => (
             <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => { setChosen(id); setIndex(0); }}
@@ -47,14 +47,14 @@ const TeamsExplorer = ({ groups, myCommitteeId = null, onApply, onShowClub, isRe
         </div>
       </div>
 
-      <div key={`${tab}-${team.id}`} className="grid gap-10 p-6 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <div key={`${tab}-${team.id}`} className="grid grid-cols-1 gap-8 p-5 sm:p-8 md:grid-cols-[1fr_1fr] md:items-center lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:p-10">
         <div style={{ animation: "hp-rise 0.35s cubic-bezier(0.22,1,0.36,1) both" }}>
-          <TeamLogo src={team.image} name={team.name} className="h-24 w-24 rounded-3xl !text-2xl shadow-[0_20px_40px_-20px_color-mix(in_srgb,var(--color-ocean-676)_60%,transparent)]" />
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <h3 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">{team.name}</h3>
+          <TeamLogo src={team.image} name={team.name} className="h-16 w-16 rounded-2xl !text-xl shadow-[0_20px_40px_-20px_color-mix(in_srgb,var(--color-ocean-676)_60%,transparent)] sm:h-20 sm:w-20 lg:h-24 lg:w-24 lg:rounded-3xl lg:!text-2xl" />
+          <div className="mt-5 flex flex-wrap items-center gap-3 sm:mt-6">
+            <h3 className={`text-slate-900 dark:text-white ${cardTitle}`}>{team.name}</h3>
             <OpenTag open={team.open} />
           </div>
-          <p className={`mt-4 max-w-md text-lg leading-relaxed ${muted}`}>{team.description}</p>
+          <p className={`mt-3 max-w-md leading-relaxed sm:mt-4 ${sectionLead} ${muted}`}>{team.description}</p>
           {isCommittee ? (
             <CommitteeActions
               committee={team}
@@ -71,9 +71,9 @@ const TeamsExplorer = ({ groups, myCommitteeId = null, onApply, onShowClub, isRe
         {team.board.length > 0 && (
           <OrgTree
             members={team.board}
-            className="mx-auto w-full max-w-md"
+            className="mx-auto w-full max-w-sm"
             root={<span className="inline-flex items-center gap-2 rounded-full bg-ocean-67 px-4 py-2 text-sm font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-222"><TeamLogo src={team.image} name={team.name} className="h-6 w-6 rounded-full" />{shortName(team.name)} board</span>}
-            renderMember={(m) => <Portrait member={m} />}
+            renderMember={(m) => <Portrait member={m} aspect="aspect-[4/5]" />}
           />
         )}
       </div>
