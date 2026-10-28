@@ -72,7 +72,7 @@ const HRFeedbackTab = () => {
           </div>
           <button
             onClick={fetchFeedback}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-[#15273A] hover:bg-slate-100 dark:hover:bg-[#1E3248] text-slate-600 dark:text-slate-200 rounded-lg text-xs font-medium border border-slate-200 dark:border-[#28405A] transition-all cursor-pointer"
           >
             Refresh
           </button>
@@ -92,12 +92,12 @@ const HRFeedbackTab = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5">
+          <div className="flex items-center gap-2 bg-slate-50 dark:bg-[#15273A] border border-slate-200 dark:border-[#28405A] rounded-lg px-3 py-1.5">
             <FiFilter className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-medium focus:outline-none"
+              className="bg-slate-50 dark:bg-[#15273A] text-slate-800 dark:text-slate-100 text-xs font-medium focus:outline-none"
             >
               <option value="all">All Types</option>
               <option value="SUGGESTION">Suggestions</option>
@@ -114,9 +114,9 @@ const HRFeedbackTab = () => {
         )}
 
         {loading ? (
-          <div aria-busy="true" aria-label="Loading HR feedback" className="flex flex-col gap-4">{[0, 1, 2].map((i) => (<div key={i} className="h-28 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 animate-pulse motion-reduce:animate-none" />))}</div>
+          <div aria-busy="true" aria-label="Loading HR feedback" className="flex flex-col gap-4">{[0, 1, 2].map((i) => (<div key={i} className="h-28 rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-slate-100 dark:bg-[#15273A]/60 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : filteredItems.length === 0 ? (
-          <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="text-center py-20 border-2 border-dashed border-slate-100 dark:border-[#28405A] rounded-lg bg-slate-50/50 dark:bg-[#15273A]/50">
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">No feedback items match your criteria.</p>
           </div>
         ) : (
@@ -127,10 +127,10 @@ const HRFeedbackTab = () => {
               return (
                 <div
                   key={item.id}
-                  className={`border rounded-2xl p-6 bg-white dark:bg-slate-900 relative overflow-hidden ${
+                  className={`border rounded-2xl p-6 bg-white dark:bg-[#0F1C29] relative overflow-hidden ${
                     isSuggestion
-                      ? "border-slate-200 dark:border-slate-800"
-                      : "border-slate-200 dark:border-slate-800"
+                      ? "border-slate-200 dark:border-[#1E3248]"
+                      : "border-slate-200 dark:border-[#1E3248]"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-4">

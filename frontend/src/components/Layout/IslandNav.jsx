@@ -25,7 +25,8 @@ const NavItem = ({ href, className, activeClassName = "", onClick, children }) =
 
 // Full-width and transparent over the hero; once the page has scrolled half a screen it shrinks into a
 // floating, rounded bar (the acmuobd.com navbar). Every change is a 300ms transition. It also carries the
-// theme switch and the account menu, and below `lg` a menu button opens a panel with the links and actions.
+// theme switch and the account menu, and below `lg` a menu button opens a panel with the links. On phones, where the
+// header has no room for the theme switch and account menu, the panel also holds your account links and the switch.
 // `links` are [href, label] pairs; on pages other than home the logo links back home. `solid` keeps the floating
 // bar from the start, for pages that begin on a light background instead of a PageHero.
 const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
@@ -163,28 +164,28 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
                 <NavItem key={href} href={href} onClick={() => setMenuOpen(false)} activeClassName="bg-[#F3F7FB] !text-[#205E85] dark:bg-white/5 dark:!text-white" className="rounded-xl px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-[#F3F7FB] hover:text-[#205E85] dark:text-slate-200 dark:hover:bg-white/5 dark:hover:text-white">{label}</NavItem>
               ))}
             </nav>
-            <div className="mt-3 border-t border-[#E6EEF5] pt-3 dark:border-white/10">
-              <button type="button" onClick={(event) => switchTheme(event, !dark, () => setDark(!dark))} className={menuItem}>
-                {dark ? <FiSun className="h-5 w-5 text-slate-500 dark:text-[#7DBBE0]" aria-hidden="true" /> : <FiMoon className="h-5 w-5 text-slate-500" aria-hidden="true" />}
-                {dark ? "Light mode" : "Dark mode"}
-              </button>
-              {!isLoading && isAuthenticated && (
-                <>
-                  {accountLinks.map(({ to, label, icon }) => (
-                    <button key={to} type="button" onClick={() => go(to)} className={menuItem}>{icon}{label}</button>
-                  ))}
-                  <button type="button" onClick={() => { setMenuOpen(false); setLogoutOpen(true); }} className={`${menuItem} text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40`}>
-                    <HiOutlineArrowRightOnRectangle className="h-5 w-5" />Log out
-                  </button>
-                </>
-              )}
-            </div>
+            {!isLoading && isAuthenticated && (
+              <div className="mt-3 border-t border-[#E6EEF5] pt-3 sm:hidden dark:border-white/10">
+                {accountLinks.map(({ to, label, icon }) => (
+                  <button key={to} type="button" onClick={() => go(to)} className={menuItem}>{icon}{label}</button>
+                ))}
+                <button type="button" onClick={() => { setMenuOpen(false); setLogoutOpen(true); }} className={`${menuItem} text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40`}>
+                  <HiOutlineArrowRightOnRectangle className="h-5 w-5" />Log out
+                </button>
+              </div>
+            )}
             {!isLoading && !isAuthenticated && (
               <div className="mt-3 grid grid-cols-2 gap-2 sm:hidden">
                 <Link to="/login" onClick={() => setMenuOpen(false)} className="flex h-11 items-center justify-center rounded-xl text-sm font-semibold text-[#205E85] ring-1 ring-[#D6E6F2] dark:text-[#9FD0EE] dark:ring-white/15">Sign in</Link>
                 <Link to="/register" onClick={() => setMenuOpen(false)} className="flex h-11 items-center justify-center rounded-xl bg-[#205E85] text-sm font-semibold text-white dark:bg-[#4B98C8] dark:text-[#081826]">Join us</Link>
               </div>
             )}
+            <div className="mt-3 border-t border-[#E6EEF5] pt-3 sm:hidden dark:border-white/10">
+              <button type="button" onClick={(event) => switchTheme(event, !dark, () => setDark(!dark))} className={menuItem}>
+                {dark ? <FiSun className="h-5 w-5 text-slate-500 dark:text-[#7DBBE0]" aria-hidden="true" /> : <FiMoon className="h-5 w-5 text-slate-500" aria-hidden="true" />}
+                {dark ? "Light mode" : "Dark mode"}
+              </button>
+            </div>
           </div>
         )}
       </header>

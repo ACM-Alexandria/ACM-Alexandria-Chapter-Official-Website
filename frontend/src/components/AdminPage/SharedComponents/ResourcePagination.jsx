@@ -2,14 +2,14 @@ import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const pageButtonClass =
-  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#15273A] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 // Previous / next controls for a Spring page ({ number, totalPages }). Renders nothing for lists without paging.
 const ResourcePagination = ({ pageInfo, onPageChange }) => {
   if (!pageInfo) return null;
 
   return (
-    <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 mt-6">
+    <div className="flex items-center justify-between border-t border-slate-200 dark:border-[#1E3248] pt-4 mt-6">
       <button
         type="button"
         disabled={pageInfo.number === 0}

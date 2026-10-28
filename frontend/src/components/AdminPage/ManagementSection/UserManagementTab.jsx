@@ -26,7 +26,7 @@ const UserAvatar = ({ item }) => {
         src={url}
         alt=""
         onError={() => setImgError(true)}
-        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-[#28405A] shrink-0"
       />
     );
   }
@@ -56,10 +56,10 @@ const RoleTags = ({ user }) => (
 );
 
 const fieldClass =
-  "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
+  "h-10 px-3 bg-white dark:bg-[#0B1520] border border-slate-300 dark:border-[#28405A] rounded-lg outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
 
 const pageButtonClass =
-  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#15273A] disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
@@ -288,7 +288,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
         </div>
         <button
           onClick={() => setExportModalOpen(true)}
-          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2A7AB0] hover:bg-[#23699A] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
+          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2A7AB0] hover:bg-[#23699A] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-[#0F1C29]"
         >
           <FiFileText className="w-4 h-4" aria-hidden="true" /> Export
         </button>
@@ -378,18 +378,18 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                   <tr key={i} className="group animate-pulse motion-reduce:animate-none" aria-hidden="true">
                     <td className={`px-4 sm:px-5 py-4 ${rowBorderClass}`}>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800" />
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#15273A]" />
                         <div className="space-y-2">
-                          <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
-                          <div className="h-3 w-44 rounded bg-slate-200 dark:bg-slate-800" />
+                          <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-[#15273A]" />
+                          <div className="h-3 w-44 rounded bg-slate-200 dark:bg-[#15273A]" />
                         </div>
                       </div>
                     </td>
                     <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
-                      <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-[#15273A]" />
                     </td>
                     <td className={`hidden @min-[560px]:table-cell px-5 py-4 ${rowBorderClass}`}>
-                      <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-[#15273A]" />
                     </td>
                     <td className={`px-3 sm:px-5 py-4 ${rowBorderClass}`} />
                   </tr>
@@ -464,7 +464,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+          <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-[#1E3248]">
             <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className={pageButtonClass}>
               <FiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
             </button>
@@ -548,7 +548,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
           </div>
         )}
 
-        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-slate-50 dark:bg-[#0B1520]/60 p-4">
           <p className={hintClass}>Target user</p>
           <p className="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100 break-words">{selectedUser?.name}</p>
           <p className={`${hintClass} break-all`}>{selectedUser?.email}</p>
@@ -654,7 +654,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             )}
           </div>
         ) : (
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#1E3248] bg-slate-50 dark:bg-[#0B1520]/60 p-4">
             {renderConfirmationSummary()}
           </div>
         )}
