@@ -3,7 +3,7 @@ import { FiCalendar, FiMapPin } from "react-icons/fi";
 import SectionIntro from "./SectionIntro";
 import Reveal from "../../ui/Reveal";
 import { useScrollFrame, clamp01, prefersReducedMotion } from "../../../hooks/useScrollFrame";
-import { card, muted, skeleton } from "../../ui/uiStyles";
+import { card, muted, sectionY, skeleton } from "../../ui/uiStyles";
 import { eventDate, summary } from "../../../utils/format";
 
 const SHOWN = 5;
@@ -26,15 +26,15 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
   const shown = events.slice(0, SHOWN);
 
   return (
-    <section id="events" className="scroll-mt-20 bg-white py-16 sm:py-24 dark:bg-ocean-871">
-      <div className="mx-auto grid max-w-[1280px] gap-10 px-5 sm:gap-12 sm:px-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+    <section id="events" className={`scroll-mt-20 bg-white dark:bg-ocean-871 ${sectionY}`}>
+      <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-5 sm:gap-12 sm:px-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
         <div className="lg:sticky lg:top-28">
           <SectionIntro icon={FiCalendar} label="Events" count={count} countLabel={count === 1 ? "event this year" : "events this year"} text="Workshops, talks, and competitions open to every student." to="/events" cta={`See all ${count} events`} />
         </div>
 
         {loading ? (
           <div className="flex flex-col gap-4">
-            {[0, 1, 2, 3].map((i) => <div key={i} className={`h-28 rounded-3xl ${skeleton}`} />)}
+            {[0, 1, 2, 3].map((i) => <div key={i} className={`h-28 rounded-3xl sm:h-32 ${skeleton}`} />)}
           </div>
         ) : (
           <ol ref={railRef} style={{ "--rail": 0 }} className="relative flex flex-col gap-4 sm:gap-5">
@@ -58,18 +58,18 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
                   <button
                     type="button"
                     onClick={() => onShowEvent(event.id)}
-                    className={`group flex w-full items-center gap-4 rounded-3xl p-3 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 sm:p-4 ${card}`}
+                    className={`group flex h-28 w-full items-center gap-3 rounded-3xl p-3 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 sm:h-32 sm:gap-4 sm:p-4 ${card}`}
                   >
-                    <span className="h-20 w-24 shrink-0 overflow-hidden rounded-2xl bg-ocean-67 sm:h-24 sm:w-36 dark:bg-ocean-808">
+                    <span className="h-full w-20 shrink-0 overflow-hidden rounded-2xl bg-ocean-67 sm:w-36 dark:bg-ocean-808">
                       {event.imageUrl && <img src={event.imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="line-clamp-2 font-semibold tracking-tight text-slate-900 sm:text-lg dark:text-white">{event.name}</span>
+                      <span className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-slate-900 sm:text-lg dark:text-white">{event.name}</span>
                       {event.description && <span className={`mt-1 line-clamp-1 hidden text-sm sm:block ${muted}`}>{summary(event.description, 120)}</span>}
-                      <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
-                        {event.location && <span className={`flex items-center gap-1 font-medium ${muted}`}><FiMapPin className="h-3.5 w-3.5" aria-hidden="true" />Room {event.location}</span>}
-                        {event.open && <span className="rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Registration open</span>}
-                        {!event.open && upcoming && <span className="rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Upcoming</span>}
+                      <span className="mt-2 flex min-w-0 items-center gap-x-3 text-sm">
+                        {event.open && <span className="shrink-0 rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Registration open</span>}
+                        {!event.open && upcoming && <span className="shrink-0 rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Upcoming</span>}
+                        {event.location && <span className={`flex min-w-0 items-center gap-1 font-medium ${muted}`}><FiMapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span className="truncate">Room {event.location}</span></span>}
                       </span>
                     </span>
                   </button>

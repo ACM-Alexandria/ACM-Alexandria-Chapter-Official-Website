@@ -193,7 +193,8 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
   }, [reduced, planets]);
 
   // Phones and tablets: the hero is the video's own 16:9 frame, as tall as the width allows, so the video is never
-  // cropped. The headline and button sit over it; the tagline, totals and the teams follow below.
+  // cropped. The headline and button sit over it; the tagline and totals follow below, with the orbit of teams
+  // beside them on tablets (phones leave it out).
   if (reduced && narrow) {
     return (
       <>
@@ -202,9 +203,9 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
             <HeroVideo />
             <div className="relative flex h-full flex-col justify-end px-5 pb-[5vw] sm:px-8"><HeroIntro compact stats={stats} signedIn={signedIn} /></div>
           </div>
-          <div className="mx-auto max-w-[1280px] px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
-            <HeroFacts stats={stats} />
-            <div className="mx-auto mt-14 w-[84%] max-w-[560px] sm:w-[80%]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
+          <div className="mx-auto max-w-[1280px] px-5 pb-12 pt-8 sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-10 sm:px-8 sm:pb-20 sm:pt-10">
+            <div><HeroFacts stats={stats} /></div>
+            <div className="hidden sm:mr-16 sm:block sm:w-[240px] md:w-[280px]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
           </div>
         </section>
         <PharosFinale chips={planets} still />

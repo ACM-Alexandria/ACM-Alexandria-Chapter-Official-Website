@@ -1,9 +1,9 @@
 import { FiGlobe } from "react-icons/fi";
 import Reveal from "../../ui/Reveal";
-import { muted, skeleton } from "../../ui/uiStyles";
+import { muted, panelRadius, sectionLead, sectionTitle, sectionY, skeleton } from "../../ui/uiStyles";
 
 // Cells draw their own hairline edges, so a short last row leaves no coloured gap.
-const cell = "group relative flex h-28 items-center justify-center bg-white p-6 shadow-[inset_0_0_0_0.5px_var(--color-ocean-106)] sm:h-36 dark:bg-ocean-871 dark:shadow-[inset_0_0_0_0.5px_color-mix(in_srgb,var(--color-white)_10%,transparent)]";
+const cell = "group relative flex h-28 items-center justify-center bg-white p-5 sm:p-6 shadow-[inset_0_0_0_0.5px_var(--color-ocean-106)] sm:h-36 dark:bg-ocean-871 dark:shadow-[inset_0_0_0_0.5px_color-mix(in_srgb,var(--color-white)_10%,transparent)]";
 
 const Logo = ({ partner }) => {
   const content = partner.imageUrl
@@ -17,17 +17,17 @@ const Logo = ({ partner }) => {
 // The chapter's partners as a still wall of logos on a white band, before the footer. The beam passes over it once
 // when it scrolls into view. A logo is grey until you point at it and links to the partner's site.
 const PartnersSection = ({ loading, partners }) => (
-  <section id="partners" className="scroll-mt-20 bg-white py-16 sm:py-24 dark:bg-ocean-871">
+  <section id="partners" className={`scroll-mt-20 bg-white dark:bg-ocean-871 ${sectionY}`}>
     <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
-      <Reveal className="mb-10 max-w-2xl">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Our partners</h2>
-        <p className={`mt-3 text-lg ${muted}`}>Organisations that share our commitment to technology, education, and community.</p>
+      <Reveal className="mb-8 max-w-2xl sm:mb-10">
+        <h2 className={sectionTitle}>Our partners</h2>
+        <p className={`mt-3 ${sectionLead} ${muted}`}>Organisations that share our commitment to technology, education, and community.</p>
       </Reveal>
       {loading ? (
-        <div className={`h-56 rounded-3xl ${skeleton}`} />
+        <div className={`h-56 ${panelRadius} ${skeleton}`} />
       ) : (
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl ring-1 ring-ocean-106 dark:ring-white/10">
+          <div className={`relative overflow-hidden ring-1 ring-ocean-106 dark:ring-white/10 ${panelRadius}`}>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
               {partners.map((partner) => <Logo key={partner.id} partner={partner} />)}
             </div>
