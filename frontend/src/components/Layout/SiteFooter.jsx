@@ -71,7 +71,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
 
   return (
     <footer id="footer" className="bg-ocean-794 text-ocean-145 dark:bg-ocean-910">
-      <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-8">
+      <div className="mx-auto max-w-[1280px] px-5 py-12 sm:px-8 sm:py-14">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white"><img src={logo} alt="" className="h-9 w-9 object-contain" /></span>
@@ -96,7 +96,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
           )}
         </div>
 
-        <div className="mt-12 grid gap-10 border-t border-white/10 pt-12 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr]">
+        <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 border-t border-white/10 pt-10 sm:mt-12 sm:pt-12 lg:grid-cols-[1fr_1fr_1.3fr]">
           {links.length > 0 && (
             <nav aria-label="Footer">
               <p className={heading}>Explore</p>
@@ -116,7 +116,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
               {canSubmitFeedback && <li><button type="button" onClick={() => setFeedbackOpen(true)} className={linkClass}>Suggestions and complaints</button></li>}
             </ul>
           </div>
-          <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <div className="col-span-2 rounded-3xl bg-white/5 p-5 ring-1 ring-white/10 sm:p-6 lg:col-span-1">
             <p className={heading}>Newsletter</p>
             <p className="mt-2 text-sm leading-relaxed">Get the chapter's news and upcoming events in your inbox.</p>
             <button type="button" onClick={askNews} disabled={busy} className={`mt-5 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors disabled:opacity-60 ${subscribed ? "text-white ring-1 ring-white/25 hover:bg-white/10" : "bg-white text-ocean-676 hover:bg-ocean-67"}`}>
@@ -125,7 +125,7 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-ocean-145/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 sm:mt-12 text-xs text-ocean-145/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} ACM Alexandria Student Chapter</p>
         </div>
       </div>

@@ -7,8 +7,9 @@ import { shortName } from "../../../utils/format";
 import { useScrollFrame, clamp01 } from "../../../hooks/useScrollFrame";
 import TeamLogo from "../../ui/TeamLogo";
 
-// The lighthouse in the still scene is sized from its own screen, which is shorter than the viewport.
-const stillFrameClass = "absolute bottom-[13%] right-[-4%] h-[64%] sm:right-[4%] sm:h-[66%]";
+// The lighthouse in the still scene is sized from its own screen, which is shorter than the viewport. On phones the
+// screen is shorter still, with no empty sky above, so the lighthouse takes more of its height.
+const stillFrameClass = "absolute bottom-[14%] right-[-4%] h-[78%] sm:bottom-[13%] sm:right-[4%] sm:h-[66%]";
 
 const sentence = "Alexandria lit the way for the ancient world. We light the way into computing.";
 const words = sentence.split(" ");
@@ -43,7 +44,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
   useScrollFrame(onFrame);
 
   return (
-    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-ocean-794 dark:bg-ocean-910 ${still ? "h-[min(100svh,34rem)] sm:h-[min(100svh,40rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
+    <section ref={stageRef} aria-label="Join ACM Alexandria" className={`relative bg-ocean-794 dark:bg-ocean-910 ${still ? "h-[23rem] sm:h-[min(100svh,40rem)]" : "h-[360vh]"}`} style={{ "--arrive": 0, "--build": 0, "--ignite": 0, "--sweep": 0, "--cta": 0 }}>
       <div className={`sticky top-0 overflow-hidden ${still ? "h-full" : "h-screen"} bg-[linear-gradient(180deg,#0F3A5A_0%,#0A2740_20%,#06121D_48%,#0B2236_78%,#0F3A5A_100%)] dark:bg-[linear-gradient(180deg,#081826_0%,#06121D_42%,#0B2236_78%,#0F3A5A_100%)]`}>
         <div aria-hidden="true" className="absolute inset-0">
           {stars.map((s, i) => (
@@ -97,7 +98,7 @@ const PharosFinale = ({ chips = [], still = false }) => {
           ))}
         </div>
 
-        <div className="relative mx-auto flex h-full max-w-[1280px] flex-col justify-center px-5 pb-[14vh] pt-[16vh] sm:px-8">
+        <div className={`relative mx-auto flex h-full max-w-[1280px] flex-col px-5 sm:px-8 ${still ? "justify-end pb-[18%] sm:justify-center sm:pb-[14vh] sm:pt-[16vh]" : "justify-center pb-[14vh] pt-[16vh]"}`}>
           <p className="max-w-[15ch] text-2xl font-semibold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:max-w-[16ch] md:text-5xl lg:max-w-[18ch] lg:text-7xl">
             {words.map((word, i) => (
               <span key={i} className="inline-block pr-[0.25em] text-gold-100" style={{ opacity: `calc(0.12 + 0.88 * clamp(0, calc((var(--sweep) - 0.45) * ${((words.length + 2) / 0.55).toFixed(2)} - ${i}), 1))` }}>{word}</span>

@@ -1,5 +1,14 @@
 // Class strings for the public site's design (see docs/home-page-redesign/DESIGN.md).
 export const muted = "text-slate-600 dark:text-ocean-239";
+
+// Shared sizes for the home page, so every section and card steps up the same way from phone to tablet to desktop.
+export const sectionY = "py-16 sm:py-20 lg:py-24";
+export const sectionTitle = "text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-white";
+export const sectionLead = "text-base sm:text-lg";
+// Large panels and feature cards: the forms banner, the teams panel, program cards and the radio player.
+export const panelRadius = "rounded-3xl sm:rounded-[2rem]";
+export const panelPad = "p-5 sm:p-8 lg:p-10";
+export const cardTitle = "text-xl font-semibold tracking-tight sm:text-2xl lg:text-3xl";
 export const card = "bg-white ring-1 ring-ocean-106 dark:bg-ocean-871 dark:ring-white/10";
 export const skeleton = "animate-pulse bg-ocean-67 dark:bg-ocean-808";
 export const eyebrow = "text-sm font-semibold text-ocean-573 dark:text-ocean-316";
