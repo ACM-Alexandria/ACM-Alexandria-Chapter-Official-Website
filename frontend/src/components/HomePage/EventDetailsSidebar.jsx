@@ -6,8 +6,8 @@ import { HiOutlineCalendar, HiOutlineLocationMarker, HiOutlineX, HiOutlineChevro
 import { FiMaximize2 } from "react-icons/fi";
 import RegistrationModal from "../registration/RegistrationModal";
 import { checkEventRegistrationStatus } from "../../services/registrationService";
-import EventReviews, { isReviewAdmin } from "./EventReviews";
-
+import EventReviews from "./EventReviews";
+import RegistrationCancellationModal from "../registration/RegistrationCancellationModal";
 const isEventPast = (event) => {
   const end = event?.endTime || event?.eventTime;
   return end ? new Date(end) < new Date() : false;
@@ -463,7 +463,6 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
                         isPast={isPast}
                         isLoggedIn={isAuthenticated}
                         isRegistered={isRegistered}
-                        isAdmin={isReviewAdmin(user?.role)}
                         onLoginRequired={goToLogin}
                       />
                     </>

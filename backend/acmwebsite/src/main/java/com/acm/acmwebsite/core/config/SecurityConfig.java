@@ -73,9 +73,9 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.POST, "/api/event-reviews/comments/public").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/event-reviews/add").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/event-reviews/mine").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/admin").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
-                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/comments").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
-                        .requestMatchers(HttpMethod.PATCH, "/api/event-reviews/visibility").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD")
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/admin").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        .requestMatchers(HttpMethod.POST, "/api/event-reviews/comments").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        .requestMatchers(HttpMethod.PATCH, "/api/event-reviews/visibility").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         // Allow only GET requests to social links for unauthenticated users
                         .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
                         // Restrict write operations on social links to SUPER_ADMIN

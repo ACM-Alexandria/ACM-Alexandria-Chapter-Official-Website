@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { FiStar, FiEye, FiEyeOff, FiLock, FiCheckCircle } from "react-icons/fi";
+import { FiStar, FiLock, FiCheckCircle } from "react-icons/fi";
 import {
   addReview,
   getRatingSummary,
   getPublicComments,
-  getAdminReviews,
-  toggleReviewVisibility,
   hasUserReviewed,
 } from "../../services/EventReviewService";
-
-const REVIEW_ADMIN_ROLES = ["SUPER_ADMIN", "ACM_HIGH_BOARD"];
-
-export const isReviewAdmin = (role) => REVIEW_ADMIN_ROLES.includes(role);
 
 const Stars = ({ value, size = "w-5 h-5" }) => (
   <div className="flex items-center gap-0.5" aria-label={`${value} out of 5 stars`}>
@@ -34,7 +28,6 @@ const Stars = ({ value, size = "w-5 h-5" }) => (
  *  - isPast           reviews open only after the event ends
  *  - isLoggedIn
  *  - isRegistered     only registered attendees can submit
- *  - isAdmin          SUPER_ADMIN / ACM_HIGH_BOARD
  *  - onLoginRequired
  */
 const EventReviews = ({
@@ -42,7 +35,6 @@ const EventReviews = ({
   isPast,
   isLoggedIn,
   isRegistered,
-  isAdmin,
   onLoginRequired,
 }) => {
   const [summary, setSummary] = useState(null);
@@ -57,11 +49,6 @@ const EventReviews = ({
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState(null);
   const [checkingMine, setCheckingMine] = useState(false);
-
-  const [adminReviews, setAdminReviews] = useState([]);
-  const [adminLoading, setAdminLoading] = useState(false);
-  const [adminError, setAdminError] = useState(null);
-  const [togglingId, setTogglingId] = useState(null);
 
   const loadPublic = useCallback(async () => {
     try {
@@ -79,19 +66,6 @@ const EventReviews = ({
     }
   }, [eventId]);
 
-  const loadAdmin = useCallback(async () => {
-    setAdminLoading(true);
-    try {
-      const list = await getAdminReviews(eventId);
-      setAdminReviews(Array.isArray(list) ? list : []);
-      setAdminError(null);
-    } catch (err) {
-      setAdminError(err.message);
-    } finally {
-      setAdminLoading(false);
-    }
-  }, [eventId]);
-
   useEffect(() => {
     if (!eventId) return;
     setLoading(true);
@@ -101,10 +75,6 @@ const EventReviews = ({
     setFormError(null);
     loadPublic();
   }, [eventId, loadPublic]);
-
-  useEffect(() => {
-    if (eventId && isAdmin) loadAdmin();
-  }, [eventId, isAdmin, loadAdmin]);
 
   useEffect(() => {
     if (!eventId || !isLoggedIn || !isPast) {
@@ -142,28 +112,11 @@ const EventReviews = ({
       await addReview({ eventId, rating, comment });
       setSubmitted(true);
       loadPublic();
-      if (isAdmin) loadAdmin();
     } catch (err) {
       setFormError(err.message);
       if (err.status === 409) setSubmitted(true);
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleToggle = async (reviewId) => {
-    setTogglingId(reviewId);
-    setAdminError(null);
-    try {
-      const result = await toggleReviewVisibility(reviewId);
-      setAdminReviews((list) =>
-        list.map((r) => (r.reviewId === reviewId ? { ...r, status: result.status } : r)),
-      );
-      loadPublic();
-    } catch (err) {
-      setAdminError(err.message);
-    } finally {
-      setTogglingId(null);
     }
   };
 
@@ -296,56 +249,6 @@ const EventReviews = ({
           ))
         )}
       </div>
-
-      {isAdmin && (
-        <div className="space-y-3 rounded-3xl border border-dashed border-[#4B98C8]/40 p-6">
-          <h3 className="font-bold text-slate-900 dark:text-slate-100">
-            Admin: all feedback ({adminReviews.length})
-          </h3>
-          {adminError && <p className="text-sm text-red-500 dark:text-red-300">{adminError}</p>}
-          {adminLoading ? (
-            <div className="h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
-          ) : adminReviews.length === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-300">No feedback yet.</p>
-          ) : (
-            adminReviews.map((r) => {
-              const isPublic = r.status === "PUBLIC";
-              return (
-                <div
-                  key={r.reviewId}
-                  className="flex items-start justify-between gap-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 p-4"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <Stars value={r.rating} size="w-4 h-4" />
-                    <p
-                      className={`text-sm break-words ${
-                        r.comment
-                          ? "text-slate-700 dark:text-slate-200"
-                          : "italic text-slate-400"
-                      }`}
-                    >
-                      {r.comment || "No comment"}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleToggle(r.reviewId)}
-                    disabled={togglingId === r.reviewId}
-                    className={`shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors disabled:opacity-60 ${
-                      isPublic
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
-                        : "bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600"
-                    }`}
-                  >
-                    {isPublic ? <FiEye className="w-4 h-4" /> : <FiEyeOff className="w-4 h-4" />}
-                    {isPublic ? "Public" : "Private"}
-                  </button>
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
     </section>
   );
 };

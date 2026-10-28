@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventReviewService {
 
-    private static final Set<Role> ADMIN_ROLES = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD);
+    private static final Set<Role> ADMIN_ROLES = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD, Role.ACM_COMMITTEE_BOARD, Role.ACM_CLUB_BOARD);
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;

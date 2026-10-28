@@ -9,7 +9,6 @@ import com.acm.acmwebsite.feature.enums.ReviewStatus;
 import com.acm.acmwebsite.feature.repository.EventRepository;
 import com.acm.acmwebsite.feature.repository.EventReviewRepository;
 import com.acm.acmwebsite.feature.repository.EventReviewRepository.EventRatingSummary;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +74,8 @@ class EventReviewServiceTest {
         @ValueSource(ints = {1, 3, 5})
         void ratingBoundaries_areAccepted(int rating) {
             stubEventAndUser();
-            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(false);
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+            when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(false);
             when(eventReviewRepository.save(any(EventReview.class))).thenAnswer(i -> i.getArgument(0));
 
             EventReview saved = service.addReview(EVENT_ID, userId, rating, "ok");
@@ -95,7 +96,10 @@ class EventReviewServiceTest {
 
         @Test
         void userNotFound_throwsNotFound() {
-            when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(mock(Event.class)));
+            Event event = pastEvent();
+            when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+            when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(false);
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.addReview(EVENT_ID, userId, 5, "x"))
@@ -105,28 +109,22 @@ class EventReviewServiceTest {
             verify(eventReviewRepository, never()).save(any());
         }
 
-        /**
-         * Documents CURRENT behaviour: the service throws CONFLICT ("You already reviewed this event")
-         * when eventRegistrationService.isUserRegistered(...) is true. The message suggests the intended
-         * check is eventReviewRepository.existsByUserIdAndEventId(...) -- see the @Disabled test below.
-         */
         @Test
-        void userRegistered_currentlyThrowsConflict() {
-            stubEventAndUser();
-            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+        void unregisteredUser_isForbidden() {
+            stubEvent();
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(false);
 
             assertThatThrownBy(() -> service.addReview(EVENT_ID, userId, 5, "x"))
                     .isInstanceOfSatisfying(ResponseStatusException.class,
-                            e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+                            e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN));
 
             verify(eventReviewRepository, never()).save(any());
         }
 
-        /** Enable once the duplicate check uses eventReviewRepository.existsByUserIdAndEventId. */
-        @Disabled("Service currently checks isUserRegistered instead of existsByUserIdAndEventId")
         @Test
         void duplicateReview_throwsConflict() {
-            stubEventAndUser();
+            stubEvent();
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
             when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(true);
 
             assertThatThrownBy(() -> service.addReview(EVENT_ID, userId, 5, "x"))
@@ -136,11 +134,12 @@ class EventReviewServiceTest {
 
         @Test
         void validReview_isSavedAsPrivateWithTrimmedComment() {
-            Event event = mock(Event.class);
+            Event event = pastEvent();
             User user = mock(User.class);
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(false);
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+            when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(false);
             when(eventReviewRepository.save(any(EventReview.class))).thenAnswer(i -> i.getArgument(0));
 
             EventReview result = service.addReview(EVENT_ID, userId, 4, "   Great talk!  ");
@@ -161,7 +160,8 @@ class EventReviewServiceTest {
         @ValueSource(strings = {"", "   ", "\t\n"})
         void blankComment_isStoredAsNull(String blank) {
             stubEventAndUser();
-            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(false);
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+            when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(false);
             when(eventReviewRepository.save(any(EventReview.class))).thenAnswer(i -> i.getArgument(0));
 
             EventReview saved = service.addReview(EVENT_ID, userId, 5, blank);
@@ -172,7 +172,8 @@ class EventReviewServiceTest {
         @Test
         void nullComment_isStoredAsNull() {
             stubEventAndUser();
-            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(false);
+            when(eventRegistrationService.isUserRegistered(userId, EVENT_ID)).thenReturn(true);
+            when(eventReviewRepository.existsByUserIdAndEventId(userId, EVENT_ID)).thenReturn(false);
             when(eventReviewRepository.save(any(EventReview.class))).thenAnswer(i -> i.getArgument(0));
 
             EventReview saved = service.addReview(EVENT_ID, userId, 5, null);
@@ -181,8 +182,18 @@ class EventReviewServiceTest {
         }
 
         private void stubEventAndUser() {
-            when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(mock(Event.class)));
+            stubEvent();
             when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+        }
+
+        private void stubEvent() {
+            when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(pastEvent()));
+        }
+
+        private Event pastEvent() {
+            Event event = new Event();
+            event.setEventTime(LocalDateTime.now().minusDays(1));
+            return event;
         }
     }
 
@@ -194,7 +205,8 @@ class EventReviewServiceTest {
 
         @Test
         void roundsAverageToOneDecimal() {
-            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary(4.37, 10L));
+            EventRatingSummary summary = summary(4.37, 10L);
+            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary);
 
             var result = service.getRatingSummary(EVENT_ID);
 
@@ -204,14 +216,16 @@ class EventReviewServiceTest {
 
         @Test
         void roundsDown_whenBelowHalf() {
-            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary(4.32, 3L));
+            EventRatingSummary summary = summary(4.32, 3L);
+            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary);
 
             assertThat(service.getRatingSummary(EVENT_ID).averageRating()).isEqualTo(4.3);
         }
 
         @Test
         void noReviews_nullsBecomeZero() {
-            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary(null, null));
+            EventRatingSummary summary = summary(null, null);
+            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary);
 
             var result = service.getRatingSummary(EVENT_ID);
 
@@ -221,7 +235,8 @@ class EventReviewServiceTest {
 
         @Test
         void exactAverage_isUnchanged() {
-            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary(5.0, 2L));
+            EventRatingSummary summary = summary(5.0, 2L);
+            when(eventReviewRepository.getRatingSummary(EVENT_ID)).thenReturn(summary);
 
             assertThat(service.getRatingSummary(EVENT_ID).averageRating()).isEqualTo(5.0);
         }
@@ -259,11 +274,9 @@ class EventReviewServiceTest {
         }
 
         /**
-         * The comment above getAllComments says "only for admins/board", and the controller says
-         * "Admins only", but the service never checks the role (unlike toggleVisibility).
-         * Enable this once the check is added.
+         * Only administrators and board members can view every comment.
+         * The service enforces the same role check as visibility changes.
          */
-        @Disabled("getAllComments does not currently enforce an admin role")
         @ParameterizedTest
         @MethodSource("com.acm.acmwebsite.feature.service.EventReviewServiceTest#nonAdminRoles")
         void getAllComments_nonAdmin_isForbidden(Role role) {
@@ -292,7 +305,7 @@ class EventReviewServiceTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD"})
+        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
         void admin_reviewNotFound_throwsNotFound(Role role) {
             when(eventReviewRepository.findById(7L)).thenReturn(Optional.empty());
 
@@ -302,7 +315,7 @@ class EventReviewServiceTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD"})
+        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
         void admin_privateBecomesPublic(Role role) {
             EventReview review = reviewWithStatus(ReviewStatus.PRIVATE);
             when(eventReviewRepository.findById(7L)).thenReturn(Optional.of(review));
@@ -313,7 +326,7 @@ class EventReviewServiceTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD"})
+        @EnumSource(value = Role.class, names = {"SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"})
         void admin_publicBecomesPrivate(Role role) {
             EventReview review = reviewWithStatus(ReviewStatus.PUBLIC);
             when(eventReviewRepository.findById(7L)).thenReturn(Optional.of(review));
@@ -341,9 +354,9 @@ class EventReviewServiceTest {
         }
     }
 
-    // Every Role value that is NOT SUPER_ADMIN / ACM_HIGH_BOARD
+    // Every Role value that is not an administrator or board member
     static Stream<Role> nonAdminRoles() {
-        Set<Role> admins = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD);
+        Set<Role> admins = Set.of(Role.SUPER_ADMIN, Role.ACM_HIGH_BOARD, Role.ACM_COMMITTEE_BOARD, Role.ACM_CLUB_BOARD);
         return Arrays.stream(Role.values()).filter(r -> !admins.contains(r));
     }
 }
