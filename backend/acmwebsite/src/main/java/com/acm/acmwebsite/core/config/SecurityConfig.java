@@ -78,6 +78,7 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.PATCH, "/api/event-reviews/visibility").hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
                         // Allow only GET requests to social links for unauthenticated users
                         .requestMatchers(HttpMethod.GET, "/api/socialLinks/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/faq/**").permitAll()
                         // Restrict write operations on social links to SUPER_ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/socialLinks/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")

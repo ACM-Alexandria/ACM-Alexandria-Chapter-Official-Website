@@ -19,6 +19,7 @@ import { Highlight } from "../components/ThemedDialog";
 import useThemedDialog from "../hooks/useThemedDialog";
 import FeedbackTab from "../components/AdminPage/ManagementSection/FeedbackTab";
 import HRFeedbackTab from "../components/AdminPage/ManagementSection/HRFeedbackTab";
+import FAQManagementTab from "../components/AdminPage/ManagementSection/FAQManagementTab";
 import UserManagementTab from "../components/AdminPage/ManagementSection/UserManagementTab";
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import PastBoardsTab from "../components/AdminPage/PastBoardsSection/PastBoardsTab";
@@ -56,6 +57,7 @@ import {
   FiGlobe,
   FiMail,
   FiLock,
+  FiHelpCircle,
 } from "react-icons/fi";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -135,6 +137,7 @@ const AdminPage = () => {
     { id: "gallery", label: "Gallery", icon: FiGrid },
     { id: "socialLinks", label: "Social Links", icon: FiShare2 },
     { id: "partners", label: "Partners", icon: FiGlobe },
+    { id: "faq", label: "FAQs", icon: FiHelpCircle },
     { id: "feedback", label: "Grow Feedback", icon: FiMessageSquare },
     { id: "hrFeedback", label: "HR Feedback", icon: FiMessageSquare },
     ...(canManagePastBoards ? [{ id: "pastBoards", label: "Past Boards", icon: FiLayers }] : []),
@@ -858,7 +861,7 @@ const AdminPage = () => {
   };
   const sectionName = sectionNames[mgmtTab] || mgmtTab;
 
-  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards"].includes(mgmtTab);
+  const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards", "faq"].includes(mgmtTab);
 
   return (
     <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
@@ -968,6 +971,8 @@ const AdminPage = () => {
                   <FeedbackTab />
                 ) : mgmtTab === "hrFeedback" && canSeeHRFeedback ? (
                   <HRFeedbackTab />
+                ) : mgmtTab === "faq" ? (
+                  <FAQManagementTab />
                 ) : (
                   <ResourceTable
                     activeTab={mgmtTab}
