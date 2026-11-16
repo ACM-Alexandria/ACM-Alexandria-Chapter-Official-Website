@@ -38,6 +38,9 @@ public class PointsLogServiceTest {
     @InjectMocks
     private PointsLogService pointsLogService;
 
+    private static final String ASSIGNER_EMAIL = "assigner@test.com";
+    private static final String MEMBER_EMAIL = "member@test.com";
+
     private User member;
     private User assigner;
     private UUID memberId;
@@ -57,6 +60,7 @@ public class PointsLogServiceTest {
 
         assigner = new User();
         assigner.setId(assignerId);
+        assigner.setEmail(ASSIGNER_EMAIL);
 
         existingLog = new PointsLog();
         existingLog.setId(logId);
@@ -80,32 +84,68 @@ public class PointsLogServiceTest {
 
     @Test
     void addPointsLog_ShouldAddPointsToMemberAndSaveLog() {
-        when(userRepository.getReferenceById(memberId)).thenReturn(member);
-        when(userRepository.getReferenceById(assignerId)).thenReturn(assigner);
+        when(userRepository.findByEmail(ASSIGNER_EMAIL)).thenReturn(Optional.of(assigner));
+        when(userRepository.findById(memberId)).thenReturn(Optional.of(member));
         when(pointsLogRepository.save(any(PointsLog.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        PointsLog result = pointsLogService.addPointsLog(memberId, assignerId, 50, "Won hackathon");
+        PointsLog result = pointsLogService.addPointsLog(memberId, ASSIGNER_EMAIL, 50, "Won hackathon");
 
         // Points should increase: 100 + 50
         assertEquals(150, member.getSeasonPoints());
         assertEquals(50, result.getPoints());
         assertEquals(member, result.getMember());
         assertEquals(assigner, result.getAssigner());
+        assertEquals(assigner, result.getLastUpdater());
         verify(pointsLogRepository).save(any(PointsLog.class));
     }
 
     @Test
+    void addPointsLog_ToSelf_ShouldBeForbiddenAndChangeNothing() {
+        member.setEmail(MEMBER_EMAIL);
+        when(userRepository.findByEmail(MEMBER_EMAIL)).thenReturn(Optional.of(member));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> pointsLogService.addPointsLog(memberId, MEMBER_EMAIL, 50, "Self award"));
+
+        assertEquals(403, ex.getStatusCode().value());
+        assertEquals(100, member.getSeasonPoints());
+        verify(pointsLogRepository, never()).save(any(PointsLog.class));
+    }
+
+    @Test
+    void addPointsLog_WhenMemberNotFound_ShouldThrowNotFound() {
+        when(userRepository.findByEmail(ASSIGNER_EMAIL)).thenReturn(Optional.of(assigner));
+        when(userRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> pointsLogService.addPointsLog(memberId, ASSIGNER_EMAIL, 50, "Reason"));
+
+        assertEquals(404, ex.getStatusCode().value());
+        verify(pointsLogRepository, never()).save(any(PointsLog.class));
+    }
+
+    @Test
+    void addPointsLog_WhenActorUnknown_ShouldThrowUnauthorized() {
+        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> pointsLogService.addPointsLog(memberId, "ghost@test.com", 50, "Reason"));
+
+        assertEquals(401, ex.getStatusCode().value());
+    }
+
+    @Test
     void updatePointsLog_ShouldAdjustMemberPointsAndSave() {
-        UUID updaterId = UUID.randomUUID();
         User updater = new User();
-        updater.setId(updaterId);
+        updater.setId(UUID.randomUUID());
+        updater.setEmail("updater@test.com");
 
         when(pointsLogRepository.findById(logId)).thenReturn(Optional.of(existingLog));
-        when(userRepository.getReferenceById(updaterId)).thenReturn(updater);
+        when(userRepository.findByEmail("updater@test.com")).thenReturn(Optional.of(updater));
 
         // Original log was 20 points. Member currently has 100 points.
         // Changing log to 50 points (an increase of 30 points). Member should end up with 130 points.
-        PointsLog result = pointsLogService.updatePointsLog(logId, updaterId, 50, "Updated reason");
+        PointsLog result = pointsLogService.updatePointsLog(logId, "updater@test.com", 50, "Updated reason");
 
         assertEquals(130, member.getSeasonPoints());
         assertEquals(50, result.getPoints());
@@ -114,19 +154,33 @@ public class PointsLogServiceTest {
     }
 
     @Test
+    void updatePointsLog_OnOwnLog_ShouldBeForbiddenAndChangeNothing() {
+        member.setEmail(MEMBER_EMAIL);
+        when(pointsLogRepository.findById(logId)).thenReturn(Optional.of(existingLog));
+        when(userRepository.findByEmail(MEMBER_EMAIL)).thenReturn(Optional.of(member));
+
+        assertThrows(ResponseStatusException.class,
+                () -> pointsLogService.updatePointsLog(logId, MEMBER_EMAIL, 500, "Bumped"));
+
+        assertEquals(100, member.getSeasonPoints());
+        assertEquals(20, existingLog.getPoints());
+    }
+
+    @Test
     void updatePointsLog_WhenLogNotFound_ShouldThrowException() {
         when(pointsLogRepository.findById(logId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> {
-            pointsLogService.updatePointsLog(logId, assignerId, 50, "Reason");
+            pointsLogService.updatePointsLog(logId, ASSIGNER_EMAIL, 50, "Reason");
         });
     }
 
     @Test
     void deletePointsLog_ShouldRevertMemberPointsAndDelete() {
         when(pointsLogRepository.findById(logId)).thenReturn(Optional.of(existingLog));
+        when(userRepository.findByEmail(ASSIGNER_EMAIL)).thenReturn(Optional.of(assigner));
 
-        pointsLogService.deletePointsLog(logId);
+        pointsLogService.deletePointsLog(logId, ASSIGNER_EMAIL);
 
         // Member had 100 points, log was 20 points. Reverting should leave 80 points.
         assertEquals(80, member.getSeasonPoints());
@@ -134,11 +188,23 @@ public class PointsLogServiceTest {
     }
 
     @Test
+    void deletePointsLog_OnOwnLog_ShouldBeForbidden() {
+        member.setEmail(MEMBER_EMAIL);
+        when(pointsLogRepository.findById(logId)).thenReturn(Optional.of(existingLog));
+        when(userRepository.findByEmail(MEMBER_EMAIL)).thenReturn(Optional.of(member));
+
+        assertThrows(ResponseStatusException.class, () -> pointsLogService.deletePointsLog(logId, MEMBER_EMAIL));
+
+        assertEquals(100, member.getSeasonPoints());
+        verify(pointsLogRepository, never()).deleteById(any());
+    }
+
+    @Test
     void deletePointsLog_WhenLogNotFound_ShouldThrowException() {
         when(pointsLogRepository.findById(logId)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> {
-            pointsLogService.deletePointsLog(logId);
+            pointsLogService.deletePointsLog(logId, ASSIGNER_EMAIL);
         });
     }
 }
