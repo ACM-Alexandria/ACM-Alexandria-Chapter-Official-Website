@@ -102,7 +102,7 @@ public class BadgeRankingService {
             boolean fits = j <= openPlaces;
             for (int k = i; k < j; k++) {
                 User u = sorted.get(k).user();
-                result.add(new RankedMember(u.getId(), displayName(u), u.getProfileImageUrl(), pts, rank,
+                result.add(new RankedMember(u.getId(), displayName(u), BadgeMapper.photoOf(u), pts, rank,
                         inRange && fits, inRange && !fits));
             }
             i = j;

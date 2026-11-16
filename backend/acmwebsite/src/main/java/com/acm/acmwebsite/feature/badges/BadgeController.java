@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +16,8 @@ import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberBadgesResponse;
 
 import lombok.RequiredArgsConstructor;
 
-// Badges as members and visitors see them. `/api/public/**` is open to everyone (SecurityConfig);
-// `/api/badges/me` needs a signed-in user.
+// Badges as members, admins and visitors see them. The single badge page (`/api/public/badges/...`) is open
+// to everyone (SecurityConfig); the rest needs a signed-in user.
 @RestController
 @RequiredArgsConstructor
 public class BadgeController {
@@ -35,7 +36,11 @@ public class BadgeController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/api/public/members/{userId}/badges")
+    // A member's badges for the admin and HR member view: the same people who can open a member's profile
+    // there (see UserController#adminGetUserProfile).
+    @GetMapping("/api/badges/members/{userId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+            + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)")
     public MemberBadgesResponse memberBadges(@PathVariable UUID userId) {
         return awardService.memberBadges(userId);
     }
