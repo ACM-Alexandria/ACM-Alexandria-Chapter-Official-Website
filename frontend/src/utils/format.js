@@ -14,6 +14,12 @@ export const eventDate = (iso) => {
   };
 };
 
+// An event is over once its end time (or its start time, when it has no end) has passed.
+export const isEventPast = (event) => {
+  const end = event?.endTime || event?.eventTime;
+  return end ? new Date(end) < new Date() : false;
+};
+
 export const summary = (text = "", length = 150) => {
   const flat = text.replace(/\s+/g, " ").trim();
   return flat.length > length ? `${flat.slice(0, length).replace(/\s\S*$/, "")}…` : flat;

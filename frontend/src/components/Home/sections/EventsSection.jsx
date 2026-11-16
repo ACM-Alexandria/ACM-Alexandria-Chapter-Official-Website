@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import SectionIntro from "./SectionIntro";
 import Reveal from "../../ui/Reveal";
+import EventRating from "../../ui/EventRating";
 import { useScrollFrame, clamp01, prefersReducedMotion } from "../../../hooks/useScrollFrame";
 import { card, muted, sectionY, skeleton } from "../../ui/uiStyles";
 import { eventDate, summary } from "../../../utils/format";
@@ -44,6 +45,8 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
             {shown.map((event, i) => {
               const date = eventDate(event.time);
               const upcoming = new Date(event.time).getTime() > now;
+              // Over once its end (or its start, with no end) has passed: no "Registration open", a rating instead.
+              const past = new Date(event.endTime || event.time).getTime() < now;
               // Where this dot sits along the rail, so it lights once --rail passes it.
               const at = shown.length > 1 ? i / (shown.length - 1) : 0;
               return (
@@ -67,8 +70,9 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
                       <span className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-slate-900 sm:text-lg dark:text-white">{event.name}</span>
                       {event.description && <span className={`mt-1 line-clamp-1 hidden text-sm sm:block ${muted}`}>{summary(event.description, 120)}</span>}
                       <span className="mt-2 flex min-w-0 items-center gap-x-3 text-sm">
-                        {event.open && <span className="shrink-0 rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Registration open</span>}
+                        {event.open && !past && <span className="shrink-0 rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Registration open</span>}
                         {!event.open && upcoming && <span className="shrink-0 rounded-full bg-ocean-67 px-2.5 py-0.5 text-xs font-semibold text-ocean-676 dark:bg-ocean-808 dark:text-ocean-222">Upcoming</span>}
+                        <EventRating eventId={event.id} past={past} />
                         {event.location && <span className={`flex min-w-0 items-center gap-1 font-medium ${muted}`}><FiMapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span className="truncate">Room {event.location}</span></span>}
                       </span>
                     </span>

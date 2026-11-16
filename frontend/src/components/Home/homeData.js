@@ -63,7 +63,7 @@ export const toHomeData = ({ committees, clubs, highBoard, events, programs, sea
   })),
   highBoard: items(highBoard).map(toMember).sort(byOrder),
   events: items(events)
-    .map((e) => ({ id: e.id, name: (e.name || "").trim(), description: e.description, imageUrl: e.imageUrl, time: e.eventTime, location: e.location, open: Boolean(e.registrationOpen) }))
+    .map((e) => ({ id: e.id, name: (e.name || "").trim(), description: e.description, imageUrl: e.imageUrl, time: e.eventTime, endTime: e.endTime, location: e.location, open: Boolean(e.registrationOpen) }))
     .sort((a, b) => new Date(b.time) - new Date(a.time)),
   programs: items(programs).map((p) => ({
     id: p.id,
