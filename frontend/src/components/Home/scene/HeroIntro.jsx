@@ -14,14 +14,14 @@ const Join = ({ className }) => (
 );
 
 const Tagline = ({ className = "" }) => (
-  <p className={`max-w-lg text-base leading-relaxed sm:text-lg text-ocean-114 ${className}`} style={{ animation: "hp-rise 0.8s ease-out 0.25s both" }}>{tagline}.</p>
+  <p className={`max-w-lg text-base leading-relaxed sm:text-lg text-ocean-114 ${className}`} style={{ animation: "hp-rise 0.8s ease-out 0.25s both" }}>{tagline}</p>
 );
 
-const Totals = ({ stats }) => {
+const Totals = ({ stats, className = "mt-8 sm:mt-10" }) => {
   const totals = heroStats(stats);
   if (totals.length === 0) return null;
   return (
-    <dl className="mt-8 flex max-w-lg divide-x divide-white/15 sm:mt-10" style={{ animation: "hp-rise 0.8s ease-out 0.15s both" }}>
+    <dl className={`${className} flex max-w-lg divide-x divide-white/15`} style={{ animation: "hp-rise 0.8s ease-out 0.15s both" }}>
       {totals.map((item) => (
         <div key={item.key} className="flex flex-1 flex-col-reverse px-3 first:pl-0 sm:px-6">
           <dt className="mt-1 whitespace-nowrap text-xs font-medium text-ocean-145 sm:text-sm">{item.label}</dt>
@@ -32,18 +32,19 @@ const Totals = ({ stats }) => {
   );
 };
 
-// The tagline and totals, for below the compact hero's video frame.
+// The tagline and totals, for below the compact hero's video frame. Phones leave the tagline out and show only the
+// totals.
 export const HeroFacts = ({ stats }) => (
   <>
-    <Tagline />
-    <Totals stats={stats} />
+    <Tagline className="hidden sm:block" />
+    <Totals stats={stats} className="sm:mt-10" />
   </>
 );
 
 const HeroIntro = ({ stats, signedIn, compact = false }) => (
   <>
     <h1 className={`font-semibold leading-[1.03] tracking-[-0.035em] ${compact ? "text-[clamp(1.6rem,7vw,3.75rem)]" : "text-[2.6rem] sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem]"}`} style={{ animation: "hp-rise 0.8s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}>
-      <span className="whitespace-nowrap">Learn it, build it,</span><br /><span className="text-ocean-316">then ship it.</span>
+      <span className="whitespace-nowrap">Association for</span><br /><span className="text-ocean-316">Computing Machinery</span>
     </h1>
     {!compact && <Tagline className="mt-4 sm:mt-6" />}
     {!signedIn && (

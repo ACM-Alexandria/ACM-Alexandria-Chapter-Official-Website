@@ -99,16 +99,16 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
       <header ref={headerRef} className={`fixed inset-x-0 top-0 z-40 flex flex-col items-center px-3 transition-[padding] duration-300 ease-out ${solid ? "pt-2.5" : "pt-0"}`}>
         <div
           className={`flex w-full items-center justify-between gap-4 transition-all duration-300 ease-out sm:gap-6 ${solid
-            ? "h-14 max-w-[1080px] rounded-2xl bg-white/95 px-3 text-slate-900 shadow-[0_14px_40px_-18px_color-mix(in_srgb,var(--color-ocean-910)_50%,transparent)] ring-1 ring-black/5 backdrop-blur-md dark:bg-ocean-871/95 dark:text-white dark:ring-white/10"
-            : "h-[72px] max-w-[1280px] rounded-none bg-transparent px-2 text-white sm:px-5"}`}
+            ? "h-[60px] max-w-[1080px] rounded-full bg-white/95 pl-2.5 pr-2.5 text-slate-900 shadow-[0_14px_40px_-18px_color-mix(in_srgb,var(--color-ocean-910)_50%,transparent)] ring-1 ring-black/5 backdrop-blur-md dark:bg-ocean-871/95 dark:text-white dark:ring-white/10"
+            : "h-[76px] max-w-[1280px] rounded-none bg-transparent px-2 text-white sm:px-5"}`}
         >
-          <NavItem href={home ? "#top" : "/"} className="flex items-center gap-3 whitespace-nowrap text-base font-semibold">
-            <span className={`flex items-center justify-center rounded-full bg-white transition-all duration-300 ${solid ? "h-9 w-9 ring-1 ring-ocean-106" : "h-10 w-10"}`}><img src={logo} alt="" className="h-3/4 w-3/4 object-contain" /></span>
-            ACM Alexandria
+          <NavItem href={home ? "#top" : "/"} className="flex items-center gap-3 whitespace-nowrap">
+            <span className={`flex items-center justify-center rounded-full bg-white shadow-md ring-1 ring-ocean-106 transition-all duration-300 ${solid ? "h-10 w-10" : "h-11 w-11"}`}><img src={logo} alt="" className="h-[82%] w-[82%] object-contain" /></span>
+            <span className="text-base font-semibold">ACM Alexandria</span>
           </NavItem>
-          <nav aria-label="Sections" className="hidden gap-1 text-sm font-medium lg:flex">
+          <nav aria-label="Sections" className={`hidden gap-1 rounded-full p-1 text-sm font-medium lg:flex ${solid ? "bg-ocean-31 dark:bg-white/5" : "bg-white/10 ring-1 ring-white/15 backdrop-blur-md"}`}>
             {links.map(([href, label]) => (
-              <NavItem key={href} href={href} activeClassName={solid ? "!text-ocean-676 bg-ocean-31 dark:bg-white/5 dark:!text-white" : "!text-white"} className={`rounded-lg px-3 py-2 transition-colors ${solid ? "text-slate-600 hover:bg-ocean-31 hover:text-ocean-676 dark:text-ocean-239 dark:hover:bg-white/5 dark:hover:text-white" : "text-ocean-145 hover:text-white"}`}>{label}</NavItem>
+              <NavItem key={href} href={href} activeClassName={solid ? "!bg-white !text-ocean-676 shadow-sm dark:!bg-ocean-808 dark:!text-white" : "bg-white/15 !text-white"} className={`rounded-full px-3.5 py-1.5 transition-colors ${solid ? "text-slate-600 hover:bg-white hover:text-ocean-676 dark:text-ocean-239 dark:hover:bg-white/10 dark:hover:text-white" : "text-ocean-145 hover:bg-white/10 hover:text-white"}`}>{label}</NavItem>
             ))}
           </nav>
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -145,7 +145,7 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
                 <Link to="/login" className={`hidden rounded-xl px-3 py-2 text-sm font-semibold transition-colors sm:inline-flex ${solid ? "text-slate-700 hover:text-ocean-676 dark:text-slate-200 dark:hover:text-white" : "text-ocean-145 hover:text-white"}`}>Sign in</Link>
                 <Link
                   to="/register"
-                  className={`hidden shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-colors duration-300 sm:inline-flex ${solid ? "bg-ocean-676 text-white hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910" : "bg-white text-ocean-676 dark:bg-ocean-461 dark:text-ocean-910"}`}
+                  className={`hidden shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 sm:inline-flex ${solid ? "bg-ocean-676 text-white hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910" : "bg-white text-ocean-676 dark:bg-ocean-461 dark:text-ocean-910"}`}
                 >
                   Join us
                 </Link>

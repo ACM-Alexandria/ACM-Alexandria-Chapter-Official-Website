@@ -10,7 +10,7 @@ import { primaryButton, secondaryButton } from "../../ui/uiStyles";
 
 // What a visitor can do with a committee: see it is theirs, follow its announcements, and apply (or cancel an
 // application) while its call is open. Signed-out visitors are sent to log in and brought back to the application.
-const CommitteeActions = ({ committee, isMyCommittee = false, onApply, isRegistrationModalOpen = false }) => {
+const CommitteeActions = ({ committee, isMyCommittee = false, onApply, isRegistrationModalOpen = false, className = "mt-6 flex flex-wrap items-center gap-3 max-xl:[&>button]:w-full" }) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [subscribed, setSubscribed] = useState(false);
@@ -98,7 +98,7 @@ const CommitteeActions = ({ committee, isMyCommittee = false, onApply, isRegistr
 
   return (
     <>
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className={className}>
         {isMyCommittee && (
           <span className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-ocean-67 px-4 text-sm font-semibold text-ocean-637 dark:bg-ocean-808 dark:text-ocean-222">
             <FiStar className="h-4 w-4 fill-current" aria-hidden="true" />My committee

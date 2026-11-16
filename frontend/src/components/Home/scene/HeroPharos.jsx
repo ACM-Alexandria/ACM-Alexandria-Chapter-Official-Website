@@ -4,6 +4,7 @@ import { FiArrowRight } from "react-icons/fi";
 import logo from "../../../assets/logo/acm-logo-no-bg.png";
 import Pharos from "./Pharos";
 import HeroIntro, { HeroFacts } from "./HeroIntro";
+import { heroStats } from "../homeContent";
 import CommitteeOrbit from "./CommitteeOrbit";
 import PharosFinale from "./PharosFinale";
 import HeroVideo from "./HeroVideo";
@@ -203,9 +204,9 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
             <HeroVideo />
             <div className="relative flex h-full flex-col justify-end px-5 pb-[5vw] sm:px-8"><HeroIntro compact stats={stats} signedIn={signedIn} /></div>
           </div>
-          <div className="mx-auto max-w-[1280px] px-5 pb-12 pt-8 sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-10 sm:px-8 sm:pb-20 sm:pt-10">
+          <div className={`mx-auto max-w-[1280px] px-5 pb-12 pt-8 sm:grid ${heroStats(stats).length > 0 ? "" : "max-sm:hidden"} sm:grid-cols-[1fr_auto] sm:items-center sm:gap-10 sm:px-8 sm:pb-20 sm:pt-10`}>
             <div><HeroFacts stats={stats} /></div>
-            <div className="hidden sm:mr-16 sm:block sm:w-[240px] md:w-[280px]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
+            <div className="hidden sm:mr-16 sm:block sm:w-[300px] md:w-[360px]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
           </div>
         </section>
         <PharosFinale chips={planets} still />
@@ -220,7 +221,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
           <HeroVideo />
           <div className="relative mx-auto grid max-w-[1280px] items-center gap-14 px-5 pb-20 pt-32 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-40">
             <div><HeroIntro stats={stats} signedIn={signedIn} /></div>
-            <div className="mx-auto w-[84%] max-w-[560px] sm:w-[80%] lg:w-full"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
+            <div className="mx-auto w-[84%] max-w-[560px] sm:w-[80%] lg:w-[115%] lg:max-w-[680px]"><CommitteeOrbit committees={committees} clubs={clubs} /></div>
           </div>
         </section>
         <PharosFinale chips={planets} still />
@@ -287,7 +288,7 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
           <div ref={introRef} className="pointer-events-auto" style={{ opacity: "calc(1 - var(--out))", transform: "translateY(calc(var(--out) * -90px))" }}>
             <HeroIntro stats={stats} signedIn={signedIn} />
           </div>
-          <div ref={orbitRef} className="relative mx-auto aspect-square w-full max-w-[min(560px,86vw,calc(100svh-590px))] lg:max-w-[min(560px,58vh)]" aria-hidden="true">
+          <div ref={orbitRef} className="relative mx-auto aspect-square w-full max-w-[min(680px,92vw,calc(100svh-520px))] lg:max-w-[min(680px,70vh)]" aria-hidden="true">
             <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full overflow-visible" style={{ animation: "hp-ring 1s ease-out 0.2s both" }}>
               <BrokenRing radius={44} pieces={10} delay={0} />
               <BrokenRing radius={26} pieces={7} dashed delay={0.05} />
@@ -310,10 +311,10 @@ const HeroPharos = ({ committees, clubs, stats, signedIn = false }) => {
           {planets.map((planet, i) => (
             <li key={planet.id} ref={(el) => { chipRefs.current[i] = el; }} className="absolute left-0 top-0 will-change-transform">
               <span
-                className={`relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-ocean-676 shadow-[0_10px_30px_-10px_color-mix(in_srgb,var(--color-ocean-914)_60%,transparent)] ring-1 ring-black/5 dark:bg-ocean-820 dark:text-ocean-102 dark:ring-white/10 pr-1 ${planet.small ? "text-xs sm:pr-3" : "text-sm sm:pr-4"}`}
+                className={`relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-1 font-semibold text-ocean-676 shadow-[0_10px_30px_-10px_color-mix(in_srgb,var(--color-ocean-914)_60%,transparent)] ring-1 ring-black/5 dark:bg-ocean-820 dark:text-ocean-102 dark:ring-white/10 pr-1 ${planet.small ? "text-sm sm:pr-3.5" : "text-base sm:pr-5"}`}
                 style={{ animation: `hp-pop 0.6s cubic-bezier(0.22,1,0.36,1) ${0.5 + i * 0.12}s both` }}
               >
-                <TeamLogo src={planet.image} name={planet.name} className={`relative ${planet.small ? "h-6 w-6" : "h-8 w-8"} rounded-full`} />
+                <TeamLogo src={planet.image} name={planet.name} className={`relative ${planet.small ? "h-[30px] w-[30px]" : "h-[38px] w-[38px]"} rounded-full`} />
                 <span className="relative hidden sm:inline">{shortName(planet.name)}</span>
               </span>
             </li>

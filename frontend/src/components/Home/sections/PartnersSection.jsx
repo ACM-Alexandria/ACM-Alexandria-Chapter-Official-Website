@@ -1,42 +1,49 @@
 import { FiGlobe } from "react-icons/fi";
 import Reveal from "../../ui/Reveal";
-import { muted, panelRadius, sectionLead, sectionTitle, sectionY, skeleton } from "../../ui/uiStyles";
+import { muted, sectionLead, sectionTitle, sectionY, skeleton } from "../../ui/uiStyles";
 
-// Cells draw their own hairline edges, so a short last row leaves no coloured gap.
-const cell = "group relative flex h-28 items-center justify-center bg-white p-5 sm:p-6 shadow-[inset_0_0_0_0.5px_var(--color-ocean-106)] sm:h-36 dark:bg-ocean-871 dark:shadow-[inset_0_0_0_0.5px_color-mix(in_srgb,var(--color-white)_10%,transparent)]";
+const item = "flex h-20 w-44 shrink-0 items-center justify-center px-6 sm:h-24 sm:w-56 sm:px-10";
 
-const Logo = ({ partner }) => {
+const Logo = ({ partner, copy = false }) => {
   const content = partner.imageUrl
-    ? <img src={partner.imageUrl} alt={partner.name} className="max-h-full max-w-full object-contain grayscale transition duration-300 group-hover:scale-105 group-hover:grayscale-0 group-focus-visible:grayscale-0 dark:opacity-80 dark:group-hover:opacity-100" loading="lazy" />
-    : <span className="flex flex-col items-center gap-1 text-sm font-semibold text-slate-500"><FiGlobe className="h-6 w-6" aria-hidden="true" />{partner.name}</span>;
+    ? <img src={partner.imageUrl} alt={partner.name} className="max-h-full max-w-full object-contain transition duration-300 group-hover/logo:scale-105" loading="lazy" />
+    : <span className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-ocean-239"><FiGlobe className="h-5 w-5" aria-hidden="true" />{partner.name}</span>;
   return partner.website
-    ? <a href={partner.website} target="_blank" rel="noopener noreferrer" title={partner.name} className={`${cell} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ocean-461`}>{content}</a>
-    : <div className={cell}>{content}</div>;
+    ? <a href={partner.website} target="_blank" rel="noopener noreferrer" title={partner.name} tabIndex={copy ? -1 : undefined} className={`group/logo ${item} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461`}>{content}</a>
+    : <div className={item}>{content}</div>;
 };
 
-// The chapter's partners as a still wall of logos on a white band, before the footer. The beam passes over it once
-// when it scrolls into view. A logo is grey until you point at it and links to the partner's site.
-const PartnersSection = ({ loading, partners }) => (
-  <section id="partners" className={`scroll-mt-20 bg-white dark:bg-ocean-871 ${sectionY}`}>
-    <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
-      <Reveal className="mb-8 max-w-2xl sm:mb-10">
-        <h2 className={sectionTitle}>Our partners</h2>
-        <p className={`mt-3 ${sectionLead} ${muted}`}>Organisations that share our commitment to technology, education, and community.</p>
-      </Reveal>
+// The chapter's partners as a slow, endless slide of logos before the footer. The row is two identical halves,
+// each long enough to fill the screen, so sliding by half of it loops without a jump. It pauses when you point at
+// it, and with reduced motion it stands still and wraps. A logo links to the partner's site.
+const PartnersSection = ({ loading, partners }) => {
+  const copies = Math.max(1, Math.ceil(8 / Math.max(partners.length, 1)));
+  const half = Array.from({ length: copies }, () => partners).flat();
+  const still = partners.length <= 1;
+
+  return (
+    <section id="partners" className={`scroll-mt-20 bg-white dark:bg-ocean-871 ${sectionY}`}>
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
+        <Reveal className="mb-8 max-w-2xl sm:mb-10">
+          <h2 className={sectionTitle}>Our partners</h2>
+          <p className={`mt-3 ${sectionLead} ${muted}`}>Organisations that share our commitment to technology, education, and community.</p>
+        </Reveal>
+      </div>
       {loading ? (
-        <div className={`h-56 ${panelRadius} ${skeleton}`} />
+        <div className={`mx-auto h-24 max-w-[1280px] ${skeleton}`} />
       ) : (
         <Reveal>
-          <div className={`relative overflow-hidden ring-1 ring-ocean-106 dark:ring-white/10 ${panelRadius}`}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              {partners.map((partner) => <Logo key={partner.id} partner={partner} />)}
-            </div>
-            <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/5 bg-ocean-461/15" style={{ animation: "hp-sweep 5s ease-in-out 0.6s 1 both" }} />
+          <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
+            <ul className="flex w-max items-center hover:[animation-play-state:paused] motion-reduce:!animate-none" style={still ? undefined : { animation: `hp-marquee ${half.length * 5}s linear infinite` }}>
+              {(still ? [0] : [0, 1]).flatMap((n) => half.map((partner, i) => (
+                <li key={`${n}-${i}`} aria-hidden={n === 1 ? "true" : undefined}><Logo partner={partner} copy={n === 1} /></li>
+              )))}
+            </ul>
           </div>
         </Reveal>
       )}
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default PartnersSection;

@@ -28,7 +28,7 @@ const ExclusiveFormsSection = ({ loading, forms, onShowDetails }) => {
   const step = (by) => setIndex((active + by + count) % count);
 
   return (
-    <section id="exclusive-forms" aria-label="Exclusive opportunities" className="mx-auto max-w-[1280px] scroll-mt-20 px-5 pt-16 sm:px-8 sm:pt-20 lg:pt-24">
+    <section id="exclusive-forms" aria-label="Exclusive opportunities" className="mx-auto max-w-[1280px] scroll-mt-20 px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-24">
       {loading ? <div className={`h-96 ${panelRadius} ${skeleton}`} /> : (
         <Reveal>
           <div

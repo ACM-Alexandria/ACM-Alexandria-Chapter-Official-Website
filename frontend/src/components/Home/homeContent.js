@@ -1,5 +1,5 @@
 // Wording and figures shown on the home page.
-export const tagline = "Discover the world of technology, innovation, and community";
+export const tagline = "The ACM student chapter in Alexandria, where students learn, build and grow together through committees, clubs and events.";
 export const contactEmail = "alexandria.acm.chapter@gmail.com";
 
 // The closing call to action of the lighthouse scene: it scrolls to the chapter's people.
