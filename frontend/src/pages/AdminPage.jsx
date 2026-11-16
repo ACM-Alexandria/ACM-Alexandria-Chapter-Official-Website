@@ -24,6 +24,7 @@ import UserManagementTab from "../components/AdminPage/ManagementSection/UserMan
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import PastBoardsTab from "../components/AdminPage/PastBoardsSection/PastBoardsTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
+import SeasonSettingsTab from "../components/AdminPage/SeasonSettingsSection/SeasonSettingsTab";
 import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageHeader";
 import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
 import ResourceToolbar from "../components/AdminPage/SharedComponents/ResourceToolbar";
@@ -844,6 +845,7 @@ const AdminPage = () => {
     { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
     { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
     { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
+    ...(isSuperAdmin ? [{ id: "season", label: "Season settings", shortLabel: "Season", icon: FiCalendar }] : []),
   ];
 
   // Paginated resources, keyed by tab
@@ -915,6 +917,8 @@ const AdminPage = () => {
         )}
 
         {activeTab === "email" && <EmailCenterTab />}
+
+        {activeTab === "season" && isSuperAdmin && <SeasonSettingsTab />}
 
         {activeTab === "management" && (
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">

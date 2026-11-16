@@ -71,8 +71,7 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Finish the current season</h3>
           <p className={`mt-1 max-w-xl ${hintClass}`}>
-            Archive {currentSeason ? formatBoardSeason(currentSeason) : "the current season"} and prepare the live boards for next year.
-            This always applies to the current season, even while you browse an older board.
+            Archive season {currentSeason ? formatBoardSeason(currentSeason) : ""}'s boards into Past boards, end the season, and start the next one today.
           </p>
         </div>
         <button
@@ -118,7 +117,8 @@ const ArchiveSeasonSection = ({ currentSeason, disabled, onBusyChange, onArchive
               <li>Copy all current committees, clubs, and their boards into the past tables.</li>
               <li>Remove every member from all three live boards.</li>
               <li>Change those users’ roles to User and clear their committee association. Super admins and ordinary members outside the boards remain unchanged.</li>
-              <li>Keep the live committees and clubs, and advance the current season to {confirmingSeason ? formatBoardSeason(confirmingSeason + 1) : "next year"}.</li>
+              <li>Keep the live committees and clubs.</li>
+              <li>End season {confirmingSeason ?? ""} (and its current quarter) yesterday, and start season {confirmingSeason ? formatBoardSeason(confirmingSeason + 1) : "next year"} today with no end date.</li>
             </ul>
             <p>Pause live-board edits in other sessions until archiving finishes.</p>
             <p className="font-semibold text-rose-700 dark:text-rose-400">This cannot be undone. Back up the database before continuing.</p>
