@@ -1,44 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import { FiStar, FiLock, FiCheckCircle } from "react-icons/fi";
-import {
-  addReview,
-  getRatingSummary,
-  getPublicComments,
-  hasUserReviewed,
-} from "../../services/EventReviewService";
+import { FiCheckCircle, FiLock, FiStar } from "react-icons/fi";
+import { addReview, getPublicComments, getRatingSummary, hasUserReviewed } from "../../services/EventReviewService";
+import { PanelSection } from "../ui/SidePanel";
+import CommentCarousel from "./CommentCarousel";
+import { errorBox, field, muted, primaryButton, secondaryButton, skeleton } from "../ui/uiStyles";
 
-const Stars = ({ value, size = "w-5 h-5" }) => (
-  <div className="flex items-center gap-0.5" aria-label={`${value} out of 5 stars`}>
+const MAX_COMMENT = 255;
+const box = "rounded-2xl bg-white p-5 ring-1 ring-ocean-106 dark:bg-ocean-871 dark:ring-white/10";
+
+const Stars = ({ value, className = "h-4 w-4" }) => (
+  <span className="flex items-center gap-0.5" aria-label={`${Number(value).toFixed(1)} out of 5 stars`}>
     {[1, 2, 3, 4, 5].map((n) => (
-      <FiStar
-        key={n}
-        className={`${size} ${
-          n <= Math.round(value)
-            ? "fill-current text-amber-400"
-            : "text-slate-300 dark:text-slate-600"
-        }`}
-      />
+      <FiStar key={n} aria-hidden="true" className={`${className} ${n <= Math.round(value) ? "fill-current text-amber-400" : "text-slate-300 dark:text-ocean-678"}`} />
     ))}
-  </div>
+  </span>
 );
 
-/**
- * Props
- *  - eventId
- *  - isPast           reviews open only after the event ends
- *  - isLoggedIn
- *  - isRegistered     only registered attendees can submit
- *  - onLoginRequired
- */
-const EventReviews = ({
-  eventId,
-  isPast,
-  isLoggedIn,
-  isRegistered,
-  onLoginRequired,
-}) => {
+// Feedback on an event: its average rating and public comments for everyone, and once the event has ended, a
+// form for attendees who registered (one review each, anonymous).
+const EventReviews = ({ eventId, isPast, isLoggedIn, isRegistered, onLoginRequired }) => {
   const [summary, setSummary] = useState(null);
-  const [publicComments, setPublicComments] = useState([]);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
@@ -52,12 +34,9 @@ const EventReviews = ({
 
   const loadPublic = useCallback(async () => {
     try {
-      const [s, c] = await Promise.all([
-        getRatingSummary(eventId),
-        getPublicComments(eventId),
-      ]);
+      const [s, c] = await Promise.all([getRatingSummary(eventId), getPublicComments(eventId)]);
       setSummary(s);
-      setPublicComments(Array.isArray(c) ? c : []);
+      setComments(Array.isArray(c) ? c : []);
       setLoadError(null);
     } catch (err) {
       setLoadError(err.message);
@@ -76,28 +55,19 @@ const EventReviews = ({
     loadPublic();
   }, [eventId, loadPublic]);
 
+  // Whether this person already reviewed the event, so the form isn't offered twice.
   useEffect(() => {
     if (!eventId || !isLoggedIn || !isPast) {
       setSubmitted(false);
-      return;
+      return undefined;
     }
-
     let cancelled = false;
-    const check = async () => {
-      setCheckingMine(true);
-      try {
-        const reviewed = await hasUserReviewed(eventId);
-        if (!cancelled) setSubmitted(reviewed);
-      } catch {
-        // Non-blocking — form still works; 409 handles duplicates
-      } finally {
-        if (!cancelled) setCheckingMine(false);
-      }
-    };
-    check();
-    return () => {
-      cancelled = true;
-    };
+    setCheckingMine(true);
+    hasUserReviewed(eventId)
+      .then((reviewed) => { if (!cancelled) setSubmitted(reviewed); })
+      .catch(() => {}) // The form still works; the server answers 409 for a second review.
+      .finally(() => { if (!cancelled) setCheckingMine(false); });
+    return () => { cancelled = true; };
   }, [eventId, isLoggedIn, isPast]);
 
   const handleSubmit = async (e) => {
@@ -124,132 +94,91 @@ const EventReviews = ({
   const count = summary?.reviewCount ?? 0;
 
   return (
-    <section className="space-y-8">
+    <PanelSection title="Event feedback">
       <div className="space-y-4">
-        <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-[0.15em] flex items-center gap-3">
-          Event feedback
-          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700" />
-        </h4>
-
-        <div className="flex items-center gap-4">
+        <div className="flex min-h-12 items-center gap-4">
           {loading ? (
-            <div className="h-8 w-40 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
+            <div className={`h-10 w-44 rounded-xl ${skeleton}`} />
           ) : loadError ? (
-            <p className="text-sm text-red-500 dark:text-red-300">{loadError}</p>
+            <p className="text-sm text-red-600 dark:text-red-300">{loadError}</p>
           ) : count === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-300">No ratings yet.</p>
+            <p className={`text-sm ${muted}`}>No ratings yet.</p>
           ) : (
             <>
-              <span className="text-4xl font-extrabold text-slate-900 dark:text-slate-100">
-                {Number(average).toFixed(1)}
-              </span>
+              <span className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">{Number(average).toFixed(1)}</span>
               <div>
-                <Stars value={average} />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {count} {count === 1 ? "review" : "reviews"}
-                </p>
+                <Stars value={average} className="h-5 w-5" />
+                <p className={`mt-1 text-xs ${muted}`}>{count} {count === 1 ? "review" : "reviews"}</p>
               </div>
             </>
           )}
         </div>
-      </div>
 
-      <div className="rounded-3xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6">
-        {!isPast ? (
-          <p className="text-sm text-slate-500 dark:text-slate-300">
-            Reviews open after the event ends.
-          </p>
-        ) : !isLoggedIn ? (
-          <button
-            type="button"
-            onClick={onLoginRequired}
-            className="px-5 py-2.5 rounded-2xl bg-[#4B98C8] text-white font-bold text-sm hover:bg-[#205E85] transition-colors"
-          >
-            Log in to review
-          </button>
-        ) : checkingMine ? (
-          <div className="h-6 w-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
-        ) : submitted ? (
-          <div className="flex items-center gap-3 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
-            <FiCheckCircle className="w-5 h-5 shrink-0" />
-            Thanks for your feedback!
-          </div>
-        ) : !isRegistered ? (
-          <p className="text-sm text-slate-500 dark:text-slate-300">
-            Only attendees who registered for this event can leave feedback.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100">Rate this event</h3>
-
-            <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  aria-label={`${n} star${n > 1 ? "s" : ""}`}
-                  onMouseEnter={() => setHover(n)}
-                  onClick={() => setRating(n)}
-                  className="p-1"
-                >
-                  <FiStar
-                    className={`w-7 h-7 transition-colors ${
-                      n <= (hover || rating)
-                        ? "fill-current text-amber-400"
-                        : "text-slate-300 dark:text-slate-600"
-                    }`}
-                  />
-                </button>
-              ))}
+        <div className={box}>
+          {!isPast ? (
+            <p className={`text-sm ${muted}`}>Reviews open after the event ends.</p>
+          ) : !isLoggedIn ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className={`text-sm ${muted}`}>Went to this event? Sign in to rate it.</p>
+              <button type="button" onClick={onLoginRequired} className={secondaryButton}>Sign in to review</button>
             </div>
-
-            <div>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                maxLength={255}
-                rows={3}
-                placeholder="Leave a comment (optional)"
-                className="w-full rounded-2xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 p-3 text-sm focus:outline-none focus:border-[#4B98C8]"
-              />
-              <div className="flex items-center justify-between mt-1 text-xs text-slate-400 gap-3">
-                <span className="flex items-center gap-1">
-                  <FiLock className="w-3 h-3 shrink-0" />
-                  Anonymous. Comments stay private unless an admin makes them public.
-                </span>
-                <span className="shrink-0">{comment.length}/255</span>
-              </div>
-            </div>
-
-            {formError && <p className="text-sm text-red-500 dark:text-red-300">{formError}</p>}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-5 py-2.5 rounded-2xl bg-[#4B98C8] text-white font-bold text-sm hover:bg-[#205E85] transition-colors disabled:opacity-60"
-            >
-              {submitting ? "Submitting..." : "Submit review"}
-            </button>
-          </form>
-        )}
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-slate-900 dark:text-slate-100">Comments</h3>
-        {publicComments.length === 0 ? (
-          <p className="text-sm text-slate-400 dark:text-slate-300">No public comments yet.</p>
-        ) : (
-          publicComments.map((c, i) => (
-            <p
-              key={i}
-              className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 p-4 text-sm text-slate-700 dark:text-slate-200"
-            >
-              {c.comment}
+          ) : checkingMine ? (
+            <div className={`h-6 w-48 rounded-full ${skeleton}`} />
+          ) : submitted ? (
+            <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+              <FiCheckCircle className="h-5 w-5 shrink-0" aria-hidden="true" />Thanks for your feedback!
             </p>
-          ))
-        )}
+          ) : !isRegistered ? (
+            <p className={`text-sm ${muted}`}>Only people who registered for this event can leave feedback.</p>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Rate this event</p>
+                <div className="mt-2 flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      aria-pressed={rating === n}
+                      onMouseEnter={() => setHover(n)}
+                      onFocus={() => setHover(n)}
+                      onBlur={() => setHover(0)}
+                      onClick={() => setRating(n)}
+                      className="rounded-lg p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461"
+                    >
+                      <FiStar aria-hidden="true" className={`h-7 w-7 transition-colors ${n <= (hover || rating) ? "fill-current text-amber-400" : "text-slate-300 dark:text-ocean-678"}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  maxLength={MAX_COMMENT}
+                  rows={3}
+                  placeholder="Leave a comment (optional)"
+                  aria-label="Comment"
+                  className={`${field} resize-y py-3`}
+                />
+                <div className={`mt-1.5 flex items-start justify-between gap-3 text-xs ${muted}`}>
+                  <span className="flex items-start gap-1.5"><FiLock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />Anonymous. Comments stay private unless an admin makes them public.</span>
+                  <span className="shrink-0 tabular-nums">{comment.length}/{MAX_COMMENT}</span>
+                </div>
+              </div>
+
+              {formError && <p className={errorBox}>{formError}</p>}
+
+              <button type="submit" disabled={submitting} className={primaryButton}>{submitting ? "Submitting…" : "Submit review"}</button>
+            </form>
+          )}
+        </div>
+
+        {comments.length > 0 && <CommentCarousel key={eventId} comments={comments} />}
       </div>
-    </section>
+    </PanelSection>
   );
 };
 

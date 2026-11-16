@@ -9,7 +9,8 @@ import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
 import { fetchEvents } from "../services/homePageService";
 import usePagedList from "../hooks/usePagedList";
 import useOpenFromQuery from "../hooks/useOpenFromQuery";
-import { eventDate, summary } from "../utils/format";
+import EventRating from "../components/ui/EventRating";
+import { eventDate, isEventPast, summary } from "../utils/format";
 import { skeleton } from "../components/ui/uiStyles";
 
 // Every chapter event, newest first, twelve to a page. A card opens the event's details and registration.
@@ -19,7 +20,6 @@ const EventsPage = () => {
   const [open, setOpen] = useState(false);
   const show = useCallback((id) => { setEventId(id); setOpen(true); }, []);
   useOpenFromQuery("openEventId", show);
-  const now = new Date();
 
   return (
     <SiteLayout>
@@ -37,7 +37,7 @@ const EventsPage = () => {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {list.items.map((event, i) => {
-                const past = event.eventTime && new Date(event.eventTime) < now;
+                const past = isEventPast(event);
                 return (
                   <MediaCard
                     key={event.id}
@@ -47,6 +47,7 @@ const EventsPage = () => {
                     title={event.name}
                     text={summary(event.description, 120)}
                     tag={past ? <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">Ended</span> : <StateTag open={event.registrationOpen} openLabel="Registration open" closedLabel="Registration closed" />}
+                    footer={past && <EventRating eventId={event.id} past />}
                     onClick={() => show(event.id)}
                   />
                 );

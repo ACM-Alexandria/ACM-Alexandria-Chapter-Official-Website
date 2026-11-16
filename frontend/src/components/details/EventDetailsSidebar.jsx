@@ -12,7 +12,9 @@ import RegistrationAction from "../ui/RegistrationAction";
 import Lightbox from "../ui/Lightbox";
 import RegistrationModal from "../registration/RegistrationModal";
 import RegistrationCancellationModal from "../registration/RegistrationCancellationModal";
+import EventReviews from "./EventReviews";
 import { muted } from "../ui/uiStyles";
+import { isEventPast } from "../../utils/format";
 
 const formatDateTime = (value) => {
   if (!value) return "To be announced";
@@ -32,7 +34,7 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
 
 
   if (!eventId) return null;
-  const isPast = event?.eventTime ? new Date(event.eventTime) < new Date() : false;
+  const isPast = isEventPast(event);
   const photos = event?.attachedImages || [];
   const actionStatus = isPast ? "ended" : !event?.registrationOpen ? "closed" : status.checking ? "checking" : status.registered ? "registered" : "open";
 
@@ -65,6 +67,13 @@ const EventDetailsSidebar = ({ eventId, isOpen, onClose }) => {
               labels={{ ended: "This event has ended", open: "Register for this event", registered: "You're registered" }}
               onOpen={() => (isAuthenticated ? setRegistering(true) : goToLogin(navigate, "openEventId", eventId))}
               onCancel={() => { status.setCancelError(""); setConfirmCancel(true); }}
+            />
+            <EventReviews
+              eventId={eventId}
+              isPast={isPast}
+              isLoggedIn={isAuthenticated}
+              isRegistered={status.registered}
+              onLoginRequired={() => goToLogin(navigate, "openEventId", eventId)}
             />
           </>
         )}
