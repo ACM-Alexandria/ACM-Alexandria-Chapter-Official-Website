@@ -124,6 +124,7 @@ class BadgeIntegrationTest {
         return userRepository.save(User.builder()
                 .email(email)
                 .name(name)
+                .profileImageUrl("https://example.org/" + name.replace(' ', '-') + ".jpg")
                 .phoneNumber("01012345678")
                 .isAlexEngStudent(false)
                 .role(role)
@@ -247,7 +248,7 @@ class BadgeIntegrationTest {
         mockMvc.perform(get("/api/badges/me").header("Authorization", bearer(nour)))
                 .andExpect(jsonPath("$[0].isNew").value(false));
 
-        // Anyone can open the badge page and the member's badge wall, without signing in.
+        // Anyone can open the badge page without signing in.
         mockMvc.perform(get("/api/public/badges/" + nourAward.publicId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Monthly MVP"))
@@ -255,9 +256,16 @@ class BadgeIntegrationTest {
                 .andExpect(jsonPath("$.note").value("Great month"))
                 .andExpect(jsonPath("$.member.name").value("Nour Hassan"))
                 .andExpect(jsonPath("$.awardedByName").doesNotExist());
+        // Admins and HR see a member's badges in the member view; there is no public member page.
         mockMvc.perform(get("/api/public/members/" + nour.getId() + "/badges"))
+                .andExpect(status().is4xxClientError());
+        mockMvc.perform(get("/api/badges/members/" + nour.getId()).header("Authorization", bearer(salma)))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/badges/members/" + nour.getId()).header("Authorization", bearer(committeeBoard)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.member.committeeName").value("Technical"))
+                // Members' photos stay private; only board members and admins show one.
+                .andExpect(jsonPath("$.member.profileImageUrl").doesNotExist())
                 .andExpect(jsonPath("$.badges.length()").value(1));
 
         mockMvc.perform(get("/api/admin/badges/awards").param("periodId", monthId.toString())
@@ -269,7 +277,7 @@ class BadgeIntegrationTest {
                 .andExpect(status().isNoContent());
         entityManager.flush();
         mockMvc.perform(get("/api/public/badges/" + nourAward.publicId())).andExpect(status().isNotFound());
-        mockMvc.perform(get("/api/public/members/" + nour.getId() + "/badges"))
+        mockMvc.perform(get("/api/badges/members/" + nour.getId()).header("Authorization", bearer(committeeBoard)))
                 .andExpect(jsonPath("$.badges.length()").value(0));
 
         // Awarding it again restores the same award, with its share link, as new.

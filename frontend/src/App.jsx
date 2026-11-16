@@ -17,6 +17,7 @@ import RulesPage from "./pages/RulesPage";
 import AdminUserProfileView from "./pages/AdminUserProfileView";
 import HRDashboardPage from './pages/HRDashboardPage';
 import BoardsPage from "./pages/BoardsPage";
+import BadgePage from "./pages/BadgePage";
 
 /**
  * Main App component with routing configuration
@@ -35,6 +36,7 @@ function App() {
       <Route path="/radio/seasons/:id" element={<SeasonDetailPage />} />
       <Route path="/rules" element={<RulesPage />} />
       <Route path="/boards" element={<BoardsPage />} />
+      <Route path="/badges/:publicId" element={<BadgePage />} />
       <Route path="/email-confirmation/:token" element={<EmailConfirmationPage />} />
       <Route
         path="/profile"

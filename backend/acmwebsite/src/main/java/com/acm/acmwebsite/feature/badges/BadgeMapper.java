@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.badges;
 
 import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
 import com.acm.acmwebsite.User_Authentication.entity.User;
+import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.BadgeTypeResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberSummary;
@@ -19,7 +20,14 @@ final class BadgeMapper {
 
     static MemberSummary summary(User u) {
         Committee c = u.getCommittee();
-        return new MemberSummary(u.getId(), u.getName(), u.getProfileImageUrl(), c != null ? c.getName() : null);
+        return new MemberSummary(u.getId(), u.getName(), photoOf(u), c != null ? c.getName() : null);
+    }
+
+    // Only board members and admins may show a profile photo (the site-wide rule, see the frontend's
+    // canShowPhoto). Everyone else, ACM members included, is shown by initials.
+    static String photoOf(User u) {
+        Role role = u.getRole();
+        return role == null || role == Role.USER || role == Role.ACM_MEMBER ? null : u.getProfileImageUrl();
     }
 
     // Public and member view: no admin-only fields.

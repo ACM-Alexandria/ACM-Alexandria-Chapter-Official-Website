@@ -7,6 +7,7 @@ import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import ProfileViewCard from "./ProfileViewCard";
 import PointsLogSection from "./PointsLogSection";
 import PointsLogModal from "./PointsLogModal";
+import MemberBadgesSection from "./MemberBadgesSection";
 
 import { HiOutlineCheckCircle, HiOutlineExclamationCircle } from "react-icons/hi";
 
@@ -239,6 +240,8 @@ const MemberProfileView = ({ userId, onChanged }) => {
                             </div>
                         )}
                     </div>
+
+                    <MemberBadgesSection userId={targetUserId} />
 
                     <PointsLogSection
                         logs={pointsLogs}
