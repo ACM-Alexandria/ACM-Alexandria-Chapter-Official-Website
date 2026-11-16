@@ -116,6 +116,7 @@ public class UserMapper {
         .committeeId(committee != null ? committee.getId() : null)
         .committeeName(committee != null ? committee.getName() : null)
         .seasonPoints(user.getSeasonPoints())
+        .leaderboardOptOut(Boolean.TRUE.equals(user.getLeaderboardOptOut()))
         .build();
   }
 }

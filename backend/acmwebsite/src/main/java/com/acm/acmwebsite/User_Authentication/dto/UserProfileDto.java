@@ -54,4 +54,8 @@ public class UserProfileDto {
     @JsonProperty("season_points")
     private Integer seasonPoints;
 
+    // Null in an update request leaves the current setting unchanged.
+    @JsonProperty("leaderboard_opt_out")
+    private Boolean leaderboardOptOut;
+
 }
