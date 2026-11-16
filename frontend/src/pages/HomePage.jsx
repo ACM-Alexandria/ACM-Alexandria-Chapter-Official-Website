@@ -120,8 +120,6 @@ const HomePage = () => {
       {data.gallery.length > 0 && <GallerySection images={data.gallery} />}
 
       <main>
-        <ExclusiveFormsSection loading={formsLoading} forms={forms} onShowDetails={openForm} />
-
         <PeopleSection
           loading={loading}
           highBoard={data.highBoard}
@@ -133,6 +131,8 @@ const HomePage = () => {
           onShowClub={openClub}
           isRegistrationModalOpen={panel === "apply"}
         />
+
+        <ExclusiveFormsSection loading={formsLoading} forms={forms} onShowDetails={openForm} />
 
         {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} onShowEvent={openEvent} />}
 
