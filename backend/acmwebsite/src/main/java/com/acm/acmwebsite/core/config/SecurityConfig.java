@@ -89,6 +89,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.GET, "/api/boards/seasons", "/api/boards/past/*").permitAll()
                         // Public chapter totals shown on the home page.
                         .requestMatchers(HttpMethod.GET, "/api/stats").permitAll()
+                        // Public badge pages and member badge walls (shared on LinkedIn).
+                        .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",
