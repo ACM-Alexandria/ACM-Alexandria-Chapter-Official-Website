@@ -21,7 +21,8 @@ import com.acm.acmwebsite.feature.entity.PastCommittee;
 import com.acm.acmwebsite.feature.entity.PastCommitteeBoard;
 import com.acm.acmwebsite.feature.entity.PastHighBoard;
 import com.acm.acmwebsite.feature.entity.PastSeason;
-import com.acm.acmwebsite.feature.entity.SystemSettings;
+import com.acm.acmwebsite.feature.seasons.PeriodType;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
 import com.acm.acmwebsite.feature.event.CurrentBoardsArchivedEvent;
 import com.acm.acmwebsite.feature.event.PastBoardsChangedEvent;
 import com.acm.acmwebsite.feature.exception.BoardArchiveConflictException;
@@ -40,7 +41,7 @@ import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +78,7 @@ class PastSeasonsServiceTest {
     @Mock private HighBoardRepository highBoards;
     @Mock private CommitteeBoardRepository committeeBoards;
     @Mock private ClubBoardRepository clubBoards;
-    @Mock private SystemSettingsService settings;
+    @Mock private CurrentSeasonService settings;
     @Mock private UserService userService;
     @Mock private ApplicationEventPublisher events;
     @Mock private EntityManager entityManager;
@@ -275,10 +276,10 @@ class PastSeasonsServiceTest {
 
     @Test
     void archiveLocksAndRunsEveryStepInOrderBeforePublishingEvents() {
-        var row = new SystemSettings(1L, false, 2026);
+        var row = seasonRow(2026);
         when(settings.lockForArchive()).thenReturn(row);
         when(userService.demoteBoardMembers()).thenReturn(3);
-        when(settings.incrementCurrentSeason(row)).thenReturn(2027);
+        when(settings.startNextSeason(row)).thenReturn(2027);
 
         var summary = service.archive(2026);
 
@@ -291,14 +292,14 @@ class PastSeasonsServiceTest {
         order.verify(entityManager).flush();
         order.verify(highBoards).deleteAllInBatch();
         order.verify(entityManager).clear();
-        order.verify(settings).incrementCurrentSeason(row);
+        order.verify(settings).startNextSeason(row);
         order.verify(events).publishEvent(new PastBoardsChangedEvent());
         order.verify(events).publishEvent(new CurrentBoardsArchivedEvent());
     }
 
     @Test
     void staleConfirmationStopsBeforeAnyBoardWork() {
-        when(settings.lockForArchive()).thenReturn(new SystemSettings(1L, true, 2027));
+        when(settings.lockForArchive()).thenReturn(seasonRow(2027));
         var error = assertThrows(BoardArchiveConflictException.class, () -> service.archive(2026));
         assertTrue(error.getMessage().contains("2027"));
         verifyNoInteractions(pastHighBoards, userService, entityManager, highBoards, events);
@@ -306,18 +307,18 @@ class PastSeasonsServiceTest {
 
     @Test
     void existingArchiveStopsBeforeDemotionAndClearing() {
-        when(settings.lockForArchive()).thenReturn(new SystemSettings(1L, true, 2026));
+        when(settings.lockForArchive()).thenReturn(seasonRow(2026));
         when(pastHighBoards.existsBySeason(2026)).thenReturn(true);
         assertThrows(BoardArchiveConflictException.class, () -> service.archive(2026));
         verifyNoInteractions(userService, entityManager, events);
-        verify(settings, never()).incrementCurrentSeason(any());
+        verify(settings, never()).startNextSeason(any());
     }
 
     @Test
     void failureAfterClearingNeverPublishesEvents() {
-        var row = new SystemSettings(1L, true, 2026);
+        var row = seasonRow(2026);
         when(settings.lockForArchive()).thenReturn(row);
-        when(settings.incrementCurrentSeason(row)).thenThrow(new IllegalStateException("Save failed"));
+        when(settings.startNextSeason(row)).thenThrow(new IllegalStateException("Save failed"));
         assertThrows(IllegalStateException.class, () -> service.archive(2026));
         verify(entityManager).flush();
         verifyNoInteractions(events);
@@ -1022,5 +1023,9 @@ class PastSeasonsServiceTest {
         request.setDisplayOrder(2);
         request.setImageUrl("https://example.org/photo");
         return request;
+    }
+
+    private static SeasonPeriod seasonRow(int season) {
+        return new SeasonPeriod(PeriodType.SEASON, null, java.time.LocalDate.of(season, 9, 1), null, season);
     }
 }

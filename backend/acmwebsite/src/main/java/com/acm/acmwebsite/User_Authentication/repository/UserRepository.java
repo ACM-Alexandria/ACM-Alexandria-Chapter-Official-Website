@@ -35,6 +35,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       + "OR EXISTS (SELECT clb.id FROM ClubBoard clb WHERE clb.user = u)")
   List<User> findCurrentBoardMembers();
 
+  // A committee's members with one role, such as the ACM members ranked for badges.
+  List<User> findByCommittee_IdAndRole(Long committeeId, com.acm.acmwebsite.User_Authentication.enums.Role role);
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);

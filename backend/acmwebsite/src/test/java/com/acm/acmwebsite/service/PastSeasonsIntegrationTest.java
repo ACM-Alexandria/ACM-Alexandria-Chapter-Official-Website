@@ -9,7 +9,6 @@ import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastCommitteeBoardRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastCommitteeRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardResponse;
-import com.acm.acmwebsite.feature.entity.SystemSettings;
 import com.acm.acmwebsite.feature.mapper.PastBoardMapperImpl;
 import com.acm.acmwebsite.feature.mapper.PastBoardSnapshotMapperImpl;
 import com.acm.acmwebsite.feature.repository.PastClubBoardRepository;
@@ -18,9 +17,12 @@ import com.acm.acmwebsite.feature.repository.PastCommitteeBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastCommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
-import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
+import com.acm.acmwebsite.feature.seasons.PeriodType;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriodRepository;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriodService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({SystemSettingsService.class, PastBoardMapperImpl.class, PastBoardSnapshotMapperImpl.class,
+@Import({CurrentSeasonService.class, SeasonPeriodService.class, PastBoardMapperImpl.class, PastBoardSnapshotMapperImpl.class,
         PastSeasonsService.class, CacheConfig.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class PastSeasonsIntegrationTest {
@@ -55,7 +57,7 @@ class PastSeasonsIntegrationTest {
     @Autowired private PastClubRepository clubRepository;
     @Autowired private PastHighBoardRepository highRepository;
     @Autowired private PastSeasonRepository seasonRepository;
-    @Autowired private SystemSettingsRepository settingsRepository;
+    @Autowired private SeasonPeriodRepository periodRepository;
     @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private CacheManager caches;
     private TransactionTemplate transaction;
@@ -69,7 +71,8 @@ class PastSeasonsIntegrationTest {
         clubRepository.deleteAllInBatch();
         highRepository.deleteAllInBatch();
         seasonRepository.deleteAllInBatch();
-        settingsRepository.saveAndFlush(new SystemSettings(1L, true, 2026));
+        periodRepository.deleteAllInBatch();
+        periodRepository.saveAndFlush(new SeasonPeriod(PeriodType.SEASON, null, java.time.LocalDate.of(2026, 9, 1), null, 2026));
         caches.getCache(CacheNames.BOARD_SEASONS).clear();
         caches.getCache(CacheNames.PAST_BOARDS).clear();
     }
@@ -115,7 +118,7 @@ class PastSeasonsIntegrationTest {
         assertEquals(0, committeeBoardRepository.count());
         assertEquals(0, clubBoardRepository.count());
         assertEquals(1, highRepository.count());
-        assertEquals(2026, settingsRepository.findById(1L).orElseThrow().getCurrentSeason());
+        assertEquals(2026, periodRepository.findTopByTypeOrderBySeasonDesc(PeriodType.SEASON).orElseThrow().getSeason());
     }
 
     @Test
@@ -182,7 +185,7 @@ class PastSeasonsIntegrationTest {
     }
 
     @Test
-    void listReadsPersistSeasonInitializationForNullAndMissingSettings() {
+    void listReadsCreateTheFirstSeasonWhenNoneExists() {
         List<Runnable> reads = List.of(
                 () -> service.listPastHighBoards(2000),
                 () -> service.listPastCommittees(2000),
@@ -191,17 +194,10 @@ class PastSeasonsIntegrationTest {
                 () -> service.listPastClubBoards(2000));
 
         for (Runnable read : reads) {
-            settingsRepository.saveAndFlush(new SystemSettings(1L, false, null));
+            periodRepository.deleteAllInBatch();
             read.run();
-            SystemSettings initialized = settingsRepository.findById(1L).orElseThrow();
-            assertNotNull(initialized.getCurrentSeason());
-            assertFalse(initialized.isEmailsEnabled());
-
-            settingsRepository.deleteAllInBatch();
-            read.run();
-            SystemSettings created = settingsRepository.findById(1L).orElseThrow();
-            assertNotNull(created.getCurrentSeason());
-            assertTrue(created.isEmailsEnabled());
+            assertEquals(1, periodRepository.count());
+            assertNull(periodRepository.findAll().getFirst().getEndDate());
         }
     }
 

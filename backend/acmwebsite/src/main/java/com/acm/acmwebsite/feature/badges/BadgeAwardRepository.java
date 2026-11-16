@@ -25,17 +25,17 @@ public interface BadgeAwardRepository extends JpaRepository<BadgeAward, Long> {
             + "ORDER BY a.badgeType.sortOrder, a.committee.name, a.rank, a.awardedAt")
     List<BadgeAward> findActiveByPeriod(@Param("periodId") Long periodId);
 
-    // Manual badges, which have no period.
-    @Query(WITH_DETAILS + "WHERE a.period IS NULL AND a.revokedAt IS NULL ORDER BY a.awardedAt DESC")
-    List<BadgeAward> findActiveWithoutPeriod();
+    @Query(WITH_DETAILS + "WHERE a.badgeType.id = :typeId AND a.period.id = :periodId AND a.committee.id = :committeeId "
+            + "AND a.revokedAt IS NULL ORDER BY a.rank, a.awardedAt")
+    List<BadgeAward> findActiveForCommittee(@Param("typeId") Long typeId,
+                                            @Param("periodId") Long periodId,
+                                            @Param("committeeId") Long committeeId);
 
     // Any award, active or revoked, of this type in this period for these members.
     @Query("SELECT a FROM BadgeAward a WHERE a.badgeType.id = :typeId AND a.period.id = :periodId AND a.member.id IN :memberIds")
     List<BadgeAward> findForMembers(@Param("typeId") Long typeId,
                                     @Param("periodId") Long periodId,
                                     @Param("memberIds") Collection<UUID> memberIds);
-
-    boolean existsByBadgeType_Id(Long badgeTypeId);
 
     boolean existsByPeriod_Id(Long periodId);
 

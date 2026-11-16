@@ -1,19 +1,15 @@
 package com.acm.acmwebsite.feature.badges;
 
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
 import com.acm.acmwebsite.User_Authentication.entity.User;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.BadgeTypeResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberSummary;
-import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.PeriodResponse;
 import com.acm.acmwebsite.feature.entity.Committee;
 
 final class BadgeMapper {
 
     private BadgeMapper() {
-    }
-
-    static PeriodResponse toResponse(BadgePeriod p) {
-        return new PeriodResponse(p.getId(), p.getType(), p.getName(), p.label(), p.getStartDate(), p.getEndDate(), p.getSeason());
     }
 
     static BadgeTypeResponse toResponse(BadgeType t) {
@@ -41,7 +37,7 @@ final class BadgeMapper {
 
     private static AwardView view(BadgeAward a, String awardedByName, Boolean isNew) {
         BadgeType t = a.getBadgeType();
-        BadgePeriod p = a.getPeriod();
+        SeasonPeriod p = a.getPeriod();
         Committee c = a.getCommittee();
         return new AwardView(
                 a.getId(),

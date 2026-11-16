@@ -1,5 +1,7 @@
 package com.acm.acmwebsite.feature.badges;
 
+import com.acm.acmwebsite.feature.seasons.SeasonPeriodService;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +25,6 @@ import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberBadgesResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.Recipient;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
-import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,9 +34,8 @@ public class BadgeAwardService {
 
     private final BadgeAwardRepository awardRepository;
     private final BadgeTypeService typeService;
-    private final BadgePeriodService periodService;
+    private final SeasonPeriodService periodService;
     private final UserRepository userRepository;
-    private final CommitteeRepository committeeRepository;
 
     // Gives one badge to several members at once, all or nothing. A previously revoked award is restored.
     @Transactional
@@ -45,7 +45,7 @@ public class BadgeAwardService {
         if (!type.isActive()) {
             throw new IllegalArgumentException(type.getName() + " is inactive and can't be awarded");
         }
-        BadgePeriod period = resolvePeriod(type, request.periodId());
+        SeasonPeriod period = resolvePeriod(type, request.periodId());
 
         Set<UUID> seen = new HashSet<>();
         for (Recipient r : request.recipients()) {
@@ -58,14 +58,13 @@ public class BadgeAwardService {
         if (members.size() != seen.size()) {
             throw new ResourceNotFoundException("One or more members were not found");
         }
-        Map<UUID, BadgeAward> existing = period == null ? Map.of()
-                : awardRepository.findForMembers(type.getId(), period.getId(), seen).stream()
+        Map<UUID, BadgeAward> existing = awardRepository.findForMembers(type.getId(), period.getId(), seen).stream()
                         .collect(Collectors.toMap(a -> a.getMember().getId(), Function.identity()));
 
         List<BadgeAward> saved = new ArrayList<>();
         for (Recipient r : request.recipients()) {
             User member = members.get(r.memberId());
-            Committee committee = resolveCommittee(r, member);
+            Committee committee = committeeOf(member);
             BadgeAward award = existing.get(member.getId());
             if (award != null && award.isActive()) {
                 throw new BadgeConflictException(displayName(member) + " already has " + type.getName()
@@ -101,13 +100,10 @@ public class BadgeAwardService {
         }
     }
 
-    // Active awards of a period, or of manual badges (no period) when `periodId` is null.
     @Transactional(readOnly = true)
     public List<AwardView> listForPeriod(Long periodId) {
-        List<BadgeAward> awards = periodId == null
-                ? awardRepository.findActiveWithoutPeriod()
-                : awardRepository.findActiveByPeriod(periodService.get(periodId).getId());
-        return awards.stream().map(BadgeMapper::adminView).toList();
+        return awardRepository.findActiveByPeriod(periodService.get(periodId).getId()).stream()
+                .map(BadgeMapper::adminView).toList();
     }
 
     @Transactional(readOnly = true)
@@ -135,17 +131,11 @@ public class BadgeAwardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Badge not found"));
     }
 
-    private BadgePeriod resolvePeriod(BadgeType type, Long periodId) {
-        if (type.getPeriodType() == null) {
-            if (periodId != null) {
-                throw new IllegalArgumentException(type.getName() + " has no period");
-            }
-            return null;
-        }
+    private SeasonPeriod resolvePeriod(BadgeType type, Long periodId) {
         if (periodId == null) {
             throw new IllegalArgumentException("Pick the period " + type.getName() + " is for");
         }
-        BadgePeriod period = periodService.get(periodId);
+        SeasonPeriod period = periodService.get(periodId);
         if (period.getType() != type.getPeriodType()) {
             throw new IllegalArgumentException(type.getName() + " is awarded per " + type.getPeriodType().name().toLowerCase()
                     + ", but " + period.label() + " is a " + period.getType().name().toLowerCase());
@@ -153,14 +143,10 @@ public class BadgeAwardService {
         return period;
     }
 
-    // Every badge belongs to a committee: the one picked for it, else the member's current one.
-    private Committee resolveCommittee(Recipient r, User member) {
-        if (r.committeeId() != null) {
-            return committeeRepository.findById(r.committeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Committee not found"));
-        }
+    // Every badge belongs to the committee the member is in when it is awarded; it can't be chosen.
+    private Committee committeeOf(User member) {
         if (member.getCommittee() == null) {
-            throw new IllegalArgumentException(displayName(member) + " is not in a committee; pick one for the badge");
+            throw new IllegalArgumentException(displayName(member) + " is not in a committee, so they can't receive a badge");
         }
         return member.getCommittee();
     }

@@ -16,7 +16,7 @@ import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardRequest;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastHighBoardResponse;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.PastSeasonRequest;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,13 +30,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PastSeasonsController {
     private final PastSeasonsService service;
-    private final SystemSettingsService systemSettingsService;
+    private final CurrentSeasonService currentSeasonService;
 
     // ----- public board views -----
 
     @GetMapping("/api/boards/seasons")
     public BoardSeasonsResponse getBoardSeasons() {
-        return BoardSeasonsResponse.builder().currentSeason(systemSettingsService.getCurrentSeason())
+        return BoardSeasonsResponse.builder().currentSeason(currentSeasonService.getCurrentSeason())
                 .pastSeasons(service.getSeasons()).build();
     }
 
@@ -82,7 +82,7 @@ public class PastSeasonsController {
     @GetMapping("/api/admin/boards/current-season")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public Map<String, Integer> currentSeason() {
-        return Map.of("currentSeason", systemSettingsService.getCurrentSeason());
+        return Map.of("currentSeason", currentSeasonService.getCurrentSeason());
     }
 
     // ----- past clubs (admin) -----
