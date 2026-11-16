@@ -291,6 +291,60 @@ class BadgeIntegrationTest {
     }
 
     @Test
+    @DisplayName("Shared links: a public preview page with LinkedIn tags and a 1200x627 image")
+    void shareLinks() throws Exception {
+        AwardView award = read(postAs(highBoard, "/api/admin/badges/awards", Map.of(
+                "badgeTypeId", typeId("Monthly MVP"), "periodId", currentMonthId(),
+                "recipients", List.of(recipient(nour, 1))))
+                .andExpect(status().isCreated()), new TypeReference<List<AwardView>>() {}).get(0);
+        entityManager.flush();
+
+        String html = mockMvc.perform(get("/share/badges/" + award.publicId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(html.contains("<meta property=\"og:title\" content=\"Nour Hassan · Monthly MVP"));
+        assertTrue(html.contains("<meta property=\"og:image\" content=\"http://localhost:8080/share/badges/" + award.publicId() + "/card.png\">"));
+        assertTrue(html.contains("<meta property=\"og:url\" content=\"http://localhost:8080/share/badges/" + award.publicId() + "\">"));
+        assertTrue(html.contains("http://localhost:5173/badges/" + award.publicId()));
+        assertTrue(html.contains("of the Technical for"));
+
+        byte[] png = mockMvc.perform(get("/share/badges/" + award.publicId() + "/card.png"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().contentType("image/png"))
+                .andReturn().getResponse().getContentAsByteArray();
+        var image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(png));
+        assertEquals(1200, image.getWidth());
+        assertEquals(627, image.getHeight());
+
+        // Unknown or revoked badges aren't shared.
+        mockMvc.perform(get("/share/badges/" + UUID.randomUUID())).andExpect(status().isNotFound());
+        mockMvc.perform(get("/share/badges/" + UUID.randomUUID() + "/card.png")).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/admin/badges/awards/" + award.id()).header("Authorization", bearer(highBoard)))
+                .andExpect(status().isNoContent());
+        entityManager.flush();
+        mockMvc.perform(get("/share/badges/" + award.publicId())).andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("A name with HTML in it is escaped on the share page")
+    void sharePageEscapes() throws Exception {
+        User odd = saveUser("odd@example.com", "Sam <b>\"Odd\"</b>", Role.ACM_MEMBER, technical);
+        entityManager.flush();
+        AwardView award = read(postAs(highBoard, "/api/admin/badges/awards", Map.of(
+                "badgeTypeId", typeId("Monthly MVP"), "periodId", currentMonthId(),
+                "recipients", List.of(recipient(odd, null))))
+                .andExpect(status().isCreated()), new TypeReference<List<AwardView>>() {}).get(0);
+        entityManager.flush();
+
+        String html = mockMvc.perform(get("/share/badges/" + award.publicId()))
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(html.contains("Sam &lt;b&gt;&quot;Odd&quot;&lt;/b&gt;"));
+        assertFalse(html.contains("<b>"));
+        // The image still renders.
+        mockMvc.perform(get("/share/badges/" + award.publicId() + "/card.png")).andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("Award requests are checked against the badge's period and the member's committee")
     void awardValidation() throws Exception {
         Long monthId = currentMonthId();

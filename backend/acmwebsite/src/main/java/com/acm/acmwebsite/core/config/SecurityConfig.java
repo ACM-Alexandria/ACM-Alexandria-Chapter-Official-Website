@@ -91,6 +91,8 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         .requestMatchers(HttpMethod.GET, "/api/stats").permitAll()
                         // Public badge pages (shared on LinkedIn).
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
+                        // Shared badge links: the link-preview page and its image (BadgeShareController).
+                        .requestMatchers(HttpMethod.GET, "/share/**").permitAll()
                         // Allow these specific endpoints without login
                         .requestMatchers(
                                 "/error",
