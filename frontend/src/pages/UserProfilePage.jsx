@@ -39,7 +39,6 @@ const UserProfilePage = () => {
     committeeName: "",
     role: "USER",
     seasonPoints: 0,
-    leaderboardOptOut: false,
   });
 
   const [backupProfile, setBackupProfile] = useState(null);
@@ -64,7 +63,6 @@ const UserProfilePage = () => {
   const [newBadgeIds, setNewBadgeIds] = useState(() => new Set());
   const [unseenCount, setUnseenCount] = useState(0);
   const markedSeen = useRef(false);
-  const [leaderboardSaving, setLeaderboardSaving] = useState(false);
 
   // --- POINTS LOG STATE ---
   const [pointsLogs, setPointsLogs] = useState([]);
@@ -91,7 +89,6 @@ const UserProfilePage = () => {
           committeeName: data.committee_name || "",
           role: data.role || user?.role || "USER",
           seasonPoints: data.season_points ?? 0,
-          leaderboardOptOut: Boolean(data.leaderboard_opt_out),
         };
         setProfile(profileData);
         setBackupProfile(profileData);
@@ -248,31 +245,6 @@ const UserProfilePage = () => {
     }
   };
 
-  // Saves only the leaderboard switch, with the details as last saved (not any unsaved edits).
-  const handleToggleLeaderboard = async () => {
-    if (!user?.id || !backupProfile || leaderboardSaving) return;
-    const optOut = !profile.leaderboardOptOut;
-    setLeaderboardSaving(true);
-    setProfileError(null);
-    try {
-      await updateUserProfile(user.id, {
-        name: backupProfile.name,
-        phone_number: backupProfile.phoneNumber,
-        is_alex_eng_student: backupProfile.isAlexEngStudent,
-        department: backupProfile.isAlexEngStudent ? (backupProfile.department || null) : null,
-        batch: backupProfile.isAlexEngStudent ? (backupProfile.batch || null) : null,
-        linkedin_url: backupProfile.linkedinUrl?.trim() || null,
-        leaderboard_opt_out: optOut,
-      });
-      setProfile((prev) => ({ ...prev, leaderboardOptOut: optOut }));
-      setBackupProfile((prev) => ({ ...prev, leaderboardOptOut: optOut }));
-    } catch (err) {
-      setProfileError(err.message || "Couldn't update your leaderboard setting. Please try again.");
-    } finally {
-      setLeaderboardSaving(false);
-    }
-  };
-
   const showPoints = profile.role !== "USER";
   const showBadges = showPoints || badges.length > 0;
   const badgesLabel = (
@@ -314,8 +286,6 @@ const UserProfilePage = () => {
               onEdit={isEditing ? null : handleStartEdit}
               badges={badges}
               onShowBadges={showBadges && !isEditing ? () => setTab("badges") : null}
-              onToggleLeaderboard={isEditing ? null : handleToggleLeaderboard}
-              leaderboardSaving={leaderboardSaving}
             />
 
             <div className="flex min-w-0 flex-col gap-6">
