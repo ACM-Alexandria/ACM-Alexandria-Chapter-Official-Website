@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.badges;
 
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -49,10 +50,9 @@ public class BadgeAward {
     @JoinColumn(name = "member_id", nullable = false)
     private User member;
 
-    // Null only for manual badges that have no period.
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "period_id")
-    private BadgePeriod period;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "period_id", nullable = false)
+    private SeasonPeriod period;
 
     // The committee the badge was won in, kept even if the member moves committee later.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

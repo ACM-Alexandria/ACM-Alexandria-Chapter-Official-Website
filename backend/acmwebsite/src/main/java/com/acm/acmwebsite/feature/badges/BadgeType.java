@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.badges;
 
+import com.acm.acmwebsite.feature.seasons.PeriodType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// A kind of badge, such as "Monthly MVP". Every badge is awarded within a committee.
+// A kind of badge, such as "Monthly MVP". Every badge is awarded within a committee for a period.
+// The types are fixed in code (BadgeTypeSeeder); admins can't add or edit them.
 @Entity
 @Table(name = "badge_types")
 @Getter
@@ -30,9 +32,9 @@ public class BadgeType {
     @Column(length = 500)
     private String description;
 
-    // The period this badge is awarded for. Null means a manual-only badge with no period.
+    // The period this badge is awarded for.
     @Enumerated(EnumType.STRING)
-    @Column(name = "period_type", length = 16)
+    @Column(name = "period_type", nullable = false, length = 16)
     private PeriodType periodType;
 
     @Enumerated(EnumType.STRING)
@@ -43,7 +45,7 @@ public class BadgeType {
     @Column(name = "default_winners", nullable = false)
     private int defaultWinners = 1;
 
-    // Inactive types keep their awards but can't be awarded again.
+    // Always true for the fixed types; kept so an awarded type could be retired later without losing its awards.
     @Column(nullable = false)
     private boolean active = true;
 

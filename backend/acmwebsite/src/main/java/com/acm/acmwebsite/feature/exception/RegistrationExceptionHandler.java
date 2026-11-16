@@ -40,8 +40,9 @@ public class RegistrationExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", "Invalid or missing request value"));
     }
 
-    @ExceptionHandler(com.acm.acmwebsite.feature.badges.BadgeConflictException.class)
-    public ResponseEntity<Map<String, String>> handleBadgeConflict(com.acm.acmwebsite.feature.badges.BadgeConflictException ex) {
+    @ExceptionHandler({com.acm.acmwebsite.feature.badges.BadgeConflictException.class,
+            com.acm.acmwebsite.feature.seasons.SeasonConflictException.class})
+    public ResponseEntity<Map<String, String>> handleBadgeOrSeasonConflict(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
     }
 

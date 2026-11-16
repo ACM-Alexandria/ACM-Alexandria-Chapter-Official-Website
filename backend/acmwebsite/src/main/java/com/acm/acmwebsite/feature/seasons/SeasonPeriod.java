@@ -1,4 +1,4 @@
-package com.acm.acmwebsite.feature.badges;
+package com.acm.acmwebsite.feature.seasons;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,15 +17,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// A span of time badges are awarded for. Seasons and quarters are created by admins with any dates;
-// months are created on first use and always cover a whole calendar month.
+// The chapter's calendar: seasons and their quarters (date ranges the super admin sets in Season settings)
+// and calendar months (created on first use). Any feature can work per period; badges are the first user.
 @Entity
-@Table(name = "badge_periods",
-        uniqueConstraints = @UniqueConstraint(name = "uk_badge_periods_type_start", columnNames = {"type", "start_date"}))
+@Table(name = "season_periods",
+        uniqueConstraints = @UniqueConstraint(name = "uk_season_periods_type_start", columnNames = {"type", "start_date"}))
 @Getter
 @Setter
 @NoArgsConstructor
-public class BadgePeriod {
+public class SeasonPeriod {
 
     private static final DateTimeFormatter MONTH_LABEL = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
 
@@ -44,15 +44,16 @@ public class BadgePeriod {
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    // Inclusive.
-    @Column(name = "end_date", nullable = false)
+    // Inclusive. Null while the season or quarter is ongoing and its end isn't known yet;
+    // it is set when the next one is added, or by hand.
+    @Column(name = "end_date")
     private LocalDate endDate;
 
-    // Starting year of the academic season this period belongs to (2026 for 2026/27), as in SystemSettings.
+    // The season this period belongs to, by its year (as in SystemSettings and Past boards).
     // A month outside every defined season has none.
     private Integer season;
 
-    public BadgePeriod(PeriodType type, String name, LocalDate startDate, LocalDate endDate, Integer season) {
+    public SeasonPeriod(PeriodType type, String name, LocalDate startDate, LocalDate endDate, Integer season) {
         this.type = type;
         this.name = name;
         this.startDate = startDate;
@@ -61,10 +62,15 @@ public class BadgePeriod {
     }
 
     public boolean contains(LocalDate date) {
-        return !date.isBefore(startDate) && !date.isAfter(endDate);
+        return !date.isBefore(startDate) && (endDate == null || !date.isAfter(endDate));
     }
 
-    // "Nov 2026", "Q2 · 2026/27", "Season 2026/27".
+    // The last day counted so far: the end date, or `today` while the period is ongoing.
+    public LocalDate lastDayAsOf(LocalDate today) {
+        return endDate != null ? endDate : today;
+    }
+
+    // "Nov 2026", "Q2 · 2026", "Season 2026".
     public String label() {
         return switch (type) {
             case MONTH -> startDate.format(MONTH_LABEL);
@@ -74,6 +80,6 @@ public class BadgePeriod {
     }
 
     public static String seasonLabel(int season) {
-        return season + "/" + String.format("%02d", (season + 1) % 100);
+        return String.valueOf(season);
     }
 }

@@ -2,19 +2,17 @@ package com.acm.acmwebsite.feature.badges.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.acm.acmwebsite.feature.badges.BadgeIcon;
-import com.acm.acmwebsite.feature.badges.PeriodType;
+import com.acm.acmwebsite.feature.seasons.PeriodType;
+import com.acm.acmwebsite.feature.seasons.dto.SeasonDtos.PeriodResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,41 +22,7 @@ public final class BadgeDtos {
     private BadgeDtos() {
     }
 
-    // ---- Periods ----
-
-    // A season (`name` ignored) or a quarter inside season `season`.
-    public record PeriodRequest(
-            @NotNull PeriodType type,
-            @Size(max = 60) String name,
-            @NotNull LocalDate startDate,
-            @NotNull LocalDate endDate,
-            @NotNull @Min(2000) Integer season) {
-    }
-
-    public record MonthRequest(@NotNull YearMonth month) {
-    }
-
-    public record PeriodResponse(
-            Long id,
-            PeriodType type,
-            String name,
-            String label,
-            LocalDate startDate,
-            LocalDate endDate,
-            Integer season) {
-    }
-
     // ---- Badge types ----
-
-    public record BadgeTypeRequest(
-            @NotBlank @Size(max = 80) String name,
-            @Size(max = 500) String description,
-            PeriodType periodType,
-            @NotNull BadgeIcon icon,
-            @Min(0) @Max(50) int defaultWinners,
-            boolean active,
-            int sortOrder) {
-    }
 
     public record BadgeTypeResponse(
             Long id,
@@ -73,51 +37,52 @@ public final class BadgeDtos {
 
     // ---- Suggestions ----
 
-    // `winnersPerCommittee` maps committee id to how many winners it gets; missing committees use the type's default.
-    public record SuggestionRequest(
+    // The Award screen for one committee. `winners` is how many winners each committee gets in all
+    // (already awarded ones included); left out, the badge type's default.
+    public record CommitteeRankingRequest(
             @NotNull Long badgeTypeId,
             @NotNull Long periodId,
-            Map<Long, Integer> winnersPerCommittee) {
+            @NotNull Long committeeId,
+            @Min(1) @Max(50) Integer winners) {
     }
 
-    public record SuggestionResponse(
+    // `awarded`: this badge already given in the committee for the period. `members`: everyone else in the
+    // committee, highest points first; the top places still open are marked `suggested`.
+    public record CommitteeRankingResponse(
             BadgeTypeResponse badgeType,
             PeriodResponse period,
-            List<CommitteeSuggestion> committees) {
-    }
-
-    public record CommitteeSuggestion(
             Long committeeId,
             String committeeName,
             int winners,
-            List<Candidate> candidates) {
+            List<AwardView> awarded,
+            List<RankedMember> members) {
     }
 
-    // `rank` is shared by tied members (1, 2, 2, 4). `tied` marks members sharing the last place that fits,
-    // when there are more of them than places left, so an admin has to choose.
-    public record Candidate(
+    // `rank` is shared by tied members (1, 2, 2, 4). `tied` marks members sharing the last open place when
+    // there are more of them than places, so the admin chooses; they aren't `suggested`.
+    // Members with no points are never suggested.
+    public record RankedMember(
             UUID memberId,
             String name,
             String profileImageUrl,
             long points,
             int rank,
-            boolean tied,
-            boolean alreadyAwarded) {
+            boolean suggested,
+            boolean tied) {
     }
 
     // ---- Awards ----
 
     public record AwardRequest(
             @NotNull Long badgeTypeId,
-            Long periodId,
+            @NotNull Long periodId,
             @Size(max = 300) String note,
             @NotEmpty @Size(max = 200) List<@Valid Recipient> recipients) {
     }
 
-    // `committeeId` defaults to the member's current committee.
+    // The badge goes to the member's current committee; it can't be chosen.
     public record Recipient(
             @NotNull UUID memberId,
-            Long committeeId,
             @Min(1) Integer rank) {
     }
 

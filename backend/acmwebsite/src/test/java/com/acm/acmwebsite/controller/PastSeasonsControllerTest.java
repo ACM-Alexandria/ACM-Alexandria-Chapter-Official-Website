@@ -14,7 +14,7 @@ import com.acm.acmwebsite.feature.exception.BoardArchiveConflictException;
 import com.acm.acmwebsite.feature.exception.RegistrationExceptionHandler;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -47,7 +47,7 @@ class PastSeasonsControllerTest {
     private static final String ARCHIVE_URL = "/api/admin/boards/archive";
     @Autowired private MockMvc mvc;
     @Autowired private ApplicationContext context;
-    @MockitoBean private SystemSettingsService settings;
+    @MockitoBean private CurrentSeasonService settings;
     @MockitoBean private PastSeasonsService service;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private RateLimiterService rateLimiter;
