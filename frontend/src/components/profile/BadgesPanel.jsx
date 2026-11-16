@@ -1,4 +1,5 @@
 import BadgeCard from "../badges/BadgeCard";
+import ShareOnLinkedInButton from "../badges/ShareOnLinkedInButton";
 import { card, muted } from "../ui/uiStyles";
 
 // The Badges tab of the member's own profile: every badge, newest first, with the ones they haven't
@@ -17,7 +18,9 @@ const BadgesPanel = ({ badges, newIds, error }) => (
       </div>
     ) : (
       <div className="grid gap-4 sm:grid-cols-2">
-        {badges.map((b) => <BadgeCard key={b.id} badge={b} isNew={newIds.has(b.id)} />)}
+        {badges.map((b) => (
+          <BadgeCard key={b.id} badge={b} isNew={newIds.has(b.id)} footer={<ShareOnLinkedInButton badge={b} />} />
+        ))}
       </div>
     )}
   </div>

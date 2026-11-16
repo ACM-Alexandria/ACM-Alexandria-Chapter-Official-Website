@@ -5,6 +5,8 @@ import EmptyState from "../components/ui/EmptyState";
 import BadgeMedal from "../components/badges/BadgeMedal";
 import useDetails from "../hooks/useDetails";
 import { fetchPublicBadge } from "../services/badgesService";
+import { useAuth } from "../contexts/useAuth";
+import ShareOnLinkedInButton from "../components/badges/ShareOnLinkedInButton";
 import { secondaryButton, skeleton } from "../components/ui/uiStyles";
 
 const awardedOn = (iso) =>
@@ -12,11 +14,14 @@ const awardedOn = (iso) =>
 
 // One awarded badge, public: the page shared links (LinkedIn posts) open. It looks like the share image:
 // a wide deep-blue card with the medal beside the member's name (the largest text), the badge, the period
-// and committee, and the award date. On phones the medal sits above the text.
+// and committee, and the award date. On phones the medal sits above the text. The member who owns the
+// badge also gets a Share on LinkedIn button.
 const BadgePage = () => {
   const { publicId } = useParams();
   const { data: badge, loading, error } = useDetails(true, publicId, fetchPublicBadge,
     "This badge isn't available. It may have been removed.");
+  const { user } = useAuth();
+  const isOwner = Boolean(user?.id && badge?.member?.id === user.id);
 
   return (
     <SiteLayout solidNav>
@@ -49,6 +54,7 @@ const BadgePage = () => {
                 <span aria-hidden="true" className="h-[3px] w-9 bg-gold-518" />
                 Awarded {awardedOn(badge.awardedAt)}
               </p>
+              {isOwner && <ShareOnLinkedInButton badge={badge} variant="dark" className="mt-8" />}
             </div>
           </article>
         )}

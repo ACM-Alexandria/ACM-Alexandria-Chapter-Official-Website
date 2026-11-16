@@ -20,7 +20,7 @@ const BadgeCard = ({ badge, isNew = false, footer }) => (
         <span className={`mt-0.5 block text-xs ${muted}`}>Awarded {awardedOn(badge.awardedAt)}</span>
       </span>
     </Link>
-    {footer}
+    {footer && <div className="-mb-2 border-t border-ocean-69 pt-2 dark:border-white/10">{footer}</div>}
   </article>
 );
 
