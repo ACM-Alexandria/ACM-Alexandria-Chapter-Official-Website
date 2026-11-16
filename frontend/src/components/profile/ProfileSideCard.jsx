@@ -10,10 +10,9 @@ const Tag = ({ children }) => (
 );
 
 // Who you are, always in view beside the tabs: photo (board members and admins only), name, email, role,
-// committee and, for members, this season's points and their badges. Members also choose here whether they
-// appear on the public leaderboard. On large screens it stays in place while the tab content scrolls.
-// `onEdit` and `onToggleLeaderboard` are left out while editing.
-const ProfileSideCard = ({ profile, email, onEdit, badges = [], onShowBadges, onToggleLeaderboard, leaderboardSaving }) => (
+// committee and, for members, this season's points and their badges. On large screens it stays in place
+// while the tab content scrolls. `onEdit` is left out while editing.
+const ProfileSideCard = ({ profile, email, onEdit, badges = [], onShowBadges }) => (
   <aside className={`rounded-[2rem] p-6 text-center sm:p-8 lg:sticky lg:top-28 ${card}`}>
     <Avatar name={profile.name || email} src={canShowPhoto(profile.role) ? profile.profileImageUrl : ""} className="mx-auto h-24 w-24 text-3xl sm:h-28 sm:w-28 sm:text-4xl" />
     <h2 className="mt-5 break-words text-2xl font-semibold tracking-tight text-slate-900 dark:text-white" style={{ textWrap: "balance" }}>{profile.name || "Unnamed member"}</h2>
@@ -43,25 +42,6 @@ const ProfileSideCard = ({ profile, email, onEdit, badges = [], onShowBadges, on
           {badges.length} {badges.length === 1 ? "badge" : "badges"}
         </span>
       </button>
-    )}
-    {profile.role === "ACM_MEMBER" && onToggleLeaderboard && (
-      <div className="mt-5 flex items-start gap-3 border-t border-ocean-69 pt-5 text-left dark:border-white/10">
-        <div className="min-w-0 flex-1">
-          <p id="leaderboard-switch-label" className="text-sm font-semibold text-slate-900 dark:text-white">Show me on the leaderboard</p>
-          <p className={`mt-0.5 text-xs ${muted}`}>Your name, committee and points on the homepage top 10. Your badges stay visible either way.</p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={!profile.leaderboardOptOut}
-          aria-labelledby="leaderboard-switch-label"
-          onClick={onToggleLeaderboard}
-          disabled={leaderboardSaving}
-          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${focusRing} ${profile.leaderboardOptOut ? "bg-slate-300 dark:bg-slate-600" : "bg-ocean-573 dark:bg-ocean-461"}`}
-        >
-          <span aria-hidden="true" className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform motion-reduce:transition-none ${profile.leaderboardOptOut ? "translate-x-1" : "translate-x-6"}`} />
-        </button>
-      </div>
     )}
     {onEdit && (
       <button type="button" onClick={onEdit} className={`mt-6 w-full ${secondaryButton}`}><FiEdit2 className="h-4 w-4" aria-hidden="true" />Edit profile</button>
