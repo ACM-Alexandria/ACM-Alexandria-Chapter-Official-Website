@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FiAlertTriangle, FiAward, FiCheckCircle, FiSearch } from "react-icons/fi";
+import { FiAlertTriangle, FiAward, FiCheckCircle, FiImage, FiSearch } from "react-icons/fi";
 import { awardBadges, fetchCommitteeRanking, messageOf, revokeAward } from "../../../services/badgesAdminService";
 import { fetchCommittee } from "../../../services/homePageService";
 import { resolveMonth } from "../../../services/seasonsAdminService";
@@ -13,10 +13,12 @@ import {
   noticeClass,
   panelClass,
   primaryButtonClass,
+  secondaryButtonClass,
   tagBrandClass,
   tagWarnClass,
 } from "../SharedComponents/adminStyles";
 import MemberAvatar from "./MemberAvatar";
+import PosterExportModal from "./PosterExportModal";
 import { currentMonth } from "./badgeUtils";
 
 const smallButton =
@@ -49,6 +51,7 @@ const AwardPanel = ({ types, periods }) => {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(() => new Set());
   const [notice, setNotice] = useState("");
+  const [posterOpen, setPosterOpen] = useState(false);
   const { dialog, confirm, notify } = useThemedDialog();
 
   useEffect(() => {
@@ -215,6 +218,18 @@ const AwardPanel = ({ types, periods }) => {
           </div>
         </div>
         {periodError && <p role="alert" className={`mt-3 ${noticeClass.error}`}>{periodError}</p>}
+        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-ocean-800 flex flex-wrap items-center justify-between gap-3">
+          <p className={hintClass}>An image of this period's winners from every committee, to post or share as a story.</p>
+          <button
+            type="button"
+            onClick={() => setPosterOpen(true)}
+            disabled={!type || !period || period.type !== type.periodType}
+            className={secondaryButtonClass}
+          >
+            <FiImage className="w-4 h-4" aria-hidden="true" />
+            Export poster
+          </button>
+        </div>
       </div>
 
       <div className={`${panelClass} p-4 sm:p-5 grid gap-3 grid-cols-[1fr_8rem] sm:grid-cols-[1fr_12rem]`}>
@@ -359,6 +374,9 @@ const AwardPanel = ({ types, periods }) => {
       )}
 
       {ready && !ranking && loading && <p className="text-sm text-slate-600 dark:text-slate-400">Loading members…</p>}
+      {posterOpen && type && period && (
+        <PosterExportModal key={`${type.id}-${period.id}`} badge={type} period={period} onClose={() => setPosterOpen(false)} />
+      )}
       {dialog}
     </div>
   );
