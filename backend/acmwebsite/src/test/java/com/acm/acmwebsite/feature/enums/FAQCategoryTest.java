@@ -13,6 +13,7 @@ class FAQCategoryTest {
                         FAQCategory.Joining,
                         FAQCategory.Events,
                         FAQCategory.Committees,
+                        FAQCategory.Club,
                         FAQCategory.Radio,
                         FAQCategory.Accounts
                 );

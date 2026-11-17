@@ -5,7 +5,7 @@ import Navbar from "../components/HomePage/Navbar";
 import Footer from "../components/HomePage/Footer";
 import { fetchFAQs } from "../services/faqService";
 
-const CATEGORY_ORDER = ["Joining", "Events", "Committees", "Radio", "Accounts"];
+const CATEGORY_ORDER = ["Joining", "Events", "Committees", "Club", "Radio", "Accounts"];
 
 const FAQPage = () => {
   const [faqs, setFaqs] = useState([]);

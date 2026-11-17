@@ -3,7 +3,7 @@ import { FiArrowDown, FiArrowUp, FiEdit2, FiHelpCircle, FiPlus, FiTrash2, FiX } 
 import { createFAQ, deleteFAQ, fetchFAQs, reorderFAQs, updateFAQ } from "../../../services/faqService";
 import { fieldClass, primaryButtonClass, secondaryButtonClass, textareaClass } from "../SharedComponents/adminStyles";
 
-const CATEGORIES = ["Joining", "Events", "Committees", "Radio", "Accounts"];
+const CATEGORIES = ["Joining", "Events", "Committees", "Club", "Radio", "Accounts"];
 const emptyForm = { question: "", answer: "", category: "Joining", order: 0 };
 
 const FAQManagementTab = () => {
