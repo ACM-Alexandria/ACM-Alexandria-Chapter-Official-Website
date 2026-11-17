@@ -1,104 +1,183 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { FiChevronDown, FiMail, FiSearch } from "react-icons/fi";
+import { FiArrowRight, FiSearch, FiX } from "react-icons/fi";
 import SiteLayout from "../components/Layout/SiteLayout";
 import PageHero from "../components/Layout/PageHero";
 import Reveal from "../components/ui/Reveal";
-import { card, field, focusRing, muted, secondaryButton } from "../components/ui/uiStyles";
+import FaqItem from "../components/faq/FaqItem";
+import FaqNav from "../components/faq/FaqNav";
+import { contactEmail as fallbackEmail } from "../components/Home/homeContent";
+import { errorBox, field, focusRing, muted, primaryButton, secondaryButton, skeleton } from "../components/ui/uiStyles";
 import { fetchFAQs } from "../services/faqService";
+import { getEnv } from "../utils/env";
 
-const CATEGORY_ORDER = ["Joining", "Events", "Committees", "Club", "Radio", "Accounts"];
+// "Contact us" opens a new email to the chapter, like the footer's email link.
+const contactHref = `mailto:${getEnv("VITE_CONTACT_EMAIL") || fallbackEmail}`;
+
+// Topics in the order a newcomer needs them; a category the list doesn't know yet is shown after these.
+const TOPICS = [
+  ["Joining", "Joining"],
+  ["Events", "Events"],
+  ["Committees", "Committees"],
+  ["Club", "Clubs"],
+  ["Radio", "Radio"],
+  ["Accounts", "Accounts"],
+];
+const PAGE_SIZE = 100; // the most the API returns in one request
+
+// Every question, fetched once; searching and grouping then happen here, so typing never waits on the network.
+const loadAll = async () => {
+  const first = await fetchFAQs({ page: 0, size: PAGE_SIZE });
+  const rest = await Promise.all(Array.from({ length: Math.max(0, (first.totalPages || 1) - 1) }, (_, i) => fetchFAQs({ page: i + 1, size: PAGE_SIZE })));
+  return [first, ...rest].flatMap((page) => page.content || []);
+};
+
+const matches = (text, needle) => text.toLowerCase().includes(needle);
+
+const SkeletonList = () => (
+  <div aria-hidden="true" className="space-y-12">
+    {[3, 2].map((rows, g) => (
+      <div key={g}>
+        <div className={`h-7 w-40 rounded-lg ${skeleton}`} />
+        <div className="mt-4 space-y-5">
+          {Array.from({ length: rows }, (_, i) => <div key={i} className={`h-6 rounded-lg ${skeleton}`} style={{ width: `${88 - i * 14}%` }} />)}
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const FAQPage = () => {
   const [faqs, setFaqs] = useState([]);
+  const [status, setStatus] = useState("loading"); // loading | ready | error
+  const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(0);
-  const [pageInfo, setPageInfo] = useState({ totalPages: 0, totalElements: 0 });
-  const [openId, setOpenId] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(() => new Set());
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
-    fetchFAQs({ page, query })
-      .then((result) => {
-        setFaqs(result.content || []);
-        setPageInfo({ totalPages: result.totalPages || 0, totalElements: result.totalElements || 0 });
-      })
-      .catch((loadError) => setError(loadError.message))
-      .finally(() => setLoading(false));
-  }, [page, query]);
+    let cancelled = false;
+    loadAll()
+      .then((all) => { if (!cancelled) { setFaqs(all); setStatus("ready"); } })
+      .catch(() => { if (!cancelled) setStatus("error"); });
+    return () => { cancelled = true; };
+  }, [attempt]);
 
-  const groupedFAQs = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return CATEGORY_ORDER.map((category) => ({
-      category,
-      items: faqs.filter((faq) =>
-        faq.category === category &&
-        (!normalizedQuery || `${faq.question} ${faq.answer}`.toLowerCase().includes(normalizedQuery)),
-      ),
-    })).filter((group) => group.items.length > 0);
-  }, [faqs, query]);
+  const needle = query.trim().toLowerCase();
+
+  const groups = useMemo(() => {
+    const known = new Set(TOPICS.map(([category]) => category));
+    const topics = [...TOPICS, ...[...new Set(faqs.map((faq) => faq.category))].filter((category) => !known.has(category)).map((category) => [category, category])];
+    return topics
+      .map(([category, label]) => ({
+        id: `faq-${category.toLowerCase()}`,
+        label,
+        items: faqs
+          .filter((faq) => faq.category === category && (!needle || matches(`${faq.question} ${faq.answer}`, needle)))
+          .sort((a, b) => a.order - b.order || a.id - b.id),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [faqs, needle]);
+
+  const shown = groups.reduce((sum, group) => sum + group.items.length, 0);
+
+  // The topic whose heading is nearest the top of the screen is highlighted in the index.
+  useEffect(() => {
+    const sections = [...document.querySelectorAll("[data-faq-topic]")];
+    if (sections.length === 0 || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) setActiveId(visible[0].target.id);
+    }, { rootMargin: "-20% 0px -65% 0px" });
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [groups]);
+
+  const toggle = (id) => setOpen((current) => {
+    const next = new Set(current);
+    if (!next.delete(id)) next.add(id);
+    return next;
+  });
+
+  // A question that matches only in its answer opens by itself, so the highlighted words are visible.
+  const search = (value) => {
+    setQuery(value);
+    const text = value.trim().toLowerCase();
+    setOpen(new Set(text ? faqs.filter((faq) => !matches(faq.question, text) && matches(faq.answer, text)).map((faq) => faq.id) : []));
+  };
 
   return (
     <SiteLayout>
       <PageHero eyebrow="FAQ" title="Frequently asked questions" text="Everything you need to know about joining ACM Alexandria, events, committees, clubs, radio, and your account.">
-        <label className="relative block w-full max-w-xl">
-          <span className="sr-only">Search FAQs</span>
-          <FiSearch aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+        <div className="relative w-full max-w-xl">
+          <label htmlFor="faq-search" className="sr-only">Search questions and answers</label>
+          <FiSearch aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
           <input
+            id="faq-search"
+            type="text"
             value={query}
-            onChange={(event) => { setQuery(event.target.value); setPage(0); }}
-            placeholder="Search questions and answers…"
-            className={`${field} h-12 pl-12`}
+            onChange={(event) => search(event.target.value)}
+            placeholder="Search questions and answers"
+            autoComplete="off"
+            className={`${field} h-12 pl-12 pr-12`}
           />
-        </label>
+          {query && (
+            <button type="button" onClick={() => search("")} aria-label="Clear search" className={`absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-ocean-31 hover:text-slate-900 dark:hover:bg-white/10 dark:hover:text-white ${focusRing}`}>
+              <FiX aria-hidden="true" className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </PageHero>
 
-      <div className="mx-auto max-w-4xl space-y-12 px-5 py-16 sm:px-8 sm:py-20">
-        {loading && <p className={`py-10 text-center ${muted}`}>Loading questions…</p>}
-        {error && <div role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-200">{error}</div>}
-        {!loading && !error && groupedFAQs.length === 0 && <div className={`rounded-2xl border border-dashed border-ocean-106 p-10 text-center dark:border-white/15 ${muted}`}>No questions match your search.</div>}
+      <div className="mx-auto max-w-[1080px] px-5 py-12 sm:px-8 sm:py-16">
+        <div className="grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-16">
+          {status === "ready" && groups.length > 0 && <FaqNav groups={groups} activeId={activeId || groups[0].id} />}
 
-        {groupedFAQs.map(({ category, items }) => (
-          <section key={category} aria-labelledby={`faq-${category}`}>
-            <h2 id={`faq-${category}`} className="mb-4 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">{category}</h2>
-            <div className={`overflow-hidden rounded-2xl ${card}`}>
-              {items.map((faq) => {
-                const open = openId === faq.id;
-                return (
-                  <article key={faq.id} className="border-b border-ocean-106 last:border-b-0 dark:border-white/10">
-                    <button
-                      type="button"
-                      aria-expanded={open}
-                      onClick={() => setOpenId(open ? null : faq.id)}
-                      className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left font-semibold text-slate-800 transition-colors hover:bg-ocean-31 dark:text-slate-100 dark:hover:bg-white/5 sm:px-6 ${focusRing}`}
-                    >
-                      <span>{faq.question}</span>
-                      <FiChevronDown aria-hidden="true" className={`h-5 w-5 shrink-0 text-ocean-573 transition-transform dark:text-ocean-316 ${open ? "rotate-180" : ""}`} />
-                    </button>
-                    {open && <div className={`px-5 pb-5 text-sm leading-7 sm:px-6 ${muted}`}>{faq.answer}</div>}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+          <div className={`min-w-0 ${status === "ready" && groups.length > 0 ? "" : "lg:col-span-2"}`}>
+            <p role="status" aria-live="polite" className={`mb-8 min-h-5 text-sm ${muted}`}>
+              {status === "ready" && needle && (shown > 0 ? `${shown} ${shown === 1 ? "result" : "results"} for “${query.trim()}”` : "")}
+            </p>
 
-        {!loading && !error && pageInfo.totalPages > 1 && (
-          <nav aria-label="FAQ pages" className="flex flex-wrap items-center justify-center gap-4">
-            <button type="button" disabled={page === 0} onClick={() => setPage((current) => current - 1)} className={secondaryButton}>Previous</button>
-            <span className={`text-sm ${muted}`}>Page {page + 1} of {pageInfo.totalPages} · {pageInfo.totalElements} questions</span>
-            <button type="button" disabled={page >= pageInfo.totalPages - 1} onClick={() => setPage((current) => current + 1)} className={secondaryButton}>Next</button>
-          </nav>
-        )}
+            {status === "loading" && <SkeletonList />}
 
-        <Reveal className="flex flex-col items-start justify-between gap-6 rounded-[2rem] bg-ocean-794 p-8 text-white sm:flex-row sm:items-center sm:p-10 dark:bg-ocean-820">
-          <div>
-            <FiMail aria-hidden="true" className="h-7 w-7 text-ocean-316" />
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight">Still have questions?</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-ocean-114">We’re happy to help. Reach out through our contact section and the team will point you in the right direction.</p>
+            {status === "error" && (
+              <div role="alert" className={`${errorBox} items-center justify-between gap-4`}>
+                <span>We couldn’t load the questions right now.</span>
+                <button type="button" onClick={() => { setStatus("loading"); setAttempt((n) => n + 1); }} className={`${secondaryButton} h-9 shrink-0 bg-white px-4 dark:bg-transparent`}>Try again</button>
+              </div>
+            )}
+
+            {status === "ready" && groups.length === 0 && (
+              <div className="py-10 text-center">
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">{needle ? `Nothing matches “${query.trim()}”` : "No questions yet"}</p>
+                <p className={`mx-auto mt-2 max-w-md ${muted}`}>{needle ? "Try a shorter word, or ask the team directly." : "Check back soon, or ask the team directly."}</p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  {needle && <button type="button" onClick={() => search("")} className={secondaryButton}>Clear search</button>}
+                  <a href={contactHref} className={primaryButton}>Contact us</a>
+                </div>
+              </div>
+            )}
+
+            {status === "ready" && (
+              <div className="space-y-14">
+                {groups.map((group) => (
+                  <section key={group.id} id={group.id} data-faq-topic aria-labelledby={`${group.id}-title`} className="scroll-mt-28">
+                    <h2 id={`${group.id}-title`} className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{group.label}</h2>
+                    <ul className="mt-3">
+                      {group.items.map((faq) => <FaqItem key={faq.id} faq={faq} query={query} open={open.has(faq.id)} onToggle={() => toggle(faq.id)} />)}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            )}
           </div>
-          <Link to="/#footer" className={`inline-flex h-11 shrink-0 items-center rounded-xl bg-white px-5 text-sm font-semibold text-ocean-794 transition-colors hover:bg-ocean-31 ${focusRing}`}>Contact us</Link>
+        </div>
+
+        <Reveal className="mt-20 flex flex-col items-start justify-between gap-6 rounded-[2rem] bg-ocean-794 p-8 text-white sm:flex-row sm:items-center sm:p-10 dark:bg-ocean-820">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">Didn’t find your answer?</h2>
+            <p className="mt-1 max-w-xl text-ocean-114">Send us an email and the team will point you in the right direction.</p>
+          </div>
+          <a href={contactHref} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-ocean-676 transition-colors hover:bg-ocean-67 ${focusRing}`}>Contact us <FiArrowRight className="h-4 w-4" aria-hidden="true" /></a>
         </Reveal>
       </div>
     </SiteLayout>

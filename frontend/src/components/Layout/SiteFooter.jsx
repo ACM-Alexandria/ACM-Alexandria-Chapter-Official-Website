@@ -110,9 +110,9 @@ const SiteFooter = ({ social, links = [], showPartners = false }) => {
             <p className={heading}>Resources</p>
             <ul className="mt-4 grid gap-3">
               <li><Link to="/register" className={linkClass}>Join the community</Link></li>
+              {showPartners && <li><a href="#partners" className={linkClass}>Partners</a></li>}
               <li><Link to="/rules" className={linkClass}>Rules</Link></li>
               <li><Link to="/faq" className={linkClass}>FAQ</Link></li>
-              {showPartners && <li><a href="#partners" className={linkClass}>Partners</a></li>}
               <li><button type="button" onClick={() => (isAuthenticated ? setGrowOpen(true) : navigate("/login"))} className={linkClass}>Help us grow</button></li>
               {canSubmitFeedback && <li><button type="button" onClick={() => setFeedbackOpen(true)} className={linkClass}>Suggestions and complaints</button></li>}
             </ul>
