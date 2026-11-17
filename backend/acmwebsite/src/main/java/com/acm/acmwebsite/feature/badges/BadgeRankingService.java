@@ -31,8 +31,8 @@ import com.acm.acmwebsite.feature.seasons.dto.SeasonDtos.PeriodResponse;
 
 import lombok.RequiredArgsConstructor;
 
-// The Award screen for one committee: who already has the badge for the period, and every other ACM member
-// of the committee ranked by the points they earned in it, with the open winner places marked as suggested.
+// The Award screen for one committee: who already has the badge for the period, and every other ACM member and
+// board member of the committee ranked by the points they earned in it, with the open places marked as suggested.
 // Nothing is saved here.
 @Service
 @RequiredArgsConstructor
@@ -44,6 +44,9 @@ public class BadgeRankingService {
     private final BadgeAwardRepository awardRepository;
     private final CommitteeRepository committeeRepository;
     private final UserRepository userRepository;
+
+    // Who can be ranked and suggested in a committee: its members and its board members.
+    static final List<Role> RANKED_ROLES = List.of(Role.ACM_MEMBER, Role.ACM_COMMITTEE_BOARD);
 
     @Transactional(readOnly = true)
     public CommitteeRankingResponse rank(CommitteeRankingRequest request) {
@@ -61,16 +64,17 @@ public class BadgeRankingService {
                 .stream().map(BadgeMapper::adminView).toList();
         Set<UUID> awardedIds = awarded.stream().map(a -> a.member().id()).collect(Collectors.toSet());
 
-        // Points in the period, counted up to today for an ongoing one. Only ACM members are ranked.
+        // Points in the period, counted up to today for an ongoing one. The committee's ACM members and its
+        // board members are ranked together.
         Map<UUID, Long> points = new HashMap<>();
-        for (MemberPointsTotal t : pointsLogRepository.sumPointsByMemberBetween(
+        for (MemberPointsTotal t : pointsLogRepository.sumPointsByMemberBetweenForRoles(
                 period.getStartDate().atStartOfDay(),
                 period.lastDayAsOf(LocalDate.now()).plusDays(1).atStartOfDay(),
-                Role.ACM_MEMBER)) {
+                RANKED_ROLES)) {
             points.put(t.getMemberId(), t.getTotal());
         }
 
-        List<Scored> remaining = userRepository.findByCommittee_IdAndRole(committee.getId(), Role.ACM_MEMBER).stream()
+        List<Scored> remaining = userRepository.findByCommittee_IdAndRoleIn(committee.getId(), RANKED_ROLES).stream()
                 .filter(u -> !awardedIds.contains(u.getId()))
                 .map(u -> new Scored(u, points.getOrDefault(u.getId(), 0L)))
                 .sorted(Comparator.comparingLong(Scored::points).reversed()
@@ -103,7 +107,7 @@ public class BadgeRankingService {
             for (int k = i; k < j; k++) {
                 User u = sorted.get(k).user();
                 result.add(new RankedMember(u.getId(), displayName(u), BadgeMapper.photoOf(u), pts, rank,
-                        inRange && fits, inRange && !fits));
+                        inRange && fits, inRange && !fits, u.getRole() == Role.ACM_COMMITTEE_BOARD));
             }
             i = j;
         }

@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
@@ -19,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -43,19 +47,118 @@ public class BadgeCardRenderer {
     private static final Color SOFT_TEXT = new Color(0xBFE0F5);
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
 
-    // Ring, face and icon colors per period, as in the site's BadgeMedal.
-    private record Palette(Color ring, Color face, Color icon) {
+    // The medal's colors per period, as in the site's BadgeMedal (with its light-on-dark wreath): the face
+    // gradient (top, middle, bottom), the rim, the ink for the icon and text, and the two leaf colors.
+    private record Palette(Color a, Color b, Color c, Color rim1, Color rim2, Color ink, Color leafOuter, Color leafInner) {
     }
 
     private static Palette palette(PeriodType type) {
         if (type == null) {
-            return new Palette(new Color(0x94A3B8), new Color(0xF1F5F9), new Color(0x334155));
+            return new Palette(c(0xCBD5E1), c(0x94A3B8), c(0x475569), c(0xF8FAFC), c(0xCBD5E1), Color.WHITE, c(0xCBD5E1), c(0x94A3B8));
         }
         return switch (type) {
-            case MONTH -> new Palette(new Color(0x4B98C8), new Color(0xE2F0FA), new Color(0x205E85));
-            case QUARTER -> new Palette(new Color(0x7DBBE0), new Color(0x205E85), Color.WHITE);
-            case SEASON -> new Palette(new Color(0xF5B301), new Color(0xFFE7A3), new Color(0x3A3012));
+            case MONTH -> new Palette(c(0x8FD0F5), c(0x3D93CF), c(0x1E5F8E), c(0xE9F6FF), c(0x7FB6DB), Color.WHITE, c(0x8FD0F5), c(0x5BAEE3));
+            case QUARTER -> new Palette(c(0x6E8BF2), c(0x3651C9), c(0x1D2C7A), c(0xEEF1FF), c(0x97A6E6), Color.WHITE, c(0x9DB0FA), c(0x6E8BF2));
+            case SEASON -> new Palette(c(0xFFE27A), c(0xF5B301), c(0xB26F00), c(0xFFF7D6), c(0xE9B530), c(0x5A3A00), c(0xFFE27A), c(0xF5B301));
         };
+    }
+
+    private static Color c(int rgb) {
+        return new Color(rgb);
+    }
+
+    // The ACM ribbon's two panels on a dark background.
+    private static final Color RIBBON_DEEP = new Color(0x4F9FD3);
+    private static final Color RIBBON_LIGHT = new Color(0xA9D5F2);
+
+    // The medal's geometry is drawn in the site's 120-unit box (the ribbon at the top, the wreath, the medal).
+    private static final double MEDAL_CX = 60;
+    private static final double MEDAL_CY = 72;
+    private static final double WREATH_RADIUS = 38;
+
+    // The ACM logo, shown in a white disc in the top right corner. Loaded once; the image is still drawn
+    // (without the logo) if the file is missing.
+    private static final int LOGO_DISC = 92;
+    private static final double LOGO_CX = WIDTH - 60 - LOGO_DISC / 2.0;
+    private static final double LOGO_CY = 52 + LOGO_DISC / 2.0;
+    private final BufferedImage logo = loadLogo();
+
+    private static BufferedImage loadLogo() {
+        try (java.io.InputStream in = BadgeCardRenderer.class.getResourceAsStream("/badge/acm-logo.png")) {
+            if (in == null) {
+                return null;
+            }
+            BufferedImage source = ImageIO.read(in);
+            int box = (int) Math.round(LOGO_DISC * 0.86);
+            double scale = Math.min((double) box / source.getWidth(), (double) box / source.getHeight());
+            int w = Math.max(1, (int) Math.round(source.getWidth() * scale));
+            int h = Math.max(1, (int) Math.round(source.getHeight() * scale));
+            BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D sg = scaled.createGraphics();
+            sg.drawImage(source.getScaledInstance(w, h, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+            sg.dispose();
+            return scaled;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private void drawLogo(Graphics2D g) {
+        g.setColor(new Color(0, 0, 0, 40));
+        g.fill(circle(LOGO_CX, LOGO_CY + 5, LOGO_DISC / 2.0));
+        g.setColor(Color.WHITE);
+        g.fill(circle(LOGO_CX, LOGO_CY, LOGO_DISC / 2.0));
+        if (logo != null) {
+            g.drawImage(logo, (int) Math.round(LOGO_CX - logo.getWidth() / 2.0), (int) Math.round(LOGO_CY - logo.getHeight() / 2.0), null);
+        }
+    }
+
+    // A soft golden light behind the medal, kept gentle so the medal stays the focus.
+    private static void drawSpotlight(Graphics2D g, double cx, double cy) {
+        g.setPaint(new java.awt.RadialGradientPaint((float) cx, (float) cy, 300f, new float[] {0f, .6f, 1f},
+                new Color[] {new Color(255, 231, 163, 71), new Color(255, 231, 163, 13), new Color(255, 231, 163, 0)}));
+        g.fill(circle(cx, cy, 300));
+    }
+
+    // A thin gold double frame inset from the edge.
+    private static void drawFrame(Graphics2D g) {
+        g.setColor(new Color(0xF5, 0xB3, 0x01, 140));
+        g.setStroke(new BasicStroke(1.5f));
+        g.draw(new java.awt.geom.RoundRectangle2D.Double(18, 18, WIDTH - 36, HEIGHT - 36, 28, 28));
+        g.setColor(new Color(0xF5, 0xB3, 0x01, 56));
+        g.setStroke(new BasicStroke(1f));
+        g.draw(new java.awt.geom.RoundRectangle2D.Double(28, 28, WIDTH - 56, HEIGHT - 56, 18, 18));
+    }
+
+    // A few small confetti strips placed by hand around the edges, away from the medal, the text and the logo.
+    // Each is {x, y, rotation in degrees, length, color index, opacity in percent}. The page's banner uses the
+    // same positions (frontend confetti.js, WIDE_STRIPS), so the image and the page match.
+    private static final Color[] CONFETTI_COLORS = {new Color(0xF5B301), new Color(0xFFE7A3), new Color(0x8FD0F5), Color.WHITE};
+    private static final int[][] STRIPS = {
+            {120, 72, 25, 16, 1, 70}, {300, 50, -35, 14, 2, 65}, {470, 42, 60, 16, 0, 70},
+            {640, 44, -20, 14, 3, 55}, {820, 40, 40, 16, 2, 60}, {955, 46, -50, 14, 1, 65},
+            {92, 560, -30, 16, 0, 65}, {262, 586, 45, 14, 3, 50}, {432, 558, -60, 16, 2, 65},
+            {612, 592, 20, 14, 1, 70}, {782, 590, -40, 16, 0, 65}, {942, 594, 55, 14, 3, 50},
+            {1092, 590, -20, 16, 2, 60}, {1168, 232, 35, 14, 1, 65}, {1150, 332, -45, 16, 0, 60},
+            {1172, 432, 15, 14, 2, 60}, {50, 150, 30, 14, 2, 55}, {44, 250, 50, 14, 3, 50},
+            {48, 480, -25, 16, 1, 60}, {1164, 130, -30, 14, 3, 55},
+            {150, 110, -40, 16, 2, 70}, {330, 130, 35, 14, 1, 70}, {400, 230, -55, 16, 0, 65},
+            {385, 400, 25, 14, 3, 55}, {310, 520, -30, 16, 0, 65}, {160, 520, 50, 14, 2, 60},
+            {66, 350, -35, 16, 0, 60}, {1150, 200, -40, 14, 2, 65}, {1150, 470, 30, 16, 1, 65},
+            {1040, 540, -55, 14, 3, 55}, {1175, 300, 20, 16, 0, 70}, {1152, 380, -25, 14, 3, 55},
+            {1176, 500, 40, 14, 1, 60}};
+
+    private static void drawConfetti(Graphics2D g) {
+        for (int[] strip : STRIPS) {
+            Color base = CONFETTI_COLORS[strip[4]];
+            double length = strip[3];
+            AffineTransform saved = g.getTransform();
+            g.translate(strip[0], strip[1]);
+            g.rotate(Math.toRadians(strip[2]));
+            g.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), Math.round(strip[5] * 2.55f)));
+            g.fill(new java.awt.geom.RoundRectangle2D.Double(-length / 2, -length * 0.225, length, length * 0.45, 3, 3));
+            g.setTransform(saved);
+        }
     }
 
     public byte[] render(AwardView badge) {
@@ -68,12 +171,12 @@ public class BadgeCardRenderer {
 
             g.setColor(BACKGROUND);
             g.fillRect(0, 0, WIDTH, HEIGHT);
-            g.setColor(new Color(255, 255, 255, 22));
-            g.setStroke(new BasicStroke(1.5f));
-            g.draw(new Ellipse2D.Double(1110 - 210, 90 - 210, 420, 420));
-            g.draw(new Ellipse2D.Double(1110 - 130, 90 - 130, 260, 260));
+            drawSpotlight(g, 230, HEIGHT / 2.0);
+            drawConfetti(g);
+            drawFrame(g);
+            drawLogo(g);
 
-            drawMedal(g, badge, 230, HEIGHT / 2.0, 300);
+            drawMedal(g, badge, 230, HEIGHT / 2.0, 340);
             drawText(g, badge, 452, 668);
         } finally {
             g.dispose();
@@ -86,28 +189,156 @@ public class BadgeCardRenderer {
         }
     }
 
-    // The medal in the site's 100-unit design: ring r48, face r41, dashed circle r35, icon in a 42-unit box.
+    // The medal in the site's design: the ACM ribbon, a laurel wreath, and a glossy medal with the icon and the
+    // period printed on it. `size` is the height and width of the 120-unit box, centered on (cx, cy).
     private void drawMedal(Graphics2D g, AwardView badge, double cx, double cy, double size) {
         Palette p = palette(badge.periodType());
-        double u = size / 100.0;
-        g.setColor(p.ring());
-        g.fill(circle(cx, cy, 48 * u));
-        g.setColor(p.face());
-        g.fill(circle(cx, cy, 41 * u));
-        g.setColor(new Color(p.icon().getRed(), p.icon().getGreen(), p.icon().getBlue(), 72));
-        g.setStroke(new BasicStroke((float) (1.2 * u), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10f,
-                new float[] {(float) (2 * u), (float) (3 * u)}, 0f));
-        g.draw(circle(cx, cy, 35 * u));
-
+        double s = size / 120.0;
+        double ox = cx - size / 2;
+        double oy = cy - size / 2;
         AffineTransform saved = g.getTransform();
-        g.translate(cx - 21 * u, cy - 21 * u);
-        g.scale(1.75 * u, 1.75 * u);
-        g.setColor(p.icon());
-        g.setStroke(new BasicStroke(1.7f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        for (Shape s : icon(badge.icon())) {
+        g.translate(ox, oy);
+        g.scale(s, s);
+
+        // Ribbon.
+        g.setColor(RIBBON_DEEP);
+        g.fill(polygon(36, 2, 52, 2, 66, 40, 50, 40));
+        g.setColor(RIBBON_LIGHT);
+        g.fill(polygon(84, 2, 68, 2, 54, 40, 70, 40));
+        g.setColor(new Color(255, 255, 255, 217));
+        g.fill(polygon(41.5, 2, 45, 2, 58.5, 40, 55, 40));
+        g.fill(polygon(78.5, 2, 75, 2, 61.5, 40, 65, 40));
+
+        drawWreath(g, p);
+
+        // Medal: rim, face, dashed ring, shine.
+        g.setPaint(new LinearGradientPaint((float) (MEDAL_CX - 31), (float) (MEDAL_CY - 31), (float) (MEDAL_CX + 31), (float) (MEDAL_CY + 31),
+                new float[] {0f, .5f, 1f}, new Color[] {p.rim1(), p.rim2(), p.rim1()}));
+        g.fill(circle(MEDAL_CX, MEDAL_CY, 31));
+        g.setPaint(new LinearGradientPaint(0f, (float) (MEDAL_CY - 26), 0f, (float) (MEDAL_CY + 26),
+                new float[] {0f, .55f, 1f}, new Color[] {p.a(), p.b(), p.c()}));
+        g.fill(circle(MEDAL_CX, MEDAL_CY, 26));
+        g.setColor(new Color(255, 255, 255, 77));
+        g.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10f, new float[] {1.5f, 2.5f}, 0f));
+        g.draw(circle(MEDAL_CX, MEDAL_CY, 23));
+        g.setColor(new Color(255, 255, 255, 56));
+        g.fill(shine());
+
+        String[] text = medalText(badge.periodType(), badge.periodLabel());
+        double k = 26.0 / 28.0;
+        g.setColor(p.ink());
+        g.setStroke(new BasicStroke(1.9f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        if (text[0].isEmpty()) {
+            drawIcon(g, badge.icon(), MEDAL_CX, MEDAL_CY, 1.4 * k);
+            g.setTransform(saved);
+            return;
+        }
+        drawIcon(g, badge.icon(), MEDAL_CX, MEDAL_CY - 9 * k, 0.78 * k);
+        g.setTransform(saved);
+        // Text is drawn in pixels (not through the scaled transform) so the glyphs stay crisp.
+        centered(g, text[0], ox + MEDAL_CX * s, oy + (MEDAL_CY + 9 * k) * s, 11.5 * k * s, 0.6 * s, p.ink());
+        centered(g, text[1], ox + MEDAL_CX * s, oy + (MEDAL_CY + 17.5 * k) * s, 6.2 * k * s, 1.0 * s, p.ink());
+    }
+
+    // The two lines on the medal: "Nov 2026" → NOV / 2026, "Q2 · 2027" → Q2 / 2027, "Season 2027" → 2027 / SEASON.
+    static String[] medalText(PeriodType type, String label) {
+        String l = label == null ? "" : label.trim();
+        if (l.isEmpty()) {
+            return new String[] {"", ""};
+        }
+        if (type == PeriodType.SEASON) {
+            return new String[] {l.replaceFirst("(?i)^season\\s*", ""), "SEASON"};
+        }
+        String[] parts = l.split("[\\s·]+");
+        return new String[] {parts[0].toUpperCase(Locale.ROOT), parts.length > 1 ? parts[1] : ""};
+    }
+
+    // Two sprigs of leaves along an arc on each side of the medal, each leaf tilted along its stem.
+    private static void drawWreath(Graphics2D g, Palette p) {
+        for (int side : new int[] {-1, 1}) {
+            g.setColor(p.leafOuter());
+            g.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            Path2D stem = new Path2D.Double();
+            for (int deg = 172; deg >= 62; deg -= 2) {
+                double[] pt = wreathPoint(side, deg);
+                if (deg == 172) {
+                    stem.moveTo(pt[0], pt[1]);
+                } else {
+                    stem.lineTo(pt[0], pt[1]);
+                }
+            }
+            g.draw(stem);
+            for (int i = 0; i < 6; i++) {
+                double deg = 165 - i * 19;
+                double t = Math.toRadians(deg);
+                double[] pt = wreathPoint(side, deg);
+                double tangent = Math.toDegrees(Math.atan2(-Math.sin(t), -side * Math.cos(t)));
+                for (int out : new int[] {1, -1}) {
+                    double angle = tangent + out * side * 32;
+                    double lx = pt[0] + Math.cos(Math.toRadians(angle)) * 6;
+                    double ly = pt[1] + Math.sin(Math.toRadians(angle)) * 6;
+                    AffineTransform before = g.getTransform();
+                    g.rotate(Math.toRadians(angle), lx, ly);
+                    g.setColor(out > 0 ? p.leafOuter() : p.leafInner());
+                    g.fill(new Ellipse2D.Double(lx - 6.4, ly - 2.7, 12.8, 5.4));
+                    g.setTransform(before);
+                }
+            }
+        }
+    }
+
+    private static double[] wreathPoint(int side, double deg) {
+        double t = Math.toRadians(deg);
+        return new double[] {MEDAL_CX + side * WREATH_RADIUS * Math.sin(t), MEDAL_CY - WREATH_RADIUS * Math.cos(t)};
+    }
+
+    // A soft highlight across the top of the medal face.
+    private static Path2D shine() {
+        double centerY = MEDAL_CY - 8 + Math.sqrt(25 * 25 - 22 * 22);
+        double from = Math.atan2(-Math.sqrt(25 * 25 - 22 * 22), -22);
+        double to = Math.atan2(-Math.sqrt(25 * 25 - 22 * 22), 22);
+        Path2D path = new Path2D.Double();
+        path.moveTo(MEDAL_CX - 22, MEDAL_CY - 8);
+        for (int i = 1; i <= 24; i++) {
+            double a = from + (to - from) * i / 24.0;
+            path.lineTo(MEDAL_CX + 25 * Math.cos(a), centerY + 25 * Math.sin(a));
+        }
+        path.curveTo(MEDAL_CX + 10, MEDAL_CY - 14, MEDAL_CX - 10, MEDAL_CY - 14, MEDAL_CX - 22, MEDAL_CY - 8);
+        path.closePath();
+        return path;
+    }
+
+    // The badge icon, centered on (cx, cy) in the medal's units, drawn at `scale` times its 24-unit box.
+    private static void drawIcon(Graphics2D g, BadgeIcon icon, double cx, double cy, double scale) {
+        AffineTransform saved = g.getTransform();
+        g.translate(cx - 12 * scale, cy - 12 * scale);
+        g.scale(scale, scale);
+        for (Shape s : icon(icon)) {
             g.draw(s);
         }
         g.setTransform(saved);
+    }
+
+    // Bold text centered on x with the given baseline and letter spacing (all in pixels).
+    private static void centered(Graphics2D g, String text, double x, double baseline, double size, double tracking, Color color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        Font font = new Font(Font.SANS_SERIF, Font.BOLD, 12).deriveFont(Map.of(
+                TextAttribute.SIZE, (float) size, TextAttribute.TRACKING, (float) (tracking / size)));
+        TextLayout layout = new TextLayout(text, font, g.getFontRenderContext());
+        g.setColor(color);
+        layout.draw(g, (float) (x - layout.getAdvance() / 2), (float) baseline);
+    }
+
+    private static Path2D polygon(double... xy) {
+        Path2D path = new Path2D.Double();
+        path.moveTo(xy[0], xy[1]);
+        for (int i = 2; i < xy.length; i += 2) {
+            path.lineTo(xy[i], xy[i + 1]);
+        }
+        path.closePath();
+        return path;
     }
 
     private static Ellipse2D circle(double cx, double cy, double r) {

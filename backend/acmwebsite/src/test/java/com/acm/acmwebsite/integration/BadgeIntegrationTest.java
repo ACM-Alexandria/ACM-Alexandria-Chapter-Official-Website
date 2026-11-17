@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -104,7 +105,7 @@ class BadgeIntegrationTest {
         badgeAwardRepository.deleteAll();
         seasonPeriodRepository.deleteAll();
 
-        // This month's points. The committee board member's points must not rank.
+        // This month's points. The committee board member ranks with the members.
         logPoints(nour, 128);
         logPoints(salma, 90);
         logPoints(ahmed, 90);
@@ -184,23 +185,26 @@ class BadgeIntegrationTest {
     }
 
     @Test
-    @DisplayName("A committee's members are ranked by points; the top places are suggested, ties flagged, boards left out")
+    @DisplayName("A committee's members and board members are ranked by points; the top places are suggested, ties flagged")
     void committeeRanking() throws Exception {
         Long monthId = currentMonthId();
-        CommitteeRankingResponse tech = ranking(typeId("Monthly MVP"), monthId, technical, 2);
+        CommitteeRankingResponse tech = ranking(typeId("Monthly MVP"), monthId, technical, 3);
 
         assertEquals("Technical", tech.committeeName());
-        assertEquals(2, tech.winners());
+        assertEquals(3, tech.winners());
         assertTrue(tech.awarded().isEmpty());
-        assertEquals(List.of(nour.getId(), salma.getId(), ahmed.getId()).size(), tech.members().size());
+        assertEquals(List.of(committeeBoard.getId(), nour.getId(), ahmed.getId(), salma.getId()),
+                tech.members().stream().map(RankedMember::memberId).toList());
+        // The committee's board member ranks with the members, marked as board.
         RankedMember first = tech.members().get(0);
-        assertEquals(nour.getId(), first.memberId());
-        assertEquals(128, first.points());
-        assertTrue(first.suggested());
-        // Salma and Ahmed tie for the second place, so the admin picks.
-        assertTrue(tech.members().get(1).tied() && tech.members().get(2).tied());
-        assertFalse(tech.members().get(1).suggested() || tech.members().get(2).suggested());
-        assertTrue(tech.members().stream().noneMatch(m -> m.memberId().equals(committeeBoard.getId())));
+        assertEquals(999, first.points());
+        assertTrue(first.board() && first.suggested());
+        assertTrue(tech.members().get(1).suggested() && !tech.members().get(1).board());
+        // Ahmed and Salma tie for the third place (listed by name), so the admin picks.
+        assertTrue(tech.members().get(2).tied() && tech.members().get(3).tied());
+        assertFalse(tech.members().get(2).suggested() || tech.members().get(3).suggested());
+        // High board and other committees' boards aren't ranked here.
+        assertTrue(tech.members().stream().noneMatch(m -> m.memberId().equals(highBoard.getId())));
 
         // Without a number, the default of 3 winners; Media's only member is suggested.
         CommitteeRankingResponse med = ranking(typeId("Monthly MVP"), monthId, media, null);
@@ -229,11 +233,12 @@ class BadgeIntegrationTest {
                 "badgeTypeId", mvp, "periodId", monthId, "recipients", List.of(recipient(nour, 1))))
                 .andExpect(status().isConflict());
 
-        // The ranking now lists Nour and Salma as awarded; Ahmed takes the one place left of the default 3.
+        // The ranking now lists Nour and Salma as awarded; the board member takes the one place left of the default 3.
         CommitteeRankingResponse again = ranking(mvp, monthId, technical, null);
         assertEquals(List.of(nour.getId(), salma.getId()), again.awarded().stream().map(a -> a.member().id()).toList());
-        assertEquals(List.of(ahmed.getId()), again.members().stream().map(RankedMember::memberId).toList());
+        assertEquals(List.of(committeeBoard.getId(), ahmed.getId()), again.members().stream().map(RankedMember::memberId).toList());
         assertTrue(again.members().get(0).suggested());
+        assertFalse(again.members().get(1).suggested());
 
         // The member sees it as new until they open their badges.
         mockMvc.perform(get("/api/badges/me").header("Authorization", bearer(nour)))
@@ -342,6 +347,76 @@ class BadgeIntegrationTest {
         assertFalse(html.contains("<b>"));
         // The image still renders.
         mockMvc.perform(get("/share/badges/" + award.publicId() + "/card.png")).andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Each awarded badge can carry its own description, set when awarding or edited later")
+    void descriptions() throws Exception {
+        Long monthId = currentMonthId();
+        String url = "/api/admin/badges/awards";
+        // Nour gets her own description; Salma falls back to the one for the whole request.
+        List<AwardView> awarded = read(postAs(highBoard, url, Map.of("badgeTypeId", typeId("Monthly MVP"), "periodId", monthId,
+                "note", "Great month for the team",
+                "recipients", List.of(Map.of("memberId", nour.getId(), "rank", 1, "note", "  Led the hackathon  "),
+                        recipient(salma, 2))))
+                .andExpect(status().isCreated()), new TypeReference<>() {});
+        assertEquals("Led the hackathon", awarded.get(0).note());
+        assertEquals("Great month for the team", awarded.get(1).note());
+
+        // Edited later from the Award screen, by any admin role; shown on the public badge page.
+        Long id = awarded.get(1).id();
+        mockMvc.perform(patch(url + "/" + id).header("Authorization", bearer(committeeBoard))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"note\":\"Organized every session\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.note").value("Organized every session"));
+        entityManager.flush();
+        mockMvc.perform(get("/api/public/badges/" + awarded.get(1).publicId()))
+                .andExpect(jsonPath("$.note").value("Organized every session"));
+
+        // Blank clears it; members can't edit; too long is refused.
+        mockMvc.perform(patch(url + "/" + id).header("Authorization", bearer(highBoard))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"note\":\"  \"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.note").doesNotExist());
+        mockMvc.perform(patch(url + "/" + id).header("Authorization", bearer(salma))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"note\":\"Me\"}"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(patch(url + "/" + id).header("Authorization", bearer(highBoard))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"note\":\"" + "x".repeat(301) + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("A committee can't get more winners than the number chosen")
+    void winnerLimit() throws Exception {
+        Long monthId = currentMonthId();
+        Long mvp = typeId("Monthly MVP");
+        String url = "/api/admin/badges/awards";
+
+        // Two places: picking three members is refused, and nothing is saved.
+        postAs(highBoard, url, Map.of("badgeTypeId", mvp, "periodId", monthId, "winners", 2,
+                "recipients", List.of(recipient(nour, 1), recipient(salma, 2), recipient(ahmed, 3))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Only 2 of 2 places")));
+        postAs(highBoard, url, Map.of("badgeTypeId", mvp, "periodId", monthId, "winners", 2,
+                "recipients", List.of(recipient(nour, 1), recipient(salma, 2))))
+                .andExpect(status().isCreated());
+
+        // Both places are taken now.
+        postAs(highBoard, url, Map.of("badgeTypeId", mvp, "periodId", monthId, "winners", 2,
+                "recipients", List.of(recipient(ahmed, 3))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("All 2 places")));
+
+        // Another committee has its own places.
+        postAs(highBoard, url, Map.of("badgeTypeId", mvp, "periodId", monthId, "winners", 2,
+                "recipients", List.of(recipient(youssef, 1))))
+                .andExpect(status().isCreated());
+
+        // Raising the number (or leaving it out, for the default 3) opens a place again.
+        postAs(highBoard, url, Map.of("badgeTypeId", mvp, "periodId", monthId,
+                "recipients", List.of(recipient(ahmed, 3))))
+                .andExpect(status().isCreated());
     }
 
     @Test

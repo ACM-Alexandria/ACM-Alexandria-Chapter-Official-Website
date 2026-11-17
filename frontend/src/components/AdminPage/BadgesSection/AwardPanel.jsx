@@ -15,10 +15,12 @@ import {
   primaryButtonClass,
   secondaryButtonClass,
   tagBrandClass,
+  tagMutedClass,
   tagWarnClass,
 } from "../SharedComponents/adminStyles";
 import MemberAvatar from "./MemberAvatar";
 import PosterExportModal from "./PosterExportModal";
+import AwardNoteModal from "./AwardNoteModal";
 import { currentMonth } from "./badgeUtils";
 
 const smallButton =
@@ -52,6 +54,7 @@ const AwardPanel = ({ types, periods }) => {
   const [busy, setBusy] = useState(() => new Set());
   const [notice, setNotice] = useState("");
   const [posterOpen, setPosterOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
   const { dialog, confirm, notify } = useThemedDialog();
 
   useEffect(() => {
@@ -146,12 +149,12 @@ const AwardPanel = ({ types, periods }) => {
   });
 
   const award = async (members) => {
-    if (!ready || members.length === 0) return;
+    if (!ready || members.length === 0 || members.length > openPlaces || busy.size > 0) return;
     const ids = members.map((m) => m.memberId);
     setMemberBusy(ids, true);
     setNotice("");
     try {
-      await awardBadges(type.id, period.id, members.map((m) => ({ memberId: m.memberId, rank: m.rank })));
+      await awardBadges(type.id, period.id, members.map((m) => ({ memberId: m.memberId, rank: m.rank })), winnersShown);
       setNotice(members.length === 1
         ? `Awarded ${type.name} to ${members[0].name}.`
         : `Awarded ${type.name} to ${members.length} members.`);
@@ -193,6 +196,10 @@ const AwardPanel = ({ types, periods }) => {
   const shownMembers = query ? members.filter((m) => (m.name || "").toLowerCase().includes(query)) : members;
   const suggested = members.filter((m) => m.suggested);
   const winnersShown = winners ?? (ranking && String(ranking.committeeId) === committeeId ? ranking.winners : 3);
+  // Places left in this committee; awarding stops at the number of winners (the backend checks it too).
+  const openPlaces = Math.max(0, winnersShown - awarded.length);
+  const full = openPlaces === 0;
+  const awarding = busy.size > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -288,7 +295,18 @@ const AwardPanel = ({ types, periods }) => {
                   <li key={a.id} className="flex items-center gap-3 px-4 sm:px-5 py-2.5 border-t first:border-t-0 border-slate-100 dark:border-ocean-800">
                     <FiAward className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                     <MemberAvatar name={a.member.name} imageUrl={a.member.profileImageUrl} />
-                    <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-900 dark:text-slate-100">{a.member.name}</span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block truncate text-sm font-medium text-slate-900 dark:text-slate-100">{a.member.name}</span>
+                      {a.note && <span className="block text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{a.note}</span>}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEditingNote(a)}
+                      disabled={busy.has(a.member.id)}
+                      className={`${smallButton} text-ocean-637 dark:text-ocean-316 hover:bg-ocean-67 dark:hover:bg-ocean-808`}
+                    >
+                      {a.note ? "Edit description" : "Add description"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => revoke(a)}
@@ -307,18 +325,27 @@ const AwardPanel = ({ types, periods }) => {
             <div className="px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-ocean-800">
               <div>
                 <h3 id="members-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">Members</h3>
-                <p className={hintClass}>Ranked by points in {ranking.period.label}. Board members aren't ranked.</p>
+                <p className={hintClass}>Ranked by points in {ranking.period.label}, including the committee's board members.</p>
               </div>
               <button
                 type="button"
                 onClick={() => award(suggested)}
-                disabled={suggested.length === 0 || suggested.some((m) => busy.has(m.memberId))}
+                disabled={suggested.length === 0 || suggested.length > openPlaces || awarding}
                 className={primaryButtonClass}
               >
                 <FiAward className="w-4 h-4" aria-hidden="true" />
                 Award suggested{suggested.length > 0 ? ` (${suggested.length})` : ""}
               </button>
             </div>
+
+            {members.length > 0 && full && (
+              <p role="status" className="px-4 sm:px-5 py-3 border-b border-slate-200 dark:border-ocean-800 flex items-start gap-2.5 text-sm text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30">
+                <FiAlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+                {awarded.length > winnersShown
+                  ? `${awarded.length} members already have this badge, more than the ${winnersShown} winners set. Revoke ${awarded.length - winnersShown} to match.`
+                  : `All ${winnersShown} places are taken. Revoke a badge or raise Winners to award someone else.`}
+              </p>
+            )}
 
             {members.length > 0 && (
               <div className="px-4 sm:px-5 py-3 border-b border-slate-200 dark:border-ocean-800">
@@ -354,13 +381,15 @@ const AwardPanel = ({ types, periods }) => {
                     <MemberAvatar name={m.name} imageUrl={m.profileImageUrl} />
                     <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-900 dark:text-slate-100">{m.name}</span>
                     {m.suggested && <span className={tagBrandClass}>Suggested</span>}
+                    {m.board && <span className={tagMutedClass}>Board</span>}
                     {m.tied && <span className={tagWarnClass}>Tied</span>}
                     <span className="w-16 text-right text-sm font-semibold text-ocean-614 dark:text-ocean-316 tabular-nums whitespace-nowrap">{m.points} pts</span>
                     <button
                       type="button"
                       onClick={() => award([m])}
-                      disabled={busy.has(m.memberId)}
+                      disabled={full || awarding}
                       aria-label={`Award ${ranking.badgeType.name} to ${m.name}`}
+                      title={full ? "All places are taken" : undefined}
                       className={`${smallButton} border border-slate-300 dark:border-ocean-745 text-ocean-637 dark:text-ocean-316 hover:bg-ocean-67 dark:hover:bg-ocean-808`}
                     >
                       {busy.has(m.memberId) ? <SpinnerIcon className="w-4 h-4 animate-spin" /> : "Award"}
@@ -374,6 +403,14 @@ const AwardPanel = ({ types, periods }) => {
       )}
 
       {ready && !ranking && loading && <p className="text-sm text-slate-600 dark:text-slate-400">Loading members…</p>}
+      {editingNote && (
+        <AwardNoteModal
+          key={editingNote.id}
+          award={editingNote}
+          onClose={() => setEditingNote(null)}
+          onSaved={(saved) => setRanking((r) => r && { ...r, awarded: r.awarded.map((a) => (a.id === saved.id ? saved : a)) })}
+        />
+      )}
       {posterOpen && type && period && (
         <PosterExportModal key={`${type.id}-${period.id}`} badge={type} period={period} onClose={() => setPosterOpen(false)} />
       )}

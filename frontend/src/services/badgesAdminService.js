@@ -15,9 +15,12 @@ export const fetchCommitteeRanking = async (badgeTypeId, periodId, committeeId, 
 
 // Every badge awarded for a period.
 export const fetchAwards = async (periodId) => (await api.get(`${base}/awards`, { params: { periodId } })).data;
-// recipients: [{ memberId, rank? }]; each badge goes to the member's own committee.
-export const awardBadges = async (badgeTypeId, periodId, recipients, note) =>
-  (await api.post(`${base}/awards`, { badgeTypeId, periodId, recipients, note })).data;
+// recipients: [{ memberId, rank? }]; each badge goes to the member's own committee. `winners` is the most
+// members of one committee that can hold the badge for the period; the backend refuses awards past it.
+export const awardBadges = async (badgeTypeId, periodId, recipients, winners, note) =>
+  (await api.post(`${base}/awards`, { badgeTypeId, periodId, recipients, winners, note })).data;
 export const revokeAward = async (id) => api.delete(`${base}/awards/${id}`);
+// The member's description on an awarded badge; blank removes it.
+export const updateAwardNote = async (id, note) => (await api.patch(`${base}/awards/${id}`, { note })).data;
 
 export { messageOf } from "../utils/apiError";

@@ -83,11 +83,42 @@ public class BadgeAwardService {
             }
             award.setCommittee(committee);
             award.setRank(r.rank());
-            award.setNote(blankToNull(request.note()));
+            award.setNote(r.note() != null && !r.note().isBlank() ? r.note().trim() : blankToNull(request.note()));
             award.setAwardedBy(actor);
             saved.add(award);
         }
+        checkWinnerLimit(type, period, saved,
+                request.winners() != null ? request.winners() : Math.max(1, type.getDefaultWinners()));
         return awardRepository.saveAll(saved).stream().map(BadgeMapper::adminView).toList();
+    }
+
+    // A committee can't have more holders of the badge for the period than its number of winners.
+    private void checkWinnerLimit(BadgeType type, SeasonPeriod period, List<BadgeAward> newAwards, int winners) {
+        Map<Long, List<BadgeAward>> picked = newAwards.stream()
+                .collect(Collectors.groupingBy(a -> a.getCommittee().getId()));
+        picked.values().forEach(group -> {
+            Committee committee = group.get(0).getCommittee();
+            int count = group.size();
+            int holders = awardRepository.findActiveForCommittee(type.getId(), period.getId(), committee.getId()).size();
+            int open = Math.max(0, winners - holders);
+            if (count > open) {
+                String where = type.getName() + " in " + committee.getName() + " for " + period.label();
+                throw new BadgeConflictException(open == 0
+                        ? "All " + winners + " places for " + where + " are taken. Revoke one or raise the number of winners."
+                        : "Only " + open + " of " + winners + " places for " + where + " are open, but " + count
+                                + " members were picked.");
+            }
+        });
+    }
+
+    // The member's description on an awarded badge; blank removes it.
+    @Transactional
+    public AwardView updateNote(Long awardId, String note) {
+        BadgeAward award = awardRepository.findById(awardId)
+                .filter(BadgeAward::isActive)
+                .orElseThrow(() -> new ResourceNotFoundException("Badge award not found"));
+        award.setNote(blankToNull(note));
+        return BadgeMapper.adminView(award);
     }
 
     @Transactional

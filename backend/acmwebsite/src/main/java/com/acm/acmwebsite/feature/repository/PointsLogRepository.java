@@ -48,4 +48,20 @@ public interface PointsLogRepository extends JpaRepository<PointsLog, Long> {
     List<MemberPointsTotal> sumPointsByMemberBetween(@Param("start") LocalDateTime start,
                                                      @Param("end") LocalDateTime end,
                                                      @Param("role") Role role);
+
+    /** The same totals for people with any of {@code roles}. */
+    @Query("""
+            SELECT m.id AS memberId, c.id AS committeeId, SUM(l.points) AS total
+            FROM PointsLog l
+            JOIN l.member m
+            LEFT JOIN m.committee c
+            WHERE l.createdAt >= :start AND l.createdAt < :end
+              AND m.role IN :roles
+            GROUP BY m.id, c.id
+            HAVING SUM(l.points) > 0
+            ORDER BY SUM(l.points) DESC
+            """)
+    List<MemberPointsTotal> sumPointsByMemberBetweenForRoles(@Param("start") LocalDateTime start,
+                                                             @Param("end") LocalDateTime end,
+                                                             @Param("roles") java.util.Collection<Role> roles);
 }
