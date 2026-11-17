@@ -54,17 +54,19 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Secure admin endpoints
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
+                        // Exclusive forms are only for ACM members and the boards. Visitors who are not signed in and
+                        // accounts with the plain USER role get nothing (list, details, questions, registration).
+                        .requestMatchers("/api/exclusive-forms/**")
+                        .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD", "ACM_MEMBER")
                         // Explicitly secure registration endpoints
                         .requestMatchers(HttpMethod.POST, "/api/events/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/clubs/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/committee/*/register").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/program/*/register").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/exclusive-forms/*/register").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/events/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/clubs/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/committee/*/is-registered/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/program/*/is-registered/*").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/*/is-registered/*").authenticated()
                         // Secure feedback submission and screenshot uploads for authenticated users
                         // only
                         .requestMatchers(HttpMethod.POST, "/api/feedback/**").authenticated()
@@ -115,7 +117,6 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                                 "/api/socialLinks/**",
                                 "/api/gallery",
                                 "/api/gallery/**",
-                                "/api/exclusive-forms/**",
                                 "/api/radio/**",
                                 "/api/partners/**")
                         .permitAll()
