@@ -1,7 +1,7 @@
 import React from "react";
 import { getEnv } from "../../../utils/env";
 
-const FooterNavigation = ({ onNavigate }) => {
+const FooterNavigation = ({ onNavigate, onFaqNavigate }) => {
   const isEnabled = (envVal) => envVal !== "false";
 
   const navItems = [
@@ -13,6 +13,7 @@ const FooterNavigation = ({ onNavigate }) => {
     isEnabled(getEnv("VITE_ENABLE_RADIO")) && { id: "radio", label: "Radio" },
     isEnabled(getEnv("VITE_ENABLE_SERVICES")) && { id: "services", label: "Services" },
     isEnabled(getEnv("VITE_ENABLE_PARTNERS")) && { id: "partners", label: "Partners" },
+    { id: "faq", label: "FAQ" },
   ].filter(Boolean);
 
   return (
@@ -25,7 +26,7 @@ const FooterNavigation = ({ onNavigate }) => {
           <li key={i}>
             <button
               type="button"
-              onClick={() => onNavigate(item.id)}
+              onClick={() => item.id === "faq" ? onFaqNavigate() : onNavigate(item.id)}
               className="hover:text-white dark:hover:text-blue-100 transition-colors duration-300 inline-flex items-center gap-2 group bg-transparent border-none p-0 cursor-pointer uppercase text-left font-bold text-[11px] tracking-widest text-blue-100/70 dark:text-blue-100/90"
             >
               <div className="w-1 h-1 rounded-full bg-[#4B98C8] scale-0 group-hover:scale-100 transition-transform" />

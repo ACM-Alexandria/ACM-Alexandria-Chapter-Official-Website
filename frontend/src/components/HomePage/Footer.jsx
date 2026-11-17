@@ -86,7 +86,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-12">
           <FooterBrand socialLinks={socialLinks} onNavigate={handleSectionNavigation} />
-          <FooterNavigation onNavigate={handleSectionNavigation} />
+          <FooterNavigation onNavigate={handleSectionNavigation} onFaqNavigate={() => navigate("/faq")} />
           <FooterResources onResourceClick={handleResourceClick} />
           <FooterNewsletter 
             onHelpUsGrowClick={() => handleResourceClick("Help Us Grow")} 
