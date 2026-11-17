@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMoon, FiSun } from "react-icons/fi";
-import acmLogo from "../../assets/logo/acm-logo-no-bg.png";
+import acmLogo from "../../assets/logo/acm-logo-outline.svg";
 import NightSky from "../ui/NightSky";
 import { switchTheme } from "../../utils/themeTransition";
 
@@ -41,7 +41,7 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
         <NightSky />
         <div className="relative z-10 flex h-full flex-col p-10 lg:p-12">
           <Link to="/" tabIndex={-1} className="flex items-center gap-3 text-white">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white"><img src={acmLogo} alt="" className="h-8 w-8 object-contain" /></span>
+            <img src={acmLogo} alt="" className="h-12 w-auto" />
             <span className="text-base font-semibold">ACM Alexandria</span>
           </Link>
           <div className="my-auto max-w-sm pb-12">
@@ -55,7 +55,7 @@ const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = fals
         <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <Link to="/" className="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-ocean-676 dark:text-ocean-239 dark:hover:text-white">
             <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span className="md:hidden"><img src={acmLogo} alt="" className="mr-1 inline h-6 w-6 object-contain align-[-6px]" />ACM Alexandria</span>
+            <span className="md:hidden"><img src={acmLogo} alt="" className="mr-1.5 inline h-7 w-auto align-[-8px]" />ACM Alexandria</span>
             <span className="hidden md:inline">Back to home</span>
           </Link>
           <button type="button" onClick={(event) => switchTheme(event, !isDark, () => setIsDark(!isDark))} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-white dark:text-ocean-239 dark:hover:bg-white/5">
