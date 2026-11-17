@@ -104,7 +104,7 @@ class ExclusiveFormIntegrationTest {
                 .isAlexEngStudent(true)
                 .department(Department.CSED)
                 .batch("2026")
-                .role(Role.USER)
+                .role(Role.ACM_MEMBER)
                 .emailConfirmed(true)
                 .passwordHash("hashedPassword")
                 .build();
@@ -191,7 +191,8 @@ class ExclusiveFormIntegrationTest {
             entityManager.flush();
 
             // 3. RETRIEVE FORM QUESTIONS
-            mockMvc.perform(get("/api/exclusive-forms/" + formId + "/questions"))
+            mockMvc.perform(get("/api/exclusive-forms/" + formId + "/questions")
+                            .header("Authorization", "Bearer " + applicantToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].question_text").value("T-Shirt Color and Size"))
@@ -289,7 +290,7 @@ class ExclusiveFormIntegrationTest {
                     .name("Incomplete Form User")
                     .phoneNumber(null)
                     .isAlexEngStudent(true)
-                    .role(Role.USER)
+                    .role(Role.ACM_MEMBER)
                     .emailConfirmed(true)
                     .passwordHash("hashed")
                     .build();
@@ -372,7 +373,7 @@ class ExclusiveFormIntegrationTest {
                     .name("Other Form User")
                     .phoneNumber("01077773333")
                     .isAlexEngStudent(true)
-                    .role(Role.USER)
+                    .role(Role.ACM_MEMBER)
                     .emailConfirmed(true)
                     .passwordHash("hashed")
                     .build();
@@ -409,9 +410,9 @@ class ExclusiveFormIntegrationTest {
                             .content(objectMapper.writeValueAsString(requestDto)))
                     .andExpect(status().isForbidden());
 
-            // Unauthenticated cancel (handled by controller authorization check with 401)
+            // Unauthenticated cancel (blocked by Spring Security filter chain with 403)
             mockMvc.perform(delete("/api/exclusive-forms/" + testForm.getId() + "/register/" + applicant.getId()))
-                    .andExpect(status().isUnauthorized());
+                    .andExpect(status().isForbidden());
 
             // Unauthenticated is-registered (blocked by Spring Security filter chain with 403)
             mockMvc.perform(get("/api/exclusive-forms/" + testForm.getId() + "/is-registered/" + applicant.getId()))
@@ -504,6 +505,70 @@ class ExclusiveFormIntegrationTest {
                     .andExpect(status().isNoContent());
 
             assertFalse(exclusiveFormQuestionRepository.existsById(createdQuestionId));
+        }
+    }
+    @Nested
+    @DisplayName("Who can see exclusive forms")
+    class VisibilityTests {
+
+        private List<String> readUrls() {
+            Long id = testForm.getId();
+            return List.of("/api/exclusive-forms", "/api/exclusive-forms/active",
+                    "/api/exclusive-forms/" + id, "/api/exclusive-forms/" + id + "/questions");
+        }
+
+        private User saveUser(String email, Role role) {
+            return userRepository.save(User.builder()
+                    .email(email)
+                    .name("Visibility " + role.name())
+                    .phoneNumber("01000000002")
+                    .isAlexEngStudent(true)
+                    .department(Department.CSED)
+                    .batch("2026")
+                    .role(role)
+                    .emailConfirmed(true)
+                    .passwordHash("hashed")
+                    .build());
+        }
+
+        @Test
+        @DisplayName("Visitors who are not signed in get nothing: not the list, a form or its questions")
+        void visitorsCannotRead() throws Exception {
+            for (String url : readUrls()) {
+                mockMvc.perform(get(url)).andExpect(status().isForbidden());
+            }
+        }
+
+        @Test
+        @DisplayName("Accounts with the plain USER role cannot read forms or register")
+        void plainUsersCannotReadOrRegister() throws Exception {
+            User plain = saveUser("plain.user.visibility@example.com", Role.USER);
+            String token = jwtUtil.generateToken(plain.getEmail(), plain.getRole().name());
+
+            for (String url : readUrls()) {
+                mockMvc.perform(get(url).header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+            }
+            RegistrationRequestDto self = RegistrationRequestDto.builder().userId(plain.getId()).build();
+            mockMvc.perform(post("/api/exclusive-forms/" + testForm.getId() + "/register")
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(self)))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(get("/api/exclusive-forms/" + testForm.getId() + "/is-registered/" + plain.getId())
+                            .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("ACM members, boards and admins can read forms")
+        void membersAndBoardsCanRead() throws Exception {
+            User board = saveUser("board.visibility@example.com", Role.ACM_COMMITTEE_BOARD);
+            String boardToken = jwtUtil.generateToken(board.getEmail(), board.getRole().name());
+            for (String token : List.of(applicantToken, boardToken, adminToken)) {
+                for (String url : readUrls()) {
+                    mockMvc.perform(get(url).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+                }
+            }
         }
     }
 }
