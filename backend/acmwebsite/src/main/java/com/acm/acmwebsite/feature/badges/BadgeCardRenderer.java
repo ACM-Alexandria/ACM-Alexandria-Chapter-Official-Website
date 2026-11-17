@@ -76,24 +76,23 @@ public class BadgeCardRenderer {
     private static final double MEDAL_CY = 72;
     private static final double WREATH_RADIUS = 38;
 
-    // The ACM logo, shown in a small white disc before the chapter name. Loaded once; the disc is still drawn
-    // (without the logo) if the file is missing.
-    private static final int LOGO_DISC = 58;
+    // The ACM logo on its own, with a white outline and no circle, before the chapter
+    // name. Loaded once; the chapter name is still drawn (without the logo) if the file is missing.
+    private static final int LOGO_ROW = 66;
     private final BufferedImage logo = loadLogo();
 
     private static BufferedImage loadLogo() {
-        try (java.io.InputStream in = BadgeCardRenderer.class.getResourceAsStream("/badge/acm-logo.png")) {
+        try (java.io.InputStream in = BadgeCardRenderer.class.getResourceAsStream("/badge/acm-logo-outline.png")) {
             if (in == null) {
                 return null;
             }
             BufferedImage source = ImageIO.read(in);
-            int box = (int) Math.round(LOGO_DISC * 0.86);
-            double scale = Math.min((double) box / source.getWidth(), (double) box / source.getHeight());
+            double scale = (double) LOGO_ROW / source.getHeight();
             int w = Math.max(1, (int) Math.round(source.getWidth() * scale));
-            int h = Math.max(1, (int) Math.round(source.getHeight() * scale));
-            BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage scaled = new BufferedImage(w, LOGO_ROW, BufferedImage.TYPE_INT_ARGB);
             Graphics2D sg = scaled.createGraphics();
-            sg.drawImage(source.getScaledInstance(w, h, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+            sg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            sg.drawImage(source.getScaledInstance(w, LOGO_ROW, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
             sg.dispose();
             return scaled;
         } catch (IOException e) {
@@ -101,17 +100,13 @@ public class BadgeCardRenderer {
         }
     }
 
-    // The logo disc with its top left corner at (x, y).
-    private void drawLogoDisc(Graphics2D g, int x, int y) {
-        double cx = x + LOGO_DISC / 2.0;
-        double cy = y + LOGO_DISC / 2.0;
-        g.setColor(new Color(0, 0, 0, 45));
-        g.fill(circle(cx, cy + 3, LOGO_DISC / 2.0));
-        g.setColor(Color.WHITE);
-        g.fill(circle(cx, cy, LOGO_DISC / 2.0));
-        if (logo != null) {
-            g.drawImage(logo, (int) Math.round(cx - logo.getWidth() / 2.0), (int) Math.round(cy - logo.getHeight() / 2.0), null);
+    // The logo with its top left corner at (x, y); its width, or 0 if the file is missing.
+    private int drawLogo(Graphics2D g, int x, int y) {
+        if (logo == null) {
+            return 0;
         }
+        g.drawImage(logo, x, y, null);
+        return logo.getWidth();
     }
 
     // The background: a deep blue gradient, two soft blue glows, and a web of nodes and fine lines. The nodes
@@ -417,7 +412,7 @@ public class BadgeCardRenderer {
         int nameLineGap = 6;
         int nameHeight = nameMetrics.getAscent() * nameLines.size() + (nameLines.size() - 1) * (nameMetrics.getDescent() + nameLineGap);
         int[] sizes = {
-                LOGO_DISC,
+                LOGO_ROW,
                 nameHeight,
                 g.getFontMetrics(title).getAscent(),
                 g.getFontMetrics(detail).getAscent(),
@@ -432,12 +427,12 @@ public class BadgeCardRenderer {
         }
         int y = (HEIGHT - total) / 2;
 
-        // The chapter row: the logo disc, then the chapter name centered on it.
-        drawLogoDisc(g, x, y);
+        // The chapter row: the logo, then the chapter name centered on it.
+        int logoWidth = drawLogo(g, x, y);
         FontMetrics chapterMetrics = g.getFontMetrics(chapter);
-        int chapterX = x + LOGO_DISC + 16;
+        int chapterX = x + (logoWidth > 0 ? logoWidth + 16 : 0);
         drawLine(g, chapter, GOLD_TEXT, "ACM Alexandria Student Chapter", chapterX,
-                y + LOGO_DISC / 2 + (chapterMetrics.getAscent() - chapterMetrics.getDescent()) / 2, maxWidth - (chapterX - x));
+                y + LOGO_ROW / 2 + (chapterMetrics.getAscent() - chapterMetrics.getDescent()) / 2, maxWidth - (chapterX - x));
         y += sizes[0];
         y += gaps[0];
         for (int i = 0; i < nameLines.size(); i++) {

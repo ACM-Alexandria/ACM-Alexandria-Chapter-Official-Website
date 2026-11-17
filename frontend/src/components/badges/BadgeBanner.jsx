@@ -1,5 +1,5 @@
 import BadgeMedal from "./BadgeMedal";
-import logo from "../../assets/logo/acm-logo-no-bg.png";
+import logo from "../../assets/logo/acm-logo-outline.svg";
 import { WIDE_NODES, linesOf } from "./network";
 
 // The badge banner, laid out exactly like the 1200×627 LinkedIn image: the medal on the left, the chapter, the
@@ -58,9 +58,7 @@ const BadgeBanner = ({ badge, awardedOn, className = "", children }) => (
 
     <div className="absolute flex flex-col justify-center" style={{ left: cq(452), width: cq(668), top: cq(40), bottom: cq(40) }}>
       <div style={{ display: "flex", alignItems: "center", gap: cq(16) }}>
-        <span style={{ width: cq(58), height: cq(58), flex: "0 0 auto", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px -8px rgba(0,0,0,0.55)" }}>
-          <img src={logo} alt="" style={{ width: "86%", height: "86%", objectFit: "contain" }} />
-        </span>
+        <img src={logo} alt="" style={{ height: cq(66), width: "auto", flex: "0 0 auto" }} />
         <p style={{ fontSize: cq(26), fontWeight: 700, lineHeight: 1.2, color: "#FFE7A3" }}>ACM Alexandria Student Chapter</p>
       </div>
       <h1 style={{ marginTop: cq(28), fontSize: cq(nameSize(badge.member.name)), fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.02em", overflowWrap: "anywhere" }}>
