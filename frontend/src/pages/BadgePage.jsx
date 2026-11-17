@@ -5,6 +5,7 @@ import EmptyState from "../components/ui/EmptyState";
 import BadgeMedal from "../components/badges/BadgeMedal";
 import BadgeBanner from "../components/badges/BadgeBanner";
 import BadgeBackdrop from "../components/badges/BadgeBackdrop";
+import logo from "../assets/logo/acm-logo-no-bg.png";
 import useDetails from "../hooks/useDetails";
 import { fetchPublicBadge } from "../services/badgesService";
 import { useAuth } from "../contexts/useAuth";
@@ -42,15 +43,12 @@ const BadgePage = () => {
               {isOwner && <ShareOnLinkedInButton badge={badge} variant="banner" />}
             </BadgeBanner>
 
-            <article className="relative flex flex-col items-center gap-8 overflow-hidden rounded-[2rem] bg-[#0F3A5A] px-6 py-10 text-center text-white sm:px-10 md:hidden">
+            <article
+              className="relative flex flex-col items-center gap-8 overflow-hidden rounded-[2rem] px-6 py-10 text-center text-white sm:px-10 md:hidden"
+              style={{ background: "linear-gradient(135deg, #0B2E49 0%, #0F3A5A 55%, #15507A 100%)" }}
+            >
               <BadgeBackdrop />
               <div className="relative shrink-0">
-                {/* A soft golden light behind the medal, kept gentle. */}
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -inset-[22%] rounded-full"
-                  style={{ background: "radial-gradient(closest-side, rgba(255,231,163,0.28) 0%, rgba(255,231,163,0.05) 60%, rgba(255,231,163,0) 100%)" }}
-                />
                 <BadgeMedal
                   periodType={badge.periodType}
                   periodLabel={badge.periodLabel}
@@ -62,7 +60,12 @@ const BadgePage = () => {
                 />
               </div>
               <div className="relative min-w-0">
-                <p className="text-base font-semibold text-gold-180 sm:text-lg">ACM Alexandria Student Chapter</p>
+                <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_6px_16px_-8px_rgba(0,0,0,0.55)] sm:h-10 sm:w-10">
+                    <img src={logo} alt="" className="h-[86%] w-[86%] object-contain" />
+                  </span>
+                  <p className="text-base font-semibold text-gold-180 sm:text-lg">ACM Alexandria Student Chapter</p>
+                </div>
                 <h1 className="mt-4 break-words text-4xl font-extrabold leading-[1.05] tracking-[-0.02em] sm:text-5xl">{badge.member.name}</h1>
                 <p className="mt-3 text-2xl font-bold text-ocean-114 sm:text-3xl">{badge.name}</p>
                 <p className="mt-2 text-lg text-ocean-114 sm:text-xl">{badge.periodLabel} · {badge.committeeName}</p>

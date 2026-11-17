@@ -1,10 +1,10 @@
 import BadgeMedal from "./BadgeMedal";
 import logo from "../../assets/logo/acm-logo-no-bg.png";
-import { WIDE_STRIPS } from "./confetti";
+import { WIDE_NODES, linesOf } from "./network";
 
 // The badge banner, laid out exactly like the 1200×627 LinkedIn image: the medal on the left, the chapter, the
 // member's name (the largest text), the badge, the period and committee, and the award date on the right, the
-// ACM logo in the top right corner, a gold frame and a few confetti strips. Everything is placed in design
+// ACM logo in a small disc before the chapter name, on a deep blue gradient with a web of nodes and lines. Everything is placed in design
 // pixels and scaled with the card's width (container units), so it keeps its proportions at any size.
 // Keep it in step with BadgeCardRenderer in the backend.
 const W = 1200;
@@ -19,36 +19,29 @@ const nameSize = (name = "") => (name.length <= 14 ? 76 : name.length <= 19 ? 60
 const noteSize = (note) => (note.length <= 100 ? 24 : note.length <= 200 ? 21 : 19);
 const noteLines = (name, hasButton) => (name.length > 22 ? 3 : 5) - (hasButton ? 1 : 0);
 
-const LOGO_BOX = 79;
-const LOGO_SCALE = Math.min(LOGO_BOX / 484, LOGO_BOX / 515);
-const LOGO_W = 484 * LOGO_SCALE;
-const LOGO_H = 515 * LOGO_SCALE;
-const LOGO_CX = W - 60 - 46;
-const LOGO_CY = 52 + 46;
+const LINES = linesOf(WIDE_NODES, 210);
 
 // `children` is the Share on LinkedIn button, shown under the date for the badge's owner.
 const BadgeBanner = ({ badge, awardedOn, className = "", children }) => (
   <div
     className={`relative w-full overflow-hidden rounded-[1.5rem] text-white ${className}`}
-    style={{ containerType: "inline-size", aspectRatio: `${W} / ${H}`, background: "#0F3A5A" }}
+    style={{ containerType: "inline-size", aspectRatio: `${W} / ${H}`, background: "linear-gradient(135deg, #0B2E49 0%, #0F3A5A 55%, #15507A 100%)" }}
   >
     <svg aria-hidden="true" viewBox={`0 0 ${W} ${H}`} className="pointer-events-none absolute inset-0 h-full w-full">
       <defs>
-        <radialGradient id="banner-glow" gradientUnits="userSpaceOnUse" cx="230" cy={H / 2} r="300">
-          <stop offset="0" stopColor="#FFE7A3" stopOpacity=".28" />
-          <stop offset=".6" stopColor="#FFE7A3" stopOpacity=".05" />
-          <stop offset="1" stopColor="#FFE7A3" stopOpacity="0" />
+        <radialGradient id="banner-orb-a" gradientUnits="userSpaceOnUse" cx="980" cy="90" r="320">
+          <stop offset="0" stopColor="#5FA8D8" stopOpacity=".5" />
+          <stop offset="1" stopColor="#5FA8D8" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="banner-orb-b" gradientUnits="userSpaceOnUse" cx="150" cy="560" r="260">
+          <stop offset="0" stopColor="#2F86C4" stopOpacity=".45" />
+          <stop offset="1" stopColor="#2F86C4" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <circle cx="230" cy={H / 2} r="300" fill="url(#banner-glow)" />
-      {WIDE_STRIPS.map(([x, y, rotation, length, color, opacity], i) => (
-        <rect key={i} x={-length / 2} y={-length * 0.225} width={length} height={length * 0.45} rx="1.5" fill={color} opacity={opacity} transform={`translate(${x} ${y}) rotate(${rotation})`} />
-      ))}
-      <rect x="18" y="18" width={W - 36} height={H - 36} rx="14" fill="none" stroke="#F5B301" strokeOpacity=".55" strokeWidth="1.5" />
-      <rect x="28" y="28" width={W - 56} height={H - 56} rx="9" fill="none" stroke="#F5B301" strokeOpacity=".22" strokeWidth="1" />
-      <circle cx={LOGO_CX} cy={LOGO_CY + 5} r="46" fill="#000" opacity=".16" />
-      <circle cx={LOGO_CX} cy={LOGO_CY} r="46" fill="#fff" />
-      <image href={logo} x={LOGO_CX - LOGO_W / 2} y={LOGO_CY - LOGO_H / 2} width={LOGO_W} height={LOGO_H} />
+      <circle cx="980" cy="90" r="320" fill="url(#banner-orb-a)" />
+      <circle cx="150" cy="560" r="260" fill="url(#banner-orb-b)" />
+      {LINES.map(([x1, y1, x2, y2, opacity], i) => <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8FD0F5" strokeOpacity={opacity} strokeWidth="1" />)}
+      {WIDE_NODES.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#BFE0F5" opacity=".6" />)}
     </svg>
 
     <div className="absolute" style={{ left: `${((230 - 170) / W) * 100}%`, top: `${((H / 2 - 170) / H) * 100}%`, width: `${(340 / W) * 100}%` }}>
@@ -64,7 +57,12 @@ const BadgeBanner = ({ badge, awardedOn, className = "", children }) => (
     </div>
 
     <div className="absolute flex flex-col justify-center" style={{ left: cq(452), width: cq(668), top: cq(40), bottom: cq(40) }}>
-      <p style={{ fontSize: cq(26), fontWeight: 700, lineHeight: 1.2, color: "#FFE7A3" }}>ACM Alexandria Student Chapter</p>
+      <div style={{ display: "flex", alignItems: "center", gap: cq(16) }}>
+        <span style={{ width: cq(58), height: cq(58), flex: "0 0 auto", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px -8px rgba(0,0,0,0.55)" }}>
+          <img src={logo} alt="" style={{ width: "86%", height: "86%", objectFit: "contain" }} />
+        </span>
+        <p style={{ fontSize: cq(26), fontWeight: 700, lineHeight: 1.2, color: "#FFE7A3" }}>ACM Alexandria Student Chapter</p>
+      </div>
       <h1 style={{ marginTop: cq(28), fontSize: cq(nameSize(badge.member.name)), fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.02em", overflowWrap: "anywhere" }}>
         {badge.member.name}
       </h1>
