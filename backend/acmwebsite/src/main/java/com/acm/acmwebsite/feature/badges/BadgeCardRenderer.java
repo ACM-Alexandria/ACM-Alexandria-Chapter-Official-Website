@@ -32,15 +32,15 @@ import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.seasons.PeriodType;
 
 // Draws the 1200×627 image LinkedIn shows for a shared badge, in the badge page's design: a deep-blue card
-// with the medal on the left and, on the right, the chapter, the member's name (largest), the badge, the
-// period and committee, and the award date. Uses Java's built-in sans-serif font.
+// with a web of nodes and lines, the medal on the left and, on the right, the ACM logo and chapter name, the
+// member's name (largest), the badge, the period and committee, and the award date. Uses Java's built-in
+// sans-serif font.
 @Component
 public class BadgeCardRenderer {
 
     public static final int WIDTH = 1200;
     public static final int HEIGHT = 627;
 
-    private static final Color BACKGROUND = new Color(0x0F3A5A);
     private static final Color GOLD_TEXT = new Color(0xFFE7A3);
     private static final Color GOLD_LINE = new Color(0xF5B301);
     private static final Color LIGHT_TEXT = new Color(0xCFE6F5);
@@ -76,11 +76,9 @@ public class BadgeCardRenderer {
     private static final double MEDAL_CY = 72;
     private static final double WREATH_RADIUS = 38;
 
-    // The ACM logo, shown in a white disc in the top right corner. Loaded once; the image is still drawn
+    // The ACM logo, shown in a small white disc before the chapter name. Loaded once; the disc is still drawn
     // (without the logo) if the file is missing.
-    private static final int LOGO_DISC = 92;
-    private static final double LOGO_CX = WIDTH - 60 - LOGO_DISC / 2.0;
-    private static final double LOGO_CY = 52 + LOGO_DISC / 2.0;
+    private static final int LOGO_DISC = 58;
     private final BufferedImage logo = loadLogo();
 
     private static BufferedImage loadLogo() {
@@ -103,62 +101,61 @@ public class BadgeCardRenderer {
         }
     }
 
-    private void drawLogo(Graphics2D g) {
-        g.setColor(new Color(0, 0, 0, 40));
-        g.fill(circle(LOGO_CX, LOGO_CY + 5, LOGO_DISC / 2.0));
+    // The logo disc with its top left corner at (x, y).
+    private void drawLogoDisc(Graphics2D g, int x, int y) {
+        double cx = x + LOGO_DISC / 2.0;
+        double cy = y + LOGO_DISC / 2.0;
+        g.setColor(new Color(0, 0, 0, 45));
+        g.fill(circle(cx, cy + 3, LOGO_DISC / 2.0));
         g.setColor(Color.WHITE);
-        g.fill(circle(LOGO_CX, LOGO_CY, LOGO_DISC / 2.0));
+        g.fill(circle(cx, cy, LOGO_DISC / 2.0));
         if (logo != null) {
-            g.drawImage(logo, (int) Math.round(LOGO_CX - logo.getWidth() / 2.0), (int) Math.round(LOGO_CY - logo.getHeight() / 2.0), null);
+            g.drawImage(logo, (int) Math.round(cx - logo.getWidth() / 2.0), (int) Math.round(cy - logo.getHeight() / 2.0), null);
         }
     }
 
-    // A soft golden light behind the medal, kept gentle so the medal stays the focus.
-    private static void drawSpotlight(Graphics2D g, double cx, double cy) {
-        g.setPaint(new java.awt.RadialGradientPaint((float) cx, (float) cy, 300f, new float[] {0f, .6f, 1f},
-                new Color[] {new Color(255, 231, 163, 71), new Color(255, 231, 163, 13), new Color(255, 231, 163, 0)}));
-        g.fill(circle(cx, cy, 300));
-    }
+    // The background: a deep blue gradient, two soft blue glows, and a web of nodes and fine lines. The nodes
+    // are {x, y, radius}; the page's banner uses the same list (frontend network.js, WIDE_NODES), so the image
+    // and the page match. Two nodes closer than 210 px are joined by a line that fades with distance.
+    private static final double[][] NODES = {
+            {518.7, 280.3, 3.0}, {458.9, 298.9, 5.1}, {1044.1, 216.8, 3.5}, {931.6, 118.4, 3.2}, {735.9, 213.2, 2.3},
+            {1099.3, 129.4, 3.9}, {988.0, 32.3, 3.7}, {277.2, 344.6, 3.6}, {117.4, 419.3, 4.8}, {1078.0, 406.8, 4.1},
+            {220.2, 208.6, 3.3}, {373.8, 398.5, 3.5}, {466.4, 581.4, 4.0}, {904.0, 197.1, 5.0}, {1105.7, 498.3, 4.2},
+            {153.3, 295.6, 2.2}, {121.8, 454.1, 3.4}, {942.5, 175.5, 2.8}, {790.6, 527.8, 2.1}, {29.6, 76.1, 2.7},
+            {722.4, 471.4, 3.0}, {1164.9, 134.4, 5.2}, {1165.3, 160.2, 2.9}, {11.8, 54.2, 4.7}, {985.6, 452.6, 3.4},
+            {379.5, 140.7, 3.6}, {943.5, 156.5, 3.3}, {194.2, 349.8, 3.4}, {63.5, 349.3, 5.2}, {431.7, 260.4, 4.6},
+            {403.7, 123.5, 4.4}, {1002.1, 361.9, 5.3}, {554.0, 31.0, 4.4}, {3.8, 426.3, 2.1}};
 
-    // A thin gold double frame inset from the edge.
-    private static void drawFrame(Graphics2D g) {
-        g.setColor(new Color(0xF5, 0xB3, 0x01, 140));
-        g.setStroke(new BasicStroke(1.5f));
-        g.draw(new java.awt.geom.RoundRectangle2D.Double(18, 18, WIDTH - 36, HEIGHT - 36, 28, 28));
-        g.setColor(new Color(0xF5, 0xB3, 0x01, 56));
+    private static void drawBackground(Graphics2D g) {
+        // CSS linear-gradient(135deg, #0B2E49, #0F3A5A 55%, #15507A) over the whole image.
+        g.setPaint(new LinearGradientPaint(143.3f, -143.2f, 1056.7f, 770.2f, new float[] {0f, .55f, 1f},
+                new Color[] {new Color(0x0B2E49), new Color(0x0F3A5A), new Color(0x15507A)}));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+
+        glow(g, 980, 90, 320, new Color(0x5F, 0xA8, 0xD8, 127));
+        glow(g, 150, 560, 260, new Color(0x2F, 0x86, 0xC4, 115));
+
         g.setStroke(new BasicStroke(1f));
-        g.draw(new java.awt.geom.RoundRectangle2D.Double(28, 28, WIDTH - 56, HEIGHT - 56, 18, 18));
+        for (int i = 0; i < NODES.length; i++) {
+            for (int j = i + 1; j < NODES.length; j++) {
+                double d = Math.hypot(NODES[i][0] - NODES[j][0], NODES[i][1] - NODES[j][1]);
+                if (d < 210) {
+                    g.setColor(new Color(0x8F, 0xD0, 0xF5, (int) Math.round(255 * 0.3 * (1 - d / 210))));
+                    g.draw(new Line2D.Double(NODES[i][0], NODES[i][1], NODES[j][0], NODES[j][1]));
+                }
+            }
+        }
+        g.setColor(new Color(0xBF, 0xE0, 0xF5, 153));
+        for (double[] n : NODES) {
+            g.fill(circle(n[0], n[1], n[2]));
+        }
     }
 
-    // A few small confetti strips placed by hand around the edges, away from the medal, the text and the logo.
-    // Each is {x, y, rotation in degrees, length, color index, opacity in percent}. The page's banner uses the
-    // same positions (frontend confetti.js, WIDE_STRIPS), so the image and the page match.
-    private static final Color[] CONFETTI_COLORS = {new Color(0xF5B301), new Color(0xFFE7A3), new Color(0x8FD0F5), Color.WHITE};
-    private static final int[][] STRIPS = {
-            {120, 72, 25, 16, 1, 70}, {300, 50, -35, 14, 2, 65}, {470, 42, 60, 16, 0, 70},
-            {640, 44, -20, 14, 3, 55}, {820, 40, 40, 16, 2, 60}, {955, 46, -50, 14, 1, 65},
-            {92, 560, -30, 16, 0, 65}, {262, 586, 45, 14, 3, 50}, {432, 558, -60, 16, 2, 65},
-            {612, 592, 20, 14, 1, 70}, {782, 590, -40, 16, 0, 65}, {942, 594, 55, 14, 3, 50},
-            {1092, 590, -20, 16, 2, 60}, {1168, 232, 35, 14, 1, 65}, {1150, 332, -45, 16, 0, 60},
-            {1172, 432, 15, 14, 2, 60}, {50, 150, 30, 14, 2, 55}, {44, 250, 50, 14, 3, 50},
-            {48, 480, -25, 16, 1, 60}, {1164, 130, -30, 14, 3, 55},
-            {150, 110, -40, 16, 2, 70}, {330, 130, 35, 14, 1, 70}, {400, 230, -55, 16, 0, 65},
-            {385, 400, 25, 14, 3, 55}, {310, 520, -30, 16, 0, 65}, {160, 520, 50, 14, 2, 60},
-            {66, 350, -35, 16, 0, 60}, {1150, 200, -40, 14, 2, 65}, {1150, 470, 30, 16, 1, 65},
-            {1040, 540, -55, 14, 3, 55}, {1175, 300, 20, 16, 0, 70}, {1152, 380, -25, 14, 3, 55},
-            {1176, 500, 40, 14, 1, 60}};
-
-    private static void drawConfetti(Graphics2D g) {
-        for (int[] strip : STRIPS) {
-            Color base = CONFETTI_COLORS[strip[4]];
-            double length = strip[3];
-            AffineTransform saved = g.getTransform();
-            g.translate(strip[0], strip[1]);
-            g.rotate(Math.toRadians(strip[2]));
-            g.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), Math.round(strip[5] * 2.55f)));
-            g.fill(new java.awt.geom.RoundRectangle2D.Double(-length / 2, -length * 0.225, length, length * 0.45, 3, 3));
-            g.setTransform(saved);
-        }
+    // A soft round glow: `color` at the center fading to nothing at the radius.
+    private static void glow(Graphics2D g, double cx, double cy, double radius, Color color) {
+        g.setPaint(new java.awt.RadialGradientPaint((float) cx, (float) cy, (float) radius, new float[] {0f, 1f},
+                new Color[] {color, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)}));
+        g.fill(circle(cx, cy, radius));
     }
 
     public byte[] render(AwardView badge) {
@@ -169,12 +166,7 @@ public class BadgeCardRenderer {
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
-            g.setColor(BACKGROUND);
-            g.fillRect(0, 0, WIDTH, HEIGHT);
-            drawSpotlight(g, 230, HEIGHT / 2.0);
-            drawConfetti(g);
-            drawFrame(g);
-            drawLogo(g);
+            drawBackground(g);
 
             drawMedal(g, badge, 230, HEIGHT / 2.0, 340);
             drawText(g, badge, 452, 668);
@@ -425,7 +417,7 @@ public class BadgeCardRenderer {
         int nameLineGap = 6;
         int nameHeight = nameMetrics.getAscent() * nameLines.size() + (nameLines.size() - 1) * (nameMetrics.getDescent() + nameLineGap);
         int[] sizes = {
-                g.getFontMetrics(chapter).getAscent(),
+                LOGO_DISC,
                 nameHeight,
                 g.getFontMetrics(title).getAscent(),
                 g.getFontMetrics(detail).getAscent(),
@@ -440,8 +432,13 @@ public class BadgeCardRenderer {
         }
         int y = (HEIGHT - total) / 2;
 
+        // The chapter row: the logo disc, then the chapter name centered on it.
+        drawLogoDisc(g, x, y);
+        FontMetrics chapterMetrics = g.getFontMetrics(chapter);
+        int chapterX = x + LOGO_DISC + 16;
+        drawLine(g, chapter, GOLD_TEXT, "ACM Alexandria Student Chapter", chapterX,
+                y + LOGO_DISC / 2 + (chapterMetrics.getAscent() - chapterMetrics.getDescent()) / 2, maxWidth - (chapterX - x));
         y += sizes[0];
-        drawLine(g, chapter, GOLD_TEXT, "ACM Alexandria Student Chapter", x, y, maxWidth);
         y += gaps[0];
         for (int i = 0; i < nameLines.size(); i++) {
             y += nameMetrics.getAscent() + (i > 0 ? nameMetrics.getDescent() + nameLineGap : 0);
