@@ -38,6 +38,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   // A committee's members with one role, such as the ACM members ranked for badges.
   List<User> findByCommittee_IdAndRole(Long committeeId, com.acm.acmwebsite.User_Authentication.enums.Role role);
 
+  // A committee's people with any of these roles, such as the members and board members ranked for badges.
+  List<User> findByCommittee_IdAndRoleIn(Long committeeId, java.util.Collection<com.acm.acmwebsite.User_Authentication.enums.Role> roles);
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);

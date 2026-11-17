@@ -68,22 +68,33 @@ public final class BadgeDtos {
             long points,
             int rank,
             boolean suggested,
-            boolean tied) {
+            boolean tied,
+            // A committee board member rather than an ACM member.
+            boolean board) {
     }
 
     // ---- Awards ----
 
+    // `winners` caps how many members of each committee can hold the badge for the period; it defaults to the
+    // badge's default (3), the same number the Award screen ranks with.
     public record AwardRequest(
             @NotNull Long badgeTypeId,
             @NotNull Long periodId,
             @Size(max = 300) String note,
-            @NotEmpty @Size(max = 200) List<@Valid Recipient> recipients) {
+            @NotEmpty @Size(max = 200) List<@Valid Recipient> recipients,
+            @Min(1) @Max(50) Integer winners) {
     }
 
     // The badge goes to the member's current committee; it can't be chosen.
+    // `note` is this member's own description of the badge (why they earned it); it falls back to the request's.
     public record Recipient(
             @NotNull UUID memberId,
-            @Min(1) Integer rank) {
+            @Min(1) Integer rank,
+            @Size(max = 300) String note) {
+    }
+
+    // Sets or clears (blank) an awarded badge's description.
+    public record AwardNoteRequest(@Size(max = 300) String note) {
     }
 
     public record MemberSummary(

@@ -39,7 +39,7 @@ export const groupByCommittee = (awards) => {
   const groups = new Map();
   awards.forEach((a) => {
     const key = a.committeeId ?? a.committeeName;
-    if (!groups.has(key)) groups.set(key, { name: a.committeeName || "Committee", winners: [] });
+    if (!groups.has(key)) groups.set(key, { id: String(key), name: a.committeeName || "Committee", winners: [] });
     groups.get(key).winners.push(a);
   });
   return [...groups.values()]
@@ -80,5 +80,31 @@ export const paginate = (committees, format) => {
     page.push(...row);
   });
   if (page.length) pages.push(page);
+  return pages;
+};
+
+// The one-committee poster: the committee's name, then its winners in rows. Up to `one.max` winners go in a
+// single column of big rows; more go in two columns of smaller rows; beyond `two.max` they continue on another
+// image. Sizes are in poster pixels, like the rest.
+export const FOCUS = {
+  square: {
+    nameSize: 58, nameGap: 26,
+    one: { max: 3, row: 112, avatar: 80, name: 34, gap: 14, width: 720 },
+    two: { max: 8, row: 92, avatar: 64, name: 27, gap: 14, width: 900 },
+  },
+  story: {
+    nameSize: 74, nameGap: 34,
+    one: { max: 4, row: 140, avatar: 100, name: 40, gap: 18, width: 800 },
+    two: { max: 12, row: 112, avatar: 80, name: 31, gap: 16, width: 900 },
+  },
+};
+
+// Pages for one committee: [{ name, continued, winners }].
+export const paginateCommittee = (group, format) => {
+  const size = FOCUS[format].two.max;
+  const pages = [];
+  for (let i = 0; i < group.winners.length; i += size) {
+    pages.push({ name: group.name, continued: i > 0, winners: group.winners.slice(i, i + size) });
+  }
   return pages;
 };

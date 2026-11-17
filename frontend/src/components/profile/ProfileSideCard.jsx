@@ -36,7 +36,7 @@ const ProfileSideCard = ({ profile, email, onEdit, badges = [], onShowBadges }) 
         className={`mt-4 flex w-full items-center justify-center gap-3 rounded-2xl px-2 py-2 transition-colors enabled:hover:bg-ocean-31 dark:enabled:hover:bg-white/5 ${focusRing}`}
       >
         <span className="flex -space-x-2" aria-hidden="true">
-          {badges.slice(0, 4).map((b) => <BadgeMedal key={b.id} periodType={b.periodType} icon={b.icon} size={30} />)}
+          {badges.slice(0, 4).map((b) => <BadgeMedal key={b.id} periodType={b.periodType} periodLabel={b.periodLabel} icon={b.icon} size={32} />)}
         </span>
         <span className="text-sm font-semibold text-slate-900 dark:text-white">
           {badges.length} {badges.length === 1 ? "badge" : "badges"}

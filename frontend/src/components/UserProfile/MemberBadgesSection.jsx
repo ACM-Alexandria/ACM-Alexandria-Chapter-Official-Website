@@ -30,10 +30,11 @@ const MemberBadgesSection = ({ userId }) => {
           {badges.map((b) => (
             <li key={b.id}>
               <a href={`/badges/${b.publicId}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-ocean-845/40">
-                <BadgeMedal periodType={b.periodType} icon={b.icon} size={36} />
+                <BadgeMedal periodType={b.periodType} periodLabel={b.periodLabel} icon={b.icon} size={40} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{b.name}</p>
                   <p className="truncate text-xs text-slate-600 dark:text-slate-400">{b.periodLabel} · {b.committeeName}</p>
+                  {b.note && <p className="mt-0.5 text-xs italic text-slate-600 dark:text-slate-400 line-clamp-2">“{b.note}”</p>}
                 </div>
               </a>
             </li>

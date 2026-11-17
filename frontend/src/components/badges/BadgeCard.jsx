@@ -13,13 +13,18 @@ const BadgeCard = ({ badge, isNew = false, footer }) => (
       <span className="absolute right-4 top-4 rounded-full bg-gold-116 px-2.5 py-0.5 text-xs font-bold text-gold-851">New</span>
     )}
     <Link to={`/badges/${badge.publicId}`} className={`flex items-center gap-4 rounded-2xl ${focusRing}`}>
-      <BadgeMedal periodType={badge.periodType} icon={badge.icon} size={80} label={`${badge.name}, ${badge.periodLabel}`} />
+      <BadgeMedal periodType={badge.periodType} periodLabel={badge.periodLabel} icon={badge.icon} size={88} label={`${badge.name}, ${badge.periodLabel}`} />
       <span className="min-w-0">
         <span className="block text-lg font-semibold text-slate-900 dark:text-white">{badge.name}</span>
         <span className={`mt-0.5 block text-sm ${muted}`}>{badge.periodLabel} · {badge.committeeName}</span>
         <span className={`mt-0.5 block text-xs ${muted}`}>Awarded {awardedOn(badge.awardedAt)}</span>
       </span>
     </Link>
+    {badge.note && (
+      <p className="rounded-2xl bg-ocean-31 px-4 py-3 text-sm leading-relaxed text-slate-700 dark:bg-white/5 dark:text-ocean-114">
+        <span className="sr-only">Description: </span>{badge.note}
+      </p>
+    )}
     {footer && <div className="-mb-2 border-t border-ocean-69 pt-2 dark:border-white/10">{footer}</div>}
   </article>
 );
