@@ -38,7 +38,13 @@ import com.acm.acmwebsite.feature.repository.PastHighBoardRepository;
 import com.acm.acmwebsite.feature.repository.PastSeasonRepository;
 import com.acm.acmwebsite.feature.repository.SystemSettingsRepository;
 import com.acm.acmwebsite.feature.service.PastSeasonsService;
-import com.acm.acmwebsite.feature.service.SystemSettingsService;
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
+import com.acm.acmwebsite.feature.seasons.PeriodType;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriodRepository;
+import com.acm.acmwebsite.feature.seasons.SeasonPeriodService;
+import org.springframework.jdbc.core.JdbcTemplate;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -77,7 +83,7 @@ import static org.mockito.Mockito.*;
         "google.sheets.client-id=test-client"
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({PastSeasonsService.class, PastBoardMapperImpl.class, PastBoardSnapshotMapperImpl.class,
+@Import({PastSeasonsService.class, SeasonPeriodService.class, PastBoardMapperImpl.class, PastBoardSnapshotMapperImpl.class,
         CacheConfig.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class PastSeasonsArchiveIntegrationTest {
@@ -92,18 +98,21 @@ class PastSeasonsArchiveIntegrationTest {
                     committees, clubs, high, committeeBoard, clubBoard);
         }
 
+        // Archiving on 1 October 2026: season 2026 ends on 30 September and 2027 starts today.
         @Bean
-        SystemSettingsService systemSettingsService(SystemSettingsRepository repository) {
-            return new SystemSettingsService(repository,
+        CurrentSeasonService currentSeasonService(SeasonPeriodRepository periods, SeasonPeriodService periodService,
+                                                  JdbcTemplate jdbc) {
+            return new CurrentSeasonService(periods, periodService, jdbc,
                     Clock.fixed(Instant.parse("2026-10-01T12:00:00Z"), ZoneOffset.UTC));
         }
     }
 
     @Autowired private PastSeasonsService service;
-    @MockitoSpyBean private SystemSettingsService settings;
+    @MockitoSpyBean private CurrentSeasonService settings;
     @MockitoSpyBean private UserService demotion;
     @Autowired private UserRepository users;
     @Autowired private SystemSettingsRepository settingsRepository;
+    @Autowired private SeasonPeriodRepository periods;
     @Autowired private HighBoardRepository high;
     @Autowired private CommitteeBoardRepository committeeBoard;
     @Autowired private ClubBoardRepository clubBoard;
@@ -118,7 +127,7 @@ class PastSeasonsArchiveIntegrationTest {
     @Autowired private CacheManager caches;
     // Stubs go on the unproxied spies: calling a proxied @Transactional method outside a transaction would throw.
     private UserService demotionTarget;
-    private SystemSettingsService settingsTarget;
+    private CurrentSeasonService settingsTarget;
     private UUID alice;
     private UUID zoe;
     private UUID bob;
@@ -145,7 +154,9 @@ class PastSeasonsArchiveIntegrationTest {
         users.deleteAllInBatch();
         committees.deleteAllInBatch();
         clubs.deleteAllInBatch();
-        settingsRepository.saveAndFlush(new SystemSettings(1L, false, 2026));
+        settingsRepository.saveAndFlush(new SystemSettings(1L, false));
+        periods.deleteAllInBatch();
+        periods.saveAndFlush(new SeasonPeriod(PeriodType.SEASON, null, LocalDate.of(2026, 9, 1), null, 2026));
         var committee = new Committee();
         committee.setName("Main committee");
         committee.setDescription("Committee description");
@@ -199,6 +210,10 @@ class PastSeasonsArchiveIntegrationTest {
         assertEquals(2, summary.getClubBoardMembers());
         assertEquals(3, summary.getUsersDowngraded());
         assertEquals(2027, settings.getCurrentSeason());
+        assertEquals(LocalDate.of(2026, 9, 30), periods.findByTypeAndSeason(PeriodType.SEASON, 2026).orElseThrow().getEndDate());
+        var next = periods.findByTypeAndSeason(PeriodType.SEASON, 2027).orElseThrow();
+        assertEquals(LocalDate.of(2026, 10, 1), next.getStartDate());
+        assertNull(next.getEndDate());
         assertFalse(settingsRepository.findById(1L).orElseThrow().isEmailsEnabled());
         assertEquals(0, high.count());
         assertEquals(0, committeeBoard.count());
@@ -268,14 +283,13 @@ class PastSeasonsArchiveIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"existing", "null", "missing"})
-    void failureAfterBulkDeletionRollsBackSnapshotsUsersBoardsSettingsAndCaches(String state) {
-        if (state.equals("null")) settingsRepository.saveAndFlush(new SystemSettings(1L, false, null));
-        if (state.equals("missing")) settingsRepository.deleteAllInBatch();
+    @ValueSource(booleans = {false, true})
+    void failureAfterBulkDeletionRollsBackSnapshotsUsersBoardsSeasonsAndCaches(boolean noSeasonYet) {
+        if (noSeasonYet) periods.deleteAllInBatch();
         doAnswer(invocation -> {
             invocation.callRealMethod();
             throw new IllegalStateException("Failure after all bulk deletes");
-        }).when(settingsTarget).incrementCurrentSeason(any());
+        }).when(settingsTarget).startNextSeason(any());
         assertThrows(IllegalStateException.class, () -> service.archive(2026));
         assertOriginalBoardsAndUsers();
         assertEquals(0, pastHigh.count());
@@ -283,21 +297,21 @@ class PastSeasonsArchiveIntegrationTest {
         assertEquals(0, pastClubBoard.count());
         assertEquals(0, pastCommittees.count());
         assertEquals(0, pastClubs.count());
-        if (state.equals("missing")) assertFalse(settingsRepository.existsById(1L));
-        else assertEquals(state.equals("null") ? null : 2026, settingsRepository.findById(1L).orElseThrow().getCurrentSeason());
+        if (noSeasonYet) {
+            assertEquals(0, periods.count());
+        } else {
+            assertEquals(1, periods.count());
+            assertNull(periods.findByTypeAndSeason(PeriodType.SEASON, 2026).orElseThrow().getEndDate());
+        }
         for (String name : AFFECTED_CACHES) assertNotNull(caches.getCache(name).get("probe"));
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    void initializesNullOrMissingSettingsInsideTheArchiveTransaction(boolean missing) {
-        if (missing) settingsRepository.deleteAllInBatch();
-        else settingsRepository.saveAndFlush(new SystemSettings(1L, false, null));
+    @Test
+    void createsTheFirstSeasonInsideTheArchiveTransactionWhenNoneExists() {
+        periods.deleteAllInBatch();
         assertEquals(2027, service.archive(2026).getNewCurrentSeason());
-        var stored = settingsRepository.findById(1L).orElseThrow();
-        assertEquals(2027, stored.getCurrentSeason());
-        assertEquals(missing, stored.isEmailsEnabled());
-        assertEquals(1, settingsRepository.count());
+        assertEquals(2, periods.count());
+        assertFalse(settingsRepository.findById(1L).orElseThrow().isEmailsEnabled());
     }
 
     @Test
@@ -309,10 +323,9 @@ class PastSeasonsArchiveIntegrationTest {
         assertOriginalBoardsAndUsers();
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    void secondArchiveWaitsForFirstThenRejectsItsStaleConfirmation(boolean missingSettings) throws Exception {
-        if (missingSettings) settingsRepository.deleteAllInBatch();
+    // The first season is created at startup (CurrentSeasonBootstrap), so concurrent archives always find one to lock.
+    @Test
+    void secondArchiveWaitsForFirstThenRejectsItsStaleConfirmation() throws Exception {
         CountDownLatch firstInDemotion = new CountDownLatch(1);
         CountDownLatch releaseFirst = new CountDownLatch(1);
         CountDownLatch secondStarted = new CountDownLatch(1);

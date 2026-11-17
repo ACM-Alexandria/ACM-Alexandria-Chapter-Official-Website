@@ -18,6 +18,7 @@ import AdminUserProfileView from "./pages/AdminUserProfileView";
 import HRDashboardPage from './pages/HRDashboardPage';
 import BoardsPage from "./pages/BoardsPage";
 import FAQPage from "./pages/FAQPage";
+import BadgePage from "./pages/BadgePage";
 
 /**
  * Main App component with routing configuration
@@ -37,6 +38,7 @@ function App() {
       <Route path="/rules" element={<RulesPage />} />
       <Route path="/boards" element={<BoardsPage />} />
       <Route path="/faq" element={<FAQPage />} />
+      <Route path="/badges/:publicId" element={<BadgePage />} />
       <Route path="/email-confirmation/:token" element={<EmailConfirmationPage />} />
       <Route
         path="/profile"

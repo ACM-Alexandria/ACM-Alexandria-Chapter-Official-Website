@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../contexts/useAuth";
 import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
 import { fetchUserPointsLogs } from "../services/pointsLogService";
+import { fetchMyBadges, markMyBadgesSeen } from "../services/badgesService";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import SiteLayout from "../components/Layout/SiteLayout";
 import PageHero from "../components/Layout/PageHero";
@@ -10,6 +11,7 @@ import ProfileTabs from "../components/profile/ProfileTabs";
 import ProfileDetails from "../components/profile/ProfileDetails";
 import ProfileForm from "../components/profile/ProfileForm";
 import PointsPanel from "../components/profile/PointsPanel";
+import BadgesPanel from "../components/profile/BadgesPanel";
 import { errorBox, skeleton } from "../components/ui/uiStyles";
 
 const Alert = ({ tone, children }) => {
@@ -54,6 +56,14 @@ const UserProfilePage = () => {
   const [pointsError, setPointsError] = useState(null);
   const [pointsSuccess, setPointsSuccess] = useState(false);
 
+  // --- BADGES STATE ---
+  const [badges, setBadges] = useState([]);
+  const [badgesError, setBadgesError] = useState(null);
+  // Badges that were new when the page loaded; they keep their "New" marker until the next visit.
+  const [newBadgeIds, setNewBadgeIds] = useState(() => new Set());
+  const [unseenCount, setUnseenCount] = useState(0);
+  const markedSeen = useRef(false);
+
   // --- POINTS LOG STATE ---
   const [pointsLogs, setPointsLogs] = useState([]);
   const [pointsPage, setPointsPage] = useState(0);
@@ -91,6 +101,20 @@ const UserProfilePage = () => {
     };
 
     loadProfile();
+  }, [user?.id]);
+
+  // Fetch the member's badges
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchMyBadges()
+      .then((list) => {
+        setBadges(list);
+        const fresh = list.filter((b) => b.isNew).map((b) => b.id);
+        setNewBadgeIds(new Set(fresh));
+        setUnseenCount(fresh.length);
+        setBadgesError(null);
+      })
+      .catch(() => setBadgesError("We couldn't load your badges. Please try again later."));
   }, [user?.id]);
 
   // Auto-hide Profile success banner
@@ -222,8 +246,28 @@ const UserProfilePage = () => {
   };
 
   const showPoints = profile.role !== "USER";
-  const tabs = [["details", "Details"], ...(showPoints ? [["points", "Points"]] : [])];
-  const activeTab = isEditing || !showPoints ? "details" : tab;
+  const showBadges = showPoints || badges.length > 0;
+  const badgesLabel = (
+    <span className="inline-flex items-center gap-2">
+      Badges
+      {unseenCount > 0 && (
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-518 px-1.5 text-xs font-bold text-gold-851">{unseenCount}</span>
+      )}
+    </span>
+  );
+  const tabs = [
+    ["details", "Details"],
+    ...(showPoints ? [["points", "Points"]] : []),
+    ...(showBadges ? [["badges", badgesLabel]] : []),
+  ];
+  const activeTab = isEditing || !tabs.some(([id]) => id === tab) ? "details" : tab;
+
+  // Opening the Badges tab marks the new badges as seen (once per visit).
+  useEffect(() => {
+    if (activeTab !== "badges" || unseenCount === 0 || markedSeen.current) return;
+    markedSeen.current = true;
+    markMyBadgesSeen().then(() => setUnseenCount(0)).catch(() => { markedSeen.current = false; });
+  }, [activeTab, unseenCount]);
 
   return (
     <SiteLayout>
@@ -236,7 +280,13 @@ const UserProfilePage = () => {
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start">
-            <ProfileSideCard profile={profile} email={user?.email} onEdit={isEditing ? null : handleStartEdit} />
+            <ProfileSideCard
+              profile={profile}
+              email={user?.email}
+              onEdit={isEditing ? null : handleStartEdit}
+              badges={badges}
+              onShowBadges={showBadges && !isEditing ? () => setTab("badges") : null}
+            />
 
             <div className="flex min-w-0 flex-col gap-6">
               {profileSuccess && <Alert tone="success">Profile saved.</Alert>}
@@ -250,7 +300,9 @@ const UserProfilePage = () => {
               )}
 
               <div role="tabpanel" id={`profile-panel-${activeTab}`} aria-labelledby={isEditing ? undefined : `profile-tab-${activeTab}`}>
-                {activeTab === "points" ? (
+                {activeTab === "badges" ? (
+                  <BadgesPanel badges={badges} newIds={newBadgeIds} error={badgesError} />
+                ) : activeTab === "points" ? (
                   <PointsPanel total={profile.seasonPoints || 0} logs={pointsLogs} page={pointsPage} totalPages={totalPages} onPageChange={setPointsPage} error={pointsError} />
                 ) : isEditing ? (
                   <ProfileForm

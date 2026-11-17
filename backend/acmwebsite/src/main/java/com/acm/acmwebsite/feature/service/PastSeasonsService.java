@@ -1,5 +1,6 @@
 package com.acm.acmwebsite.feature.service;
 
+import com.acm.acmwebsite.feature.seasons.CurrentSeasonService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.constants.CacheNames;
 import com.acm.acmwebsite.feature.dto.PastSeasonsDtos.BoardArchiveSummary;
@@ -75,7 +76,7 @@ public class PastSeasonsService {
     private final ClubBoardRepository clubBoardRepository;
     private final PastBoardMapper mapper;
     private final PastBoardSnapshotMapper snapshotMapper;
-    private final SystemSettingsService systemSettingsService;
+    private final CurrentSeasonService currentSeasonService;
     private final UserService userService;
     private final ApplicationEventPublisher events;
     private final EntityManager entityManager;
@@ -97,7 +98,7 @@ public class PastSeasonsService {
     @Transactional
     public PastBoardResponse getBySeason(Integer season) {
         validateStartingYear(season);
-        if (!getSeasons().contains(season) || season >= systemSettingsService.getCurrentSeason()) {
+        if (!getSeasons().contains(season) || season >= currentSeasonService.getCurrentSeason()) {
             throw new ResourceNotFoundException("Past boards not found for season " + season);
         }
         var committeeMembers = listPastCommitteeBoards(season);
@@ -173,8 +174,8 @@ public class PastSeasonsService {
 
     @Transactional
     public BoardArchiveSummary archive(Integer expectedSeason) {
-        var settings = systemSettingsService.lockForArchive();
-        Integer season = settings.getCurrentSeason();
+        var current = currentSeasonService.lockForArchive();
+        Integer season = current.getSeason();
         if (!Objects.equals(expectedSeason, season)) {
             throw new BoardArchiveConflictException("The current season is " + season
                     + ", not " + expectedSeason + ". Refresh and confirm the current season again. Nothing was archived.");
@@ -182,7 +183,8 @@ public class PastSeasonsService {
         var summary = snapshot(season);
         summary.setUsersDowngraded(userService.demoteBoardMembers());
         clearBoards();
-        summary.setNewCurrentSeason(systemSettingsService.incrementCurrentSeason(settings));
+        // Ends the season yesterday and starts the next one today.
+        summary.setNewCurrentSeason(currentSeasonService.startNextSeason(current));
         events.publishEvent(new PastBoardsChangedEvent());
         events.publishEvent(new CurrentBoardsArchivedEvent());
         return summary;
@@ -276,7 +278,7 @@ public class PastSeasonsService {
 
     public void validate(Integer season) {
         validateStartingYear(season);
-        if (season >= systemSettingsService.getCurrentSeason()) {
+        if (season >= currentSeasonService.getCurrentSeason()) {
             throw new IllegalArgumentException("Past season must be earlier than the current season");
         }
     }

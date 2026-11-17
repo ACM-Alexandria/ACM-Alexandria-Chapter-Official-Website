@@ -21,7 +21,6 @@ import DeleteConfirmModal from "../ManagementSection/DeleteConfirmModal";
 import PastResourceForm from "./PastResourceForm";
 import PastResourceTable from "./PastResourceTable";
 import PastSeasonPicker from "./PastSeasonPicker";
-import ArchiveSeasonSection from "./ArchiveSeasonSection";
 import RenameSeasonModal from "./RenameSeasonModal";
 import { pastBoardResources } from "./pastBoardResources";
 
@@ -42,15 +41,12 @@ const PastBoardsTab = () => {
   const [deletingSeason, setDeletingSeason] = useState(false);
   const [renamingSeason, setRenamingSeason] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [archiving, setArchiving] = useState(false);
   const [formError, setFormError] = useState("");
   const generation = useRef(0);
   const mutationInFlight = useRef(false);
   const { dialog, notify } = useThemedDialog();
   const { user } = useAuth();
-  // Only the super admin can archive the current season; every board role can manage the records
-  const isSuperAdmin = user?.role === "SUPER_ADMIN";
-  // Every board role can change or delete a season; archiving stays super-admin only
+  // Every board role can change or delete a past season. Archiving the current season is in Season settings (super admin).
   const canManageSeason = ["SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD"].includes(user?.role);
 
   const load = useCallback(async (selected) => {
@@ -188,30 +184,15 @@ const PastBoardsTab = () => {
         )}
       </div>
 
-      {isSuperAdmin && (
-        <ArchiveSeasonSection
-          currentSeason={currentSeason}
-          disabled={loading || Boolean(loadError) || saving || Boolean(editing) || Boolean(deleting)}
-          onBusyChange={(value) => {
-            mutationInFlight.current = value;
-            setArchiving(value);
-          }}
-          onArchived={(result) => {
-            setNotice("");
-            return load(result.archivedSeason);
-          }}
-          onConflict={() => load(season)}
-        />
-      )}
 
-      <PastSeasonPicker currentSeason={currentSeason} seasons={seasons} season={season} disabled={loading || saving || archiving} onSelect={selectSeason} />
+      <PastSeasonPicker currentSeason={currentSeason} seasons={seasons} season={season} disabled={loading || saving} onSelect={selectSeason} />
 
       {canManageSeason && season && seasons.includes(Number(season)) && (
         <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" disabled={loading || saving || archiving} onClick={() => { setFormError(""); setRenamingSeason(true); }} className={secondaryButtonClass}>
+          <button type="button" disabled={loading || saving} onClick={() => { setFormError(""); setRenamingSeason(true); }} className={secondaryButtonClass}>
             <FiEdit2 aria-hidden="true" className="h-4 w-4" />Change year
           </button>
-          <button type="button" disabled={loading || saving || archiving} onClick={() => setDeletingSeason(true)} className={`${secondaryButtonClass} text-rose-700 dark:text-rose-400`}>
+          <button type="button" disabled={loading || saving} onClick={() => setDeletingSeason(true)} className={`${secondaryButtonClass} text-rose-700 dark:text-rose-400`}>
             <FiTrash2 aria-hidden="true" className="h-4 w-4" />Delete season {season}
           </button>
         </div>
@@ -225,7 +206,7 @@ const PastBoardsTab = () => {
           {notice && <p role="status" className="font-medium">{notice}</p>}
           <p>{loadError}</p>
           <div>
-            <button type="button" disabled={saving || archiving} onClick={async () => { if (await load(season)) setNotice(""); }} className={secondaryButtonClass}>
+            <button type="button" disabled={saving} onClick={async () => { if (await load(season)) setNotice(""); }} className={secondaryButtonClass}>
               <FiRefreshCw aria-hidden="true" className="h-4 w-4" />Retry
             </button>
           </div>
@@ -250,12 +231,12 @@ const PastBoardsTab = () => {
                     <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{resource.label}</h3>
                     <span className={tagMutedClass} aria-label={`${data[resource.path].length} records`}>{data[resource.path].length}</span>
                   </div>
-                  <button type="button" disabled={saving || archiving || needsParent} onClick={() => startEditing(resource)} className={`${primaryButtonClass} w-full sm:w-auto`}>
+                  <button type="button" disabled={saving || needsParent} onClick={() => startEditing(resource)} className={`${primaryButtonClass} w-full sm:w-auto`}>
                     <FiPlus aria-hidden="true" className="h-4 w-4" />Add {resource.member ? "member" : resource.path === "clubs" ? "club" : "committee"}
                   </button>
                 </div>
                 {needsParent && <p className={`mb-4 ${hintClass}`}>Add {resource.parent === "clubs" ? "a club" : "a committee"} for this season first to enable board members.</p>}
-                <PastResourceTable resource={resource} items={data[resource.path]} parents={data[resource.parent] || []} busy={saving || archiving} onEdit={(item) => startEditing(resource, item)} onDelete={(item) => { setNotice(""); setDeleting({ resource, item }); }} />
+                <PastResourceTable resource={resource} items={data[resource.path]} parents={data[resource.parent] || []} busy={saving} onEdit={(item) => startEditing(resource, item)} onDelete={(item) => { setNotice(""); setDeleting({ resource, item }); }} />
               </section>
             );
           })}

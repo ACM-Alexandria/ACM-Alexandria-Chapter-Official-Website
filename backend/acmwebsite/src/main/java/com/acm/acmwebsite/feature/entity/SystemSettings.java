@@ -26,7 +26,6 @@ public class SystemSettings {
     @Column(name = "emails_enabled", nullable = false)
     private boolean emailsEnabled = true;
 
-    // Starting year of the academic season; initialized on first season read when null.
-    @Column(name = "current_season")
-    private Integer currentSeason;
+    // The current season used to be stored here (current_season). It now comes from Season settings
+    // (season_periods); see CurrentSeasonService, which reads the old value once to create the first season.
 }
