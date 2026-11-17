@@ -85,7 +85,7 @@ const PosterExportModal = ({ onClose, badge, period }) => {
       }
     } catch (e) {
       console.error("Poster export failed:", e);
-      setError("Couldn't create the image. A photo may have failed to load; try again.");
+      setError("Couldn't create the image. Try again.");
     } finally {
       setExporting(false);
     }

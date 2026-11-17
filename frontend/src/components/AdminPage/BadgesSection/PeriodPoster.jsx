@@ -1,6 +1,5 @@
 import BadgeMedal from "../../badges/BadgeMedal";
-import logo from "../../../assets/logo/acm-logo-no-bg.png";
-import { initials } from "../../../utils/format";
+import logo from "../../../assets/logo/acm-logo-outline.svg";
 import { FOCUS, POSTER_FORMATS } from "./posterLayout";
 import { POSTER_STRIPS } from "./posterConfetti";
 
@@ -10,7 +9,6 @@ const INK = "#0F2A40";
 const ACCENT = "#2A7AB0";
 const SOFT = "#CFE6F5";
 const GOLD = "#FFE7A3";
-const AVATAR_TINTS = [["#E2F0FA", "#205E85"], ["#FFF3C4", "#3A3012"], ["#DCEEFA", "#174A70"]];
 const PERIOD_WORD = { MONTH: "month", QUARTER: "quarter", SEASON: "season" };
 const FONT = "Inter, Roboto, system-ui, -apple-system, 'Segoe UI', sans-serif";
 
@@ -19,12 +17,6 @@ const HEAD = {
   square: { padding: "52px 64px 48px", logo: 80, chapter: 22, gap: 18, medal: 164, title: 74, pill: 18, content: 26, footer: 27 },
   story: { padding: "104px 88px 96px", logo: 88, chapter: 28, gap: 36, medal: 214, title: 92, pill: 26, content: 40, footer: 36 },
 };
-
-const WhiteDisc = ({ size, pad, children }) => (
-  <span style={{ width: size, height: size, flex: "0 0 auto", borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", padding: pad, boxSizing: "border-box", boxShadow: "0 12px 30px -14px rgba(0,0,0,0.45)" }}>
-    {children}
-  </span>
-);
 
 // The celebration decoration: a thin gold double frame and a scatter of confetti strips (see posterConfetti).
 const Celebration = ({ format, width, height }) => (
@@ -37,17 +29,14 @@ const Celebration = ({ format, width, height }) => (
   </svg>
 );
 
-const Avatar = ({ member, size, fontSize, tint }) => {
-  const style = { width: size, height: size, borderRadius: "50%", flex: "0 0 auto" };
-  if (member.profileImageUrl) {
-    return <img src={member.profileImageUrl} alt="" crossOrigin="anonymous" style={{ ...style, objectFit: "cover" }} />;
-  }
-  return (
-    <span style={{ ...style, background: tint[0], color: tint[1], fontSize, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {initials(member.name || "?")}
-    </span>
-  );
-};
+// The circle beside a winner's name. Members have no photos, so every winner gets the same gold star.
+const WinnerStar = ({ size }) => (
+  <span style={{ width: size, height: size, borderRadius: "50%", flex: "0 0 auto", background: "#FFF3C4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" width={Math.round(size * 0.56)} height={Math.round(size * 0.56)}>
+      <path d="M12 2.6l2.9 6.1 6.7.9-4.9 4.6 1.2 6.6L12 17.6 6.1 20.8l1.2-6.6L2.4 9.6l6.7-.9z" fill="#F5B301" stroke="#C98A00" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  </span>
+);
 
 const CommitteeCard = ({ card, c, width }) => (
   <div style={{ width, boxSizing: "border-box", background: "#FFFFFF", color: INK, borderRadius: 26, padding: c.padding, display: "flex", flexDirection: "column", gap: c.titleGap, boxShadow: "0 18px 40px -20px rgba(0,0,0,0.45)" }}>
@@ -55,9 +44,9 @@ const CommitteeCard = ({ card, c, width }) => (
       {card.name}{card.continued ? " (continued)" : ""}
     </p>
     <div style={{ display: "flex", flexDirection: "column", gap: c.rowGap }}>
-      {card.winners.map((w, i) => (
+      {card.winners.map((w) => (
         <div key={w.id} style={{ height: c.row, display: "flex", alignItems: "center", gap: Math.round(c.row * 0.26) }}>
-          <Avatar member={w.member} size={c.row} fontSize={c.avatarText} tint={AVATAR_TINTS[i % AVATAR_TINTS.length]} />
+          <WinnerStar size={c.row} />
           <p style={{ margin: 0, minWidth: 0, fontSize: c.nameSize, lineHeight: 1.2, fontWeight: 600, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", overflowWrap: "anywhere" }}>
             {w.member.name}
           </p>
@@ -83,9 +72,9 @@ const FocusBlock = ({ card, format, marginTop }) => {
         <span style={{ display: "inline-block", marginTop: Math.round(focus.nameSize * 0.28), width: Math.round(focus.nameSize * 1.6), height: 4, background: "#F5B301", borderRadius: 2 }} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: two ? "1fr 1fr" : "1fr", gap: L.gap, width: L.width }}>
-        {card.winners.map((w, i) => (
+        {card.winners.map((w) => (
           <div key={w.id} style={{ height: L.row, boxSizing: "border-box", background: "#FFFFFF", color: INK, borderRadius: 26, padding: `0 ${Math.round(L.row * 0.22)}px`, display: "flex", alignItems: "center", gap: Math.round(L.avatar * 0.3), boxShadow: "0 18px 40px -20px rgba(0,0,0,0.45)" }}>
-            <Avatar member={w.member} size={L.avatar} fontSize={Math.round(L.avatar * 0.3)} tint={AVATAR_TINTS[i % AVATAR_TINTS.length]} />
+            <WinnerStar size={L.avatar} />
             <p style={{ margin: 0, minWidth: 0, fontSize: L.name, lineHeight: 1.15, fontWeight: 700, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", overflowWrap: "anywhere" }}>
               {w.member.name}
             </p>
@@ -97,8 +86,8 @@ const FocusBlock = ({ card, format, marginTop }) => {
 };
 
 // One page of the winners poster for a badge and period: the ACM logo and chapter name, the badge's medal,
-// title and period, then a white card per committee with its winners (photos for board members, initials
-// otherwise). No points. In `committee` mode `cards` holds one committee and the page focuses on it. `ref` is the
+// title and period, then a white card per committee with its winners, each beside a gold star. No photos, no ranks
+// and no points. In `committee` mode `cards` holds one committee and the page focuses on it. `ref` is the
 // element turned into the PNG.
 const PeriodPoster = ({ ref, format, mode = "all", badge, periodTitle, periodLabel, periodType, cards }) => {
   const f = POSTER_FORMATS[format];
@@ -118,9 +107,7 @@ const PeriodPoster = ({ ref, format, mode = "all", badge, periodTitle, periodLab
       <Celebration format={format} width={f.width} height={f.height} />
 
       <div style={{ position: "relative", display: "flex", alignItems: "center", gap: Math.round(h.logo * 0.28), justifyContent: story ? "center" : "flex-start" }}>
-        <WhiteDisc size={h.logo} pad={Math.round(h.logo * 0.1)}>
-          <img src={logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-        </WhiteDisc>
+        <img src={logo} alt="" style={{ height: Math.round(h.logo * 1.15), width: "auto", flex: "0 0 auto" }} />
         <p style={{ margin: 0, fontSize: h.chapter, fontWeight: 600, color: SOFT }}>ACM Alexandria Student Chapter</p>
       </div>
 
