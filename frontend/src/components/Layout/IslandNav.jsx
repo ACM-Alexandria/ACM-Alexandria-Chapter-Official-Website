@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiMoon, FiSun, FiX } from "react-icons/fi";
 import { HiOutlineArrowRightOnRectangle, HiOutlineChevronDown, HiOutlineShieldCheck, HiOutlineUser } from "react-icons/hi2";
-import logo from "../../assets/logo/acm-logo-no-bg.png";
+import logo from "../../assets/logo/acm-logo-outline.svg";
 import { useAuth } from "../../contexts/useAuth";
 import LogoutConfirmModal from "../auth/LogoutConfirmModal";
 import useScrollLock from "../../hooks/useScrollLock";
@@ -103,7 +103,8 @@ const IslandNav = ({ links, home = true, solid: alwaysSolid = false }) => {
             : "h-[76px] max-w-[1280px] rounded-none bg-transparent px-2 text-white sm:px-5"}`}
         >
           <NavItem href={home ? "#top" : "/"} className="flex items-center gap-3 whitespace-nowrap">
-            <span className={`flex items-center justify-center rounded-full bg-white shadow-md ring-1 ring-ocean-106 transition-all duration-300 ${solid ? "h-10 w-10" : "h-11 w-11"}`}><img src={logo} alt="" className="h-[82%] w-[82%] object-contain" /></span>
+            {/* The logo on its own, with no circle but a white outline. */}
+            <img src={logo} alt="" className={`w-auto shrink-0 transition-all duration-300 ${solid ? "h-10" : "h-12"}`} />
             <span className="text-base font-semibold">ACM Alexandria</span>
           </NavItem>
           <nav aria-label="Sections" className={`hidden gap-1 rounded-full p-1 text-sm font-medium lg:flex ${solid ? "bg-ocean-31 dark:bg-white/5" : "bg-white/10 ring-1 ring-white/15 backdrop-blur-md"}`}>

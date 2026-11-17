@@ -5,7 +5,7 @@ import EmptyState from "../components/ui/EmptyState";
 import BadgeMedal from "../components/badges/BadgeMedal";
 import BadgeBanner from "../components/badges/BadgeBanner";
 import BadgeBackdrop from "../components/badges/BadgeBackdrop";
-import logo from "../assets/logo/acm-logo-no-bg.png";
+import logo from "../assets/logo/acm-logo-outline.svg";
 import useDetails from "../hooks/useDetails";
 import { fetchPublicBadge } from "../services/badgesService";
 import { useAuth } from "../contexts/useAuth";
@@ -61,9 +61,7 @@ const BadgePage = () => {
               </div>
               <div className="relative min-w-0">
                 <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_6px_16px_-8px_rgba(0,0,0,0.55)] sm:h-10 sm:w-10">
-                    <img src={logo} alt="" className="h-[86%] w-[86%] object-contain" />
-                  </span>
+                  <img src={logo} alt="" className="h-14 w-auto sm:h-16" />
                   <p className="text-base font-semibold text-gold-180 sm:text-lg">ACM Alexandria Student Chapter</p>
                 </div>
                 <h1 className="mt-4 break-words text-4xl font-extrabold leading-[1.05] tracking-[-0.02em] sm:text-5xl">{badge.member.name}</h1>
