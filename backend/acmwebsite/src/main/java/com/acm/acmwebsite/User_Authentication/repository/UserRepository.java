@@ -35,6 +35,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       + "OR EXISTS (SELECT clb.id FROM ClubBoard clb WHERE clb.user = u)")
   List<User> findCurrentBoardMembers();
 
+  // A committee's members with one role, such as the ACM members ranked for badges.
+  List<User> findByCommittee_IdAndRole(Long committeeId, com.acm.acmwebsite.User_Authentication.enums.Role role);
+
+  // A committee's people with any of these roles, such as the members and board members ranked for badges.
+  List<User> findByCommittee_IdAndRoleIn(Long committeeId, java.util.Collection<com.acm.acmwebsite.User_Authentication.enums.Role> roles);
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);
@@ -52,4 +58,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   @Query("SELECT u.createdAt FROM User u ORDER BY u.createdAt ASC")
   List<java.time.LocalDateTime> findAllCreatedTimes();
+
+  /** Users holding any of these roles, for the public chapter totals. */
+  long countByRoleIn(Collection<Role> roles);
 }

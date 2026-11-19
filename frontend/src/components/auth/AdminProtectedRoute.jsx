@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 
 /**
  * A wrapper component to guard routes that require ADMIN role.
@@ -9,8 +9,8 @@ const AdminProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] animate-spin" />
+      <div className="min-h-screen bg-ink-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-ocean-461 animate-spin" />
       </div>
     );
   }

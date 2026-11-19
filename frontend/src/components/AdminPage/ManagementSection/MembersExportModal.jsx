@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FiExternalLink, FiRefreshCw, FiRotateCcw, FiUsers } from "react-icons/fi";
 import { previewMembersExport, exportMembersSheet } from "../../../services/adminService";
-import MembersFilter, { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../SharedComponents/MembersFilter";
+import MembersFilter from "../SharedComponents/MembersFilter";
+import { buildMembersFilters, DEFAULT_MEMBERS_ROLES } from "../SharedComponents/membersFilters";
 import { ROLE_OPTIONS, ROLE_GROUPS, EXPORT_PRESETS } from "../../../constants/roles";
 import ModalShell from "../SharedComponents/ModalShell";
 import {
@@ -158,10 +159,10 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
           )}
 
           {/* Google Sheets Export Card */}
-          <div className="relative overflow-hidden bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg p-5 space-y-4">
+          <div className="relative overflow-hidden bg-slate-50 dark:bg-ocean-916/60 border border-slate-200 dark:border-ocean-745 rounded-lg p-5 space-y-4">
             <div className="flex items-start gap-4">
               <div
-                className={`p-3 rounded-lg ${lastExport ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700"} shrink-0  border`}
+                className={`p-3 rounded-lg ${lastExport ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900" : "bg-slate-100 dark:bg-ocean-845 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-ocean-745"} shrink-0  border`}
               >
                 <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z" />
@@ -192,7 +193,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                       setTitle(e.target.value);
                       setTitleTouched(true);
                     }}
-                    className="w-full pl-3.5 pr-10 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-500 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4B98C8]/25 focus:border-[#4B98C8] transition-all"
+                    className="w-full pl-3.5 pr-10 py-2.5 bg-white dark:bg-ocean-845 border border-slate-200 dark:border-ocean-745 text-slate-800 dark:text-slate-100 placeholder:text-slate-500 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-461/25 focus:border-ocean-461 transition-all"
                   />
                   {titleTouched && (
                     <button
@@ -202,7 +203,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                         setTitleTouched(false);
                       }}
                       title="Reset to auto-generated name"
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-600 dark:text-slate-400 hover:text-[#4B98C8] transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-600 dark:text-slate-400 hover:text-ocean-461 transition-colors"
                     >
                       <FiRotateCcw className="w-3.5 h-3.5" />
                     </button>
@@ -213,8 +214,8 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
 
             {/* Insights */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-sky-50 text-[#4B98C8] shrink-0">
+              <div className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg p-4 flex items-center gap-4">
+                <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-sky-50 text-ocean-461 shrink-0">
                   {previewLoading ? <FiRefreshCw className="w-5 h-5 animate-spin" /> : <FiUsers className="w-5 h-5" />}
                 </div>
                 <div>
@@ -225,15 +226,15 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col justify-center">
+              <div className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg p-4 flex flex-col justify-center">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-medium text-slate-600 dark:text-slate-400">University Classification</span>
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                     {alexCount} / {total} (Alex Eng)
                   </span>
                 </div>
-                <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-[#4B98C8] transition-all" style={{ width: `${alexPct}%` }} />
+                <div className="w-full h-2.5 bg-slate-100 dark:bg-ocean-800 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-ocean-461 transition-all" style={{ width: `${alexPct}%` }} />
                 </div>
               </div>
             </div>
@@ -244,10 +245,10 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                   {roleCounts.map(([label, count]) => (
                     <span
                       key={label}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-ocean-845/80 border border-slate-200 dark:border-ocean-745/80 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300"
                     >
                       {label}
-                      <span className="text-[#4B98C8]">{count}</span>
+                      <span className="text-ocean-461">{count}</span>
                     </span>
                   ))}
                 </div>
@@ -256,7 +257,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                     {associationCounts.map(([name, count]) => (
                       <span
                         key={name}
-                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#4B98C8]"
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-ocean-461/10 text-ocean-614 dark:text-ocean-461"
                       >
                         {name}
                         <span className="text-slate-500 dark:text-slate-400">{count}</span>
@@ -278,7 +279,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
                   href={lastExport.googleSheetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
+                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-white dark:bg-ocean-845 hover:bg-slate-50 dark:hover:bg-ocean-800 border border-slate-200 dark:border-ocean-745 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
                 >
                   Open Sheet <FiExternalLink className="w-3.5 h-3.5" />
                 </a>
@@ -295,7 +296,7 @@ const MembersExportModal = ({ onClose, committees = [], clubs = [], initialFilte
           </div>
 
           {/* Selection Settings */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 space-y-5">
+          <div className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 rounded-lg p-5 space-y-5">
             <MembersFilter
               selectedRoles={selectedRoles}
               setSelectedRoles={setSelectedRoles}

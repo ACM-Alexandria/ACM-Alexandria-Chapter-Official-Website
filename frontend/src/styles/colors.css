@@ -1,0 +1,96 @@
+/* The site's colors, all in one place.
+
+   Every color the frontend uses is defined here once and used everywhere through Tailwind utilities
+   (`bg-ocean-676`, `text-gold-180`, `ring-ocean-106`) or, in CSS and inline styles, `var(--color-ocean-676)`.
+   Never write a hex or rgb() value anywhere else.
+
+   Names:
+   - ocean-N  the brand blues. N grows with darkness: ocean-31 is the lightest page tint, ocean-461 the brand
+              accent, ocean-676 the primary blue, ocean-916 the darkest dark-mode background.
+   - gold-N   the lighthouse's warm light, same scale.
+   - ink-N    cool greys (the slate shades the base styles use).
+   - danger, chart, linkedin: the few colors that carry a meaning of their own.
+   Tailwind's own palette (slate, red, emerald, amber, rose, yellow) is still used for text greys and status colors.
+
+   `static` makes every variable available at runtime, so inline styles and SVG can use `var(--color-...)`. */
+@theme static {
+  /* Base */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+
+  /* Cool greys */
+  --color-ink-50: #F8FAFC;
+  --color-ink-100: #F1F5F9;
+  --color-ink-400: #94A3B8;
+  --color-ink-900: #0F172A;
+
+  /* Brand blues, light to dark */
+  --color-ocean-20: #F7FAFD;
+  --color-ocean-31: #F3F7FB;  /* page background (light) */
+  --color-ocean-43: #E9F6FF;
+  --color-ocean-45: #EEF4F9;
+  --color-ocean-51: #E9F4FB;
+  --color-ocean-57: #E8F2F9;
+  --color-ocean-67: #E2F0FA;  /* tinted fills: tags, active tabs, icon tiles (light) */
+  --color-ocean-69: #E6EEF5;
+  --color-ocean-75: #E4ECF4;
+  --color-ocean-78: #DCEEFA;
+  --color-ocean-102: #D3E9F7;
+  --color-ocean-106: #D6E6F2;  /* hairline borders and rings (light) */
+  --color-ocean-114: #CFE6F5;
+  --color-ocean-145: #BFE0F5;
+  --color-ocean-222: #9FD0EE;
+  --color-ocean-239: #A9C7DB;
+  --color-ocean-255: #9CC5E0;
+  --color-ocean-316: #7DBBE0;  /* accent text and icons on dark */
+  --color-ocean-461: #4B98C8;  /* brand accent: focus rings, links, primary actions on dark */
+  --color-ocean-525: #3D82B5;
+  --color-ocean-529: #3D86B3;
+  --color-ocean-555: #3D7DA6;
+  --color-ocean-573: #2A7AB0;  /* accent text (light) */
+  --color-ocean-614: #2C6F99;  /* darker accent text */
+  --color-ocean-629: #23699A;
+  --color-ocean-637: #1D6A9C;
+  --color-ocean-659: #235E8B;
+  --color-ocean-676: #205E85;  /* primary brand: buttons and headings (light) */
+  --color-ocean-678: #2C5878;
+  --color-ocean-682: #1D5A85;
+  --color-ocean-735: #174A70;
+  --color-ocean-745: #28405A;  /* inputs and strong borders on dark (admin) */
+  --color-ocean-794: #0F3A5A;  /* deep blue bands: hero, page headers, footer */
+  --color-ocean-800: #1E3248;  /* borders on dark panels (admin) */
+  --color-ocean-808: #16364C;  /* tinted fills and rings on dark */
+  --color-ocean-820: #12304A;
+  --color-ocean-845: #15273A;  /* secondary surfaces on dark (admin) */
+  --color-ocean-871: #0F2233;  /* cards on dark */
+  --color-ocean-873: #0B2236;
+  --color-ocean-890: #0F1C29;  /* panels on dark (admin) */
+  --color-ocean-910: #081826;  /* night sky, deepest blue */
+  --color-ocean-911: #0A1724;  /* page background (dark) */
+  --color-ocean-914: #041828;
+  --color-ocean-916: #0B1520;  /* admin page background (dark) */
+  --color-ocean-927: #06131F;
+  --color-ocean-931: #06121D;
+  --color-ocean-933: #04121E;
+
+  /* Lighthouse gold, light to dark */
+  --color-gold-100: #FFF4CC;  /* lit text and lantern glow */
+  --color-gold-116: #FFF3C4;
+  --color-gold-167: #FFECAA;
+  --color-gold-180: #FFE7A3;  /* the lighthouse call-to-action button */
+  --color-gold-225: #FFE28C;
+  --color-gold-245: #FFDC82;
+  --color-gold-261: #FFD97A;
+  --color-gold-329: #FFC857;
+  --color-gold-518: #F5B301;  /* points star */
+  --color-gold-851: #3A3012;
+
+  /* Meaning */
+  --color-danger-500: #DC3545;
+  --color-danger-700: #A71D2A;
+  --color-chart-green: #1D9E75;
+  --color-chart-amber: #EF9F27;
+  --color-chart-red: #E24B4A;
+  --color-chart-purple: #7F77DD;
+  --color-linkedin: #0A66C2;
+}

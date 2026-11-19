@@ -263,12 +263,12 @@ const GalleryTab = () => {
 
         {/* Loading skeleton */}
         {loading && images.length === 0 ? (
-          <div aria-busy="true" aria-label="Loading gallery" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />))}</div>
+          <div aria-busy="true" aria-label="Loading gallery" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">{Array.from({ length: 8 }, (_, i) => (<div key={i} className="aspect-square rounded-2xl bg-slate-100 dark:bg-ocean-845 animate-pulse motion-reduce:animate-none" />))}</div>
         ) : (
           <>
             {/* Image grid */}
             {images.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-center">
+              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-ocean-845 border border-slate-100 dark:border-ocean-745 rounded-lg text-center">
                 <FiImage className="w-10 h-10 text-slate-300 mb-3" />
                 <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No images yet</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Upload images below to build the ACM gallery.</p>
@@ -278,7 +278,7 @@ const GalleryTab = () => {
                 {images.map((img, idx) => (
                   <div
                     key={img.id}
-                    className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 cursor-pointer"
+                    className="group relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-ocean-745 bg-slate-50 dark:bg-ocean-845 cursor-pointer"
                     onClick={() => setLightboxIndex(idx)}
                   >
                     <img
@@ -311,7 +311,7 @@ const GalleryTab = () => {
 
             {/* Upload progress bar */}
             {batchProgress !== null && (
-              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg px-4 py-3">
+              <div className="bg-slate-50 dark:bg-ocean-845 border border-slate-100 dark:border-ocean-745 rounded-lg px-4 py-3">
                 <div className="flex items-center justify-between mb-2 gap-2">
                   <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                     {isUploading
@@ -321,7 +321,7 @@ const GalleryTab = () => {
                       : `All ${batchProgress.total} uploaded ✓`}
                   </span>
                   <span className={`text-xs font-semibold shrink-0 ${
-                    isUploading ? "text-[#4B98C8]" : batchProgress.failed > 0 ? "text-red-500" : "text-emerald-600"
+                    isUploading ? "text-ocean-461" : batchProgress.failed > 0 ? "text-red-500" : "text-emerald-600"
                   }`}>
                     {batchProgress.percent}%
                   </span>
@@ -329,7 +329,7 @@ const GalleryTab = () => {
                 <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isUploading ? "bg-[#4B98C8]" : batchProgress.failed > 0 ? "bg-red-400" : "bg-emerald-500"
+                      isUploading ? "bg-ocean-461" : batchProgress.failed > 0 ? "bg-red-400" : "bg-emerald-500"
                     }`}
                     style={{ width: `${batchProgress.percent}%` }}
                   />
@@ -347,8 +347,8 @@ const GalleryTab = () => {
                 onDrop={handleDrop}
                 className={`relative border-2 border-dashed rounded-lg p-8 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
                   isUploading
-                    ? "border-[#4B98C8]/40 bg-[#4B98C8]/5"
-                    : "border-slate-200 hover:border-[#4B98C8]/50 hover:bg-slate-50"
+                    ? "border-ocean-461/40 bg-ocean-461/5"
+                    : "border-slate-200 hover:border-ocean-461/50 hover:bg-slate-50"
                 }`}
               >
                 <input
@@ -361,7 +361,7 @@ const GalleryTab = () => {
                 />
                 {isUploading ? (
                   <>
-                    <FiLoader className="w-8 h-8 text-[#4B98C8] animate-spin mb-2" />
+                    <FiLoader className="w-8 h-8 text-ocean-461 animate-spin mb-2" />
                     <p className="text-xs font-medium text-slate-600">Uploading…</p>
                   </>
                 ) : (

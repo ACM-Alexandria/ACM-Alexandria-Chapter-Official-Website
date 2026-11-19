@@ -6,7 +6,7 @@ import { labelClass, hintClass, primaryButtonClass, secondaryButtonClass, notice
 import { searchUsers, assignUser } from "../../../services/adminService";
 import { addUserPointsLog } from "../../../services/pointsLogService";
 import { fetchCommittee, fetchClubs } from "../../../services/homePageService";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/useAuth";
 import { ROLE_OPTIONS, ROLE_LABELS } from "../../../constants/roles";
 import { canShowPhoto } from "../../UserProfile/profileUtils";
 import MembersExportModal from "./MembersExportModal";
@@ -26,7 +26,7 @@ const UserAvatar = ({ item }) => {
         src={url}
         alt=""
         onError={() => setImgError(true)}
-        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-ocean-745 shrink-0"
       />
     );
   }
@@ -34,7 +34,7 @@ const UserAvatar = ({ item }) => {
   return (
     <div
       aria-hidden="true"
-      className="w-10 h-10 rounded-full bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] text-base font-semibold flex items-center justify-center shrink-0"
+      className="w-10 h-10 rounded-full bg-ocean-57 dark:bg-ocean-808 text-ocean-614 dark:text-ocean-316 text-base font-semibold flex items-center justify-center shrink-0"
     >
       {name[0].toUpperCase()}
     </div>
@@ -43,7 +43,7 @@ const UserAvatar = ({ item }) => {
 
 // Brand-tinted tag, same look as the role/committee tags on the profile page
 const Tag = ({ children }) => (
-  <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#E2F0FA] dark:bg-[#16364C] text-[#1D6A9C] dark:text-[#7DBBE0] text-xs font-semibold whitespace-nowrap">
+  <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-ocean-67 dark:bg-ocean-808 text-ocean-637 dark:text-ocean-316 text-xs font-semibold whitespace-nowrap">
     {children}
   </span>
 );
@@ -56,10 +56,10 @@ const RoleTags = ({ user }) => (
 );
 
 const fieldClass =
-  "h-10 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-[#4B98C8] focus:ring-2 focus:ring-[#4B98C8]/25";
+  "h-10 px-3 bg-white dark:bg-ocean-916 border border-slate-300 dark:border-ocean-745 rounded-lg outline-none text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-500 transition-colors focus:border-ocean-461 focus:ring-2 focus:ring-ocean-461/25";
 
 const pageButtonClass =
-  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
+  "h-8 px-2.5 rounded-lg inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-ocean-845 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors";
 
 const UserManagementTab = ({ hideManageAccess = false }) => {
   const { user } = useAuth();
@@ -288,7 +288,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
         </div>
         <button
           onClick={() => setExportModalOpen(true)}
-          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2A7AB0] hover:bg-[#23699A] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4B98C8] dark:focus-visible:ring-offset-slate-900"
+          className="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-ocean-573 hover:bg-ocean-629 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ocean-461 dark:focus-visible:ring-offset-ocean-890"
         >
           <FiFileText className="w-4 h-4" aria-hidden="true" /> Export
         </button>
@@ -378,18 +378,18 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                   <tr key={i} className="group animate-pulse motion-reduce:animate-none" aria-hidden="true">
                     <td className={`px-4 sm:px-5 py-4 ${rowBorderClass}`}>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800" />
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-ocean-845" />
                         <div className="space-y-2">
-                          <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
-                          <div className="h-3 w-44 rounded bg-slate-200 dark:bg-slate-800" />
+                          <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-ocean-845" />
+                          <div className="h-3 w-44 rounded bg-slate-200 dark:bg-ocean-845" />
                         </div>
                       </div>
                     </td>
                     <td className={`hidden @min-[900px]:table-cell px-5 py-4 ${rowBorderClass}`}>
-                      <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-ocean-845" />
                     </td>
                     <td className={`hidden @min-[560px]:table-cell px-5 py-4 ${rowBorderClass}`}>
-                      <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-4 w-8 ml-auto rounded bg-slate-200 dark:bg-ocean-845" />
                     </td>
                     <td className={`px-3 sm:px-5 py-4 ${rowBorderClass}`} />
                   </tr>
@@ -415,7 +415,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); viewProfile(u); }}
-                            className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
+                            className="block max-w-full text-left text-sm font-medium text-slate-900 dark:text-slate-100 truncate @min-[900px]:max-w-[14rem] @min-[1200px]:max-w-xs rounded hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40"
                             title={`Open ${u.name || "user"}'s profile`}
                           >
                             {u.name || "Unknown User"}
@@ -464,7 +464,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+          <div className="px-3 py-2.5 flex items-center justify-between border-t border-slate-200 dark:border-ocean-800">
             <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className={pageButtonClass}>
               <FiChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
             </button>
@@ -548,7 +548,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
           </div>
         )}
 
-        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-ocean-800 bg-slate-50 dark:bg-ocean-916/60 p-4">
           <p className={hintClass}>Target user</p>
           <p className="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100 break-words">{selectedUser?.name}</p>
           <p className={`${hintClass} break-all`}>{selectedUser?.email}</p>
@@ -654,7 +654,7 @@ const UserManagementTab = ({ hideManageAccess = false }) => {
             )}
           </div>
         ) : (
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4">
+          <div className="rounded-2xl border border-slate-200 dark:border-ocean-800 bg-slate-50 dark:bg-ocean-916/60 p-4">
             {renderConfirmationSummary()}
           </div>
         )}

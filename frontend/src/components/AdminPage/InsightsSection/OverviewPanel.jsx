@@ -6,7 +6,7 @@ import AnimatedNumber from "./AnimatedNumber";
 const OPEN_ICONS = { committeeCall: FiLayers, club: FiAward, program: FiBookOpen, event: FiCalendar };
 const OPEN_PREVIEW = 6;
 
-const cardClass = "rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900";
+const cardClass = "rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890";
 
 const KpiCard = ({ kpi, index }) => (
   <div className={`${cardClass} p-4 flex flex-col gap-1 min-w-0 insights-rise`} style={{ animationDelay: `${index * 60}ms` }}>
@@ -42,7 +42,7 @@ const OpenNow = ({ items }) => {
   const shown = expanded ? items : items.slice(0, OPEN_PREVIEW);
   return (
     <section className={`${cardClass} min-w-0 insights-rise`} style={{ animationDelay: "420ms" }}>
-      <div className="px-5 py-4 flex items-baseline justify-between gap-3 border-b border-slate-200 dark:border-slate-800">
+      <div className="px-5 py-4 flex items-baseline justify-between gap-3 border-b border-slate-200 dark:border-ocean-800">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Open right now</h3>
         <span className="text-sm tabular-nums text-slate-600 dark:text-slate-400">{items.length}</span>
       </div>
@@ -51,8 +51,8 @@ const OpenNow = ({ items }) => {
       ) : (
         <ul>
           {shown.map((item, i) => (
-            <li key={`${item.type}-${item.name}-${i}`} className="px-5 py-3 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 last:border-b-0">
-              <span className="w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-lg bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0]">
+            <li key={`${item.type}-${item.name}-${i}`} className="px-5 py-3 flex items-center gap-3 border-b border-slate-200 dark:border-ocean-800 last:border-b-0">
+              <span className="w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-lg bg-ocean-461/10 text-ocean-614 dark:text-ocean-316">
                 {createElement(OPEN_ICONS[item.type] || FiCalendar, { className: "w-4 h-4", "aria-hidden": true })}
               </span>
               <span className="min-w-0 flex-1">
@@ -70,7 +70,7 @@ const OpenNow = ({ items }) => {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="w-full px-5 py-3 text-sm font-medium text-[#2C6F99] dark:text-[#7DBBE0] border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4B98C8]/50"
+          className="w-full px-5 py-3 text-sm font-medium text-ocean-614 dark:text-ocean-316 border-t border-slate-200 dark:border-ocean-800 hover:bg-slate-50 dark:hover:bg-ocean-845/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ocean-461/50"
         >
           {expanded ? "Show less" : `Show all ${items.length}`}
         </button>

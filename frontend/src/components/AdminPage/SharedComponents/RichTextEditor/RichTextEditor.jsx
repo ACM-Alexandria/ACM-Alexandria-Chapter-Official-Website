@@ -58,7 +58,7 @@ const RichTextEditor = ({ value = "", onChange, placeholder = "Write your emailâ
     }, [editor, value]);
 
     return (
-        <div className="email-rich-text-editor overflow-hidden rounded-md border border-slate-300 bg-white focus-within:border-[#4B98C8] focus-within:ring-2 focus-within:ring-[#4B98C8]/20 dark:border-slate-600 dark:bg-slate-800">
+        <div className="email-rich-text-editor overflow-hidden rounded-md border border-slate-300 bg-white focus-within:border-ocean-461 focus-within:ring-2 focus-within:ring-ocean-461/20 dark:border-slate-600 dark:bg-ocean-845">
             <RichTextToolbar editor={editor} />
             <EditorContent editor={editor} />
         </div>

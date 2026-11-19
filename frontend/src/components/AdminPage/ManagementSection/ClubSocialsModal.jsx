@@ -98,7 +98,7 @@ const ClubSocialsModal = ({ open, onClose, club, onSaved }) => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-10" role="status">
-            <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin motion-reduce:animate-none mb-3" />
+            <div className="w-8 h-8 border-4 border-slate-200 dark:border-ocean-745 border-t-ocean-461 rounded-full animate-spin motion-reduce:animate-none mb-3" />
             <p className="text-sm text-slate-600 dark:text-slate-400">Loading social links…</p>
           </div>
         ) : (
@@ -106,7 +106,7 @@ const ClubSocialsModal = ({ open, onClose, club, onSaved }) => {
             <p className={labelClass}>Social media links</p>
 
             {links.length === 0 ? (
-              <div className="py-6 text-center rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+              <div className="py-6 text-center rounded-lg border border-dashed border-slate-300 dark:border-ocean-745">
                 <p className="text-sm text-slate-600 dark:text-slate-400">No social media links added yet.</p>
               </div>
             ) : (

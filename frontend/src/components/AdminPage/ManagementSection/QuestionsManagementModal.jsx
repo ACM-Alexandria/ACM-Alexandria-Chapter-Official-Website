@@ -295,17 +295,17 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
               {/* Questions List */}
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-[#4B98C8] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-4 border-slate-200 dark:border-ocean-745 border-t-ocean-461 rounded-full animate-spin mb-3" />
                   <p className="text-sm text-slate-600 dark:text-slate-400">Loading questions…</p>
                 </div>
               ) : questions.length === 0 ? (
-                <div className="text-center py-10 px-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
+                <div className="text-center py-10 px-4 border border-dashed border-slate-300 dark:border-ocean-745 rounded-lg">
                   <p className="text-sm text-slate-600 dark:text-slate-400">No custom questions defined yet. Only standard registration fields (Name, Email, Phone, Batch, Dept) are requested.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {questions.map((q, index) => (
-                    <div key={q.id || index} className="bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex justify-between gap-4">
+                    <div key={q.id || index} className="bg-slate-50 dark:bg-ocean-916/60 border border-slate-200 dark:border-ocean-745 rounded-lg p-4 flex justify-between gap-4">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`${tagMutedClass} gap-1`}>
@@ -322,7 +322,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                         {(q.questionType === "MULTIPLE_CHOICE" || q.questionType === "CHECKBOX") && q.options && q.options.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {q.options.map((opt, oIdx) => (
-                              <span key={oIdx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-lg">
+                              <span key={oIdx} className="bg-white dark:bg-ocean-890 border border-slate-200 dark:border-ocean-745 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-lg">
                                 {opt}
                               </span>
                             ))}
@@ -415,7 +415,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                       type="checkbox"
                       checked={isRequired}
                       onChange={(e) => setIsRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#4B98C8] focus:ring-[#4B98C8]/30 border-slate-300 dark:border-slate-700"
+                      className="w-4 h-4 rounded text-ocean-461 focus:ring-ocean-461/30 border-slate-300 dark:border-ocean-745"
                     />
                     <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
                       Mark as required
@@ -426,8 +426,8 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
 
               {/* Info note for IMAGE type */}
               {questionType === "IMAGE" && (
-                <div className="flex items-start gap-2.5 bg-[#4B98C8]/10 border border-[#4B98C8]/30 rounded-lg px-4 py-3">
-                  <FiImage className="w-4 h-4 text-[#4B98C8] shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2.5 bg-ocean-461/10 border border-ocean-461/30 rounded-lg px-4 py-3">
+                  <FiImage className="w-4 h-4 text-ocean-461 shrink-0 mt-0.5" />
                   <p className="text-sm text-slate-800 dark:text-slate-200">
                     Users will be prompted to upload an image file.<br />
                     <span className="font-semibold">Maximum size: 2 MB.</span> Accepted formats: JPG, PNG, WEBP, GIF, etc.
@@ -437,7 +437,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
 
               {/* Options Editor (Only if MULTIPLE_CHOICE or CHECKBOX) */}
               {(questionType === "MULTIPLE_CHOICE" || questionType === "CHECKBOX") && (
-                <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-4">
+                <div className="space-y-3 border-t border-slate-200 dark:border-ocean-800 pt-4">
                   <div className="flex justify-between items-center">
                     <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
                       {questionType === "MULTIPLE_CHOICE" ? "Dropdown Options" : "Checkbox Options"}
@@ -445,7 +445,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
                     <button
                       type="button"
                       onClick={handleAddOption}
-                      className="text-sm font-medium text-[#2C6F99] dark:text-[#7DBBE0] hover:underline flex items-center gap-1"
+                      className="text-sm font-medium text-ocean-614 dark:text-ocean-316 hover:underline flex items-center gap-1"
                     >
                       <FiPlus className="w-4 h-4" aria-hidden="true" /> Add option
                     </button>
@@ -491,7 +491,7 @@ const QuestionsManagementModal = ({ open, onClose, resourceId, resourceName, res
               )}
 
               {/* Form Footer Buttons */}
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 pt-4 border-t border-slate-200 dark:border-slate-800 mt-6">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 pt-4 border-t border-slate-200 dark:border-ocean-800 mt-6">
                 <button
                   type="button"
                   onClick={() => setMode("list")}

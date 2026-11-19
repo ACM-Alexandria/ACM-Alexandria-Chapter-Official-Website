@@ -102,6 +102,11 @@ public class User {
   @Builder.Default
   private Integer seasonPoints = 0;
 
+  // Hides the member from the public homepage leaderboard. Their badges stay visible.
+  @Column(name = "leaderboard_opt_out", nullable = false, columnDefinition = "boolean default false")
+  @Builder.Default
+  private Boolean leaderboardOptOut = false;
+
   public void addPoints(int p) {
     if (this.seasonPoints == null) {
       this.seasonPoints = 0;

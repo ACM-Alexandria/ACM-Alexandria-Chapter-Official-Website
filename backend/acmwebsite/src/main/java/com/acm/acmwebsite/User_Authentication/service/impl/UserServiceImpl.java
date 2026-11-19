@@ -338,6 +338,10 @@ public class UserServiceImpl implements UserService {
       user.setLinkedinUrl(profileDto.getLinkedinUrl());
     }
 
+    if (profileDto.getLeaderboardOptOut() != null) {
+      user.setLeaderboardOptOut(profileDto.getLeaderboardOptOut());
+    }
+
     User saved = userRepository.save(user);
     return userMapper.toProfileDto(saved);
   }

@@ -29,7 +29,7 @@ export const ProfileAvatar = ({ profile, email, size = "lg" }) => {
       <img
         src={profile.profileImageUrl}
         alt=""
-        className={`${sizeClass} rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0`}
+        className={`${sizeClass} rounded-full object-cover border border-slate-200 dark:border-ocean-745 shrink-0`}
       />
     );
   }
@@ -37,7 +37,7 @@ export const ProfileAvatar = ({ profile, email, size = "lg" }) => {
   return (
     <div
       aria-hidden="true"
-      className={`${sizeClass} rounded-full bg-[#E8F2F9] dark:bg-[#16364C] text-[#2C6F99] dark:text-[#7DBBE0] font-semibold flex items-center justify-center shrink-0`}
+      className={`${sizeClass} rounded-full bg-ocean-57 dark:bg-ocean-808 text-ocean-614 dark:text-ocean-316 font-semibold flex items-center justify-center shrink-0`}
     >
       {initial}
     </div>
@@ -46,15 +46,15 @@ export const ProfileAvatar = ({ profile, email, size = "lg" }) => {
 
 // Brand blue in light mode is darkened slightly so tag text keeps AA contrast.
 const Tag = ({ children }) => (
-  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#4B98C8]/10 border border-[#4B98C8]/30 text-[#2C6F99] dark:text-[#7DBBE0] text-xs font-semibold">
+  <span className="inline-flex items-center px-3 py-1 rounded-full bg-ocean-461/10 border border-ocean-461/30 text-ocean-614 dark:text-ocean-316 text-xs font-semibold">
     {children}
   </span>
 );
 
 export const ProfileHeader = ({ user, profile, actions }) => (
-  <header className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+  <header className="rounded-xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 overflow-hidden">
     {/* Cover: soft brand tint with the chapter logo as a watermark */}
-    <div className="relative h-24 sm:h-28 overflow-hidden bg-[#E8F2F9] dark:bg-[#16364C] border-b border-[#4B98C8]/15">
+    <div className="relative h-24 sm:h-28 overflow-hidden bg-ocean-57 dark:bg-ocean-808 border-b border-ocean-461/15">
       <img
         src={logo}
         alt=""
@@ -94,9 +94,9 @@ export const ProfileHeader = ({ user, profile, actions }) => (
 
 const DetailTile = ({ icon, label, children }) => (
   <div
-    className={`flex items-start gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-4`}
+    className={`flex items-start gap-3 rounded-lg border border-slate-200 dark:border-ocean-800 bg-slate-50/60 dark:bg-ocean-916/60 p-4`}
   >
-    <span className="w-10 h-10 shrink-0 rounded-lg bg-[#4B98C8]/10 text-[#2C6F99] dark:text-[#7DBBE0] flex items-center justify-center">
+    <span className="w-10 h-10 shrink-0 rounded-lg bg-ocean-461/10 text-ocean-614 dark:text-ocean-316 flex items-center justify-center">
       {createElement(icon, { className: "w-5 h-5", "aria-hidden": true })}
     </span>
     <div className="min-w-0 flex-1 pt-0.5">
@@ -128,7 +128,7 @@ export const ProfileDetails = ({ profile }) => {
               target="_blank"
               rel="noreferrer"
               title={profile.linkedinUrl}
-              className="flex max-w-full items-center gap-1 text-[#4B98C8] hover:underline underline-offset-2"
+              className="flex max-w-full items-center gap-1 text-ocean-461 hover:underline underline-offset-2"
             >
               <span className="truncate">{displayUrl(profile.linkedinUrl)}</span>
               <HiOutlineExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -165,9 +165,9 @@ export const ProfileDetails = ({ profile }) => {
 };
 
 export const Panel = ({ title, aside, children }) => (
-  <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+  <section className="rounded-xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 overflow-hidden">
     {(title || aside) && (
-      <div className="px-5 py-4 flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="px-5 py-4 flex items-center justify-between gap-4 border-b border-slate-200 dark:border-ocean-800">
         <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
         {aside}
       </div>

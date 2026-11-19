@@ -18,7 +18,7 @@ const PastResourceTable = ({ resource, items, parents, onEdit, onDelete, busy })
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center dark:border-slate-700">
+      <div className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center dark:border-ocean-745">
         <p className="text-sm font-medium text-slate-800 dark:text-slate-200">No records for this season</p>
         <p className={`mt-1 ${hintClass}`}>Use the add button above to create the first one.</p>
       </div>
@@ -57,7 +57,7 @@ const PastResourceTable = ({ resource, items, parents, onEdit, onDelete, busy })
                   <button
                     type="button"
                     onClick={() => setDetail(item)}
-                    className="block max-w-full truncate text-left text-sm font-medium text-slate-900 hover:text-[#2C6F99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40 dark:text-slate-100 dark:hover:text-[#7DBBE0]"
+                    className="block max-w-full truncate text-left text-sm font-medium text-slate-900 hover:text-ocean-614 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40 dark:text-slate-100 dark:hover:text-ocean-316"
                   >
                     {nameOf(item)}
                   </button>
@@ -90,7 +90,7 @@ const PastResourceTable = ({ resource, items, parents, onEdit, onDelete, busy })
           subtitle={resource.label}
           footer={<button type="button" onClick={() => setDetail(null)} className={secondaryButtonClass}>Close</button>}
         >
-          <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+          <dl className="divide-y divide-slate-200 dark:divide-ocean-800">
             {detailRows(detail).map(([label, value]) => (
               <div key={label} className="flex items-start justify-between gap-4 py-3">
                 <dt className={hintClass}>{label}</dt>

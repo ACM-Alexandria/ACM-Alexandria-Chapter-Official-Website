@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/HomePage/Navbar";
+import IslandNav from "../components/Layout/IslandNav";
+import { siteSections } from "../components/Layout/siteSections";
 import adminService from "../services/adminService";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import {
   fetchHighBoard,
   fetchSeasons,
@@ -24,6 +25,8 @@ import UserManagementTab from "../components/AdminPage/ManagementSection/UserMan
 import GalleryTab from "../components/AdminPage/ManagementSection/GalleryTab";
 import PastBoardsTab from "../components/AdminPage/PastBoardsSection/PastBoardsTab";
 import EmailCenterTab from "../components/AdminPage/EmailCenterSection/EmailCenterTab";
+import BadgesTab from "../components/AdminPage/BadgesSection/BadgesTab";
+import SeasonSettingsTab from "../components/AdminPage/SeasonSettingsSection/SeasonSettingsTab";
 import AdminPageHeader from "../components/AdminPage/SharedComponents/AdminPageHeader";
 import AdminTabs from "../components/AdminPage/SharedComponents/AdminTabs";
 import ResourceToolbar from "../components/AdminPage/SharedComponents/ResourceToolbar";
@@ -846,6 +849,8 @@ const AdminPage = () => {
     { id: "insights", label: "System Insights", shortLabel: "Insights", icon: FiTrendingUp },
     { id: "management", label: "Resource Management", shortLabel: "Resources", icon: FiSliders },
     { id: "email", label: "Email Center", shortLabel: "Email", icon: FiMail },
+    { id: "badges", label: "Badges", icon: FiAward },
+    ...(isSuperAdmin ? [{ id: "season", label: "Season settings", shortLabel: "Season", icon: FiCalendar }] : []),
   ];
 
   // Paginated resources, keyed by tab
@@ -864,8 +869,8 @@ const AdminPage = () => {
   const hasOwnHeader = ["users", "gallery", "feedback", "hrFeedback", "pastBoards", "faq"].includes(mgmtTab);
 
   return (
-    <div className="min-h-screen bg-[#F3F7FB] dark:bg-[#0B1520] text-slate-800 dark:text-slate-100 font-sans">
-      <Navbar activeSection="" />
+    <div className="min-h-screen bg-ocean-31 dark:bg-ocean-916 text-slate-800 dark:text-slate-100 font-sans">
+      <IslandNav links={siteSections} home={false} solid />
 
       <main className="admin-ui pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-6">
         <AdminPageHeader
@@ -883,11 +888,11 @@ const AdminPage = () => {
                   title={emailsEnabled ? "Lock all site emails" : "Unlock site emails"}
                   className={secondaryButtonClass}
                 >
-                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-[#4B98C8]" : "text-rose-600"}`} aria-hidden="true" />
+                  <FiLock className={`w-4 h-4 ${emailsEnabled ? "text-ocean-461" : "text-rose-600"}`} aria-hidden="true" />
                   Site emails
                   <span
                     aria-hidden="true"
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-[#4B98C8]" : "bg-rose-500"}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${emailsEnabled ? "bg-ocean-461" : "bg-rose-500"}`}
                   >
                     <span
                       className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${emailsEnabled ? "translate-x-4" : "translate-x-1"}`}
@@ -918,6 +923,10 @@ const AdminPage = () => {
 
         {activeTab === "email" && <EmailCenterTab />}
 
+        {activeTab === "badges" && <BadgesTab />}
+
+        {activeTab === "season" && isSuperAdmin && <SeasonSettingsTab />}
+
         {activeTab === "management" && (
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
             <ManagementSidebar
@@ -927,7 +936,7 @@ const AdminPage = () => {
               setSearchQuery={setMgmtSearchQuery}
             />
 
-            <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
+            <div className="flex-1 w-full min-w-0 rounded-2xl border border-slate-200 dark:border-ocean-800 bg-white dark:bg-ocean-890 p-4 sm:p-6 min-h-[500px] flex flex-col justify-between">
               <div>
                 {!hasOwnHeader && (
                   <ResourceToolbar

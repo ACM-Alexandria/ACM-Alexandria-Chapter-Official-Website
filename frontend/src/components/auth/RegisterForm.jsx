@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import InputField from "./InputField";
 import PasswordInput from "./PasswordInput";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 import { getEnv } from "../../utils/env";
 import { resendConfirmationEmail } from "../../services/authService";
 import {
@@ -16,7 +16,7 @@ import {
   SpinnerIcon,
   EnvelopeIcon,
   LockIcon,
-} from "../icons";
+} from "../icons/index";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -235,22 +235,23 @@ const RegisterForm = () => {
         style={{ animation: "floatIn 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
       >
         <div
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4B98C8] to-[#205E85] flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
+          className="w-16 h-16 rounded-full bg-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 flex items-center justify-center text-white text-2xl mx-auto mb-5 shadow-lg"
           style={{ animation: "successPop 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           ✓
         </div>
-        <h2 className="text-xl font-extrabold text-gray-800 dark:text-gray-100 mb-2 tracking-tight">
+        <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">
           Check your email!
         </h2>
-        <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-6">
-          We sent a verification link to <strong className="text-gray-800 dark:text-gray-100">{registeredEmail}</strong>.
+        <p className="text-slate-500 dark:text-slate-300 text-sm leading-relaxed mb-6">
+          We sent a verification link to <strong className="text-slate-800 dark:text-slate-100">{registeredEmail}</strong>.
           <br />
           Please click the confirmation link in the email to activate your account before logging in.
         </p>
 
         {/* Resend Button with Countdown */}
         <div className="mb-6">
+          {resendStatusMsg && <p role="status" className="mb-3 text-sm text-slate-600 dark:text-ocean-239">{resendStatusMsg}</p>}
           <button
             type="button"
             onClick={handleResendInRegister}
@@ -259,8 +260,8 @@ const RegisterForm = () => {
               text-xs font-semibold px-4 py-2 rounded-lg border transition-all duration-200
               ${
                 resendCountdown > 0 || isResending
-                  ? "border-gray-200 dark:border-slate-700 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-800/50 cursor-not-allowed"
-                  : "border-[#4B98C8] text-[#205E85] dark:text-blue-300 hover:bg-[#4B98C8]/10 cursor-pointer"
+                  ? "border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed"
+                  : "border-ocean-461 text-ocean-676 dark:text-ocean-316 hover:bg-ocean-461/10 cursor-pointer"
               }
             `}
           >
@@ -277,13 +278,13 @@ const RegisterForm = () => {
         <div className="flex flex-col items-center gap-2.5 text-center">
           <Link
             to="/login"
-            className="w-full py-3 px-6 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white font-bold text-sm rounded-xl shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+            className="flex w-full h-12 items-center justify-center px-6 bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316 text-white font-semibold text-sm rounded-xl   transition-all duration-300"
           >
             Go to Sign In
           </Link>
           <Link
             to="/"
-            className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 transition-colors"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="15 18 9 12 15 6" />
@@ -367,23 +368,14 @@ const RegisterForm = () => {
         disabled={isLoading}
         aria-busy={isLoading}
         className={`
-          relative w-full mt-2 py-3 px-6 flex items-center justify-center gap-2
-          bg-gradient-to-r from-[#4B98C8] to-[#205E85]
-          text-white font-bold text-sm rounded-xl
-          shadow-md overflow-hidden
+          relative w-full mt-2 h-12 px-6 flex items-center justify-center gap-2
+          bg-ocean-676 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 dark:hover:bg-ocean-316
+          text-white font-semibold text-sm rounded-xl
+           overflow-hidden
           transition-all duration-300
-          ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-lg hover:from-[#5aa3d0] hover:to-[#256b96]"}
+          ${isLoading ? "opacity-70 cursor-not-allowed" : ""}
         `}
       >
-        <span
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%)",
-            backgroundSize: "200% 100%",
-            animation: "shimmer 2.8s linear infinite",
-          }}
-        />
         {isLoading ? (
           <>
             <span
@@ -400,9 +392,9 @@ const RegisterForm = () => {
 
       {/* OR Divider */}
       <div className="my-4 flex items-center justify-center gap-3">
-        <span className="w-full h-px bg-gray-200 dark:bg-slate-700" />
-        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 uppercase tracking-widest">or</span>
-        <span className="w-full h-px bg-gray-200 dark:bg-slate-700" />
+        <span className="w-full h-px bg-slate-200 dark:bg-slate-700" />
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-widest">or</span>
+        <span className="w-full h-px bg-slate-200 dark:bg-slate-700" />
       </div>
 
       {/* Google Sign In Button Container */}
@@ -410,15 +402,15 @@ const RegisterForm = () => {
 
       {/* Footer Links */}
       <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
-        <p className="text-sm text-gray-500 dark:text-gray-300">
+        <p className="text-sm text-slate-500 dark:text-slate-300">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-[#205E85] dark:text-blue-300 hover:text-[#4B98C8] transition-colors">
+          <Link to="/login" className="font-semibold text-ocean-676 dark:text-ocean-316 hover:text-ocean-461 transition-colors">
             Sign In
           </Link>
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-100 transition-colors"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6" />

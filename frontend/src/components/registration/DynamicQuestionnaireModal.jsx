@@ -1,268 +1,107 @@
-import { 
-  HiOutlineX, 
-  HiOutlineCheckCircle, 
-  HiOutlineExclamationCircle, 
-  HiOutlineArrowRight,
-  HiOutlineClipboardList,
-  HiOutlineSparkles,
-  HiOutlinePhotograph
-} from "react-icons/hi";
+import { useEffect, useMemo } from "react";
+import { FiAlertCircle, FiArrowRight, FiCheck, FiChevronDown, FiClipboard, FiImage, FiX } from "react-icons/fi";
+import { DialogBody, DialogFooter, DialogHeader } from "../ui/Dialog";
+import SuccessView from "./SuccessView";
+import { registrationCopy } from "./registrationCopy";
+import { errorBox, field, fieldLabel, muted, primaryButton, secondaryButton } from "../ui/uiStyles";
 
-const DynamicQuestionnaireModal = ({ 
-  isVisible, 
-  onClose, 
-  type, 
-  entityName, 
-  questions, 
-  answers, 
-  onInputChange, 
-  onSubmit, 
-  submitting, 
-  error, 
-  success 
-}) => {
-  
-  // Card inner view inheriting orchestration visibility flags
+const MAX_MB = 2;
+
+// The picked image with its size, or a drop area to pick one (2 MB at most).
+const ImageAnswer = ({ file, disabled, onChange }) => {
+  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+  const tooLarge = file && file.size > MAX_MB * 1024 * 1024;
+
+  if (file) {
+    return (
+      <div className={`overflow-hidden rounded-2xl ring-2 ${tooLarge ? "ring-red-400" : "ring-ocean-461/40"}`}>
+        <div className="relative bg-ocean-31 dark:bg-white/5">
+          <img src={preview} alt="Selected upload" className="max-h-56 w-full object-contain" />
+          <button type="button" disabled={disabled} onClick={() => onChange(null)} aria-label="Remove image" className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-ocean-931/60 text-white transition-colors hover:bg-red-600">
+            <FiX className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-3 px-4 py-2 text-xs">
+          <span className={`truncate font-medium ${muted}`}>{file.name}</span>
+          <span className={`shrink-0 font-semibold ${tooLarge ? "text-red-600" : muted}`}>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+        </div>
+        {tooLarge && <p className="px-4 pb-3 text-xs font-semibold text-red-600">This image is larger than {MAX_MB} MB. Please choose a smaller one.</p>}
+      </div>
+    );
+  }
   return (
-    <div className={`relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl dark:shadow-slate-950/60 border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-500 transform ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col max-h-[85vh] ${
-      isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-16 scale-95 opacity-0"
-    }`}>
-      
-      {/* Header Panel */}
-      <div className="bg-slate-50/50 dark:bg-slate-800/60 px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4B98C8] to-[#205E85] shadow-md flex items-center justify-center text-white shrink-0">
-            {type === "event" ? <HiOutlineSparkles className="w-6 h-6" /> : <HiOutlineClipboardList className="w-6 h-6" />}
-          </div>
-          <div className="overflow-hidden">
-            <span className="text-[10px] font-black text-[#4B98C8] uppercase tracking-[0.15em] block">
-              {type === "event" ? "Event Questionnaire" : "Club Questionnaire"}
-            </span>
-            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 truncate leading-tight mt-0.5">
-              {entityName}
-            </h3>
-          </div>
-        </div>
+    <label className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ocean-106 bg-ocean-31 py-8 transition-colors hover:border-ocean-461 dark:border-white/15 dark:bg-white/5 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ocean-67 text-ocean-676 dark:bg-ocean-808 dark:text-ocean-316"><FiImage className="h-5 w-5" aria-hidden="true" /></span>
+      <span className="text-center">
+        <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">Choose an image</span>
+        <span className={`mt-0.5 block text-xs ${muted}`}>JPG, PNG, WEBP or GIF, up to {MAX_MB} MB</span>
+      </span>
+      <input type="file" accept="image/*" className="sr-only" disabled={disabled} onChange={(event) => { onChange(event.target.files?.[0] || null); event.target.value = ""; }} />
+    </label>
+  );
+};
 
-        {!submitting && !success && (
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 active:scale-95">
-            <HiOutlineX className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+// Registration with custom questions: text, single choice, multiple choice, and image answers.
+const DynamicQuestionnaireModal = ({ onClose, type, entityName, questions, answers, onInputChange, onSubmit, submitting, error, success }) => {
+  const words = registrationCopy(type);
+  if (success) return <SuccessView title={words.done} entityName={entityName} onClose={onClose} />;
 
-      {/* Main Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide">
-        {success ? (
-          /* Completed Success Panel */
-          <div className="flex flex-col items-center text-center py-6 space-y-5 animate-[fadeInUp_0.5s_ease]">
-            <div className="w-24 h-24 rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-500 dark:text-emerald-300 relative shadow-inner animate-[bounce_1s_ease_infinite_alternate]">
-              <HiOutlineCheckCircle className="w-16 h-16" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">Successfully Registered!</h4>
-              <p className="text-slate-500 dark:text-slate-300 font-medium max-w-md text-sm leading-relaxed">
-                Your answers for <strong className="text-slate-800 dark:text-slate-100">{entityName}</strong> have been submitted successfully! 
-                Please keep an eye on your inbox for a <strong className="text-[#4B98C8]">confirmation email</strong> shortly.
-              </p>
-            </div>
-            <button onClick={onClose} className="mt-6 px-10 py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 text-white text-sm font-black shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all uppercase tracking-wider">
-              Close Panel
-            </button>
-          </div>
-        ) : (
-          /* Reactive Input Fields Loop */
-          <form id="registration-questionnaire-form" onSubmit={onSubmit} className="space-y-7">
-            {error && (
-              <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl px-5 py-4 animate-[fadeIn_0.3s_ease]">
-                <HiOutlineExclamationCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                <p className="font-bold text-sm leading-snug">{error}</p>
-              </div>
-            )}
-
-            <div className="space-y-7">
-              {questions.map((question) => {
-                const isText = question.question_type === "TEXT";
-                const isCheckbox = question.question_type === "CHECKBOX";
-                const isImage = question.question_type === "IMAGE";
-                return (
-                  <div key={question.id} className="space-y-2.5 group">
-                    <label className="text-[13px] font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 ml-1 leading-tight">
-                      {question.question_text}
-                      {question.is_required && (
-                        <span className="text-rose-500 text-base font-black leading-none">*</span>
-                      )}
-                    </label>
-                    <div className="relative">
-                      {isText ? (
-                        <textarea
-                          rows={3}
-                          value={answers[question.id] || ""}
-                          onChange={(e) => onInputChange(question.id, e.target.value)}
-                          required={question.is_required}
-                          disabled={submitting}
-                          placeholder="Type your answer here..."
-                          className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 resize-none disabled:opacity-60"
-                        />
-                      ) : isCheckbox ? (
-                        <div className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl space-y-3 disabled:opacity-60">
-                          {question.options && question.options.map((opt, idx) => {
-                            const selectedValues = Array.isArray(answers[question.id]) ? answers[question.id] : [];
-                            const isChecked = selectedValues.includes(opt);
-                            const handleCheckboxChange = () => {
-                              const updated = isChecked
-                                ? selectedValues.filter((v) => v !== opt)
-                                : [...selectedValues, opt];
-                              onInputChange(question.id, updated);
-                            };
-                            return (
-                              <label
-                                key={idx}
-                                className={`flex items-center gap-3 cursor-pointer group/opt select-none ${submitting ? "opacity-60 cursor-not-allowed" : ""}`}
-                              >
-                                <div
-                                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
-                                    isChecked
-                                      ? "bg-[#4B98C8] border-[#4B98C8]"
-                                      : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 group-hover/opt:border-[#4B98C8]/60"
-                                  }`}
-                                >
-                                  {isChecked && (
-                                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  )}
-                                </div>
-                                <input
-                                  type="checkbox"
-                                  className="sr-only"
-                                  checked={isChecked}
-                                  onChange={handleCheckboxChange}
-                                  disabled={submitting}
-                                />
-                                <span className="text-slate-700 dark:text-slate-200 font-semibold text-[15px]">{opt}</span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      ) : isImage ? (() => {
-                          const MAX_MB = 2;
-                          const file = answers[question.id] instanceof File ? answers[question.id] : null;
-                          const previewUrl = file ? URL.createObjectURL(file) : null;
-                          const isTooLarge = file && file.size > MAX_MB * 1024 * 1024;
-                          return (
-                            <div className="space-y-3">
-                              {file ? (
-                                <div className={`relative rounded-2xl overflow-hidden border-2 ${isTooLarge ? "border-rose-400" : "border-[#4B98C8]/40"} bg-slate-50 dark:bg-slate-800`}>
-                                  <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    className="w-full max-h-56 object-contain"
-                                  />
-                                  <button
-                                    type="button"
-                                    disabled={submitting}
-                                    onClick={() => onInputChange(question.id, null)}
-                                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-slate-900/60 text-white flex items-center justify-center hover:bg-rose-600/80 transition-all"
-                                    title="Remove image"
-                                  >
-                                    <HiOutlineX className="w-4 h-4" />
-                                  </button>
-                                  <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 flex items-center justify-between">
-                                    <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-200 truncate max-w-[70%]">{file.name}</span>
-                                    <span className={`text-[11px] font-black ${isTooLarge ? "text-rose-500" : "text-slate-400"}`}>
-                                      {(file.size / (1024 * 1024)).toFixed(2)} MB
-                                    </span>
-                                  </div>
-                                </div>
-                              ) : (
-                                <label
-                                  className={`flex flex-col items-center justify-center gap-3 w-full py-10 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${submitting ? "opacity-60 cursor-not-allowed" : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:border-[#4B98C8]/50 hover:bg-blue-50/30 dark:hover:bg-slate-700"}`}
-                                >
-                                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4B98C8]/10 to-[#205E85]/10 flex items-center justify-center text-[#4B98C8]">
-                                    <HiOutlinePhotograph className="w-7 h-7" />
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Click to upload image</p>
-                                    <p className="text-[11px] text-slate-400 dark:text-slate-300 font-medium mt-0.5">JPG, PNG, WEBP, GIF · Max 2 MB</p>
-                                  </div>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="sr-only"
-                                    disabled={submitting}
-                                    onChange={(e) => {
-                                      const picked = e.target.files?.[0] || null;
-                                      onInputChange(question.id, picked);
-                                      e.target.value = "";
-                                    }}
-                                  />
-                                </label>
-                              )}
-                              {isTooLarge && (
-                                <p className="text-[11px] text-rose-500 font-extrabold uppercase tracking-wide ml-1">
-                                  ✕ File exceeds 2 MB limit. Please choose a smaller image.
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })() : (
-                        <>
-                          <select
-                            value={answers[question.id] || ""}
-                            onChange={(e) => onInputChange(question.id, e.target.value)}
-                            required={question.is_required}
-                            disabled={submitting}
-                            className="w-full h-14 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-2xl outline-none text-slate-800 dark:text-slate-100 font-semibold text-[15px] transition-all focus:border-[#4B98C8]/30 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 appearance-none cursor-pointer disabled:opacity-60"
-                          >
-                            <option value="">-- Select an Option --</option>
-                            {question.options && question.options.map((opt, idx) => (
-                              <option key={idx} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </>
-                      )}
-                    </div>
+  return (
+    <>
+      <DialogHeader icon={FiClipboard} eyebrow={words.eyebrow} title={entityName} id="registration-title" onClose={submitting ? undefined : onClose} />
+      <DialogBody>
+        <form id="registration-questionnaire-form" onSubmit={onSubmit} className="space-y-6">
+          {error && <p className={errorBox}><FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{error}</p>}
+          {questions.map((question) => {
+            const inputId = `question-${question.id}`;
+            const value = answers[question.id];
+            return (
+              <div key={question.id} className="space-y-2">
+                <label htmlFor={question.question_type === "IMAGE" || question.question_type === "CHECKBOX" ? undefined : inputId} className={`block ${fieldLabel}`}>
+                  {question.question_text}{question.is_required && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
+                </label>
+                {question.question_type === "TEXT" ? (
+                  <textarea id={inputId} rows={3} value={value || ""} onChange={(event) => onInputChange(question.id, event.target.value)} required={question.is_required} disabled={submitting} placeholder="Your answer" className={`${field} resize-none py-3`} />
+                ) : question.question_type === "CHECKBOX" ? (
+                  <div role="group" aria-label={question.question_text} className="grid gap-2">
+                    {(question.options || []).map((option) => {
+                      const selected = Array.isArray(value) ? value : [];
+                      const checked = selected.includes(option);
+                      return (
+                        <label key={option} className={`flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 ring-1 transition-colors ${checked ? "bg-ocean-67 ring-ocean-461 dark:bg-ocean-808" : "bg-white ring-ocean-106 hover:ring-ocean-461 dark:bg-ocean-911 dark:ring-white/15"} ${submitting ? "pointer-events-none opacity-60" : ""}`}>
+                          <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ${checked ? "bg-ocean-676 text-white ring-ocean-676 dark:bg-ocean-461 dark:text-ocean-910 dark:ring-ocean-461" : "ring-slate-300 dark:ring-white/25"}`}>
+                            {checked && <FiCheck className="h-3.5 w-3.5" aria-hidden="true" />}
+                          </span>
+                          <input type="checkbox" className="sr-only" checked={checked} disabled={submitting} onChange={() => onInputChange(question.id, checked ? selected.filter((v) => v !== option) : [...selected, option])} />
+                          <span className="text-[15px] font-medium text-slate-800 dark:text-slate-100">{option}</span>
+                        </label>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* Action Bar */}
-      {!success && (
-        <div className="bg-slate-50/30 dark:bg-slate-800/40 px-8 py-6 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-end gap-3 shrink-0">
-          <button type="button" onClick={onClose} disabled={submitting} className="px-7 py-3.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-sm font-bold transition-all hover:bg-white dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-sm disabled:opacity-50">
-            Discard
-          </button>
-          <button
-            type="submit"
-            form="registration-questionnaire-form"
-            disabled={submitting}
-            className="group px-8 py-3.5 flex items-center justify-center gap-2 bg-gradient-to-r from-[#4B98C8] to-[#205E85] text-white text-sm font-bold rounded-xl shadow-md shadow-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {submitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Submitting App...</span>
-              </>
-            ) : (
-              <>
-                <span>Submit Application</span>
-                <HiOutlineArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
-        </div>
-      )}
-    </div>
+                ) : question.question_type === "IMAGE" ? (
+                  <ImageAnswer file={value instanceof File ? value : null} disabled={submitting} onChange={(file) => onInputChange(question.id, file)} />
+                ) : (
+                  <div className="relative">
+                    <select id={inputId} value={value || ""} onChange={(event) => onInputChange(question.id, event.target.value)} required={question.is_required} disabled={submitting} className={`${field} h-12 cursor-pointer appearance-none pr-10`}>
+                      <option value="">Choose an option</option>
+                      {(question.options || []).map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                    <FiChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </form>
+      </DialogBody>
+      <DialogFooter>
+        <button type="button" onClick={onClose} disabled={submitting} className={secondaryButton}>Cancel</button>
+        <button type="submit" form="registration-questionnaire-form" disabled={submitting} className={primaryButton}>
+          {submitting ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />Sending…</> : <>Submit <FiArrowRight className="h-4 w-4" aria-hidden="true" /></>}
+        </button>
+      </DialogFooter>
+    </>
   );
 };
 

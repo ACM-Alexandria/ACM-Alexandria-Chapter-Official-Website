@@ -1,6 +1,7 @@
 package com.acm.acmwebsite.feature.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acm.acmwebsite.feature.dto.PointsLogDto;
@@ -27,6 +28,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD', 'ACM_MEMBER')")
 @RequestMapping("/api/pointsLog")
 public class PointsLogController {
+
+    // Who may change points: the same people who can open a member's profile panel in the
+    // admin page or the HR dashboard (see UserController#adminGetUserProfile).
+    private static final String CAN_MANAGE_POINTS =
+            "hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')"
+                    + " or @authorizationServiceImpl.isHrCommitteeMember(authentication)";
+
     private final PointsLogService pointsLogService;
 
     public PointsLogController(PointsLogService pointsLogService) {
@@ -42,26 +50,31 @@ public class PointsLogController {
         return ResponseEntity.ok(logsDto);
     }
 
+    // The assigner is always the signed-in user; `assigner` in the body is ignored.
     @PostMapping("/add")
-    public ResponseEntity<PointsLogDto> addPointsLog(@RequestBody PointsLogDto logDto) {
+    @PreAuthorize(CAN_MANAGE_POINTS)
+    public ResponseEntity<PointsLogDto> addPointsLog(@RequestBody PointsLogDto logDto, Authentication authentication) {
 
         PointsLog createdLog = pointsLogService.addPointsLog(
                 logDto.getMember(),
-                logDto.getAssigner(),
+                authentication.getName(),
                 logDto.getPoints(),
                 logDto.getReason());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(PointsLogDto.convertToDto(createdLog));
     }
 
+    // The updater is always the signed-in user; `lastUpdater` in the body is ignored.
     @PutMapping("/update/{id}")
+    @PreAuthorize(CAN_MANAGE_POINTS)
     public ResponseEntity<PointsLogDto> updatePointsLog(
             @PathVariable("id") Long logId,
-            @RequestBody PointsLogDto logDto) {
+            @RequestBody PointsLogDto logDto,
+            Authentication authentication) {
 
         PointsLog updatedLog = pointsLogService.updatePointsLog(
                 logId,
-                logDto.getLastUpdater(),
+                authentication.getName(),
                 logDto.getPoints(),
                 logDto.getReason());
 
@@ -69,9 +82,10 @@ public class PointsLogController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deletePointsLog(@PathVariable("id") Long logId) {
+    @PreAuthorize(CAN_MANAGE_POINTS)
+    public ResponseEntity<Void> deletePointsLog(@PathVariable("id") Long logId, Authentication authentication) {
 
-        pointsLogService.deletePointsLog(logId);
+        pointsLogService.deletePointsLog(logId, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }

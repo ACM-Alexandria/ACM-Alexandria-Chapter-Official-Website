@@ -1,32 +1,25 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../contexts/useAuth";
 import { fetchUserProfile, updateUserProfile, uploadProfileImage } from "../services/userService";
 import { fetchUserPointsLogs } from "../services/pointsLogService";
-import Navbar from "../components/HomePage/Navbar";
-import { ProfileHeader, ProfileDetails, Panel } from "../components/UserProfile/ProfileViewCard";
-import ProfileEditForm from "../components/UserProfile/ProfileEditForm";
-import PointsLogSection from "../components/UserProfile/PointsLogSection";
-
-import {
-  HiOutlineCheckCircle,
-  HiOutlineExclamationCircle,
-  HiOutlineArrowLeft,
-  HiOutlinePencil
-} from "react-icons/hi";
+import { fetchMyBadges, markMyBadgesSeen } from "../services/badgesService";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import SiteLayout from "../components/Layout/SiteLayout";
+import PageHero from "../components/Layout/PageHero";
+import ProfileSideCard from "../components/profile/ProfileSideCard";
+import ProfileTabs from "../components/profile/ProfileTabs";
+import ProfileDetails from "../components/profile/ProfileDetails";
+import ProfileForm from "../components/profile/ProfileForm";
+import PointsPanel from "../components/profile/PointsPanel";
+import BadgesPanel from "../components/profile/BadgesPanel";
+import { errorBox, skeleton } from "../components/ui/uiStyles";
 
 const Alert = ({ tone, children }) => {
   const success = tone === "success";
-  const Icon = success ? HiOutlineCheckCircle : HiOutlineExclamationCircle;
+  const Icon = success ? FiCheckCircle : FiAlertCircle;
   return (
-    <div
-      role={success ? "status" : "alert"}
-      className={`flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm ${success
-        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200"
-        : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200"
-        }`}
-    >
-      <Icon className="w-5 h-5 shrink-0 mt-px" aria-hidden="true" />
+    <div role={success ? "status" : "alert"} className={success ? "flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200" : errorBox}>
+      <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <p>{children}</p>
     </div>
   );
@@ -34,7 +27,6 @@ const Alert = ({ tone, children }) => {
 
 const UserProfilePage = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [profile, setProfile] = useState({
     name: "",
@@ -51,6 +43,7 @@ const UserProfilePage = () => {
 
   const [backupProfile, setBackupProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [tab, setTab] = useState("details");
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -62,6 +55,14 @@ const UserProfilePage = () => {
   // --- POINTS LOG ALERTS STATE ---
   const [pointsError, setPointsError] = useState(null);
   const [pointsSuccess, setPointsSuccess] = useState(false);
+
+  // --- BADGES STATE ---
+  const [badges, setBadges] = useState([]);
+  const [badgesError, setBadgesError] = useState(null);
+  // Badges that were new when the page loaded; they keep their "New" marker until the next visit.
+  const [newBadgeIds, setNewBadgeIds] = useState(() => new Set());
+  const [unseenCount, setUnseenCount] = useState(0);
+  const markedSeen = useRef(false);
 
   // --- POINTS LOG STATE ---
   const [pointsLogs, setPointsLogs] = useState([]);
@@ -102,6 +103,20 @@ const UserProfilePage = () => {
     loadProfile();
   }, [user?.id]);
 
+  // Fetch the member's badges
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchMyBadges()
+      .then((list) => {
+        setBadges(list);
+        const fresh = list.filter((b) => b.isNew).map((b) => b.id);
+        setNewBadgeIds(new Set(fresh));
+        setUnseenCount(fresh.length);
+        setBadgesError(null);
+      })
+      .catch(() => setBadgesError("We couldn't load your badges. Please try again later."));
+  }, [user?.id]);
+
   // Auto-hide Profile success banner
   useEffect(() => {
     if (profileSuccess) {
@@ -125,10 +140,12 @@ const UserProfilePage = () => {
     const loadPointsLogs = async () => {
       try {
         const data = await fetchUserPointsLogs(user.id, pointsPage);
+        setPointsError(null);
         setPointsLogs(data.content || []);
         setTotalPages(data.totalPages || 0);
       } catch (err) {
         console.error("Failed to load points logs:", err);
+        setPointsError("We couldn't load your points history. Please try again later.");
       }
     };
 
@@ -228,89 +245,91 @@ const UserProfilePage = () => {
     }
   };
 
+  const showPoints = profile.role !== "USER";
+  const showBadges = showPoints || badges.length > 0;
+  const badgesLabel = (
+    <span className="inline-flex items-center gap-2">
+      Badges
+      {unseenCount > 0 && (
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-518 px-1.5 text-xs font-bold text-gold-851">{unseenCount}</span>
+      )}
+    </span>
+  );
+  const tabs = [
+    ["details", "Details"],
+    ...(showPoints ? [["points", "Points"]] : []),
+    ...(showBadges ? [["badges", badgesLabel]] : []),
+  ];
+  const activeTab = isEditing || !tabs.some(([id]) => id === tab) ? "details" : tab;
+
+  // Opening the Badges tab marks the new badges as seen (once per visit).
+  useEffect(() => {
+    if (activeTab !== "badges" || unseenCount === 0 || markedSeen.current) return;
+    markedSeen.current = true;
+    markMyBadgesSeen().then(() => setUnseenCount(0)).catch(() => { markedSeen.current = false; });
+  }, [activeTab, unseenCount]);
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-[#4B98C8]/20">
-      <Navbar />
-
-      <main className="pt-[106px] pb-20 px-4 sm:px-6 md:px-12 max-w-[1600px] mx-auto flex flex-col gap-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-fit -ml-1 inline-flex items-center gap-1.5 px-1 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
-        >
-          <HiOutlineArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
-        </button>
-
+    <SiteLayout>
+      <PageHero eyebrow="Your profile" title="Your details and points" text="Keep your contact details current so committees and event organisers can reach you." />
+      <div className="mx-auto max-w-[1280px] px-5 py-12 sm:px-8 sm:py-16">
         {loading ? (
-          <div className="flex flex-col gap-8 animate-pulse motion-reduce:animate-none" aria-busy="true" aria-label="Loading profile">
-            <div className="flex items-start gap-5">
-              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0" />
-              <div className="flex-1 space-y-3 pt-1">
-                <div className="h-7 w-48 rounded bg-slate-200 dark:bg-slate-800" />
-                <div className="h-4 w-64 max-w-full rounded bg-slate-200 dark:bg-slate-800" />
-                <div className="h-6 w-40 rounded-full bg-slate-200 dark:bg-slate-800" />
-              </div>
-            </div>
-            <div className="h-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+          <div className="grid gap-8 lg:grid-cols-[320px_1fr]" aria-busy="true" aria-label="Loading profile">
+            <div className={`h-80 rounded-[2rem] ${skeleton}`} />
+            <div className={`h-96 rounded-[2rem] ${skeleton}`} />
           </div>
         ) : (
-          <>
-            <ProfileHeader
-              user={user}
+          <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start">
+            <ProfileSideCard
               profile={profile}
-              actions={!isEditing && (
-                <button
-                  onClick={handleStartEdit}
-                  className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4B98C8]/40"
-                >
-                  <HiOutlinePencil className="w-4 h-4" aria-hidden="true" />
-                  Edit profile
-                </button>
-              )}
+              email={user?.email}
+              onEdit={isEditing ? null : handleStartEdit}
+              badges={badges}
+              onShowBadges={showBadges && !isEditing ? () => setTab("badges") : null}
             />
 
-            {profileSuccess && <Alert tone="success">Profile saved.</Alert>}
-            {profileError && <Alert tone="error">{profileError}</Alert>}
+            <div className="flex min-w-0 flex-col gap-6">
+              {profileSuccess && <Alert tone="success">Profile saved.</Alert>}
+              {profileError && <Alert tone="error">{profileError}</Alert>}
+              {pointsSuccess && <Alert tone="success">Points updated.</Alert>}
 
-            <Panel title={isEditing ? "Edit details" : "Details"}>
               {isEditing ? (
-                <ProfileEditForm
-                  user={user}
-                  profile={profile}
-                  handleInputChange={handleInputChange}
-                  handleToggleAlexEng={handleToggleAlexEng}
-                  handleCancelEdit={handleCancelEdit}
-                  handleSubmit={handleSubmit}
-                  submitting={submitting}
-                  onImageUpload={async (file) => {
-                    const res = await uploadProfileImage(user.id, file);
-                    const imageUrl = res.profile_image_url || res;
-                    setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                    setBackupProfile(prev => ({ ...prev, profileImageUrl: imageUrl }));
-                    return imageUrl;
-                  }}
-                />
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Edit details</h2>
               ) : (
-                <ProfileDetails profile={profile} />
+                <ProfileTabs tabs={tabs} active={activeTab} onChange={setTab} />
               )}
-            </Panel>
 
-            {!isEditing && profile.role !== "USER" && (
-              <div className="flex flex-col gap-3">
-                {pointsSuccess && <Alert tone="success">Points updated.</Alert>}
-                {pointsError && <Alert tone="error">{pointsError}</Alert>}
-                <PointsLogSection
-                  logs={pointsLogs}
-                  isAdmin={false}
-                  page={pointsPage}
-                  totalPages={totalPages}
-                  onPageChange={(newPage) => setPointsPage(newPage)}
-                />
+              <div role="tabpanel" id={`profile-panel-${activeTab}`} aria-labelledby={isEditing ? undefined : `profile-tab-${activeTab}`}>
+                {activeTab === "badges" ? (
+                  <BadgesPanel badges={badges} newIds={newBadgeIds} error={badgesError} />
+                ) : activeTab === "points" ? (
+                  <PointsPanel total={profile.seasonPoints || 0} logs={pointsLogs} page={pointsPage} totalPages={totalPages} onPageChange={setPointsPage} error={pointsError} />
+                ) : isEditing ? (
+                  <ProfileForm
+                    email={user?.email}
+                    profile={profile}
+                    onChange={handleInputChange}
+                    onToggleStudent={handleToggleAlexEng}
+                    onCancel={handleCancelEdit}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    onImageUpload={async (file) => {
+                      const res = await uploadProfileImage(user.id, file);
+                      const imageUrl = res.profile_image_url || res;
+                      setProfile((prev) => ({ ...prev, profileImageUrl: imageUrl }));
+                      setBackupProfile((prev) => ({ ...prev, profileImageUrl: imageUrl }));
+                      return imageUrl;
+                    }}
+                  />
+                ) : (
+                  <ProfileDetails profile={profile} />
+                )}
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
-      </main>
-    </div>
+      </div>
+    </SiteLayout>
   );
 };
 
