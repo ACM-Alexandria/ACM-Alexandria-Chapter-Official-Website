@@ -1,3 +1,4 @@
+import { badgeGroupLabel } from "../../badges/badgeGroup";
 // Sizes and page-splitting for the winners poster (PeriodPoster). Everything is in poster pixels.
 // A card's height is known from its winner count, so pages are filled without measuring the DOM.
 
@@ -34,17 +35,19 @@ const cardHeight = (c, winners) =>
 const byRank = (a, b) =>
   (a.rank ?? Infinity) - (b.rank ?? Infinity) || String(a.awardedAt).localeCompare(String(b.awardedAt));
 
-// Groups a period's awards by committee, in committee name order.
+// Groups a period's awards by where they were won: each committee's members, then the boards of committees and
+// clubs ("Technical Board", "Chess Club Board"), each in name order.
 export const groupByCommittee = (awards) => {
   const groups = new Map();
   awards.forEach((a) => {
-    const key = a.committeeId ?? a.committeeName;
-    if (!groups.has(key)) groups.set(key, { id: String(key), name: a.committeeName || "Committee", winners: [] });
+    const board = a.track === "BOARD";
+    const key = `${board ? "board" : "members"}:${a.clubId != null ? `club-${a.clubId}` : a.committeeId ?? a.committeeName}`;
+    if (!groups.has(key)) groups.set(key, { id: key, board, name: badgeGroupLabel(a) || "Committee", winners: [] });
     groups.get(key).winners.push(a);
   });
   return [...groups.values()]
     .map((g) => ({ ...g, winners: g.winners.slice().sort(byRank) }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => Number(a.board) - Number(b.board) || a.name.localeCompare(b.name));
 };
 
 // Splits committees into pages. A committee too long for one page continues on a second card.

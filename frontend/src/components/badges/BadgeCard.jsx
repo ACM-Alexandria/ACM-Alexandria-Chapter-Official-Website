@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import BadgeMedal from "./BadgeMedal";
 import { card, focusRing, muted } from "../ui/uiStyles";
+import { badgeGroupLabel } from "./badgeGroup";
 
 const awardedOn = (iso) =>
   iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -16,7 +17,7 @@ const BadgeCard = ({ badge, isNew = false, footer }) => (
       <BadgeMedal periodType={badge.periodType} periodLabel={badge.periodLabel} icon={badge.icon} size={88} label={`${badge.name}, ${badge.periodLabel}`} />
       <span className="min-w-0">
         <span className="block text-lg font-semibold text-slate-900 dark:text-white">{badge.name}</span>
-        <span className={`mt-0.5 block text-sm ${muted}`}>{badge.periodLabel} · {badge.committeeName}</span>
+        <span className={`mt-0.5 block text-sm ${muted}`}>{badge.periodLabel} · {badgeGroupLabel(badge)}</span>
         <span className={`mt-0.5 block text-xs ${muted}`}>Awarded {awardedOn(badge.awardedAt)}</span>
       </span>
     </Link>

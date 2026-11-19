@@ -14,15 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.acm.acmwebsite.User_Authentication.entity.User;
-import com.acm.acmwebsite.User_Authentication.enums.Role;
-import com.acm.acmwebsite.User_Authentication.repository.UserRepository;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.CommitteeRankingRequest;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.CommitteeRankingResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.RankedMember;
-import com.acm.acmwebsite.feature.entity.Committee;
-import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
-import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PointsLogRepository;
 import com.acm.acmwebsite.feature.repository.PointsLogRepository.MemberPointsTotal;
 import com.acm.acmwebsite.feature.seasons.SeasonPeriod;
@@ -31,9 +26,9 @@ import com.acm.acmwebsite.feature.seasons.dto.SeasonDtos.PeriodResponse;
 
 import lombok.RequiredArgsConstructor;
 
-// The Award screen for one committee: who already has the badge for the period, and every other ACM member and
-// board member of the committee ranked by the points they earned in it, with the open places marked as suggested.
-// Nothing is saved here.
+// The Award screen for one group (a committee's members, or a committee's or club's board): who already has the
+// badge for the period, and everyone else in the group ranked by the points they earned in it, with the open places
+// marked as suggested. Nothing is saved here.
 @Service
 @RequiredArgsConstructor
 public class BadgeRankingService {
@@ -42,11 +37,7 @@ public class BadgeRankingService {
     private final SeasonPeriodService periodService;
     private final PointsLogRepository pointsLogRepository;
     private final BadgeAwardRepository awardRepository;
-    private final CommitteeRepository committeeRepository;
-    private final UserRepository userRepository;
-
-    // Who can be ranked and suggested in a committee: its members and its board members.
-    static final List<Role> RANKED_ROLES = List.of(Role.ACM_MEMBER, Role.ACM_COMMITTEE_BOARD);
+    private final BadgeGroupService groupService;
 
     @Transactional(readOnly = true)
     public CommitteeRankingResponse rank(CommitteeRankingRequest request) {
@@ -56,25 +47,23 @@ public class BadgeRankingService {
             throw new IllegalArgumentException(type.getName() + " is awarded per " + type.getPeriodType().name().toLowerCase()
                     + ", but " + period.label() + " is a " + period.getType().name().toLowerCase());
         }
-        Committee committee = committeeRepository.findById(request.committeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Committee not found"));
+        BadgeGroupService.Group group = groupService.find(request.track(), request.committeeId(), request.clubId());
         int winners = request.winners() != null ? request.winners() : Math.max(1, type.getDefaultWinners());
 
-        List<AwardView> awarded = awardRepository.findActiveForCommittee(type.getId(), period.getId(), committee.getId())
+        List<AwardView> awarded = groupService.holders(group, type.getId(), period.getId())
                 .stream().map(BadgeMapper::adminView).toList();
         Set<UUID> awardedIds = awarded.stream().map(a -> a.member().id()).collect(Collectors.toSet());
 
-        // Points in the period, counted up to today for an ongoing one. The committee's ACM members and its
-        // board members are ranked together.
+        // Points in the period, counted up to today for an ongoing one.
         Map<UUID, Long> points = new HashMap<>();
         for (MemberPointsTotal t : pointsLogRepository.sumPointsByMemberBetweenForRoles(
                 period.getStartDate().atStartOfDay(),
                 period.lastDayAsOf(LocalDate.now()).plusDays(1).atStartOfDay(),
-                RANKED_ROLES)) {
+                BadgeGroupService.pointRoles(group.track()))) {
             points.put(t.getMemberId(), t.getTotal());
         }
 
-        List<Scored> remaining = userRepository.findByCommittee_IdAndRoleIn(committee.getId(), RANKED_ROLES).stream()
+        List<Scored> remaining = groupService.candidates(group).stream()
                 .filter(u -> !awardedIds.contains(u.getId()))
                 .map(u -> new Scored(u, points.getOrDefault(u.getId(), 0L)))
                 .sorted(Comparator.comparingLong(Scored::points).reversed()
@@ -82,8 +71,10 @@ public class BadgeRankingService {
                 .toList();
 
         int openPlaces = Math.max(0, winners - awarded.size());
-        return new CommitteeRankingResponse(BadgeMapper.toResponse(type), PeriodResponse.of(period),
-                committee.getId(), committee.getName(), winners, awarded, rankMembers(remaining, openPlaces));
+        return new CommitteeRankingResponse(BadgeMapper.toResponse(type), PeriodResponse.of(period), group.track(),
+                group.committee() != null ? group.committee().getId() : null,
+                group.club() != null ? group.club().getId() : null,
+                group.name(), winners, awarded, rankMembers(remaining, openPlaces, group.track() == AwardTrack.BOARD));
     }
 
     record Scored(User user, long points) {
@@ -92,7 +83,7 @@ public class BadgeRankingService {
     // Competition ranking (1, 2, 2, 4) of members sorted by points, highest first. The first `openPlaces`
     // places are suggested; everyone tied for the last open place is flagged instead when they don't all fit.
     // Members with no points are never suggested or flagged.
-    static List<RankedMember> rankMembers(List<Scored> sorted, int openPlaces) {
+    static List<RankedMember> rankMembers(List<Scored> sorted, int openPlaces, boolean board) {
         List<RankedMember> result = new ArrayList<>();
         int i = 0;
         while (i < sorted.size()) {
@@ -107,7 +98,7 @@ public class BadgeRankingService {
             for (int k = i; k < j; k++) {
                 User u = sorted.get(k).user();
                 result.add(new RankedMember(u.getId(), displayName(u), BadgeMapper.photoOf(u), pts, rank,
-                        inRange && fits, inRange && !fits, u.getRole() == Role.ACM_COMMITTEE_BOARD));
+                        inRange && fits, inRange && !fits, board));
             }
             i = j;
         }

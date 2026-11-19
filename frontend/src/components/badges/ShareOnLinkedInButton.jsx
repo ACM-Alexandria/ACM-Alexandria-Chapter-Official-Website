@@ -1,6 +1,7 @@
 import { FaLinkedinIn } from "react-icons/fa";
 import api from "../../services/api";
 import { focusRing } from "../ui/uiStyles";
+import { badgeGroupLabel } from "./badgeGroup";
 
 // The link a post shares: the backend's share page, which carries the LinkedIn preview (title and image)
 // and sends visitors on to the badge page.
@@ -11,7 +12,7 @@ const badgeShareUrl = (publicId) => `${api.defaults.baseURL}/share/badges/${publ
 const HASHTAGS = "#ACMAlex #ACMAlexandria";
 
 const linkedInUrl = (badge) => {
-  const text = `I'm happy to share that I was named ${badge.name} of the ${badge.committeeName} `
+  const text = `I'm happy to share that I was named ${badge.name} of the ${badgeGroupLabel(badge)} `
     + `for ${badge.periodLabel} at ACM Alexandria Student Chapter.\n\n${badgeShareUrl(badge.publicId)}\n\n${HASHTAGS}`;
   return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
 };

@@ -8,14 +8,19 @@ import com.acm.acmwebsite.User_Authentication.service.EmailExitanceService;
 import com.acm.acmwebsite.User_Authentication.service.UserService;
 import com.acm.acmwebsite.core.service.EmailService;
 import com.acm.acmwebsite.core.util.JwtUtil;
+import com.acm.acmwebsite.feature.badges.AwardTrack;
 import com.acm.acmwebsite.feature.badges.BadgeType;
 import com.acm.acmwebsite.feature.badges.BadgeTypeRepository;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.CommitteeRankingResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.RankedMember;
 import com.acm.acmwebsite.feature.seasons.dto.SeasonDtos.PeriodResponse;
+import com.acm.acmwebsite.feature.entity.Club;
+import com.acm.acmwebsite.feature.entity.ClubBoard;
 import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.entity.PointsLog;
+import com.acm.acmwebsite.feature.repository.ClubBoardRepository;
+import com.acm.acmwebsite.feature.repository.ClubRepository;
 import com.acm.acmwebsite.feature.repository.CommitteeRepository;
 import com.acm.acmwebsite.feature.repository.PointsLogRepository;
 import com.acm.acmwebsite.feature.service.GoogleSheetsService;
@@ -49,6 +54,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,6 +68,8 @@ class BadgeIntegrationTest {
     @Autowired private ObjectMapper objectMapper;
     @Autowired private UserRepository userRepository;
     @Autowired private CommitteeRepository committeeRepository;
+    @Autowired private ClubRepository clubRepository;
+    @Autowired private ClubBoardRepository clubBoardRepository;
     @Autowired private PointsLogRepository pointsLogRepository;
     @Autowired private BadgeTypeRepository badgeTypeRepository;
     @Autowired private com.acm.acmwebsite.feature.badges.BadgeAwardRepository badgeAwardRepository;
@@ -185,32 +193,117 @@ class BadgeIntegrationTest {
     }
 
     @Test
-    @DisplayName("A committee's members and board members are ranked by points; the top places are suggested, ties flagged")
+    @DisplayName("A committee's members are ranked by points; the top places are suggested, ties flagged; boards aren't ranked here")
     void committeeRanking() throws Exception {
         Long monthId = currentMonthId();
-        CommitteeRankingResponse tech = ranking(typeId("Monthly MVP"), monthId, technical, 3);
+        CommitteeRankingResponse tech = ranking(typeId("Monthly MVP"), monthId, technical, 2);
 
-        assertEquals("Technical", tech.committeeName());
-        assertEquals(3, tech.winners());
+        assertEquals("Technical", tech.groupName());
+        assertEquals(AwardTrack.MEMBER, tech.track());
+        assertEquals(2, tech.winners());
         assertTrue(tech.awarded().isEmpty());
-        assertEquals(List.of(committeeBoard.getId(), nour.getId(), ahmed.getId(), salma.getId()),
+        assertEquals(List.of(nour.getId(), ahmed.getId(), salma.getId()),
                 tech.members().stream().map(RankedMember::memberId).toList());
-        // The committee's board member ranks with the members, marked as board.
-        RankedMember first = tech.members().get(0);
-        assertEquals(999, first.points());
-        assertTrue(first.board() && first.suggested());
-        assertTrue(tech.members().get(1).suggested() && !tech.members().get(1).board());
-        // Ahmed and Salma tie for the third place (listed by name), so the admin picks.
-        assertTrue(tech.members().get(2).tied() && tech.members().get(3).tied());
-        assertFalse(tech.members().get(2).suggested() || tech.members().get(3).suggested());
-        // High board and other committees' boards aren't ranked here.
-        assertTrue(tech.members().stream().noneMatch(m -> m.memberId().equals(highBoard.getId())));
+        assertTrue(tech.members().get(0).suggested() && !tech.members().get(0).board());
+        // Ahmed and Salma tie for the second place (listed by name), so the admin picks.
+        assertTrue(tech.members().get(1).tied() && tech.members().get(2).tied());
+        assertFalse(tech.members().get(1).suggested() || tech.members().get(2).suggested());
+        // The committee's board (despite its 999 points) and the high board are on the Board tab, not here.
+        assertTrue(tech.members().stream().noneMatch(m -> m.memberId().equals(committeeBoard.getId())
+                || m.memberId().equals(highBoard.getId())));
 
         // Without a number, the default of 3 winners; Media's only member is suggested.
         CommitteeRankingResponse med = ranking(typeId("Monthly MVP"), monthId, media, null);
         assertEquals(3, med.winners());
         assertEquals(List.of(youssef.getId()), med.members().stream().map(RankedMember::memberId).toList());
         assertTrue(med.members().get(0).suggested());
+    }
+
+    @Test
+    @DisplayName("Boards: a committee's board and a club's board are ranked and awarded on their own, with their own winners")
+    void boardAwards() throws Exception {
+        Long monthId = currentMonthId();
+        Long mvp = typeId("Monthly MVP");
+        Club chess = clubRepository.save(new Club(null, "Chess Club", "Chess", null, List.of()));
+        User chessHead = saveUser("chess.head@example.com", "Chess Head", Role.ACM_CLUB_BOARD, null);
+        User chessVice = saveUser("chess.vice@example.com", "Chess Vice", Role.ACM_CLUB_BOARD, null);
+        clubBoardRepository.save(new ClubBoard(null, "Head", 1, chess, chessHead));
+        clubBoardRepository.save(new ClubBoard(null, "Vice Head", 2, chess, chessVice));
+        logPoints(chessVice, 40);
+        entityManager.flush();
+
+        // The committee's board, on the board track.
+        CommitteeRankingResponse techBoard = read(postAs(highBoard, "/api/admin/badges/committee-ranking", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "track", "BOARD", "committeeId", technical.getId()))
+                .andExpect(status().isOk()), new TypeReference<>() {});
+        assertEquals(List.of(committeeBoard.getId()), techBoard.members().stream().map(RankedMember::memberId).toList());
+        assertTrue(techBoard.members().get(0).board() && techBoard.members().get(0).suggested());
+
+        // The club's board: club board members have no committee.
+        CommitteeRankingResponse chessBoard = read(postAs(highBoard, "/api/admin/badges/committee-ranking", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "track", "BOARD", "clubId", chess.getId(), "winners", 1))
+                .andExpect(status().isOk()), new TypeReference<>() {});
+        assertEquals("Chess Club", chessBoard.groupName());
+        assertEquals(chess.getId(), chessBoard.clubId());
+        assertEquals(List.of(chessVice.getId(), chessHead.getId()), chessBoard.members().stream().map(RankedMember::memberId).toList());
+        assertTrue(chessBoard.members().get(0).suggested());
+
+        // A club only has a board.
+        postAs(highBoard, "/api/admin/badges/committee-ranking", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "clubId", chess.getId()))
+                .andExpect(status().isBadRequest());
+
+        // Award the club's vice head.
+        List<AwardView> clubAward = read(postAs(highBoard, "/api/admin/badges/awards", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "track", "BOARD", "clubId", chess.getId(), "winners", 1,
+                "recipients", List.of(recipient(chessVice, 1))))
+                .andExpect(status().isCreated()), new TypeReference<>() {});
+        AwardView vice = clubAward.get(0);
+        assertEquals(AwardTrack.BOARD, vice.track());
+        assertEquals("Chess Club", vice.clubName());
+        assertEquals("Chess Club", vice.groupName());
+        assertEquals(null, vice.committeeId());
+        assertEquals("Chess Club Board", vice.groupLabel());
+        // The club's one place is taken.
+        postAs(highBoard, "/api/admin/badges/awards", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "track", "BOARD", "clubId", chess.getId(), "winners", 1,
+                "recipients", List.of(recipient(chessHead, 2))))
+                .andExpect(status().isConflict());
+
+        // Award the committee's board member on the board track; the committee's members keep all their places.
+        AwardView board = read(postAs(highBoard, "/api/admin/badges/awards", Map.of(
+                "badgeTypeId", mvp, "periodId", monthId, "track", "BOARD", "committeeId", technical.getId(),
+                "recipients", List.of(recipient(committeeBoard, 1))))
+                .andExpect(status().isCreated()), new TypeReference<List<AwardView>>() {}).get(0);
+        assertEquals("Technical", board.committeeName());
+        assertEquals(AwardTrack.BOARD, board.track());
+        CommitteeRankingResponse members = ranking(mvp, monthId, technical, null);
+        assertTrue(members.awarded().isEmpty());
+        assertEquals(3, members.members().stream().filter(RankedMember::suggested).count());
+
+        // A board member can't win on the members' tab, a member can't win on the board's, nor on a board they aren't on.
+        postAs(highBoard, "/api/admin/badges/awards", Map.of("badgeTypeId", mvp, "periodId", monthId,
+                "recipients", List.of(recipient(chessHead, 1))))
+                .andExpect(status().isBadRequest());
+        postAs(highBoard, "/api/admin/badges/awards", Map.of("badgeTypeId", mvp, "periodId", monthId, "track", "BOARD",
+                "recipients", List.of(recipient(nour, 1))))
+                .andExpect(status().isBadRequest());
+        postAs(highBoard, "/api/admin/badges/awards", Map.of("badgeTypeId", mvp, "periodId", monthId, "track", "BOARD",
+                "committeeId", media.getId(), "recipients", List.of(recipient(committeeBoard, 1))))
+                .andExpect(status().isBadRequest());
+
+        // The club badge shows on the public page and in the period's list, labelled as the club's board.
+        entityManager.flush();
+        mockMvc.perform(get("/api/public/badges/" + vice.publicId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.groupName").value("Chess Club"))
+                .andExpect(jsonPath("$.track").value("BOARD"));
+        mockMvc.perform(get("/share/badges/" + vice.publicId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Chess Club Board")));
+        mockMvc.perform(get("/api/admin/badges/awards").param("periodId", monthId.toString())
+                        .header("Authorization", bearer(highBoard)))
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
@@ -233,12 +326,11 @@ class BadgeIntegrationTest {
                 "badgeTypeId", mvp, "periodId", monthId, "recipients", List.of(recipient(nour, 1))))
                 .andExpect(status().isConflict());
 
-        // The ranking now lists Nour and Salma as awarded; the board member takes the one place left of the default 3.
+        // The ranking now lists Nour and Salma as awarded; Ahmed takes the one place left of the default 3.
         CommitteeRankingResponse again = ranking(mvp, monthId, technical, null);
         assertEquals(List.of(nour.getId(), salma.getId()), again.awarded().stream().map(a -> a.member().id()).toList());
-        assertEquals(List.of(committeeBoard.getId(), ahmed.getId()), again.members().stream().map(RankedMember::memberId).toList());
+        assertEquals(List.of(ahmed.getId()), again.members().stream().map(RankedMember::memberId).toList());
         assertTrue(again.members().get(0).suggested());
-        assertFalse(again.members().get(1).suggested());
 
         // The member sees it as new until they open their badges.
         mockMvc.perform(get("/api/badges/me").header("Authorization", bearer(nour)))

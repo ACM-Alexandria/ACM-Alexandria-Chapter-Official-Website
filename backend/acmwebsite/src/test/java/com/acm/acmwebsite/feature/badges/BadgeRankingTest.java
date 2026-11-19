@@ -37,7 +37,7 @@ class BadgeRankingTest {
     @Test
     @DisplayName("Everyone is listed; the top open places are suggested")
     void topPlacesSuggested() {
-        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(128, 90, 70, 10), 2);
+        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(128, 90, 70, 10), 2, false);
         assertEquals(4, ranked.size());
         assertEquals(List.of(1, 2, 3, 4), ranked.stream().map(RankedMember::rank).toList());
         assertEquals(List.of(true, true, false, false), suggested(ranked));
@@ -47,7 +47,7 @@ class BadgeRankingTest {
     @Test
     @DisplayName("A tie for the last open place is flagged, not suggested")
     void tieAtTheCut() {
-        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(128, 90, 90, 60), 2);
+        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(128, 90, 90, 60), 2, false);
         assertEquals(List.of(1, 2, 2, 4), ranked.stream().map(RankedMember::rank).toList());
         assertEquals(List.of(true, false, false, false), suggested(ranked));
         assertEquals(List.of(false, true, true, false), ranked.stream().map(RankedMember::tied).toList());
@@ -56,7 +56,7 @@ class BadgeRankingTest {
     @Test
     @DisplayName("A tie that fits inside the open places is suggested")
     void tieThatFits() {
-        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(100, 100, 50), 2);
+        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(100, 100, 50), 2, false);
         assertEquals(List.of(true, true, false), suggested(ranked));
         assertTrue(ranked.stream().noneMatch(RankedMember::tied));
     }
@@ -64,7 +64,7 @@ class BadgeRankingTest {
     @Test
     @DisplayName("Members with no points are listed but never suggested")
     void noPointsNeverSuggested() {
-        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(40, 0, 0), 3);
+        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(40, 0, 0), 3, false);
         assertEquals(List.of(true, false, false), suggested(ranked));
         assertTrue(ranked.stream().noneMatch(RankedMember::tied));
         assertEquals(0, ranked.get(2).points());
@@ -73,9 +73,9 @@ class BadgeRankingTest {
     @Test
     @DisplayName("No open places means nothing is suggested")
     void noOpenPlaces() {
-        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(50, 40), 0);
+        List<RankedMember> ranked = BadgeRankingService.rankMembers(members(50, 40), 0, false);
         assertEquals(2, ranked.size());
         assertTrue(ranked.stream().noneMatch(m -> m.suggested() || m.tied()));
-        assertFalse(BadgeRankingService.rankMembers(List.of(), 3).iterator().hasNext());
+        assertFalse(BadgeRankingService.rankMembers(List.of(), 3, false).iterator().hasNext());
     }
 }

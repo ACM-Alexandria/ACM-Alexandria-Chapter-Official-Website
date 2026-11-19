@@ -92,7 +92,7 @@ const PosterExportModal = ({ onClose, badge, period }) => {
   };
 
   const count = awards?.length ?? 0;
-  const committees = awards ? new Set(awards.map((a) => a.committeeId)).size : 0;
+  const committees = groups.length;
 
   return (
     <ModalShell
@@ -136,14 +136,14 @@ const PosterExportModal = ({ onClose, badge, period }) => {
               disabled={exporting}
               className={`${fieldClass} !w-auto max-w-full`}
             >
-              <option value="all">All committees on one poster</option>
-              <option value="each">One image per committee</option>
+              <option value="all">Everyone on one poster</option>
+              <option value="each">One image per committee or board</option>
               {groups.map((g) => <option key={g.id} value={g.id}>{g.name} only</option>)}
             </select>
           )}
           {awards && count > 0 && (
             <p className={hintClass}>
-              {count} {count === 1 ? "winner" : "winners"} from {committees} {committees === 1 ? "committee" : "committees"}
+              {count} {count === 1 ? "winner" : "winners"} from {committees} {committees === 1 ? "committee or board" : "committees and boards"}
               {pages.length > 1 ? `, on ${pages.length} images` : ""}. No points are shown.
             </p>
           )}

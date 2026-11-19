@@ -11,6 +11,7 @@ import { fetchPublicBadge } from "../services/badgesService";
 import { useAuth } from "../contexts/useAuth";
 import ShareOnLinkedInButton from "../components/badges/ShareOnLinkedInButton";
 import { secondaryButton, skeleton } from "../components/ui/uiStyles";
+import { badgeGroupLabel } from "../components/badges/badgeGroup";
 
 const awardedOn = (iso) =>
   iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
@@ -66,7 +67,7 @@ const BadgePage = () => {
                 </div>
                 <h1 className="mt-4 break-words text-4xl font-extrabold leading-[1.05] tracking-[-0.02em] sm:text-5xl">{badge.member.name}</h1>
                 <p className="mt-3 text-2xl font-bold text-ocean-114 sm:text-3xl">{badge.name}</p>
-                <p className="mt-2 text-lg text-ocean-114 sm:text-xl">{badge.periodLabel} · {badge.committeeName}</p>
+                <p className="mt-2 text-lg text-ocean-114 sm:text-xl">{badge.periodLabel} · {badgeGroupLabel(badge)}</p>
                 {badge.note && (
                   <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/90">
                     <span className="sr-only">Description: </span>“{badge.note}”

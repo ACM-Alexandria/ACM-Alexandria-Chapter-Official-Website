@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchMemberBadges } from "../../services/badgesService";
 import BadgeMedal from "../badges/BadgeMedal";
 import { Panel } from "./ProfileViewCard";
+import { badgeGroupLabel } from "../../components/badges/badgeGroup";
 
 // A member's badges in the admin member view, read-only. Badges are awarded from the Badges tab.
 const MemberBadgesSection = ({ userId }) => {
@@ -33,7 +34,7 @@ const MemberBadgesSection = ({ userId }) => {
                 <BadgeMedal periodType={b.periodType} periodLabel={b.periodLabel} icon={b.icon} size={40} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{b.name}</p>
-                  <p className="truncate text-xs text-slate-600 dark:text-slate-400">{b.periodLabel} · {b.committeeName}</p>
+                  <p className="truncate text-xs text-slate-600 dark:text-slate-400">{b.periodLabel} · {badgeGroupLabel(b)}</p>
                   {b.note && <p className="mt-0.5 text-xs italic text-slate-600 dark:text-slate-400 line-clamp-2">“{b.note}”</p>}
                 </div>
               </a>

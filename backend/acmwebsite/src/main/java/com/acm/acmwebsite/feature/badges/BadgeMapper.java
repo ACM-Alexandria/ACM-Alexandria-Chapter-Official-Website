@@ -6,6 +6,7 @@ import com.acm.acmwebsite.User_Authentication.enums.Role;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.BadgeTypeResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberSummary;
+import com.acm.acmwebsite.feature.entity.Club;
 import com.acm.acmwebsite.feature.entity.Committee;
 
 final class BadgeMapper {
@@ -47,6 +48,7 @@ final class BadgeMapper {
         BadgeType t = a.getBadgeType();
         SeasonPeriod p = a.getPeriod();
         Committee c = a.getCommittee();
+        Club club = a.getClub();
         return new AwardView(
                 a.getId(),
                 a.getPublicId(),
@@ -59,8 +61,12 @@ final class BadgeMapper {
                 p != null ? p.label() : null,
                 p != null ? p.getStartDate() : null,
                 p != null ? p.getEndDate() : null,
-                c.getId(),
-                c.getName(),
+                c != null ? c.getId() : null,
+                c != null ? c.getName() : null,
+                club != null ? club.getId() : null,
+                club != null ? club.getName() : null,
+                a.groupName(),
+                a.getTrack(),
                 a.getRank(),
                 a.getNote(),
                 a.getAwardedAt(),

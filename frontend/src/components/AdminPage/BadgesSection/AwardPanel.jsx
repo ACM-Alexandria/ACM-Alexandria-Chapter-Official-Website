@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FiAlertTriangle, FiAward, FiCheckCircle, FiImage, FiSearch } from "react-icons/fi";
+import { FiAlertTriangle, FiAward, FiCheckCircle, FiImage, FiSearch, FiShield, FiUsers } from "react-icons/fi";
 import { awardBadges, fetchCommitteeRanking, messageOf, revokeAward } from "../../../services/badgesAdminService";
-import { fetchCommittee } from "../../../services/homePageService";
+import { fetchAllClubs, fetchCommittee } from "../../../services/homePageService";
 import { resolveMonth } from "../../../services/seasonsAdminService";
 import { isCurrentPeriod, todayIso } from "../../../utils/seasonDates";
 import useThemedDialog from "../../../hooks/useThemedDialog";
@@ -15,9 +15,9 @@ import {
   primaryButtonClass,
   secondaryButtonClass,
   tagBrandClass,
-  tagMutedClass,
   tagWarnClass,
 } from "../SharedComponents/adminStyles";
+import AdminTabs from "../SharedComponents/AdminTabs";
 import MemberAvatar from "./MemberAvatar";
 import PosterExportModal from "./PosterExportModal";
 import AwardNoteModal from "./AwardNoteModal";
@@ -26,10 +26,23 @@ import { currentMonth } from "./badgeUtils";
 const smallButton =
   "h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461/40 disabled:opacity-50 disabled:cursor-not-allowed";
 
-// Award a badge within one committee. Pick the badge and the period, then a committee and how many winners
-// it gets: the members who already have the badge are at the top; below are the committee's other members
-// ranked by their points in the period, with the open winner places marked as suggested.
-// Awarding moves a member up; revoking moves them back down. Everything reloads automatically.
+const TRACKS = [
+  { id: "MEMBER", label: "Members", icon: FiUsers },
+  { id: "BOARD", label: "Board", icon: FiShield },
+];
+
+// A group's key in the pickers: "committee:3" or "club:5".
+const groupKey = (kind, id) => `${kind}:${id}`;
+const groupRequest = (track, key) => {
+  const [kind, id] = (key || "").split(":");
+  return kind === "club" ? { track, clubId: Number(id) } : { track, committeeId: Number(id) };
+};
+
+// Award a badge within one group. Pick the badge and the period, then the tab: Members (a committee's ACM
+// members) or Board (the board of a committee or a club). Then the committee or club and how many winners it
+// gets: the people who already have the badge are at the top; below are the group's others ranked by their points
+// in the period, with the open winner places marked as suggested. A committee's members and its board have their
+// own winners. Awarding moves someone up; revoking moves them back down. Everything reloads automatically.
 const AwardPanel = ({ types, periods }) => {
   const awardable = useMemo(() => types.filter((t) => t.active), [types]);
   const [typeId, setTypeId] = useState(() => awardable[0]?.id ?? "");
@@ -41,11 +54,15 @@ const AwardPanel = ({ types, periods }) => {
   const [period, setPeriod] = useState(null);
   const [periodError, setPeriodError] = useState("");
 
-  // Winners for each committee, by committee id; a committee left unset uses the badge's default (3).
-  const [winnersByCommittee, setWinnersByCommittee] = useState({});
+  // Winners for each group, by "TRACK:kind:id"; a group left unset uses the badge's default (3).
+  const [winnersByGroup, setWinnersByGroup] = useState({});
 
+  const [track, setTrack] = useState("MEMBER");
   const [committees, setCommittees] = useState([]);
-  const [committeeId, setCommitteeId] = useState("");
+  const [clubs, setClubs] = useState([]);
+  // The committee or club picked on each tab.
+  const [groupByTrack, setGroupByTrack] = useState({ MEMBER: "", BOARD: "" });
+  const group = groupByTrack[track];
   const [search, setSearch] = useState("");
 
   const [ranking, setRanking] = useState(null);
@@ -58,14 +75,30 @@ const AwardPanel = ({ types, periods }) => {
   const { dialog, confirm, notify } = useThemedDialog();
 
   useEffect(() => {
+    const byName = (list) => (Array.isArray(list) ? list : []).slice().sort((a, b) => a.name.localeCompare(b.name));
     fetchCommittee()
       .then((list) => {
-        const sorted = (Array.isArray(list) ? list : []).slice().sort((a, b) => a.name.localeCompare(b.name));
+        const sorted = byName(list);
         setCommittees(sorted);
-        setCommitteeId((current) => current || (sorted[0] ? String(sorted[0].id) : ""));
+        const first = sorted[0] ? groupKey("committee", sorted[0].id) : "";
+        setGroupByTrack((g) => ({ MEMBER: g.MEMBER || first, BOARD: g.BOARD || first }));
       })
       .catch(() => setCommittees([]));
+    fetchAllClubs()
+      .then((list) => setClubs(byName(list)))
+      .catch(() => setClubs([]));
   }, []);
+
+  const pickGroup = (key) => {
+    setGroupByTrack((g) => ({ ...g, [track]: key }));
+    setSearch("");
+    setNotice("");
+  };
+  const pickTrack = (id) => {
+    setTrack(id);
+    setSearch("");
+    setNotice("");
+  };
 
   // Quarters or seasons the chosen badge can be awarded for; the one covering today is picked by default.
   const periodOptions = useMemo(
@@ -105,17 +138,18 @@ const AwardPanel = ({ types, periods }) => {
     return undefined;
   }, [periodType, month, periodChoice, periodOptions]);
 
-  const winners = winnersByCommittee[committeeId] ?? null;
-  // Typing a number re-ranks after a short pause, without a button; switching committee reloads at once.
-  const [debounced, setDebounced] = useState({ committeeId, winners });
+  const winnersKey = `${track}:${group}`;
+  const winners = winnersByGroup[winnersKey] ?? null;
+  // Typing a number re-ranks after a short pause, without a button; switching group or tab reloads at once.
+  const [debounced, setDebounced] = useState({ winnersKey, winners });
   useEffect(() => {
-    const timer = setTimeout(() => setDebounced({ committeeId, winners }), 400);
+    const timer = setTimeout(() => setDebounced({ winnersKey, winners }), 400);
     return () => clearTimeout(timer);
-  }, [committeeId, winners]);
-  const debouncedWinners = debounced.committeeId === committeeId ? debounced.winners : winners;
+  }, [winnersKey, winners]);
+  const debouncedWinners = debounced.winnersKey === winnersKey ? debounced.winners : winners;
 
   // The period lags one render behind a badge change; nothing loads until it matches the badge.
-  const ready = Boolean(type && period && period.type === type.periodType && committeeId);
+  const ready = Boolean(type && period && period.type === type.periodType && group);
   const request = useRef(0);
 
   const load = useCallback(async () => {
@@ -128,7 +162,7 @@ const AwardPanel = ({ types, periods }) => {
     }
     setLoading(true);
     try {
-      const result = await fetchCommitteeRanking(type.id, period.id, Number(committeeId), debouncedWinners);
+      const result = await fetchCommitteeRanking(type.id, period.id, groupRequest(track, group), debouncedWinners);
       if (id === request.current) setRanking(result);
     } catch (e) {
       if (id === request.current) {
@@ -138,7 +172,7 @@ const AwardPanel = ({ types, periods }) => {
     } finally {
       if (id === request.current) setLoading(false);
     }
-  }, [ready, type, period, committeeId, debouncedWinners]);
+  }, [ready, type, period, track, group, debouncedWinners]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -154,10 +188,11 @@ const AwardPanel = ({ types, periods }) => {
     setMemberBusy(ids, true);
     setNotice("");
     try {
-      await awardBadges(type.id, period.id, members.map((m) => ({ memberId: m.memberId, rank: m.rank })), winnersShown);
+      await awardBadges(type.id, period.id, members.map((m) => ({ memberId: m.memberId, rank: m.rank })), winnersShown,
+        groupRequest(track, group));
       setNotice(members.length === 1
         ? `Awarded ${type.name} to ${members[0].name}.`
-        : `Awarded ${type.name} to ${members.length} members.`);
+        : `Awarded ${type.name} to ${members.length} ${track === "BOARD" ? "board members" : "members"}.`);
       await load();
     } catch (e) {
       notify({ tone: "danger", title: "Couldn't award", message: messageOf(e) });
@@ -195,8 +230,16 @@ const AwardPanel = ({ types, periods }) => {
   const query = search.trim().toLowerCase();
   const shownMembers = query ? members.filter((m) => (m.name || "").toLowerCase().includes(query)) : members;
   const suggested = members.filter((m) => m.suggested);
-  const winnersShown = winners ?? (ranking && String(ranking.committeeId) === committeeId ? ranking.winners : 3);
-  // Places left in this committee; awarding stops at the number of winners (the backend checks it too).
+  // The ranking on screen belongs to the picked tab and group (it lags a moment behind a switch).
+  const rankingGroup = ranking
+    ? groupKey(ranking.clubId != null ? "club" : "committee", ranking.clubId ?? ranking.committeeId)
+    : "";
+  const current = ranking && ranking.track === track && rankingGroup === group;
+  const winnersShown = winners ?? (current ? ranking.winners : 3);
+  const board = track === "BOARD";
+  const isClub = group.startsWith("club:");
+  const groupTitle = ranking ? `${ranking.groupName}${board ? " board" : ""}` : "";
+  // Places left in this group; awarding stops at the number of winners (the backend checks it too).
   const openPlaces = Math.max(0, winnersShown - awarded.length);
   const full = openPlaces === 0;
   const awarding = busy.size > 0;
@@ -239,12 +282,29 @@ const AwardPanel = ({ types, periods }) => {
         </div>
       </div>
 
+      <AdminTabs tabs={TRACKS} active={track} onChange={pickTrack} ariaLabel="Award among" />
+
       <div className={`${panelClass} p-4 sm:p-5 grid gap-3 grid-cols-[1fr_8rem] sm:grid-cols-[1fr_12rem]`}>
         <div className="flex flex-col gap-1.5 min-w-0">
-          <label htmlFor="award-committee" className={labelClass}>Committee</label>
-          <select id="award-committee" value={committeeId} onChange={(e) => { setCommitteeId(e.target.value); setSearch(""); setNotice(""); }} className={fieldClass}>
-            {committees.length === 0 && <option value="">No committees</option>}
-            {committees.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          <label htmlFor="award-group" className={labelClass}>{board ? "Committee or club" : "Committee"}</label>
+          <select id="award-group" value={group} onChange={(e) => pickGroup(e.target.value)} className={fieldClass}>
+            {committees.length === 0 && (!board || clubs.length === 0) && <option value="">No committees</option>}
+            {board ? (
+              <>
+                {committees.length > 0 && (
+                  <optgroup label="Committees">
+                    {committees.map((c) => <option key={c.id} value={groupKey("committee", c.id)}>{c.name}</option>)}
+                  </optgroup>
+                )}
+                {clubs.length > 0 && (
+                  <optgroup label="Clubs">
+                    {clubs.map((c) => <option key={c.id} value={groupKey("club", c.id)}>{c.name}</option>)}
+                  </optgroup>
+                )}
+              </>
+            ) : (
+              committees.map((c) => <option key={c.id} value={groupKey("committee", c.id)}>{c.name}</option>)
+            )}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -255,10 +315,10 @@ const AwardPanel = ({ types, periods }) => {
             min="1"
             max="50"
             value={winnersShown}
-            disabled={!committeeId}
+            disabled={!group}
             onChange={(e) => {
               const n = Math.max(1, Math.min(50, Number(e.target.value) || 1));
-              setWinnersByCommittee((w) => ({ ...w, [committeeId]: n }));
+              setWinnersByGroup((w) => ({ ...w, [winnersKey]: n }));
             }}
             className={fieldClass}
           />
@@ -276,18 +336,18 @@ const AwardPanel = ({ types, periods }) => {
         </p>
       )}
 
-      {ready && ranking && (
+      {ready && current && (
         <>
           <section aria-labelledby="awarded-title" className={`${panelClass} overflow-hidden`}>
             <div className="px-4 sm:px-5 py-3.5 flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-200 dark:border-ocean-800">
               <h3 id="awarded-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                Awarded · {ranking.committeeName}
+                Awarded · {groupTitle}
               </h3>
               <p className={hintClass}>{awarded.length} of {ranking.winners} · {ranking.period.label}</p>
             </div>
             {awarded.length === 0 ? (
               <p className="px-4 sm:px-5 py-4 text-sm text-slate-600 dark:text-slate-400">
-                No one in {ranking.committeeName} has {ranking.badgeType.name} for {ranking.period.label} yet.
+                No one {board ? "on the" : "in"} {groupTitle} has {ranking.badgeType.name} for {ranking.period.label} yet.
               </p>
             ) : (
               <ul>
@@ -324,8 +384,8 @@ const AwardPanel = ({ types, periods }) => {
           <section aria-labelledby="members-title" className={`${panelClass} overflow-hidden`}>
             <div className="px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-ocean-800">
               <div>
-                <h3 id="members-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">Members</h3>
-                <p className={hintClass}>Ranked by points in {ranking.period.label}, including the committee's board members.</p>
+                <h3 id="members-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">{board ? "Board members" : "Members"}</h3>
+                <p className={hintClass}>Ranked by points in {ranking.period.label}.</p>
               </div>
               <button
                 type="button"
@@ -342,7 +402,7 @@ const AwardPanel = ({ types, periods }) => {
               <p role="status" className="px-4 sm:px-5 py-3 border-b border-slate-200 dark:border-ocean-800 flex items-start gap-2.5 text-sm text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30">
                 <FiAlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                 {awarded.length > winnersShown
-                  ? `${awarded.length} members already have this badge, more than the ${winnersShown} winners set. Revoke ${awarded.length - winnersShown} to match.`
+                  ? `${awarded.length} ${board ? "board members" : "members"} already have this badge, more than the ${winnersShown} winners set. Revoke ${awarded.length - winnersShown} to match.`
                   : `All ${winnersShown} places are taken. Revoke a badge or raise Winners to award someone else.`}
               </p>
             )}
@@ -355,8 +415,8 @@ const AwardPanel = ({ types, periods }) => {
                     type="search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search members by name"
-                    aria-label="Search members by name"
+                    placeholder={board ? "Search board members by name" : "Search members by name"}
+                    aria-label={board ? "Search board members by name" : "Search members by name"}
                     autoComplete="off"
                     className={`${fieldClass} pl-9`}
                   />
@@ -366,7 +426,11 @@ const AwardPanel = ({ types, periods }) => {
 
             {members.length === 0 ? (
               <p className="px-4 sm:px-5 py-6 text-sm text-slate-600 dark:text-slate-400">
-                {awarded.length > 0 ? "Everyone in this committee already has this badge." : "This committee has no members yet."}
+                {awarded.length > 0
+                  ? `Everyone ${board ? "on this board" : "in this committee"} already has this badge.`
+                  : board
+                    ? `This ${isClub ? "club" : "committee"} has no board members yet.`
+                    : "This committee has no members yet."}
               </p>
             ) : shownMembers.length === 0 ? (
               <p className="px-4 sm:px-5 py-6 text-sm text-slate-600 dark:text-slate-400">No member matches “{search.trim()}”.</p>
@@ -381,7 +445,6 @@ const AwardPanel = ({ types, periods }) => {
                     <MemberAvatar name={m.name} imageUrl={m.profileImageUrl} />
                     <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-900 dark:text-slate-100">{m.name}</span>
                     {m.suggested && <span className={tagBrandClass}>Suggested</span>}
-                    {m.board && <span className={tagMutedClass}>Board</span>}
                     {m.tied && <span className={tagWarnClass}>Tied</span>}
                     <span className="w-16 text-right text-sm font-semibold text-ocean-614 dark:text-ocean-316 tabular-nums whitespace-nowrap">{m.points} pts</span>
                     <button
@@ -402,7 +465,7 @@ const AwardPanel = ({ types, periods }) => {
         </>
       )}
 
-      {ready && !ranking && loading && <p className="text-sm text-slate-600 dark:text-slate-400">Loading members…</p>}
+      {ready && !current && loading && <p className="text-sm text-slate-600 dark:text-slate-400">Loading {board ? "board members" : "members"}…</p>}
       {editingNote && (
         <AwardNoteModal
           key={editingNote.id}

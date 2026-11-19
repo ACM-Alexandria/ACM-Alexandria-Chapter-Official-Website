@@ -404,7 +404,7 @@ public class BadgeCardRenderer {
         Font detail = new Font(Font.SANS_SERIF, Font.PLAIN, 28);
         Font date = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
 
-        String period = badge.periodLabel() + " · " + badge.committeeName();
+        String period = badge.periodLabel() + " · " + badge.groupLabel();
         String awarded = "Awarded " + (badge.awardedAt() != null ? badge.awardedAt().toLocalDate().format(DATE) : "");
 
         // Line boxes (ascent-based) and the gaps between them, centered as one block.

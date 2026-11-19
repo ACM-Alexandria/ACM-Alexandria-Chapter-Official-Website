@@ -50,7 +50,7 @@ public class BadgeShareController {
         }
         String name = badge.member().name();
         String title = name + " · " + badge.name() + ", " + badge.periodLabel();
-        String description = name + " was named " + badge.name() + " of the " + badge.committeeName()
+        String description = name + " was named " + badge.name() + " of the " + badge.groupLabel()
                 + " for " + badge.periodLabel() + " at ACM Alexandria Student Chapter.";
         String shareUrl = backendUrl + "/share/badges/" + publicId;
         return ResponseEntity.ok()

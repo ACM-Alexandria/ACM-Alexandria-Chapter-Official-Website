@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.acm.acmwebsite.feature.badges.AwardTrack;
 import com.acm.acmwebsite.feature.badges.BadgeIcon;
 import com.acm.acmwebsite.feature.seasons.PeriodType;
 import com.acm.acmwebsite.feature.seasons.dto.SeasonDtos.PeriodResponse;
@@ -37,22 +38,29 @@ public final class BadgeDtos {
 
     // ---- Suggestions ----
 
-    // The Award screen for one committee. `winners` is how many winners each committee gets in all
-    // (already awarded ones included); left out, the badge type's default.
+    // The Award screen for one group: a committee's members (track MEMBER, the default), or the board of a
+    // committee or a club (track BOARD). Exactly one of `committeeId` and `clubId` is given; clubs only have a
+    // board. `winners` is how many winners the group gets in all (already awarded ones included); left out, the
+    // badge type's default.
     public record CommitteeRankingRequest(
             @NotNull Long badgeTypeId,
             @NotNull Long periodId,
-            @NotNull Long committeeId,
+            AwardTrack track,
+            Long committeeId,
+            Long clubId,
             @Min(1) @Max(50) Integer winners) {
     }
 
-    // `awarded`: this badge already given in the committee for the period. `members`: everyone else in the
-    // committee, highest points first; the top places still open are marked `suggested`.
+    // `awarded`: this badge already given in the group for the period. `members`: everyone else in the group,
+    // highest points first; the top places still open are marked `suggested`. `groupName` is the committee's or
+    // the club's name.
     public record CommitteeRankingResponse(
             BadgeTypeResponse badgeType,
             PeriodResponse period,
+            AwardTrack track,
             Long committeeId,
-            String committeeName,
+            Long clubId,
+            String groupName,
             int winners,
             List<AwardView> awarded,
             List<RankedMember> members) {
@@ -69,23 +77,29 @@ public final class BadgeDtos {
             int rank,
             boolean suggested,
             boolean tied,
-            // A committee board member rather than an ACM member.
+            // Ranked on the board track (a committee or club board member).
             boolean board) {
     }
 
     // ---- Awards ----
 
-    // `winners` caps how many members of each committee can hold the badge for the period; it defaults to the
-    // badge's default (3), the same number the Award screen ranks with.
+    // `track` (default MEMBER) says whether the recipients win among their committee's members or on a board.
+    // Members' badges go to the member's current committee. Board badges go to the committee or club in
+    // `committeeId`/`clubId`, which the recipient must be on the board of; left out, the member's own committee
+    // (committee board) or club (club board). `winners` caps how many can hold the badge in each group for the
+    // period; it defaults to the badge's default (3), the same number the Award screen ranks with.
     public record AwardRequest(
             @NotNull Long badgeTypeId,
             @NotNull Long periodId,
             @Size(max = 300) String note,
             @NotEmpty @Size(max = 200) List<@Valid Recipient> recipients,
-            @Min(1) @Max(50) Integer winners) {
+            @Min(1) @Max(50) Integer winners,
+            AwardTrack track,
+            Long committeeId,
+            Long clubId) {
     }
 
-    // The badge goes to the member's current committee; it can't be chosen.
+    // One recipient of an award request.
     // `note` is this member's own description of the badge (why they earned it); it falls back to the request's.
     public record Recipient(
             @NotNull UUID memberId,
@@ -119,14 +133,25 @@ public final class BadgeDtos {
             String periodLabel,
             LocalDate periodStart,
             LocalDate periodEnd,
+            // The committee (members' and committee boards' badges) or club (club boards' badges) it was won in;
+            // `groupName` is whichever is set.
             Long committeeId,
             String committeeName,
+            Long clubId,
+            String clubName,
+            String groupName,
+            AwardTrack track,
             Integer rank,
             String note,
             LocalDateTime awardedAt,
             MemberSummary member,
             String awardedByName,
             Boolean isNew) {
+
+        // Where the badge was won, as shown on cards and share text: "Technical", "Technical Board", "Chess Club Board".
+        public String groupLabel() {
+            return groupName == null ? "" : track == AwardTrack.BOARD ? groupName + " Board" : groupName;
+        }
     }
 
     public record MemberBadgesResponse(MemberSummary member, List<AwardView> badges) {

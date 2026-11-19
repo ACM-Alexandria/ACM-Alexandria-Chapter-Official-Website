@@ -23,7 +23,6 @@ import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardRequest;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.AwardView;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.MemberBadgesResponse;
 import com.acm.acmwebsite.feature.badges.dto.BadgeDtos.Recipient;
-import com.acm.acmwebsite.feature.entity.Committee;
 import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +35,7 @@ public class BadgeAwardService {
     private final BadgeTypeService typeService;
     private final SeasonPeriodService periodService;
     private final UserRepository userRepository;
+    private final BadgeGroupService groupService;
 
     // Gives one badge to several members at once, all or nothing. A previously revoked award is restored.
     @Transactional
@@ -62,9 +62,10 @@ public class BadgeAwardService {
                         .collect(Collectors.toMap(a -> a.getMember().getId(), Function.identity()));
 
         List<BadgeAward> saved = new ArrayList<>();
+        Map<BadgeAward, BadgeGroupService.Group> groups = new java.util.HashMap<>();
         for (Recipient r : request.recipients()) {
             User member = members.get(r.memberId());
-            Committee committee = committeeOf(member);
+            BadgeGroupService.Group group = groupService.of(member, request.track(), request.committeeId(), request.clubId());
             BadgeAward award = existing.get(member.getId());
             if (award != null && award.isActive()) {
                 throw new BadgeConflictException(displayName(member) + " already has " + type.getName()
@@ -81,28 +82,33 @@ public class BadgeAwardService {
                 award.setAwardedAt(LocalDateTime.now());
                 award.setSeenByMember(false);
             }
-            award.setCommittee(committee);
+            award.setCommittee(group.committee());
+            award.setClub(group.club());
+            award.setTrack(group.track());
             award.setRank(r.rank());
             award.setNote(r.note() != null && !r.note().isBlank() ? r.note().trim() : blankToNull(request.note()));
             award.setAwardedBy(actor);
             saved.add(award);
+            groups.put(award, group);
         }
-        checkWinnerLimit(type, period, saved,
+        checkWinnerLimit(type, period, groups,
                 request.winners() != null ? request.winners() : Math.max(1, type.getDefaultWinners()));
         return awardRepository.saveAll(saved).stream().map(BadgeMapper::adminView).toList();
     }
 
-    // A committee can't have more holders of the badge for the period than its number of winners.
-    private void checkWinnerLimit(BadgeType type, SeasonPeriod period, List<BadgeAward> newAwards, int winners) {
-        Map<Long, List<BadgeAward>> picked = newAwards.stream()
-                .collect(Collectors.groupingBy(a -> a.getCommittee().getId()));
-        picked.values().forEach(group -> {
-            Committee committee = group.get(0).getCommittee();
-            int count = group.size();
-            int holders = awardRepository.findActiveForCommittee(type.getId(), period.getId(), committee.getId()).size();
+    // A group (a committee's members, or a committee's or club's board) can't have more holders of the badge for
+    // the period than its number of winners.
+    private void checkWinnerLimit(BadgeType type, SeasonPeriod period, Map<BadgeAward, BadgeGroupService.Group> newAwards,
+                                  int winners) {
+        Map<String, List<BadgeGroupService.Group>> picked = newAwards.values().stream()
+                .collect(Collectors.groupingBy(g -> g.track() + ":" + g.key()));
+        picked.values().forEach(list -> {
+            BadgeGroupService.Group group = list.get(0);
+            int count = list.size();
+            int holders = groupService.holders(group, type.getId(), period.getId()).size();
             int open = Math.max(0, winners - holders);
             if (count > open) {
-                String where = type.getName() + " in " + committee.getName() + " for " + period.label();
+                String where = type.getName() + " for the " + group.describe() + " in " + period.label();
                 throw new BadgeConflictException(open == 0
                         ? "All " + winners + " places for " + where + " are taken. Revoke one or raise the number of winners."
                         : "Only " + open + " of " + winners + " places for " + where + " are open, but " + count
@@ -172,14 +178,6 @@ public class BadgeAwardService {
                     + ", but " + period.label() + " is a " + period.getType().name().toLowerCase());
         }
         return period;
-    }
-
-    // Every badge belongs to the committee the member is in when it is awarded; it can't be chosen.
-    private Committee committeeOf(User member) {
-        if (member.getCommittee() == null) {
-            throw new IllegalArgumentException(displayName(member) + " is not in a committee, so they can't receive a badge");
-        }
-        return member.getCommittee();
     }
 
     private User findActor(String email) {

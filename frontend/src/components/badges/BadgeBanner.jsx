@@ -1,6 +1,7 @@
 import BadgeMedal from "./BadgeMedal";
 import logo from "../../assets/logo/acm-logo-outline.svg";
 import { WIDE_NODES, linesOf } from "./network";
+import { badgeGroupLabel } from "./badgeGroup";
 
 // The badge banner, laid out exactly like the 1200×627 LinkedIn image: the medal on the left, the chapter, the
 // member's name (the largest text), the badge, the period and committee, and the award date on the right, the
@@ -65,7 +66,7 @@ const BadgeBanner = ({ badge, awardedOn, className = "", children }) => (
         {badge.member.name}
       </h1>
       <p style={{ marginTop: cq(20), fontSize: cq(38), fontWeight: 700, lineHeight: 1.2, color: "#CFE6F5" }}>{badge.name}</p>
-      <p style={{ marginTop: cq(12), fontSize: cq(28), lineHeight: 1.25, color: "#CFE6F5" }}>{badge.periodLabel} · {badge.committeeName}</p>
+      <p style={{ marginTop: cq(12), fontSize: cq(28), lineHeight: 1.25, color: "#CFE6F5" }}>{badge.periodLabel} · {badgeGroupLabel(badge)}</p>
       {badge.note && (
         <p
           title={badge.note}
