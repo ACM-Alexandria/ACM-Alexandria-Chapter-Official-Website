@@ -7,6 +7,7 @@ server.port=8080
 # CORS
 frontend.url=FRONTEND_URL
 backend.url=BACKEND_URL
+share.url=SHARE_URL
 app.frontend.urls=FRONTEND_URLs(comma separated)
 
 # Swagger/OpenAPI Configuration

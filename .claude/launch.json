@@ -4,8 +4,27 @@
     {
       "name": "frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "frontend", "run", "dev", "--", "--port", "5173"],
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173"
+      ],
       "port": 5173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "./backend/acmwebsite/mvnw",
+      "runtimeArgs": [
+        "-q",
+        "-f",
+        "backend/acmwebsite/pom.xml",
+        "spring-boot:run"
+      ],
+      "port": 8080
     }
   ]
 }

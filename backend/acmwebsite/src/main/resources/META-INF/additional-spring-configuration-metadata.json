@@ -1,6 +1,11 @@
 {
   "properties": [
     {
+      "name": "share.url",
+      "type": "java.lang.String",
+      "description": "Public address the badge share pages are served from (used in LinkedIn preview links). Defaults to backend.url."
+    },
+    {
       "name": "frontend.url",
       "type": "java.lang.String",
       "description": "The URL of the frontend application for CORS configuration and redirects",

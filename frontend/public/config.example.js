@@ -3,5 +3,6 @@
 window.APP_CONFIG = {
   VITE_API_BASE_URL: "https://your-backend-api-url.com",
   VITE_CONTACT_EMAIL: "example@gmail.com",
-  VITE_GOOGLE_CLIENT_ID: "436463059095-eok0lv5ggpprgr5ks34eav1v58a03v10.apps.googleusercontent.com"
+  VITE_GOOGLE_CLIENT_ID: "436463059095-eok0lv5ggpprgr5ks34eav1v58a03v10.apps.googleusercontent.com",
+  VITE_SHARE_BASE_URL: "https://your-share-proxy-url.com"
 };

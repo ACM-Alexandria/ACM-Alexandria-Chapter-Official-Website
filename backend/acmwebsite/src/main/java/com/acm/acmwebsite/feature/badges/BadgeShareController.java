@@ -18,6 +18,8 @@ import com.acm.acmwebsite.feature.exception.ResourceNotFoundException;
 // What a shared badge link points to. LinkedIn reads link previews from the page's HTML, which the React app
 // can't provide, so the backend serves a small page with the preview tags (title, description, a 1200×627
 // image) that sends people on to the badge page in the app. Both are public (SecurityConfig: /share/**).
+// The links in the preview (og:url, og:image) use `share.url`, the public address these pages are served from
+// (a separate proxy in production, so LinkedIn shows that domain); it falls back to `backend.url`.
 @RestController
 public class BadgeShareController {
 
@@ -27,15 +29,15 @@ public class BadgeShareController {
     private final BadgeAwardService awardService;
     private final BadgeCardRenderer renderer;
     private final String frontendUrl;
-    private final String backendUrl;
+    private final String shareUrl;
 
     public BadgeShareController(BadgeAwardService awardService, BadgeCardRenderer renderer,
                                 @Value("${frontend.url}") String frontendUrl,
-                                @Value("${backend.url}") String backendUrl) {
+                                @Value("${share.url:${backend.url}}") String shareUrl) {
         this.awardService = awardService;
         this.renderer = renderer;
         this.frontendUrl = stripSlash(frontendUrl);
-        this.backendUrl = stripSlash(backendUrl);
+        this.shareUrl = stripSlash(shareUrl);
     }
 
     @GetMapping(value = "/share/badges/{publicId}", produces = MediaType.TEXT_HTML_VALUE)
@@ -52,11 +54,11 @@ public class BadgeShareController {
         String title = name + " · " + badge.name() + ", " + badge.periodLabel();
         String description = name + " was named " + badge.name() + " of the " + badge.groupLabel()
                 + " for " + badge.periodLabel() + " at ACM Alexandria Student Chapter.";
-        String shareUrl = backendUrl + "/share/badges/" + publicId;
+        String pageUrl = shareUrl + "/share/badges/" + publicId;
         return ResponseEntity.ok()
                 .contentType(HTML_UTF8)
                 .cacheControl(CacheControl.maxAge(Duration.ofHours(1)))
-                .body(page(title, description, shareUrl + "/card.png", shareUrl, frontendUrl + "/badges/" + publicId));
+                .body(page(title, description, pageUrl + "/card.png", pageUrl, frontendUrl + "/badges/" + publicId));
     }
 
     @GetMapping(value = "/share/badges/{publicId}/card.png", produces = MediaType.IMAGE_PNG_VALUE)

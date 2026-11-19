@@ -1,11 +1,14 @@
 import { FaLinkedinIn } from "react-icons/fa";
 import api from "../../services/api";
+import { getEnv } from "../../utils/env";
 import { focusRing } from "../ui/uiStyles";
 import { badgeGroupLabel } from "./badgeGroup";
 
 // The link a post shares: the backend's share page, which carries the LinkedIn preview (title and image)
-// and sends visitors on to the badge page.
-const badgeShareUrl = (publicId) => `${api.defaults.baseURL}/share/badges/${publicId}`;
+// and sends visitors on to the badge page. VITE_SHARE_BASE_URL is the public address those pages are served
+// from (a separate proxy in production); without it the API's address is used.
+const shareBase = () => (getEnv("VITE_SHARE_BASE_URL") || api.defaults.baseURL).replace(/\/$/, "");
+const badgeShareUrl = (publicId) => `${shareBase()}/share/badges/${publicId}`;
 
 // LinkedIn turns these into clickable hashtags. (A real @mention of the chapter's page can't be filled in
 // from a link; the member can add one by typing @ in the post box.)
