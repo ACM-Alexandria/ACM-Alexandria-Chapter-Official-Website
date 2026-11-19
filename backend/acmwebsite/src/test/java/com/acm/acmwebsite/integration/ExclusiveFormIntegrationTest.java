@@ -92,8 +92,13 @@ class ExclusiveFormIntegrationTest {
     private ExclusiveForm testForm;
     private ExclusiveFormQuestion requiredQuestion;
 
+    @Autowired
+    private org.springframework.cache.CacheManager cacheManager;
+
     @BeforeEach
     void setUp() {
+        // Forms below are saved straight to the repository, which skips the service's cache eviction.
+        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
         when(emailExitanceService.isEmailReal(anyString())).thenReturn(true);
 
         // 1. Create applicant user
@@ -420,6 +425,67 @@ class ExclusiveFormIntegrationTest {
         }
 
         @Test
+        @DisplayName("Visitors and the USER role see and apply to external forms only")
+        void externalFormsReachEveryone() throws Exception {
+            testForm.setIsActive(true);
+            exclusiveFormRepository.save(testForm);
+            ExclusiveForm externalForm = exclusiveFormRepository.save(ExclusiveForm.builder()
+                    .title("Open Workshop Sign-up")
+                    .isActive(true)
+                    .isExternal(true)
+                    .build());
+            User plainUser = userRepository.save(User.builder()
+                    .email("plain.user@example.com")
+                    .name("Plain User")
+                    .phoneNumber("01044445555")
+                    .isAlexEngStudent(false)
+                    .department(Department.CSED)
+                    .batch("2027")
+                    .role(Role.USER)
+                    .emailConfirmed(true)
+                    .passwordHash("hashed")
+                    .build());
+            String plainUserToken = jwtUtil.generateToken(plainUser.getEmail(), plainUser.getRole().name());
+            entityManager.flush();
+
+            // Not signed in: only the external form is listed, the internal one is hidden
+            mockMvc.perform(get("/api/exclusive-forms/active"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[*].id", org.hamcrest.Matchers.contains(externalForm.getId().intValue())));
+            mockMvc.perform(get("/api/exclusive-forms/" + testForm.getId()))
+                    .andExpect(status().isNotFound());
+            mockMvc.perform(get("/api/exclusive-forms/" + externalForm.getId() + "/questions"))
+                    .andExpect(status().isOk());
+
+            // ACM member: both forms are listed
+            mockMvc.perform(get("/api/exclusive-forms/active")
+                            .header("Authorization", "Bearer " + applicantToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(2)));
+
+            // USER role: can apply to the external form, not the internal one
+            RegistrationRequestDto internalDto = RegistrationRequestDto.builder()
+                    .userId(plainUser.getId())
+                    .answers(Map.of(requiredQuestion.getId(), "Answer"))
+                    .build();
+            mockMvc.perform(post("/api/exclusive-forms/" + testForm.getId() + "/register")
+                            .header("Authorization", "Bearer " + plainUserToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(internalDto)))
+                    .andExpect(status().isForbidden());
+
+            RegistrationRequestDto externalDto = RegistrationRequestDto.builder()
+                    .userId(plainUser.getId())
+                    .answers(Map.of())
+                    .build();
+            mockMvc.perform(post("/api/exclusive-forms/" + externalForm.getId() + "/register")
+                            .header("Authorization", "Bearer " + plainUserToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(externalDto)))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
         @DisplayName("Rejects regular non-admin user trying to execute administrative form operations")
         void rejectsNonAdminAdministrativeOperations() throws Exception {
             Long formId = testForm.getId();
@@ -532,22 +598,34 @@ class ExclusiveFormIntegrationTest {
         }
 
         @Test
-        @DisplayName("Visitors who are not signed in get nothing: not the list, a form or its questions")
-        void visitorsCannotRead() throws Exception {
-            for (String url : readUrls()) {
-                mockMvc.perform(get(url)).andExpect(status().isForbidden());
-            }
+        @DisplayName("Visitors who are not signed in don't see internal forms: not in the list, nor the form or its questions")
+        void visitorsCannotReadInternalForms() throws Exception {
+            testForm.setIsActive(true);
+            exclusiveFormRepository.save(testForm);
+            entityManager.flush();
+            Long id = testForm.getId();
+
+            mockMvc.perform(get("/api/exclusive-forms")).andExpect(status().isForbidden());
+            mockMvc.perform(get("/api/exclusive-forms/active"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(0)));
+            mockMvc.perform(get("/api/exclusive-forms/" + id)).andExpect(status().isNotFound());
+            mockMvc.perform(get("/api/exclusive-forms/" + id + "/questions")).andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("Accounts with the plain USER role cannot read forms or register")
-        void plainUsersCannotReadOrRegister() throws Exception {
+        @DisplayName("Accounts with the plain USER role cannot read internal forms or register for them")
+        void plainUsersCannotReadOrRegisterInternalForms() throws Exception {
             User plain = saveUser("plain.user.visibility@example.com", Role.USER);
             String token = jwtUtil.generateToken(plain.getEmail(), plain.getRole().name());
+            Long id = testForm.getId();
 
-            for (String url : readUrls()) {
-                mockMvc.perform(get(url).header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
-            }
+            mockMvc.perform(get("/api/exclusive-forms").header("Authorization", "Bearer " + token))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(get("/api/exclusive-forms/" + id).header("Authorization", "Bearer " + token))
+                    .andExpect(status().isNotFound());
+            mockMvc.perform(get("/api/exclusive-forms/" + id + "/questions").header("Authorization", "Bearer " + token))
+                    .andExpect(status().isNotFound());
             RegistrationRequestDto self = RegistrationRequestDto.builder().userId(plain.getId()).build();
             mockMvc.perform(post("/api/exclusive-forms/" + testForm.getId() + "/register")
                             .header("Authorization", "Bearer " + token)

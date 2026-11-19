@@ -10,6 +10,9 @@ public interface AuthorizationService {
     boolean isAdmin(Authentication authentication);
     boolean isSelf(UUID id, Authentication authentication);
 
+    /** True for an ACM member or any board role (everyone except visitors and the plain USER role). */
+    boolean isAcmMember(Authentication authentication);
+
     /** True for an ACM member who belongs to the HR Committee (checked against the database). */
     boolean isHrCommitteeMember(Authentication authentication);
 }

@@ -54,8 +54,16 @@ public class SecurityConfig { // Renamed from CorsConfig as recommended
                         // Secure admin endpoints
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD")
-                        // Exclusive forms are only for ACM members and the boards. Visitors who are not signed in and
-                        // accounts with the plain USER role get nothing (list, details, questions, registration).
+                        // Exclusive forms are internal (ACM members and the boards only) or external (also visitors who
+                        // are not signed in and the plain USER role). Active forms, a form's details and its questions
+                        // are open here; ExclusiveFormController hides internal forms from everyone else.
+                        .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/active", "/api/exclusive-forms/*",
+                                "/api/exclusive-forms/*/questions").permitAll()
+                        // Applying needs a sign-in; the controller checks the form is visible to that account.
+                        .requestMatchers(HttpMethod.POST, "/api/exclusive-forms/*/register").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/exclusive-forms/*/register/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/exclusive-forms/*/is-registered/*").authenticated()
+                        // The full list (inactive forms too) and everything else stays with members and the boards.
                         .requestMatchers("/api/exclusive-forms/**")
                         .hasAnyRole("SUPER_ADMIN", "ACM_HIGH_BOARD", "ACM_COMMITTEE_BOARD", "ACM_CLUB_BOARD", "ACM_MEMBER")
                         // Explicitly secure registration endpoints

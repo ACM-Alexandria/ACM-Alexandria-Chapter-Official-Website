@@ -293,7 +293,7 @@ const AdminPage = () => {
     } else if (mgmtTab === "radio") {
       setFormData({ seasonNumber: "", imageUrl: "" });
     } else if (mgmtTab === "exclusiveForms") {
-      setFormData({ title: "", description: "", imageUrl: "", isActive: true });
+      setFormData({ title: "", description: "", imageUrl: "", isActive: true, isExternal: false });
     } else if (mgmtTab === "socialLinks") {
       setFormData({ platform: "", url: "" });
     } else if (mgmtTab === "partners") {

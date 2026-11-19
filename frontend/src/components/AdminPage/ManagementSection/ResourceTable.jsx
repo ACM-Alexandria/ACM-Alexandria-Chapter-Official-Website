@@ -139,6 +139,7 @@ const ResourceRow = ({
     (activeTab === "events" || activeTab === "programs") && { label: activeTab === "events" ? "Time" : "Schedule", value: detailSecondary || detailPrimary },
     activeTab === "programs" && { label: "Duration", value: item.time },
     hasStatus && { label: activeTab === "committees" ? "Call status" : activeTab === "exclusiveForms" ? "Status" : "Registration", value: open ? "Open" : "Closed" },
+    activeTab === "exclusiveForms" && { label: "Audience", value: item.isExternal ? "External: everyone" : "Internal: ACM members only" },
     showLinkColumn && { label: "Link", value: linkUrl },
     item.description && { label: "Description", value: item.description },
   ].filter(Boolean);

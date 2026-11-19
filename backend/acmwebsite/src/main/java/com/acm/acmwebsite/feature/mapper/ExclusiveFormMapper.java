@@ -19,6 +19,7 @@ public class ExclusiveFormMapper {
                 .imageUrl(entity.getImageUrl())
                 .sheetId(entity.getSheetId())
                 .isActive(entity.getIsActive())
+                .isExternal(entity.getIsExternal())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -36,6 +37,7 @@ public class ExclusiveFormMapper {
                 .imageUrl(dto.getImageUrl())
                 .sheetId(dto.getSheetId())
                 .isActive(dto.getIsActive() != null ? dto.getIsActive() : false)
+                .isExternal(Boolean.TRUE.equals(dto.getIsExternal()))
                 .build();
     }
 }

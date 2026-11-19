@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -79,6 +80,87 @@ class ExclusiveFormControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+        // Most tests run as an ACM member, who sees internal forms too; FormVisibilityTests covers everyone else.
+        when(authorizationService.isAcmMember(any())).thenReturn(true);
+    }
+
+    @Nested
+    @DisplayName("Internal and external form visibility")
+    class FormVisibilityTests {
+
+        private final ExclusiveForm internalForm = ExclusiveForm.builder().id(1L).title("Internal").isActive(true).isExternal(false).build();
+        private final ExclusiveForm externalForm = ExclusiveForm.builder().id(2L).title("External").isActive(true).isExternal(true).build();
+
+        @BeforeEach
+        void asNonMember() {
+            when(authorizationService.isAcmMember(any())).thenReturn(false);
+            when(exclusiveFormService.getFormById(1L)).thenReturn(internalForm);
+            when(exclusiveFormService.getFormById(2L)).thenReturn(externalForm);
+            when(mapper.toDto(internalForm)).thenReturn(ExclusiveFormDto.builder().id(1L).title("Internal").build());
+            when(mapper.toDto(externalForm)).thenReturn(ExclusiveFormDto.builder().id(2L).title("External").build());
+        }
+
+        @Test
+        @DisplayName("active list leaves out internal forms for visitors and the USER role")
+        void activeListShowsOnlyExternalForms() throws Exception {
+            when(exclusiveFormService.getActiveForms()).thenReturn(List.of(internalForm, externalForm));
+
+            mockMvc.perform(get("/api/exclusive-forms/active"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].id", equalTo(2)));
+        }
+
+        @Test
+        @DisplayName("active list keeps internal forms for ACM members")
+        void activeListShowsEverythingToMembers() throws Exception {
+            when(authorizationService.isAcmMember(any())).thenReturn(true);
+            when(exclusiveFormService.getActiveForms()).thenReturn(List.of(internalForm, externalForm));
+
+            mockMvc.perform(get("/api/exclusive-forms/active"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));
+        }
+
+        @Test
+        @DisplayName("an internal form's details and questions answer 404")
+        void internalFormIsHidden() throws Exception {
+            mockMvc.perform(get("/api/exclusive-forms/{id}", 1L)).andExpect(status().isNotFound());
+            mockMvc.perform(get("/api/exclusive-forms/{id}/questions", 1L)).andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("an external form's details and questions are shown")
+        void externalFormIsShown() throws Exception {
+            when(registrationService.getQuestions(2L)).thenReturn(List.of());
+
+            mockMvc.perform(get("/api/exclusive-forms/{id}", 2L))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", equalTo(2)));
+            mockMvc.perform(get("/api/exclusive-forms/{id}/questions", 2L)).andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("a USER account can apply to an external form but not an internal one")
+        void registrationFollowsVisibility() throws Exception {
+            UUID userId = UUID.randomUUID();
+            RegistrationRequestDto req = new RegistrationRequestDto();
+            req.setUserId(userId);
+            when(authorizationService.isAuthenticated(any())).thenReturn(true);
+            when(authorizationService.isSelf(eq(userId), any())).thenReturn(true);
+
+            mockMvc.perform(post("/api/exclusive-forms/{id}/register", 1L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(post("/api/exclusive-forms/{id}/register", 2L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isCreated());
+
+            verify(registrationService).registerUser(eq(userId), eq(2L), any(RegistrationRequestDto.class));
+            verify(registrationService, never()).registerUser(eq(userId), eq(1L), any(RegistrationRequestDto.class));
+        }
     }
 
     @Nested

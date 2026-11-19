@@ -22,13 +22,12 @@ import RegistrationModal from "../components/registration/RegistrationModal";
 import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
 
 // The public home page: the hero and lighthouse scene, the gallery, the chapter's people, then events,
-// programs, and ACM Radio, with the exclusive forms (signed-in ACM members and boards only) and partners when there
+// programs, and ACM Radio, with the exclusive forms (the backend leaves out internal ones for visitors and the plain
+// USER role) and partners when there
 // are any. A section without content
 // is left out. Design: docs/home-page-redesign/DESIGN.md.
 const HomePage = () => {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  // Exclusive forms are for ACM members and the boards only: not for visitors, nor for the plain USER role.
-  const canSeeForms = isAuthenticated && Boolean(user?.role) && user.role !== "USER";
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState(emptyHomeData);
   const [loading, setLoading] = useState(true);
@@ -61,15 +60,17 @@ const HomePage = () => {
     return () => { active = false; };
   }, []);
 
+  // Refetched when the account changes: members and the boards get internal forms too, everyone else the external ones.
+  const viewerRole = isAuthenticated ? user?.role : null;
   useEffect(() => {
-    if (!canSeeForms) return undefined;
+    if (authLoading) return undefined;
     let active = true;
     fetchActiveExclusiveForms()
       .then((result) => { if (active) setForms(result || []); })
       .catch((err) => console.error("Error loading active forms:", err))
       .finally(() => { if (active) setFormsLoading(false); });
     return () => { active = false; };
-  }, [canSeeForms]);
+  }, [authLoading, viewerRole]);
 
   useEffect(() => {
     let active = true;
@@ -87,7 +88,7 @@ const HomePage = () => {
       ["openClubId", (id) => { setClubId(id); setPanel("club"); }],
       ["openProgramId", (id) => { setProgramId(id); setPanel("program"); }],
       ["openCommitteeId", (id) => { setCommitteeId(id); setPanel("apply"); }],
-      ["openExclusiveFormId", (id) => { if (canSeeForms) { setFormId(id); setPanel("form"); } }],
+      ["openExclusiveFormId", (id) => { setFormId(id); setPanel("form"); }],
     ];
     const match = targets.find(([key]) => searchParams.get(key));
     // Wait until the sign-in state is known, so a form link isn't dropped while it is still loading.
@@ -97,7 +98,7 @@ const HomePage = () => {
     const next = new URLSearchParams(searchParams);
     next.delete(key);
     setSearchParams(next, { replace: true });
-  }, [searchParams, setSearchParams, authLoading, canSeeForms]);
+  }, [searchParams, setSearchParams, authLoading]);
 
   useEffect(() => {
     const onScroll = () => setShowFormsButton(window.scrollY < 300);
@@ -105,8 +106,6 @@ const HomePage = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const visibleForms = canSeeForms ? forms : [];
-  const visibleFormsLoading = canSeeForms && formsLoading;
   const myCommitteeId = isAuthenticated && ["ACM_MEMBER", "ACM_COMMITTEE_BOARD"].includes(user?.role) ? user?.committeeId : null;
   const { committees, clubs } = data;
   // A section shows while loading and then only if it has something to show.
@@ -139,7 +138,7 @@ const HomePage = () => {
           isRegistrationModalOpen={panel === "apply"}
         />
 
-        <ExclusiveFormsSection loading={visibleFormsLoading} forms={visibleForms} onShowDetails={openForm} />
+        <ExclusiveFormsSection loading={formsLoading} forms={forms} onShowDetails={openForm} />
 
         {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} onShowEvent={openEvent} />}
 
@@ -164,7 +163,7 @@ const HomePage = () => {
         entityName={data.committees.find((c) => c.id === committeeId)?.name || ""}
       />
 
-      {visibleForms.length > 0 && (
+      {forms.length > 0 && (
         <a
           href="#exclusive-forms"
           className={`fixed bottom-6 right-6 z-30 inline-flex h-12 items-center gap-2 rounded-xl bg-ocean-676 px-5 text-sm font-semibold text-white shadow-[0_14px_40px_-12px_color-mix(in_srgb,var(--color-ocean-910)_60%,transparent)] transition-all duration-500 hover:bg-ocean-808 dark:bg-ocean-461 dark:text-ocean-910 ${showFormsButton ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-16 opacity-0"}`}

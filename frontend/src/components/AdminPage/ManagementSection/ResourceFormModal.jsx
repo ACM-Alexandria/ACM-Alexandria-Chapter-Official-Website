@@ -479,6 +479,16 @@ const ResourceForm = ({
   onChange={() => setFormData({ ...formData, isActive: !formData.isActive })}
 />
           )}
+          {activeTab === "exclusiveForms" && (
+            <ToggleRow
+  title="External Form"
+  description={formData.isExternal
+    ? "Everyone sees this form, including visitors and accounts that aren't ACM members"
+    : "Internal: only ACM members and the boards see this form"}
+  checked={Boolean(formData.isExternal)}
+  onChange={() => setFormData({ ...formData, isExternal: !formData.isExternal })}
+/>
+          )}
 
           {/* Partners specific fields — website URL */}
           {activeTab === "partners" && (

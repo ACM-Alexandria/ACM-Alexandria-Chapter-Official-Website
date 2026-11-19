@@ -45,16 +45,24 @@ public class ExclusiveFormController {
         return exclusiveFormService.getAllForms().stream().map(mapper::toDto).toList();
     }
 
+    // Visitors and the plain USER role only get the external forms; members and the boards get them all.
     @GetMapping("/active")
-    public List<ExclusiveFormDto> getActiveForms() {
-        return exclusiveFormService.getActiveForms().stream().map(mapper::toDto).toList();
+    public List<ExclusiveFormDto> getActiveForms(Authentication authentication) {
+        return exclusiveFormService.getActiveForms().stream()
+                .filter(form -> canSee(form, authentication))
+                .map(mapper::toDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExclusiveFormDto> getFormById(@PathVariable Long id) {
+    public ResponseEntity<ExclusiveFormDto> getFormById(@PathVariable Long id, Authentication authentication) {
         try {
-            ExclusiveFormDto dto = mapper.toDto(exclusiveFormService.getFormById(id));
-            return ResponseEntity.ok(dto);
+            ExclusiveForm form = exclusiveFormService.getFormById(id);
+            // An internal form answers 404 to someone who may not see it, so its existence isn't revealed.
+            if (!canSee(form, authentication)) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(mapper.toDto(form));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -100,7 +108,12 @@ public class ExclusiveFormController {
     // --- Question Management ---
 
     @GetMapping("/{id}/questions")
-    public ResponseEntity<List<FormQuestionResponseDto>> getFormQuestions(@PathVariable("id") Long formId) {
+    public ResponseEntity<List<FormQuestionResponseDto>> getFormQuestions(
+            @PathVariable("id") Long formId,
+            Authentication authentication) {
+        if (!canSee(formId, authentication)) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(registrationService.getQuestions(formId));
     }
 
@@ -146,6 +159,9 @@ public class ExclusiveFormController {
         if (!authorizationService.isSelf(request.getUserId(), authentication)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        if (!canSee(formId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         registrationService.registerUser(request.getUserId(), formId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -182,6 +198,9 @@ public class ExclusiveFormController {
         if (!authorizationService.isSelf(userUuid, authentication)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        if (!canSee(formId, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         boolean registered = registrationService.isUserRegistered(userUuid, formId);
         return ResponseEntity.ok(Map.of("registered", registered));
     }
@@ -199,5 +218,24 @@ public class ExclusiveFormController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ACM_HIGH_BOARD', 'ACM_COMMITTEE_BOARD', 'ACM_CLUB_BOARD')")
     public ResponseEntity<RegistrationAnalysisDto> syncFormRegistrationsSheet(@PathVariable("id") Long formId) {
         return ResponseEntity.ok(registrationService.syncRegistrationsSheet(formId));
+    }
+
+    // --- Visibility ---
+
+    /** An external form is visible to everyone; an internal one only to ACM members and the boards. */
+    private boolean canSee(ExclusiveForm form, Authentication authentication) {
+        return Boolean.TRUE.equals(form.getIsExternal()) || authorizationService.isAcmMember(authentication);
+    }
+
+    /** Same as above by id; a missing form counts as visible so the service still answers its own 404. */
+    private boolean canSee(Long formId, Authentication authentication) {
+        if (authorizationService.isAcmMember(authentication)) {
+            return true;
+        }
+        try {
+            return canSee(exclusiveFormService.getFormById(formId), authentication);
+        } catch (EntityNotFoundException e) {
+            return true;
+        }
     }
 }

@@ -29,6 +29,9 @@ public class ExclusiveFormService {
         if (form.getIsActive() == null) {
             form.setIsActive(false);
         }
+        if (form.getIsExternal() == null) {
+            form.setIsExternal(false);
+        }
         return formRepository.save(form);
     }
 
@@ -48,6 +51,9 @@ public class ExclusiveFormService {
         }
         if (formDto.getIsActive() != null) {
             form.setIsActive(formDto.getIsActive());
+        }
+        if (formDto.getIsExternal() != null) {
+            form.setIsExternal(formDto.getIsExternal());
         }
         
         return formRepository.save(form);

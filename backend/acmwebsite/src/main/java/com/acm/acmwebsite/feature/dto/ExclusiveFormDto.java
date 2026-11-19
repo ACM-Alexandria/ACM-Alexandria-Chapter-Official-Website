@@ -18,6 +18,7 @@ public class ExclusiveFormDto {
     private String imageUrl;
     private String sheetId;
     private Boolean isActive;
+    private Boolean isExternal;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

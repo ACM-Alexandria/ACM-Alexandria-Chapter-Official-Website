@@ -2,6 +2,7 @@ package com.acm.acmwebsite.feature.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -36,6 +37,13 @@ public class ExclusiveForm {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = false;
+
+    // Internal forms are for ACM members and the boards only. External forms are also shown to visitors who are
+    // not signed in and to accounts with the plain USER role.
+    @Column(name = "is_external", nullable = false)
+    @ColumnDefault("false")
+    @Builder.Default
+    private Boolean isExternal = false;
 
     @OneToMany(mappedBy = "exclusiveForm", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

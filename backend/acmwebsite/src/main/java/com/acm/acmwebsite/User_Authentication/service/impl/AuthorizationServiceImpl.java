@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -17,6 +18,9 @@ import java.util.UUID;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String HR_COMMITTEE_NAME = "HR Committee";
+
+    private static final Set<String> ACM_ROLES = Set.of(
+            "ROLE_SUPER_ADMIN", "ROLE_ACM_HIGH_BOARD", "ROLE_ACM_COMMITTEE_BOARD", "ROLE_ACM_CLUB_BOARD", "ROLE_ACM_MEMBER");
 
     private final UserService userService;
     private final UserRepository userRepository;
@@ -38,6 +42,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return findAuthenticatedUser(authentication)
                 .map(u -> u.getId().equals(id))
                 .orElse(false);
+    }
+
+    @Override
+    public boolean isAcmMember(Authentication authentication) {
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                .anyMatch(a -> ACM_ROLES.contains(a.getAuthority()));
     }
 
     @Override
