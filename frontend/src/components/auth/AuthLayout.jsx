@@ -20,11 +20,8 @@ const stars = Array.from({ length: 40 }, (_, i) => ({ x: (i * 41.3) % 100, y: (i
  *  - children     : node   — form content
  */
 const AuthLayout = ({ title, subtitle, panelTagline, panelSub, isReversed = false, children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) return savedTheme === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  // Light unless the visitor picked dark mode before (a new device opens in light mode).
+  const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") === "dark");
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
     localStorage.setItem("theme", isDark ? "dark" : "light");

@@ -9,11 +9,8 @@ import useScrollLock from "../../hooks/useScrollLock";
 import HRFolderIcon from "../icons/HRFolderIcon";
 import { switchTheme } from "../../utils/themeTransition";
 
-const prefersDark = () => {
-  const saved = localStorage.getItem("theme");
-  if (saved) return saved === "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-};
+// Light unless the visitor picked dark mode before (a new device opens in light mode).
+const prefersDark = () => localStorage.getItem("theme") === "dark";
 
 // A nav item: "#id" glides to a section of this page, "/#id" opens the home page at that section, and
 // "/path" opens another page (highlighted when current).

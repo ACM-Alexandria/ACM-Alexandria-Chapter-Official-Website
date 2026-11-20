@@ -4,9 +4,8 @@
     <meta charset="UTF-8" />
     <script>
       (function() {
-        const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
+        // Light unless the visitor picked dark mode before (a new device opens in light mode).
+        if (localStorage.getItem('theme') === 'dark') {
           document.documentElement.classList.add('dark');
         }
       })();
