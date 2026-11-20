@@ -20,6 +20,7 @@ import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
 import ExclusiveFormDetailsSidebar from "../components/details/ExclusiveFormDetailsSidebar";
 import RegistrationModal from "../components/registration/RegistrationModal";
 import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
+import usePageMeta from "../hooks/usePageMeta";
 
 // The public home page: the hero and lighthouse scene, the gallery, the chapter's people, then events,
 // programs, and ACM Radio, with the exclusive forms (the backend leaves out internal ones for visitors and the plain
@@ -27,6 +28,7 @@ import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
 // are any. A section without content
 // is left out. Design: docs/home-page-redesign/DESIGN.md.
 const HomePage = () => {
+  usePageMeta("home");
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState(emptyHomeData);

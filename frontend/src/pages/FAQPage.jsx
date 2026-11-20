@@ -9,6 +9,7 @@ import { contactEmail as fallbackEmail } from "../components/Home/homeContent";
 import { errorBox, field, focusRing, muted, primaryButton, secondaryButton, skeleton } from "../components/ui/uiStyles";
 import { fetchFAQs } from "../services/faqService";
 import { getEnv } from "../utils/env";
+import usePageMeta from "../hooks/usePageMeta";
 
 // "Contact us" opens a new email to the chapter, like the footer's email link.
 const contactHref = `mailto:${getEnv("VITE_CONTACT_EMAIL") || fallbackEmail}`;
@@ -47,6 +48,7 @@ const SkeletonList = () => (
 );
 
 const FAQPage = () => {
+  usePageMeta("faq");
   const [faqs, setFaqs] = useState([]);
   const [status, setStatus] = useState("loading"); // loading | ready | error
   const [attempt, setAttempt] = useState(0);

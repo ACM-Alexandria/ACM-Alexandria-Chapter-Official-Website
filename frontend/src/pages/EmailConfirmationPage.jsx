@@ -5,8 +5,10 @@ import { validateEmail } from "../utils/validation";
 import AuthLayout from "../components/auth/AuthLayout";
 import InputField from "../components/auth/InputField";
 import { ErrorCircleIcon, EnvelopeIcon } from "../components/icons/index";
+import usePageMeta from "../hooks/usePageMeta";
 
 const EmailConfirmationPage = () => {
+  usePageMeta("emailConfirmation");
   const { token } = useParams();
 
   const confirmationRequest = useRef({ token: null, promise: null });

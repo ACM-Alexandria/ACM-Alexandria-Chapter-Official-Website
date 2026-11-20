@@ -11,17 +11,81 @@
       })();
     </script>
 
-    <link rel="icon" type="image/png" href="/acm-logo-no-bg.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACM Alexandria Student Chapter | Alexandria University</title>
+    <meta name="description" content="The ACM student chapter at Alexandria University, where students learn, build and grow together through committees, clubs, workshops, competitions and training programs." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://alex.hosting.acm.org/" />
+    <meta name="theme-color" content="#4B98C8" />
+    <link rel="icon" type="image/png" href="/acm-logo-no-bg.png" />
+    <link rel="apple-touch-icon" href="/acm-logo-no-bg.png" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+    <!-- Share previews (Facebook, LinkedIn, WhatsApp, X). The app updates the page-specific ones on each route. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ACM Alexandria Student Chapter" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="ACM Alexandria Student Chapter | Alexandria University" />
+    <meta property="og:description" content="The ACM student chapter at Alexandria University, where students learn, build and grow together through committees, clubs, workshops, competitions and training programs." />
+    <meta property="og:url" content="https://alex.hosting.acm.org/" />
+    <meta property="og:image" content="https://alex.hosting.acm.org/video/welcome-poster.jpg" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:image:alt" content="ACM Alexandria Student Chapter" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ACM Alexandria Student Chapter | Alexandria University" />
+    <meta name="twitter:description" content="The ACM student chapter at Alexandria University, where students learn, build and grow together through committees, clubs, workshops, competitions and training programs." />
+    <meta name="twitter:image" content="https://alex.hosting.acm.org/video/welcome-poster.jpg" />
+
+    <!-- Lets search engines show the chapter as an organization (name, logo, university). -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://alex.hosting.acm.org/#organization",
+            "name": "ACM Alexandria Student Chapter",
+            "alternateName": ["ACM Alexandria", "Alexandria University ACM Student Chapter", "ACM AlexU"],
+            "url": "https://alex.hosting.acm.org/",
+            "logo": "https://alex.hosting.acm.org/acm-logo-no-bg.png",
+            "email": "alexandria.acm.chapter@gmail.com",
+            "description": "The ACM student chapter at Alexandria University, where students learn, build and grow together through committees, clubs, workshops, competitions and training programs.",
+            "address": { "@type": "PostalAddress", "addressLocality": "Alexandria", "addressCountry": "EG" },
+            "parentOrganization": { "@type": "Organization", "name": "Association for Computing Machinery", "url": "https://www.acm.org/" },
+            "memberOf": { "@type": "CollegeOrUniversity", "name": "Alexandria University", "url": "https://alexu.edu.eg/" }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://alex.hosting.acm.org/#website",
+            "url": "https://alex.hosting.acm.org/",
+            "name": "ACM Alexandria Student Chapter",
+            "publisher": { "@id": "https://alex.hosting.acm.org/#organization" },
+            "inLanguage": "en"
+          }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
-    <title>ACM Alexandria Chapter</title>
     <script src="/config.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>ACM Alexandria Student Chapter</h1>
+      <p>The ACM student chapter at Alexandria University. Turn on JavaScript to use the site, or browse:</p>
+      <ul>
+        <li><a href="/events">Events</a></li>
+        <li><a href="/programs">Training programs</a></li>
+        <li><a href="/radio">ACM Radio</a></li>
+        <li><a href="/boards">Boards</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/rules">Rules</a></li>
+      </ul>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

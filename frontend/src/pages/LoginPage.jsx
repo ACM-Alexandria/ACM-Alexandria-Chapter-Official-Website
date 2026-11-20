@@ -1,7 +1,9 @@
 import LoginForm from "../components/auth/LoginForm";
 import AuthLayout from "../components/auth/AuthLayout";
+import usePageMeta from "../hooks/usePageMeta";
 
 const LoginPage = () => {
+  usePageMeta("login");
   return (
     <AuthLayout
       title="Welcome Back"

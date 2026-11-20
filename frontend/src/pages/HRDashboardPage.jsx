@@ -20,6 +20,7 @@ import useResourceList from '../hooks/useResourceList';
 import useResourceDialogs from '../hooks/useResourceDialogs';
 import useEmailLock from '../hooks/useEmailLock';
 import { SHARED_RESOURCE_TABS, resourceTypeForTab } from '../constants/resourceTypes';
+import usePageMeta from '../hooks/usePageMeta';
 
 const hrTabs = [
     { id: 'resources', label: 'Resource Management', shortLabel: 'Resources', icon: FiSliders },
@@ -27,6 +28,7 @@ const hrTabs = [
 ];
 
 const HRDashboardPage = () => {
+  usePageMeta("hrDashboard");
     const { user } = useAuth();
     const navigate = useNavigate();
 

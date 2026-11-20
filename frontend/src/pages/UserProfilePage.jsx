@@ -13,6 +13,7 @@ import ProfileForm from "../components/profile/ProfileForm";
 import PointsPanel from "../components/profile/PointsPanel";
 import BadgesPanel from "../components/profile/BadgesPanel";
 import { errorBox, skeleton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 const Alert = ({ tone, children }) => {
   const success = tone === "success";
@@ -26,6 +27,7 @@ const Alert = ({ tone, children }) => {
 };
 
 const UserProfilePage = () => {
+  usePageMeta("profile");
   const { user } = useAuth();
 
   const [profile, setProfile] = useState({

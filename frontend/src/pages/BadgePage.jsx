@@ -7,6 +7,7 @@ import BadgeBanner from "../components/badges/BadgeBanner";
 import BadgeBackdrop from "../components/badges/BadgeBackdrop";
 import logo from "../assets/logo/acm-logo-outline.svg";
 import useDetails from "../hooks/useDetails";
+import usePageMeta from "../hooks/usePageMeta";
 import { fetchPublicBadge } from "../services/badgesService";
 import { useAuth } from "../contexts/useAuth";
 import ShareOnLinkedInButton from "../components/badges/ShareOnLinkedInButton";
@@ -26,6 +27,10 @@ const BadgePage = () => {
   const { user } = useAuth();
   const isOwner = Boolean(user?.id && badge?.member?.id === user.id);
   const awarded = badge ? awardedOn(badge.awardedAt) : "";
+  usePageMeta("badge", badge ? {
+    title: `${badge.member.name}: ${badge.name}, ${badge.periodLabel}`,
+    description: `${badge.member.name} earned the ${badge.name} badge (${badge.periodLabel}) at the ACM Alexandria Student Chapter.`,
+  } : undefined);
 
   return (
     <SiteLayout solidNav>

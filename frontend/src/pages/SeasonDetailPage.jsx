@@ -6,6 +6,7 @@ import EmptyState from "../components/ui/EmptyState";
 import Reveal from "../components/ui/Reveal";
 import { fetchSeasonById } from "../services/homePageService";
 import useDetails from "../hooks/useDetails";
+import usePageMeta from "../hooks/usePageMeta";
 import { card, muted, secondaryButton, skeleton } from "../components/ui/uiStyles";
 
 const backLink = "inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-white/10";
@@ -38,6 +39,11 @@ const SeasonDetailPage = () => {
   const { data: season, loading, error } = useDetails(true, id, fetchSeasonById, "We couldn't load this season. Please try again later.");
   const episodes = season?.episodes ? [...season.episodes].sort((a, b) => a.episodeNumber - b.episodeNumber) : [];
   const ready = !loading && season;
+  usePageMeta("season", ready ? {
+    title: `ACM Radio Season ${season.seasonNumber}`,
+    description: `All ${episodes.length} ${episodes.length === 1 ? "episode" : "episodes"} of ACM Radio Season ${season.seasonNumber}: conversations with members, guests and alumni of the ACM Alexandria Student Chapter.`,
+    image: season.imageUrl,
+  } : undefined);
 
   return (
     <SiteLayout>

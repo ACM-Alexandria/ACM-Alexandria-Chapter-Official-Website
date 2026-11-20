@@ -13,6 +13,7 @@ import { fetchAllClubs, fetchCommittee, fetchHighBoard } from "../services/homeP
 import { formatBoardSeason } from "../utils/boardSeasons";
 import TeamTree, { TreeRoot } from "../components/Home/sections/TeamTree";
 import { muted, secondaryButton, skeleton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 const toPortrait = (member) => ({ name: member.userName, role: member.role, image: member.profileImageUrl, linkedin: member.linkedinUrl });
 
@@ -22,6 +23,7 @@ const toTeam = (team) => ({ id: team.id, name: team.name, image: team.logoUrl, d
 // The chapter's boards by season: the current one by default, past ones from the season picker. The season
 // lives in the URL (?season=2026) so a past board can be shared.
 const BoardsPage = () => {
+  usePageMeta("boards");
   const [params, setParams] = useSearchParams();
   const requested = params.get("season");
   const [seasons, setSeasons] = useState(null);

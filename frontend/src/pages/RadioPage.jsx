@@ -7,9 +7,11 @@ import EmptyState from "../components/ui/EmptyState";
 import { fetchSeasons } from "../services/homePageService";
 import usePagedList from "../hooks/usePagedList";
 import { skeleton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 // Every season of ACM Radio; a season opens its episodes.
 const RadioPage = () => {
+  usePageMeta("radio");
   const list = usePagedList(fetchSeasons, "We couldn't load ACM Radio. Please try again later.");
 
   return (

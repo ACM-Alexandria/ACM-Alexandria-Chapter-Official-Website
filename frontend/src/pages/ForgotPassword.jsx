@@ -6,8 +6,10 @@ import { EnvelopeIcon } from "../components/icons/index";
 import InputField from "../components/auth/InputField";
 import Toast from "../components/Toast";
 import AuthLayout from "../components/auth/AuthLayout";
+import usePageMeta from "../hooks/usePageMeta";
 
 const ForgotPassword = () => {
+  usePageMeta("forgotPassword");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [touched, setTouched] = useState(false);

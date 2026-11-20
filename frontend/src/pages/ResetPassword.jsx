@@ -8,8 +8,10 @@ import {
 import PasswordInput from "../components/auth/PasswordInput";
 import { LockIcon, ErrorCircleIcon } from "../components/icons/index";
 import AuthLayout from "../components/auth/AuthLayout";
+import usePageMeta from "../hooks/usePageMeta";
 
 const ResetPassword = () => {
+  usePageMeta("resetPassword");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");

@@ -12,9 +12,11 @@ import useOpenFromQuery from "../hooks/useOpenFromQuery";
 import EventRating from "../components/ui/EventRating";
 import { eventDate, isEventPast, summary } from "../utils/format";
 import { skeleton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 // Every chapter event, newest first, twelve to a page. A card opens the event's details and registration.
 const EventsPage = () => {
+  usePageMeta("events");
   const list = usePagedList(fetchEvents, "We couldn't load the events. Please try again later.");
   const [eventId, setEventId] = useState(null);
   const [open, setOpen] = useState(false);

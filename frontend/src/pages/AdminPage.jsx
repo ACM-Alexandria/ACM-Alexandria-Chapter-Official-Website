@@ -62,11 +62,13 @@ import {
   FiLock,
   FiHelpCircle,
 } from "react-icons/fi";
+import usePageMeta from "../hooks/usePageMeta";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ADMIN PAGE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const AdminPage = () => {
+  usePageMeta("admin");
   const [activeTab, setActiveTab] = useState("insights");
 
   // ── Resource Management States ──

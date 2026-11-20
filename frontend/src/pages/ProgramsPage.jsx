@@ -11,6 +11,7 @@ import usePagedList from "../hooks/usePagedList";
 import useOpenFromQuery from "../hooks/useOpenFromQuery";
 import { eventDate, summary } from "../utils/format";
 import { skeleton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 const span = (program) => {
   if (!program.startDate) return program.time || "Schedule to be announced";
@@ -21,6 +22,7 @@ const span = (program) => {
 
 // The chapter's training programs. A card opens the program's details and registration.
 const ProgramsPage = () => {
+  usePageMeta("programs");
   const list = usePagedList(fetchPrograms, "We couldn't load the programs. Please try again later.");
   const [programId, setProgramId] = useState(null);
   const [open, setOpen] = useState(false);

@@ -1,0 +1,13 @@
+# ACM Alexandria Student Chapter
+User-agent: *
+Allow: /
+
+# Member and admin areas: nothing for search results there.
+Disallow: /admin
+Disallow: /hr-dashboard
+Disallow: /profile
+Disallow: /email-confirmation/
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://alex.hosting.acm.org/sitemap.xml

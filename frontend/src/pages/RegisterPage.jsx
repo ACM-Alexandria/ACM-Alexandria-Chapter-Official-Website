@@ -1,7 +1,9 @@
 import RegisterForm from "../components/auth/RegisterForm";
 import AuthLayout from "../components/auth/AuthLayout";
+import usePageMeta from "../hooks/usePageMeta";
 
 const RegisterPage = () => {
+  usePageMeta("register");
   return (
     <AuthLayout
       title="Join the Chapter"

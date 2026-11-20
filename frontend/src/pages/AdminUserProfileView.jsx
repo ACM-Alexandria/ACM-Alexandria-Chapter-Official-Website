@@ -4,8 +4,10 @@ import IslandNav from "../components/Layout/IslandNav";
 import { siteSections } from "../components/Layout/siteSections";
 import MemberProfileView from "../components/UserProfile/MemberProfileView";
 import { HiOutlineArrowLeft } from "react-icons/hi";
+import usePageMeta from "../hooks/usePageMeta";
 
 const AdminUserProfileView = () => {
+  usePageMeta("adminUserProfile");
     const location = useLocation();
     const navigate = useNavigate();
 

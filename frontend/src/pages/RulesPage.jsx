@@ -5,6 +5,7 @@ import PageHero from "../components/Layout/PageHero";
 import Reveal from "../components/ui/Reveal";
 import { useAuth } from "../contexts/useAuth";
 import { card, muted, primaryButton } from "../components/ui/uiStyles";
+import usePageMeta from "../hooks/usePageMeta";
 
 const MEMBER_ROLES = ["ACM_MEMBER", "ACM_CLUB_BOARD", "ACM_COMMITTEE_BOARD", "ACM_HIGH_BOARD", "SUPER_ADMIN"];
 
@@ -63,6 +64,7 @@ const IconBox = ({ icon }) => {
 
 // The chapter's code of conduct for everyone, plus the internal policies that members see once signed in.
 const RulesPage = () => {
+  usePageMeta("rules");
   const { isAuthenticated, user } = useAuth();
   const isMember = isAuthenticated && MEMBER_ROLES.includes(user?.role);
 
