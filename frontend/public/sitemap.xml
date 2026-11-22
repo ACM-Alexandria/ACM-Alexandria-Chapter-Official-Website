@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The public pages of the site. Radio seasons are found through the links on /radio. -->
+<!-- The fixed public pages. Event, program and radio season pages are found through the links on these pages. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://alex.hosting.acm.org/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://alex.hosting.acm.org/events</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>

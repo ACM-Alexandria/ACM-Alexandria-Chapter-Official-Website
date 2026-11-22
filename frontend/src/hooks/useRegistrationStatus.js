@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/useAuth";
 
 // Whether the signed-in user is registered for an event, club, program or form, rechecked whenever the panel
-// opens or the registration dialog closes, plus cancelling that registration.
+// opens or the registration dialog closes, plus cancelling that registration. `checked` is true once the answer for
+// this item has come back.
 const useRegistrationStatus = ({ open, id, check, cancel, paused = false, failMessage = "We couldn't cancel your registration. Please try again." }) => {
   const { isAuthenticated, user } = useAuth();
   const [registered, setRegistered] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [checkedId, setCheckedId] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
 
@@ -21,7 +23,7 @@ const useRegistrationStatus = ({ open, id, check, cancel, paused = false, failMe
     check(id, user.id)
       .then((value) => { if (active) setRegistered(Boolean(value)); })
       .catch((err) => console.error("Error checking registration:", err))
-      .finally(() => { if (active) setChecking(false); });
+      .finally(() => { if (active) { setChecking(false); setCheckedId(id); } });
     return () => { active = false; };
   }, [open, id, isAuthenticated, user?.id, paused, check]);
 
@@ -41,7 +43,7 @@ const useRegistrationStatus = ({ open, id, check, cancel, paused = false, failMe
     }
   };
 
-  return { registered, checking, cancelling, cancelError, setCancelError, cancelRegistration };
+  return { registered, checking, checked: !checking && checkedId === id, cancelling, cancelError, setCancelError, cancelRegistration };
 };
 
 export default useRegistrationStatus;

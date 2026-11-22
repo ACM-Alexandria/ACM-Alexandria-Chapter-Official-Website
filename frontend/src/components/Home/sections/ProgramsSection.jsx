@@ -1,9 +1,11 @@
 import { useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import { FiArrowUpRight, FiBookOpen, FiClock } from "react-icons/fi";
 import SectionIntro from "./SectionIntro";
 import { useScrollFrame, clamp01, prefersReducedMotion } from "../../../hooks/useScrollFrame";
 import { card, cardTitle, muted, panelRadius, sectionY, skeleton } from "../../ui/uiStyles";
 import { eventDate, summary } from "../../../utils/format";
+import { programPath } from "../../../utils/slug";
 
 const SHOWN = 4;
 // Each card sticks this much lower than the one before it, so the stack shows a sliver of every card.
@@ -19,7 +21,7 @@ const dateRange = (start, end) => {
 
 // Programs as a deck of cards: each one sticks near the top while the next slides up over it, and the card
 // underneath shrinks and dims as it is covered. A card opens the program's details.
-const ProgramsSection = ({ loading, programs, count, onShowProgram }) => {
+const ProgramsSection = ({ loading, programs, count }) => {
   const stackRef = useRef(null);
   // --cover goes 0→1 on a card while the next card slides over it.
   const onFrame = useCallback(() => {
@@ -56,9 +58,8 @@ const ProgramsSection = ({ loading, programs, count, onShowProgram }) => {
                   className="sticky top-[var(--stack-top)] origin-top will-change-transform [--stack-base:6rem] sm:[--stack-base:7rem]"
                   style={{ "--stack-top": `calc(var(--stack-base) + ${i * OFFSET}px)`, "--cover": 0, transform: "scale(calc(1 - var(--cover) * 0.06))" }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => onShowProgram(program.id)}
+                  <Link
+                    to={programPath(program)}
                     className={`group relative grid w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 sm:grid-cols-[0.9fr_1.1fr] ${panelRadius} ${card}`}
                   >
                     <span className="relative block aspect-[2/1] overflow-hidden bg-ocean-67 sm:aspect-auto sm:min-h-[260px] lg:min-h-[300px] dark:bg-ocean-808">
@@ -77,7 +78,7 @@ const ProgramsSection = ({ loading, programs, count, onShowProgram }) => {
                       <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold sm:pt-6 text-ocean-573 dark:text-ocean-316">View details <FiArrowUpRight className="h-4 w-4" aria-hidden="true" /></span>
                     </span>
                     <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-ocean-794" style={{ opacity: "calc(var(--cover) * 0.25)" }} />
-                  </button>
+                  </Link>
                 </div>
               );
             })}

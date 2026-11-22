@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import SectionIntro from "./SectionIntro";
 import Reveal from "../../ui/Reveal";
@@ -6,12 +7,13 @@ import EventRating from "../../ui/EventRating";
 import { useScrollFrame, clamp01, prefersReducedMotion } from "../../../hooks/useScrollFrame";
 import { card, muted, sectionY, skeleton } from "../../ui/uiStyles";
 import { eventDate, summary } from "../../../utils/format";
+import { eventPath } from "../../../utils/slug";
 
 const SHOWN = 5;
 
 // The latest events on a date rail: big dates down the side, a line that the beam fills as you scroll past, and a
 // card per event. Each dot lights up as the beam reaches it. A card opens the event's details.
-const EventsSection = ({ loading, events, count, onShowEvent }) => {
+const EventsSection = ({ loading, events, count }) => {
   const railRef = useRef(null);
   const [now] = useState(() => Date.now());
   // 0 when the rail's top is at 60% of the screen height, 1 once its bottom gets there.
@@ -58,9 +60,8 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
                   <span aria-hidden="true" className="relative mx-auto h-3 w-3 rounded-full bg-ocean-106 dark:bg-white/15">
                     <span className="absolute inset-0 rounded-full bg-ocean-461 ring-4 ring-ocean-461/20" style={{ opacity: `clamp(0, calc((var(--rail) - ${(at * 0.92).toFixed(3)}) * 25), 1)` }} />
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => onShowEvent(event.id)}
+                  <Link
+                    to={eventPath(event)}
                     className={`group flex h-28 w-full items-center gap-3 rounded-3xl p-3 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-461 sm:h-32 sm:gap-4 sm:p-4 ${card}`}
                   >
                     <span className="h-full w-20 shrink-0 overflow-hidden rounded-2xl bg-ocean-67 sm:w-36 dark:bg-ocean-808">
@@ -76,7 +77,7 @@ const EventsSection = ({ loading, events, count, onShowEvent }) => {
                         {event.location && <span className={`flex min-w-0 items-center gap-1 font-medium ${muted}`}><FiMapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span className="truncate">Room {event.location}</span></span>}
                       </span>
                     </span>
-                  </button>
+                  </Link>
                 </Reveal>
               );
             })}

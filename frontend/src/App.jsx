@@ -16,6 +16,8 @@ import RulesPage from "./pages/RulesPage";
 import BoardsPage from "./pages/BoardsPage";
 import FAQPage from "./pages/FAQPage";
 import BadgePage from "./pages/BadgePage";
+import EventPage from "./pages/EventPage";
+import ProgramPage from "./pages/ProgramPage";
 
 // Member and admin pages load on first visit, so the public pages (what search engines and new visitors open)
 // don't download the dashboards and the rich-text editor.
@@ -37,7 +39,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/:slug" element={<EventPage />} />
         <Route path="/programs" element={<ProgramsPage />} />
+        <Route path="/programs/:slug" element={<ProgramPage />} />
         <Route path="/radio" element={<RadioPage />} />
         <Route path="/radio/seasons/:id" element={<SeasonDetailPage />} />
         <Route path="/rules" element={<RulesPage />} />

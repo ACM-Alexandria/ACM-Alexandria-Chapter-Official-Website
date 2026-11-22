@@ -1,27 +1,26 @@
-import { useCallback, useState } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { FiAlertCircle, FiCalendar } from "react-icons/fi";
 import SiteLayout from "../components/Layout/SiteLayout";
 import PageHero from "../components/Layout/PageHero";
 import MediaCard, { StateTag } from "../components/ui/MediaCard";
 import Pagination from "../components/ui/Pagination";
 import EmptyState from "../components/ui/EmptyState";
-import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
 import { fetchEvents } from "../services/homePageService";
 import usePagedList from "../hooks/usePagedList";
-import useOpenFromQuery from "../hooks/useOpenFromQuery";
 import EventRating from "../components/ui/EventRating";
 import { eventDate, isEventPast, summary } from "../utils/format";
 import { skeleton } from "../components/ui/uiStyles";
+import { eventPath } from "../utils/slug";
 import usePageMeta from "../hooks/usePageMeta";
 
-// Every chapter event, newest first, twelve to a page. A card opens the event's details and registration.
+// Every chapter event, newest first, twelve to a page. A card links to the event's own page.
 const EventsPage = () => {
   usePageMeta("events");
   const list = usePagedList(fetchEvents, "We couldn't load the events. Please try again later.");
-  const [eventId, setEventId] = useState(null);
-  const [open, setOpen] = useState(false);
-  const show = useCallback((id) => { setEventId(id); setOpen(true); }, []);
-  useOpenFromQuery("openEventId", show);
+  const [params] = useSearchParams();
+  // Links from before events had their own pages (/events?openEventId=12) go to the event's page.
+  const legacyId = params.get("openEventId");
+  if (legacyId) return <Navigate to={`/events/${legacyId}`} replace />;
 
   return (
     <SiteLayout>
@@ -50,7 +49,7 @@ const EventsPage = () => {
                     text={summary(event.description, 120)}
                     tag={past ? <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">Ended</span> : <StateTag open={event.registrationOpen} openLabel="Registration open" closedLabel="Registration closed" />}
                     footer={past && <EventRating eventId={event.id} past />}
-                    onClick={() => show(event.id)}
+                    to={eventPath(event)}
                   />
                 );
               })}
@@ -59,7 +58,6 @@ const EventsPage = () => {
           </>
         )}
       </div>
-      <EventDetailsSidebar eventId={eventId} isOpen={open} onClose={() => setOpen(false)} />
     </SiteLayout>
   );
 };

@@ -1,16 +1,15 @@
-import { useCallback, useState } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { FiAlertCircle, FiBookOpen } from "react-icons/fi";
 import SiteLayout from "../components/Layout/SiteLayout";
 import PageHero from "../components/Layout/PageHero";
 import MediaCard, { StateTag } from "../components/ui/MediaCard";
 import Pagination from "../components/ui/Pagination";
 import EmptyState from "../components/ui/EmptyState";
-import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
 import { fetchPrograms } from "../services/homePageService";
 import usePagedList from "../hooks/usePagedList";
-import useOpenFromQuery from "../hooks/useOpenFromQuery";
 import { eventDate, summary } from "../utils/format";
 import { skeleton } from "../components/ui/uiStyles";
+import { programPath } from "../utils/slug";
 import usePageMeta from "../hooks/usePageMeta";
 
 const span = (program) => {
@@ -20,14 +19,14 @@ const span = (program) => {
   return end ? `${start.day} ${start.month} to ${end.day} ${end.month}` : `Starts ${start.day} ${start.month}`;
 };
 
-// The chapter's training programs. A card opens the program's details and registration.
+// The chapter's training programs. A card links to the program's own page.
 const ProgramsPage = () => {
   usePageMeta("programs");
   const list = usePagedList(fetchPrograms, "We couldn't load the programs. Please try again later.");
-  const [programId, setProgramId] = useState(null);
-  const [open, setOpen] = useState(false);
-  const show = useCallback((id) => { setProgramId(id); setOpen(true); }, []);
-  useOpenFromQuery("openProgramId", show);
+  const [params] = useSearchParams();
+  // Links from before programs had their own pages (/programs?openProgramId=7) go to the program's page.
+  const legacyId = params.get("openProgramId");
+  if (legacyId) return <Navigate to={`/programs/${legacyId}`} replace />;
 
   return (
     <SiteLayout>
@@ -53,7 +52,7 @@ const ProgramsPage = () => {
                   title={program.name}
                   text={summary(program.description, 120)}
                   tag={<StateTag open={program.registrationOpen} openLabel="Registration open" closedLabel="Registration closed" />}
-                  onClick={() => show(program.id)}
+                  to={programPath(program)}
                 />
               ))}
             </div>
@@ -61,7 +60,6 @@ const ProgramsPage = () => {
           </>
         )}
       </div>
-      <ProgramDetailsSidebar programId={programId} isOpen={open} onClose={() => setOpen(false)} />
     </SiteLayout>
   );
 };

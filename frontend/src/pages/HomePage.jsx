@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { FiClock } from "react-icons/fi";
 import { useAuth } from "../contexts/useAuth";
 import { fetchActiveExclusiveForms, fetchPartners } from "../services/homePageService";
@@ -14,9 +14,7 @@ import EventsSection from "../components/Home/sections/EventsSection";
 import ProgramsSection from "../components/Home/sections/ProgramsSection";
 import RadioSection from "../components/Home/sections/RadioSection";
 import PartnersSection from "../components/Home/sections/PartnersSection";
-import EventDetailsSidebar from "../components/details/EventDetailsSidebar";
 import ClubDetailsSidebar from "../components/details/ClubDetailsSidebar";
-import ProgramDetailsSidebar from "../components/details/ProgramDetailsSidebar";
 import ExclusiveFormDetailsSidebar from "../components/details/ExclusiveFormDetailsSidebar";
 import RegistrationModal from "../components/registration/RegistrationModal";
 import { emptyHomeData, fetchHomeData } from "../components/Home/homeData";
@@ -37,18 +35,14 @@ const HomePage = () => {
   const [formsLoading, setFormsLoading] = useState(true);
   const [partners, setPartners] = useState([]);
   const [partnersLoading, setPartnersLoading] = useState(true);
-  const [eventId, setEventId] = useState(null);
   const [clubId, setClubId] = useState(null);
-  const [programId, setProgramId] = useState(null);
   const [formId, setFormId] = useState(null);
   const [committeeId, setCommitteeId] = useState(null);
   const [panel, setPanel] = useState(null);
   const [showFormsButton, setShowFormsButton] = useState(true);
   useSmoothScroll(-88, !loading);
 
-  const openEvent = (id) => { setEventId(id); setPanel("event"); };
   const openClub = (id) => { setClubId(id); setPanel("club"); };
-  const openProgram = (id) => { setProgramId(id); setPanel("program"); };
   const openForm = (id) => { setFormId(id); setPanel("form"); };
   const openApplication = (id) => { setCommitteeId(id); setPanel("apply"); };
   const closePanel = () => setPanel(null);
@@ -86,9 +80,7 @@ const HomePage = () => {
   // Reopens the sidebar or application a visitor was on before a login redirect, then clears the parameter.
   useEffect(() => {
     const targets = [
-      ["openEventId", (id) => { setEventId(id); setPanel("event"); }],
       ["openClubId", (id) => { setClubId(id); setPanel("club"); }],
-      ["openProgramId", (id) => { setProgramId(id); setPanel("program"); }],
       ["openCommitteeId", (id) => { setCommitteeId(id); setPanel("apply"); }],
       ["openExclusiveFormId", (id) => { setFormId(id); setPanel("form"); }],
     ];
@@ -119,6 +111,12 @@ const HomePage = () => {
     has("radio") && ["#radio", "Radio"],
   ].filter(Boolean);
 
+  // Links from before events and programs had their own pages (/?openEventId=12) go to that page.
+  const legacyEvent = searchParams.get("openEventId");
+  const legacyProgram = searchParams.get("openProgramId");
+  if (legacyEvent) return <Navigate to={`/events/${legacyEvent}`} replace />;
+  if (legacyProgram) return <Navigate to={`/programs/${legacyProgram}`} replace />;
+
   return (
     <div className="hp admin-ui min-h-screen bg-ocean-31 text-slate-800 dark:bg-ocean-911 dark:text-slate-100">
       <IslandNav links={links} />
@@ -142,9 +140,9 @@ const HomePage = () => {
 
         <ExclusiveFormsSection loading={formsLoading} forms={forms} onShowDetails={openForm} />
 
-        {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} onShowEvent={openEvent} />}
+        {has("events") && <EventsSection loading={loading} events={data.events} count={data.counts.events} />}
 
-        {has("programs") && <ProgramsSection loading={loading} programs={data.programs} count={data.counts.programs} onShowProgram={openProgram} />}
+        {has("programs") && <ProgramsSection loading={loading} programs={data.programs} count={data.counts.programs} />}
 
         {has("radio") && <RadioSection loading={loading} seasons={data.radio} count={data.counts.radio} />}
 
@@ -153,9 +151,7 @@ const HomePage = () => {
 
       <SiteFooter social={data.social} links={links} showPartners={partners.length > 0} />
 
-      <EventDetailsSidebar eventId={eventId} isOpen={panel === "event"} onClose={closePanel} />
       <ClubDetailsSidebar clubId={clubId} isOpen={panel === "club"} onClose={closePanel} />
-      <ProgramDetailsSidebar programId={programId} isOpen={panel === "program"} onClose={closePanel} />
       <ExclusiveFormDetailsSidebar formId={formId} isOpen={panel === "form"} onClose={closePanel} />
       <RegistrationModal
         isOpen={panel === "apply"}

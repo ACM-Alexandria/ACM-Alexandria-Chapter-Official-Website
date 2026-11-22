@@ -9,6 +9,16 @@ export const defaultImage = `${siteUrl}/video/welcome-poster.jpg`;
 export const defaultDescription =
   "The ACM student chapter at Alexandria University, where students learn, build and grow together through committees, clubs, workshops, competitions and training programs.";
 
+// The chapter in an event's or a program's structured data (index.html describes it in full under this @id).
+export const organizationRef = { "@type": "Organization", "@id": `${siteUrl}/#organization`, name: siteName, url: `${siteUrl}/` };
+
+// The place in structured data when an event or program names none. The address is only the city, since events
+// also happen at outside venues.
+export const venue = {
+  name: "Faculty of Engineering, Alexandria University",
+  address: { "@type": "PostalAddress", addressLocality: "Alexandria", addressCountry: "EG" },
+};
+
 // Pages for members, admins and one-off links (sign in, password reset, email confirmation) are kept out of
 // search results with `noindex`.
 export const pageMeta = {
