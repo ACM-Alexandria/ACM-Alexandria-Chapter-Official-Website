@@ -1,0 +1,106 @@
+name: ACM Website CD
+
+on:
+  workflow_run:
+    workflows: ["ACM Website CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  actions: read
+  contents: read
+
+
+jobs:
+  deploy:
+    name: Deploy to cPanel
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Backend JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: jar-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # STOP THE SERVER AND CLEAN FILES
+      - name: Stop Server & Clean Old Files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          script: |
+            echo "Stopping ACM Website server..."
+            pkill -f [a]cmwebsite || true # "|| true" prevents the pipeline from failing if the server is already offline
+            
+            echo "Removing old backend JAR..."
+            rm -f /home/alexhosting/ACM_Alexandria_website/backend/*.jar
+            
+            echo "Removing old frontend index.html and assets..."
+            rm -rf /home/alexhosting/public_html/assets
+            rm -f /home/alexhosting/public_html/index.html
+            echo "Cleanup complete."
+
+      - name: Upload New Backend JAR
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          source: "jar-artifact/*.jar"
+          target: "/home/alexhosting/ACM_Alexandria_website/backend"
+          strip_components: 1
+
+      - name: Upload New Frontend Build
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          source: "dist-artifact/index.html,dist-artifact/assets"
+          target: "/home/alexhosting/public_html"
+          strip_components: 1
+
+      # START THE SERVER AFTER EVERYTHING IS UPLOADED
+      - name: Start ACM Website Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          script: |
+            echo "Starting ACM Website server..."
+            cd /home/alexhosting/ACM_Alexandria_website/backend
+            
+            # Using *.jar ensures it works even if you change the version number in Maven later
+              nohup java \
+              -Xss256k \
+              -XX:ParallelGCThreads=4 \
+              -XX:ConcGCThreads=2 \
+              -jar *.jar \
+              --spring.config.location=file:./application-prod.properties \
+              > app.log 2>&1 &
+              
+            echo "Server started successfully."
